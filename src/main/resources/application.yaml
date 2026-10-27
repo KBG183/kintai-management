@@ -6,16 +6,15 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/kintai_db?useSSL=false&serverTimezone=Asia/Tokyo&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
     username: root
-    password: 1234  # <-- 여기만 수정하세요!
-
-  jpa:
-    hibernate:
-      # 이미 1단계에서 직접 테이블을 만들었으므로 엔티티와 DB가 일치하는지 검증만 수행
-      ddl-auto: validate
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
+    password: 1234  # 환경에 맞게 수정하세요.
 
   thymeleaf:
     cache: false # 개발 중 HTML 수정 시 바로 반영되도록 설정
+
+# MyBatis 4.x 연동 설정
+mybatis:
+  mapper-locations: classpath:mapper/**/*.xml
+  type-aliases-package: com.example.kintai.domain
+  configuration:
+    map-underscore-to-camel-case: true # DB 컬럼 snake_case -> Java camelCase 자동 매핑
+    default-fetch-size: 100
