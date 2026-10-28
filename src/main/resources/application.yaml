@@ -18,3 +18,9 @@ mybatis:
   configuration:
     map-underscore-to-camel-case: true # DB 컬럼 snake_case -> Java camelCase 자동 매핑
     default-fetch-size: 100
+
+# 일본 노무·세법 법정 기준값 설정 (2026년 10월 개정 기준, 하드코딩 방지)
+kintai:
+  legal:
+    min-hourly-wage: 1280        # 도쿄도 최저시급 (2026년 10월 개정 기준)
+    tax-barrier-default: 1230000 # 연수입의 벽 기본 부양공제 기준 (123만 엔, 구 103만 엔)
