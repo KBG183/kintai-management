@@ -12,12 +12,12 @@
 ### 0.1 왜 이 시스템을 개발하는가? (배경 및 문제 정의)
 일본의 외식(이자카야, 카페, 패밀리 레스토랑)·유통(편의점, 드럭스토어) 아르바이트 시장은 전 세계에서 가장 독특하고 까다로운 노무 환경을 가지고 있습니다.
 
-1. **다점포 겸업(掛け持ち)의 일상화 (38.5%)**: 알바생 1명이 낮에는 카페(시급 1,163엔), 밤에는 이자카야(시급 1,300엔) 등 여러 매장에서 각기 다른 시급과 교통비 조건으로 일합니다.
+1. **다점포 겸업(掛け持ち)의 일상화 (38.5%)**: 알바생 1명이 낮에는 카페(시급 1,300엔), 밤에는 이자카야(시급 1,450엔) 등 여러 매장에서 각기 다른 시급과 교통비 조건으로 일합니다. *(※ 2026년 10월 기준 도쿄도 최저임금 1,280엔 반영)*
 2. **메신저(LINE)와 수기 엑셀에 의존하는 시프트 조율 (82.4%)**: 알바생이 LINE 메시지로 희망 근무 시간을 보내면 점주가 이를 수기로 엑셀에 옮기며 매월 평균 **7.5일**을 허비하고, 오타나 누락으로 인해 금/토요일 피크타임에 인원 펑크(결원)가 발생합니다.
 3. **종이 타임카드의 부정 타각(27.1%)과 사후 조작 분쟁**: 대리 출근이 빈번하고, 퇴근 타각을 깜빡했을 때(월평균 18.6건) 점주가 구두로 듣고 임의로 시간을 고쳐 적어 사후 임금 체불 분쟁의 원인이 됩니다.
 4. **일본 노동기준법 복합 할증(150%) 수기 계산 오류 (63.8%)**: 일본 노동기준법 제37조에 따라 **야간 근로(22:00~익일 05:00, +25%)**와 **연장 근로(1일 8시간 초과, +25%)**가 겹치는 심야 잔업 구간은 **150%**를 지급해야 하며, 50전 단수 처리 규정과 월 교통비 비과세 상한선(통상 월 15,000엔)까지 얽혀 있어 엑셀 수식 오류가 끊이지 않습니다.
 
-> **💡 핵심 진단**: *"근로 계약(마스터) $\rightarrow$ 시프트 계획 $\rightarrow$ 출퇴근 타각(실행) $\rightarrow$ 법정 급여 정산"*의 4대 도메인이 서로 단절되어 있기 때문에 발생하는 문제입니다. 본 프로젝트는 이 4단계 파이프라인을 **단일 데이터베이스와 무결성 정산 엔진으로 일원화**하여 해결합니다.
+> **💡 핵심 진단**: *"근로 계약(마스터) → 시프트 계획 → 출퇴근 타각(실행) → 법정 급여 정산"*의 4대 도메인이 서로 단절되어 있기 때문에 발생하는 문제입니다. 본 프로젝트는 이 4단계 파이프라인을 **단일 데이터베이스와 무결성 정산 엔진으로 일원화**하여 해결합니다.
 
 ---
 
@@ -54,7 +54,7 @@
 * **팀원 A (인증·마스터 전담)**: 제3장(회원가입, Spring Security 인가, 다점포 계약 관리, 점포 QR/초대코드 관리)
 * **팀원 B (시프트·캘린더 전담)**: 제4장(FullCalendar 6.x 희망/확정 대조 뷰, 드래그앤드롭 조율, 피크타임 결원 경고)
 * **팀원 C (근태·급여 코어 전담)**: 제5장(실시간 타각, 수정 요청 승인 워크플로우) + 제6장(150% 할증 급여 엔진, POI 엑셀)
-* **팀원 D (외부연동·경영분석 BI 전담)**: **제7장(LINE 봇 연동)** + **제8장(점주용 인건비 시뮬레이터 & 일본 세법 '103만엔/130만엔의 벽' 대시보드)**
+* **팀원 D (외부연동·경영분석 BI 전담)**: **제7장(LINE 봇 연동)** + **제8장(점주용 인건비 시뮬레이터 & 일본 개정 세법 '연수입의 벽(年収の壁: 123만/130만/150만/160만 엔)' 대시보드)**
 
 ---
 
@@ -87,7 +87,7 @@ com.example.kintai
     ├── attendance                         # [제5장] 출퇴근 타각 및 수정요청 도메인
     ├── payroll                            # [제6장] 월별 급여 정산 및 POI 엑셀 도메인
     ├── notification                       # [제7장 - 3~4인 확장] LINE 봇 및 실시간 알림 도메인
-    └── analytics                          # [제8장 - 4인 확장] 경영 분석 및 103만엔 세법 도메인
+    └── analytics                          # [제8장 - 4인 확장] 경영 분석 및 연수입의 벽(年収の壁) 세법 도메인
 ```
 
 * **리소스 디렉토리 구조**:
@@ -101,39 +101,41 @@ com.example.kintai
 
 | 메뉴명 | HTTP Method & URL | 반환할 View 경로 (`return "..."`) | 담당 | 화면 핵심 역할 |
 | :--- | :--- | :--- | :---: | :--- |
-| **홈 / 샘플** | `GET /` $\rightarrow$ `/members/sample` | `"member/sample"` | 공통 | 초기 연동 확인 및 테스트용 계정/매장 전환 화면 |
+| **홈 / 샘플** | `GET /` → `/members/sample` | `"member/sample"` | 공통 | 초기 연동 확인 및 테스트용 계정/매장 전환 화면 |
 | **로그인 / 가입** | `GET /login`, `GET /join` | `"member/login"`, `"member/join"` | A | 로그인 폼 및 점주/알바생 회원가입 화면 |
 | **점포 관리** | `GET /stores` | `"store/manage"` | A | 점포 개설, 초대코드/QR토큰 확인, 소속 알바생 시급/교통비 계약 관리 |
 | **시프트 계획** | `GET /shifts` | `"shift/calendar"` | A | FullCalendar 기반 알바생 희망 시프트 제출 및 점주 확정 조율 화면 |
 | **출퇴근 타각** | `GET /attendance` | `"attendance/punch"` | B | 실시간 디지털 시계, 1클릭 출근/휴게/퇴근 타각, 월간 타임카드 및 수정 신청 모달 |
 | **근태 승인관리** | `GET /attendance/mod-requests` | `"attendance/mod-list"` | B | 점주용 근태 수정 요청(`PENDING`) 목록 조회 및 승인/반려 처리 화면 |
 | **급여 정산** | `GET /payroll` | `"payroll/list"` | B | 귀속연월 선택, 150% 할증 급여 일괄 계산 실행, 명세서 상세 모달, 엑셀 다운로드 |
-| **경영 분석(확장)** | `GET /analytics` | `"analytics/dashboard"` | D | 인건비 통계 차트 및 알바생별 103만 엔 소득의 벽 프로그레스 대시보드 |
+| **경영 분석(확장)** | `GET /analytics` | `"analytics/dashboard"` | D | 인건비 통계 차트 및 알바생별 연수입의 벽(年収の壁) 프로그레스 대시보드 |
 
-### 1.2.1 Spring Security 권한별 메뉴 분기 (Thymeleaf `sec:authorize`) 규칙
-점주와 알바생의 보안 인가 분리를 위해 상단 네비게이션 바(`layout.html`)는 아래 규칙에 따라 동적으로 메뉴를 제어합니다:
-* **점주 권한 (`ROLE_OWNER`) 전용 메뉴**:
-  * `<li sec:authorize="hasRole('ROLE_OWNER')"><a href="/stores">店舗管理</a></li>`
-  * `<li sec:authorize="hasRole('ROLE_OWNER')"><a href="/attendance/mod-requests">勤怠承認</a></li>`
-  * `<li sec:authorize="hasRole('ROLE_OWNER')"><a href="/payroll">給与計算</a></li>`
-  * `<li sec:authorize="hasRole('ROLE_OWNER')"><a href="/analytics">経営分析</a></li>`
-* **알바생 권한 (`ROLE_STAFF`) 전용 메뉴**:
-  * `<li sec:authorize="hasRole('ROLE_STAFF')"><a href="/shifts">希望シフト提出</a></li>`
-  * `<li sec:authorize="hasRole('ROLE_STAFF')"><a href="/attendance">勤怠打刻</a></li>`
+### 1.2.1 Spring Security 권한별 메뉴 분기 (Thymeleaf `sec:authorize`) 및 레이아웃 상속 규칙
+점주와 알바생의 보안 인가 분리를 위해 상단 네비게이션 바(`layout.html`)는 아래 규칙에 따라 동적으로 메뉴를 제어합니다. *(※ 주의: `/shifts` 시프트 캘린더는 알바생의 '희망 시프트 제출'과 점주의 '시프트 조율·확정'이 모두 이루어지는 핵심 화면이므로 양쪽 권한 모두 접근 가능해야 합니다. 또한 Spring Security의 `hasRole('OWNER')`는 내부적으로 `ROLE_` 접두사를 자동 부착합니다.)*
+* **점주 권한 (`ROLE_OWNER`) 메뉴**:
+  * `<li sec:authorize="!isAuthenticated() or hasRole('OWNER')"><a href="/stores">店舗管理</a></li>`
+  * `<li sec:authorize="!isAuthenticated() or hasAnyRole('OWNER', 'STAFF')"><a href="/shifts">シフト管理</a></li>`
+  * `<li sec:authorize="!isAuthenticated() or hasRole('OWNER')"><a href="/attendance/mod-requests">勤怠承認</a></li>`
+  * `<li sec:authorize="!isAuthenticated() or hasRole('OWNER')"><a href="/payroll">給与計算</a></li>`
+  * `<li sec:authorize="!isAuthenticated() or hasRole('OWNER')"><a href="/analytics">経営分析</a></li>`
+* **알바생 권한 (`ROLE_STAFF`) 메뉴**:
+  * `<li sec:authorize="!isAuthenticated() or hasAnyRole('OWNER', 'STAFF')"><a href="/shifts">シフト管理</a></li>`
+  * `<li sec:authorize="!isAuthenticated() or hasAnyRole('OWNER', 'STAFF')"><a href="/attendance">勤怠打刻</a></li>`
 * **공통 메뉴**:
-  * 로그인/로그아웃, 점포 선택 드롭다운, 현재 상태 표시
+  * 로그인/로그아웃, 점포 선택 드롭다운, 현재 사용자 상태 표시
 
-* **Thymeleaf 레이아웃 상속 문법 (모든 HTML 파일 상단 고정)**:
+* **Thymeleaf 레이아웃 상속 문법 (모든 HTML 파일 상단 고정 - 파라미터 프래그먼트 방식)**:
+  [`common/layout.html`](file:///c:/Users/klad3/OneDrive/바탕 화면/IT/프로젝트/팀플(스프링부트) 2026.10.26~2026/kintai/src/main/resources/templates/common/layout.html)은 `<html lang="ja" th:fragment="layout(title, content)">`로 선언되어 있으므로, 하위 화면에서는 반드시 `~{common/layout :: layout(~{::title}, ~{::#content})}` 문법으로 상속받습니다:
   ```html
   <!DOCTYPE html>
-  <html lang="ko" xmlns:th="http://www.thymeleaf.org"
-        th:replace="~{common/layout :: html}">
+  <html lang="ja" xmlns:th="http://www.thymeleaf.org"
+        th:replace="~{common/layout :: layout(~{::title}, ~{::#content})}">
   <head>
-      <title>화면 제목</title>
+      <title>画面タイトル</title>
   </head>
   <body>
-  <div th:fragment="content">
-      <!-- 여기에 각 도메인 본문 HTML 및 <script> 작성 -->
+  <div id="content">
+      <!-- 여기에 각 도메인 본문 HTML(일본어 UI) 및 페이지 전용 <script> 작성 -->
   </div>
   </body>
   </html>
@@ -141,10 +143,13 @@ com.example.kintai
 
 ---
 
-### 1.3 다점포(`storeId`, `storeStaffId`) 컨텍스트 처리 규칙 (매우 중요)
+### 1.3 다점포(`storeId`, `storeStaffId`) 컨텍스트 처리 및 보안 인가 규칙 (매우 중요)
 이 시스템은 1명의 회원이 여러 매장에 소속될 수 있습니다. 개발 초기에는 Spring Security 로그인 없이도 팀원 A와 B가 독립적으로 개발·테스트할 수 있도록 **쿼리 파라미터 + 세션 폴백(Fallback) 규칙**을 사용합니다.
 
-* **규칙**: 모든 화면 컨트롤러나 조회 API에서 `storeId`, `storeStaffId`, `memberId`가 필요할 때, 요청 파라미터로 넘어오지 않으면 **`data.sql`에 등록된 기본 테스트 데이터(`storeId = 1`, `owner memberId = 1`, `staff memberId = 2`, `storeStaffId = 1`)를 기본값(`defaultValue = "1"`)으로 사용**합니다.
+* **초기 개발 단계 폴백(Fallback) 규칙**: 모든 화면 컨트롤러나 조회 API에서 `storeId`, `storeStaffId`, `memberId`가 필요할 때, 세션이나 요청 파라미터로 넘어오지 않으면 **`data.sql`에 등록된 기본 테스트 데이터(`storeId = 1`, `owner memberId = 1`, `staff memberId = 2`, `storeStaffId = 1`)를 기본값(`defaultValue = "1"`)으로 사용**합니다.
+* **운영/통합 단계 보안 인가 주의사항**:
+  * 본 명세서의 REST API 예시 JSON에 포함된 `ownerId`, `memberId`, `reviewerId`, `storeStaffId` 필드는 로그인 연동 전 단독 API 테스트를 위한 폴백 파라미터입니다.
+  * 로그인(`HttpSession`의 `LOGIN_MEMBER` 또는 `@AuthenticationPrincipal`) 연동이 완료된 후에는 타인의 ID를 사칭(IDOR 취약점)할 수 없도록 **반드시 서버 세션/시큐리티 컨텍스트에서 로그인한 회원의 `memberId`와 소속 `storeId` 권한을 검증하여 우선 적용**해야 합니다.
 * 예시 코드:
   ```java
   @GetMapping("/shifts")
@@ -249,7 +254,7 @@ CREATE TABLE IF NOT EXISTS store_staff (
     store_staff_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '점포 직원 매핑 PK',
     store_id BIGINT NOT NULL COMMENT '점포 FK',
     member_id BIGINT NOT NULL COMMENT '직원 회원 FK',
-    hourly_wage INT NOT NULL COMMENT '기본 시급(엔/원, 예: 1163)',
+    hourly_wage INT NOT NULL COMMENT '기본 시급(엔/원, 예: 1300 - 도쿄 최저임금 1280 이상)',
     daily_transport_fee INT NOT NULL DEFAULT 0 COMMENT '1일 왕복 교통비(예: 500)',
     monthly_transport_limit INT NOT NULL DEFAULT 15000 COMMENT '월 교통비 상한액(예: 15000)',
     employment_status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' COMMENT '재직상태 (PENDING, ACTIVE, RESIGNED)',
@@ -314,7 +319,9 @@ CREATE TABLE IF NOT EXISTS attendance (
 CREATE TABLE IF NOT EXISTS attendance_mod_request (
     mod_request_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '근태 수정 요청 PK',
     attendance_id BIGINT NULL COMMENT '대상 근태 FK (타각 완전 누락 사후 생성 시 NULL 허용)',
+    store_id BIGINT NOT NULL COMMENT '점포 FK (사후 신규 생성 시 필수)',
     store_staff_id BIGINT NOT NULL COMMENT '요청 직원 FK',
+    work_date DATE NOT NULL COMMENT '근무 기준일 (사후 신규 생성 시 필수)',
     before_clock_in_at DATETIME NULL COMMENT '수정 전 출근 일시 (사후 신규 생성 시 NULL 허용)',
     before_clock_out_at DATETIME NULL COMMENT '수정 전 퇴근 일시',
     before_break_minutes INT NOT NULL DEFAULT 0 COMMENT '수정 전 휴게시간(분)',
@@ -328,6 +335,7 @@ CREATE TABLE IF NOT EXISTS attendance_mod_request (
     reviewed_at DATETIME NULL COMMENT '승인/반려 처리 일시',
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_mod_attendance FOREIGN KEY (attendance_id) REFERENCES attendance (attendance_id),
+    CONSTRAINT fk_mod_store FOREIGN KEY (store_id) REFERENCES store (store_id),
     CONSTRAINT fk_mod_staff FOREIGN KEY (store_staff_id) REFERENCES store_staff (store_staff_id),
     CONSTRAINT fk_mod_reviewer FOREIGN KEY (reviewer_id) REFERENCES member (member_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -376,20 +384,20 @@ ALTER TABLE store ADD COLUMN min_peak_staff INT NOT NULL DEFAULT 3 COMMENT '피�
 > **패키지**: `com.example.kintai.domain.member`, `com.example.kintai.domain.store`
 
 ### 3.1 도메인 개론 및 설계 의도
-* **왜 `member`와 `store_staff`를 분리했는가?**: 알바생 1명(`member_id = 2`)이 신주쿠점(`store_id = 1`, 시급 1,163엔)과 시부야점(`store_id = 2`, 시급 1,300엔) 두 곳에서 일할 수 있도록 **회원 인증 정보(`member`)와 근로 계약 조건(`store_staff`)을 제3정규화로 분리**했습니다.
+* **왜 `member`와 `store_staff`를 분리했는가?**: 알바생 1명(`member_id = 2`)이 신주쿠점(`store_id = 1`, 시급 1,300엔)과 시부야점(`store_id = 2`, 시급 1,450엔) 두 곳에서 일할 수 있도록 **회원 인증 정보(`member`)와 근로 계약 조건(`store_staff`)을 제3정규화로 분리**했습니다.
 * **초대 코드(`invite_code`)와 QR 토큰(`qr_token`)**: 점주가 매장을 만들면 8자리 초대 코드(알바생 합류용)와 고유 QR 토큰(매장 현장 타각 검증용)이 자동 발급됩니다.
 
 ### 3.2 화면(View) 라우팅 및 UI 명세
-1. **`GET /login` $\rightarrow$ `templates/member/login.html` & `GET /join` $\rightarrow$ `templates/member/join.html`**
+1. **`GET /login` → `templates/member/login.html` & `GET /join` → `templates/member/join.html`**
    * 이메일/비밀번호 로그인 화면 및 점주(`ROLE_OWNER`) / 알바생(`ROLE_STAFF`) 권한 선택 회원가입 폼.
-2. **`GET /stores` $\rightarrow$ `templates/store/manage.html`**
+2. **`GET /stores` → `templates/store/manage.html`**
    * **Model 바인딩**:
      * `store`: 현재 선택된 점포 상세 정보 (`StoreDto`)
      * `staffList`: 해당 점포에 소속된 알바생 계약 목록 (`List<StoreStaffDetailDto>` - `member.name`, `member.email`, `member.phone` 조인)
    * **주요 UI 구성**:
      * 상단 카드: 매장명, 영업시간(`openTime ~ closeTime`), 급여 마감일, **초대 코드 복사 버튼**, **출퇴근 QR 코드(또는 토큰) 모달 보기 버튼**, **[신규 점포 개설] 모달 버튼**.
      * 하단 테이블: 소속 알바생 목록 (이름, 이메일, 연락처, **기본 시급**, **1일 왕복 교통비**, **월 교통비 상한액**, 재직상태, 입사일, **[계약 조건 수정] 버튼**).
-     * 우측 상단 보조 버튼: **[초대 코드로 매장 합류하기(알바생 테스트용)] 모달 버튼**.
+     * 우측 상단 보조 버튼: **[초대 코드로 매장 합류하기(알바생 합류 신청)] 모달 버튼**.
 
 ### 3.3 REST API 상세 명세
 
@@ -428,37 +436,35 @@ ALTER TABLE store ADD COLUMN min_peak_staff INT NOT NULL DEFAULT 3 COMMENT '피�
 * **서버 처리 로직**:
   1. `inviteCode`: `"ST" + UUID.randomUUID().toString().substring(0, 6).toUpperCase()` 생성.
   2. `qrToken`: `"TOKEN_QR_" + UUID.randomUUID().toString()` 생성.
-  3. `openTime`, `closeTime`을 `LocalTime`으로 변환하여 `store` 테이블에 INSERT.
+  3. `openTime`, `closeTime`을 `LocalTime`으로 변환하여 `store` 테이블에 INSERT (로그인 상태에서는 세션의 `memberId`를 `ownerId`로 우선 사용).
 
 #### ③ 알바생 초대 코드로 매장 합류 (`POST /api/stores/join-staff`)
 * **Request JSON (`StaffJoinRequestDto`)**:
   ```json
   {
     "memberId": 2,
-    "inviteCode": "SHINJUKU01",
-    "hourlyWage": 1163,
-    "dailyTransportFee": 500,
-    "monthlyTransportLimit": 15000
+    "inviteCode": "SHINJUKU01"
   }
   ```
+  *(※ 보안 및 권한 분리: 알바생이 본인 시급을 임의로 조작해 요청할 수 없도록 합류 신청 시에는 `inviteCode`만 전달하며, 초기 시급과 교통비가 생략된 경우 법정 기본 최저시급(`1280`엔) 및 기본 교통비(`0`엔, 월 상한 `15000`엔), 재직상태 `PENDING`(또는 테스트 편의상 `ACTIVE`)으로 등록 후 점주가 ④번 API에서 최종 시급·계약 조건을 확정합니다.)*
 * **서버 처리 로직**:
-  1. `StoreMapper.findByInviteCode(inviteCode)`로 점포 조회 (없으면 `IllegalArgumentException("유효하지 않은 초대 코드입니다.")`).
+  1. `StoreMapper.findByInviteCode(inviteCode)`로 점포 조회 (없으면 `IllegalArgumentException("無効な招待コードです。")`).
   2. `StoreMapper.existsStoreStaff(storeId, memberId)`로 이미 등록된 직원인지 중복 체크.
-  3. `joined_date = LocalDate.now()`, `employment_status = 'ACTIVE'`로 `store_staff` 테이블에 INSERT.
+  3. `joined_date = LocalDate.now()`, 기본 최저시급(`1280`) 및 기본 교통비 조건으로 `store_staff` 테이블에 INSERT.
 
-#### ④ 알바생 시급·교통비 계약 조건 수정 (`PUT /api/stores/staff/{storeStaffId}`)
+#### ④ 알바생 시급·교통비 계약 조건 수정 및 승인 (`PUT /api/stores/staff/{storeStaffId}`)
 * **Request JSON (`StaffContractUpdateDto`)**:
   ```json
   {
-    "hourlyWage": 1250,
+    "hourlyWage": 1350,
     "dailyTransportFee": 600,
     "monthlyTransportLimit": 15000,
     "employmentStatus": "ACTIVE"
   }
   ```
 * **서버 처리 로직**:
-  * 도쿄도 최저임금 검증(`hourlyWage < 1163`일 경우 경고 또는 예외 처리 가능).
-  * `store_staff` 테이블의 `hourly_wage`, `daily_transport_fee`, `monthly_transport_limit`, `employment_status` 업데이트.
+  * 도쿄도 최저임금 검증: **2026년 10월 개정 도쿄도 최저임금(`1,280엔`, `application.yaml` 설정값 분리 권장)** 미만(`hourlyWage < 1280`)일 경우 예외 처리(`IllegalArgumentException("東京都の最低賃金(1,280円)以上に設定してください。")`).
+  * `store_staff` 테이블의 `hourly_wage`, `daily_transport_fee`, `monthly_transport_limit`, `employment_status` 업데이트 (퇴사 `RESIGNED` 처리 시 `resigned_date = LocalDate.now()` 자동 기록).
   * *(주의: 여기서 시급을 올려도 이미 정산된 과거 `payroll` 테이블의 `applied_hourly_wage`는 스냅샷이므로 절대 변하지 않음!)*
 
 ---
@@ -579,14 +585,17 @@ ALTER TABLE store ADD COLUMN min_peak_staff INT NOT NULL DEFAULT 3 COMMENT '피�
     "confirmedEndTime": "23:30",
     "plannedBreakMinutes": null,
     "status": "CONFIRMED",
-    "ownerMemo": "확인 완료"
+    "ownerMemo": "確認完了"
   }
   ```
-* **일본 노동기준법 제34조 기반 휴게시간 자동 계산 공식**:
-  * 만약 점주가 `plannedBreakMinutes`를 비워두거나 기본값으로 넘기면, 총 체류 시간(`totalMinutes = Duration.between(startAt, endAt).toMinutes()`)을 기준으로 자동 부여하거나 미달 시 검증합니다:
-    * 총 구속시간이 **8시간(480분) 초과**: 최소 **60분** 휴게 필수
-    * 총 구속시간이 **6시간(360분) 초과 ~ 8시간 이하**: 최소 **45분** 휴게 필수
-    * 6시간 이하: 0분
+* **일본 노동기준법 제34조 기반 휴게시간 자동 계산 및 검증 공식**:
+  * 일본 노동기준법 제34조는 **"실근무시간(実労働時間 = 총 체류시간 - 휴게시간)이 6시간 초과 시 최소 45분, 8시간 초과 시 최소 60분"**의 휴게 부여를 의무화하고 있습니다.
+  * 따라서 총 체류시간(`grossMinutes = Duration.between(startAt, endAt).toMinutes()`) 기준으로 환산할 때:
+    * `plannedBreakMinutes`가 입력된 경우: `netMinutes = grossMinutes - plannedBreakMinutes`를 구하여, `netMinutes > 480`인데 휴게가 60분 미만이거나 `netMinutes > 360`인데 휴게가 45분 미만이면 법정 휴게 미달 경고를 반환하거나 최소 법정 휴게시간으로 보정합니다.
+    * `plannedBreakMinutes`가 `null`인 경우(자동 산정):
+      * 총 체류시간이 **9시간(540분) 이상** (또는 실근무 8시간 초과 구간): **60분** 자동 부여
+      * 총 체류시간이 **6시간 45분(405분) 이상 ~ 9시간 미만** (또는 6시간 초과 구간): **45분** 자동 부여
+      * 그 외(6시간 이하): **0분**
 
 ---
 
@@ -612,18 +621,18 @@ ALTER TABLE store ADD COLUMN min_peak_staff INT NOT NULL DEFAULT 3 COMMENT '피�
 ```
 
 ### 5.2 화면(View) 라우팅 및 UI 명세
-1. **`GET /attendance` $\rightarrow$ `templates/attendance/punch.html`**
+1. **`GET /attendance` → `templates/attendance/punch.html`**
    * **상단 [실시간 타임카드 타각 패널]**:
      * 현재 시각 실시간 디지털 시계 (`1초 단위 JS 갱신`).
-     * 현재 선택된 직원 및 오늘의 근태 상태 배지 (`미출근` / `근무중` / `휴게중` / `퇴근완료`).
-     * 점포 인증 토큰 입력칸 (기본값으로 현재 점포의 `qr_token`이 미리 채워져 있어 1클릭 테스트가 가능하며, 일부러 틀린 토큰을 넣으면 "매장 현장이 아닙니다(토큰 불일치)" 에러 시연 가능).
-     * **대형 타각 버튼 4개**: `[🟢 출근하기]`, `[☕ 휴게 시작]`, `[🔥 휴게 복귀]`, `[🔴 퇴근하기]` (현재 상태에 따라 누를 수 있는 버튼만 활성화).
-   * **하단 [내 월별 출퇴근 기록표 & 수정 신청]**:
-     * 일자별 출근시각, 퇴근시각, 휴게(분), **실근무(분)**, **야간(분)**, **연장(분)**, 상태, **`[수정 신청]` 버튼**.
-     * `[수정 신청]` 클릭 시 모달이 열리며 수정할 출퇴근 시각, 휴게 분, **수정 사유(필수)**를 입력해 제출.
-2. **`GET /attendance/mod-requests` $\rightarrow$ `templates/attendance/mod-list.html` (점주용 감사 화면)**
+     * 현재 선택된 직원 및 오늘의 근태 상태 배지 (`未出勤` / `勤務中` / `休憩中` / `退勤済`).
+     * 점포 인증 토큰 입력칸 (기본값으로 현재 점포의 `qr_token`이 미리 채워져 있어 1클릭 테스트가 가능하며, 일부러 틀린 토큰을 넣으면 `"店舗のQRトークンが一致しません（不正打刻防止）"` 에러 시연 가능).
+     * **대형 타각 버튼 4개 (1.5절 일본어 표준 용어 준수)**: `[🟢 出勤]`, `[☕ 休憩開始]`, `[🔥 休憩戻り]`, `[🔴 退勤]` (현재 상태에 따라 누를 수 있는 버튼만 활성화).
+   * **하단 [내 월별 출퇴근 기록표 & 수정 신청 (`勤怠修正申請`)]**:
+     * 일자별 출근시각, 퇴근시각, 휴게(분), **실근무(분)**, **야간(분)**, **연장(분)**, 상태, **`[勤怠修正申請]` 버튼**.
+     * `[勤怠修正申請]` 클릭 시 모달이 열리며 수정할 출퇴근 시각, 휴게 분, **수정 사유(필수)**를 입력해 제출.
+2. **`GET /attendance/mod-requests` → `templates/attendance/mod-list.html` (점주용 감사 화면)**
    * 알바생들이 올린 근태 수정 요청 목록을 표로 보여줌.
-   * **핵심 UI**: `[변경 전(Before) 출퇴근 시각]` $\rightarrow$ `[수정 요청(Requested) 출퇴근 시각]`이 빨간색/파란색 비교 뷰로 나란히 표시되고, 알바생의 사유를 확인한 뒤 점주가 **`[승인]`** 또는 **`[반려]`** 버튼을 누름.
+   * **핵심 UI**: `[修正前(Before) 出退勤時刻]` → `[修正後(Requested) 出退勤時刻]`이 빨간색/파란색 비교 뷰로 나란히 표시되고, 알바생의 사유를 확인한 뒤 점주가 **`[承認]`** 또는 **`[却下]`** 버튼을 누름.
 
 ### 5.3 ⭐ [핵심 알고리즘 명세] 일별 근로시간 3종(실근무·야간·연장) 무결성 계산기
 
@@ -716,29 +725,34 @@ public class AttendanceTimeCalculator {
 
 1. **실시간 타각 (`POST /api/attendance/punch`)**:
    * Request: `{ "storeId": 1, "storeStaffId": 1, "qrToken": "TOKEN_QR_SHINJUKU_001", "punchType": "CLOCK_IN" }`
-   * **[핵심 로직 1: 시프트 자동 매핑]**: `punchType == 'CLOCK_IN'` 시, 당일(`work_date = today`) 해당 직원의 `shift_schedule` 중 `status = 'CONFIRMED'`인 시프트를 조회하여 존재하면 `attendance.shift_id`에 자동으로 외래키를 연결합니다 (미배정 출근 시 `NULL`).
-   * **[핵심 로직 2: 퇴근 계산]**: `punchType == 'CLOCK_OUT'` 시, 위 `AttendanceTimeCalculator.calculate()`를 호출하여 `net_work_minutes`, `night_work_minutes`, `overtime_minutes`를 산출해 DB에 저장하고 `attendance_status = 'COMPLETED'`로 변경.
+   * **[핵심 로직 1: 중복 출근 방지 및 시프트 자동 매핑]**:
+     * `punchType == 'CLOCK_IN'` 시, 해당 직원에게 아직 퇴근 처리되지 않은 진행 중 근태(`attendance_status IN ('WORKING', 'ON_BREAK')`)가 존재하면 중복 출근을 차단(`IllegalStateException("既に出勤打刻が存在します。")`)합니다.
+     * 당일(`work_date = today`) 해당 직원의 `shift_schedule` 중 `status = 'CONFIRMED'`인 시프트를 조회하여 존재하면 `attendance.shift_id`에 자동으로 외래키를 연결합니다 (미배정 출근 시 `NULL`).
+   * **[핵심 로직 2: 다회 휴게 누적 및 퇴근 계산]**:
+     * `BREAK_START` → `BREAK_END` 복귀 시, `Duration.between(breakStartAt, breakEndAt).toMinutes()`를 기존 `total_break_minutes`에 **누적 합산(`+=`)**하여 하루 2회 이상 분할 휴게 시에도 이전 휴게시간이 덮어써지지 않도록 처리합니다.
+     * `punchType == 'CLOCK_OUT'` 시(만약 `ON_BREAK` 상태에서 바로 퇴근을 누르면 휴게 복귀를 먼저 처리하거나 안내), 위 `AttendanceTimeCalculator.calculate()`를 호출하여 `net_work_minutes`, `night_work_minutes`, `overtime_minutes`를 산출해 DB에 저장하고 `attendance_status = 'COMPLETED'`로 변경합니다.
 2. **근태 수정 요청 제출 (`POST /api/attendance/mod-requests`)**:
-   * Request:
+   * Request (`AttendanceModRequestDto`):
      ```json
      {
        "attendanceId": 1,                           // 타각 누락으로 행 자체가 없는 경우 null 허용
+       "storeId": 1,                                // 점포 ID (사후 신규 생성 시 필수)
        "storeStaffId": 1,
-       "workDate": "2026-10-27",                    // 근무 기준일
+       "workDate": "2026-10-27",                    // 근무 기준일 (사후 신규 생성 시 필수)
        "requestedClockInAt": "2026-10-27T18:00:00",
        "requestedClockOutAt": "2026-10-28T01:00:00",
        "requestedBreakMinutes": 45,
-       "reason": "마감 후 청소로 늦게 퇴근했으나 버튼을 누르지 못했습니다."
+       "reason": "閉店後の清掃で退勤打刻を忘れました。"
      }
      ```
    * **[핵심 로직 3: 타각 완전 누락 시 사후 생성 처리]**:
-     * `attendanceId != null`: 기존 근태의 `clock_in_at`, `clock_out_at`, `total_break_minutes`를 `before_*`에 복사하고 `attendance_status = 'MOD_REQUESTED'`로 변경.
-     * `attendanceId == null` (출퇴근 둘 다 까먹어서 Row가 없는 날): `before_*`는 NULL/0으로 두고 `PENDING` 요청 생성.
+     * `attendanceId != null`: 기존 근태의 `store_id`, `work_date`, `clock_in_at`, `clock_out_at`, `total_break_minutes`를 조회해 `before_*`에 복사하고 `attendance_status = 'MOD_REQUESTED'`로 변경.
+     * `attendanceId == null` (출퇴근 둘 다 까먹어서 Row가 없는 날): 요청 DTO로 전달받은 `storeId`, `workDate`를 함께 저장하고 `before_*`는 NULL/0으로 두어 `PENDING` 요청 생성.
 3. **점주 승인/반려 처리 (`PUT /api/attendance/mod-requests/{modRequestId}/review`)**:
    * Request: `{ "reviewerId": 1, "action": "APPROVE", "rejectReason": null }`
    * 승인(`APPROVE`) 시:
-     * 기존 `attendanceId`가 있는 경우: 수정 요청 시간으로 3종 근로시간 재계산 후 UPDATE (`clock_in_method = 'MANUAL_APPROVED'`).
-     * `attendanceId`가 없던 신규 생성 요청인 경우: `attendance` 테이블에 신규 INSERT를 수행하고 `attendance_status = 'COMPLETED'`, `clock_in_method = 'MANUAL_APPROVED'`로 적재.
+     * 기존 `attendanceId`가 있는 경우: 수정 요청 시간으로 3종 근로시간 재계산 후 UPDATE (`clock_in_method = 'MANUAL_APPROVED'`, `attendance_status = 'COMPLETED'`).
+     * `attendanceId`가 없던 신규 생성 요청인 경우: `attendance_mod_request`에 저장된 `store_id`, `store_staff_id`, `work_date`를 바탕으로 `attendance` 테이블에 신규 INSERT를 수행하고 생성된 `attendance_id`를 연결(`clock_in_method = 'MANUAL_APPROVED'`, `attendance_status = 'COMPLETED'`).
 
 ---
 
@@ -750,9 +764,10 @@ public class AttendanceTimeCalculator {
 ### 6.1 도메인 개론 및 법리적 설계 포인트
 1. **왜 기본급(100%) + 야간(25%) + 연장(25%)으로 분리 가산하는가?**
    * 만약 주간 시간(100%), 야간 시간(125%), 야간+연장 시간(150%)을 구간별로 쪼개서 계산하면 수식이 극도로 복잡해집니다.
-   * 반면, **① 전체 실근무시간에 대해 기본 시급(100%)을 먼저 주고, ② 야간 근로분에 대해 할증분(+25%)만 추가로 더하고, ③ 8시간 초과 연장 근로분에 대해 할증분(+25%)만 추가로 더하면**, 야간이면서 동시에 연장인 구간은 자동으로 `100% + 25% + 25% = 150%`가 되어 **일본 노동기준법 제37조의 심야 잔업 중복 할증 규정을 단 한 줄의 수식 충돌도 없이 100% 완벽하게 만족**합니다.
+   * 반면, **① 전체 실근무시간에 대해 기본 시급(100%)을 먼저 주고, ② 야간 근로분에 대해 할증분(+25%)만 추가로 더하고, ③ 1일 8시간 초과 연장 근로분에 대해 할증분(+25%)만 추가로 더하면**, 야간이면서 동시에 연장인 구간은 자동으로 `100% + 25% + 25% = 150%`가 되어 **일본 노동기준법 제37조의 심야 잔업 중복 할증 규정을 단 한 줄의 수식 충돌도 없이 100% 완벽하게 만족**합니다.
+   * *(※ 범위 정의(Scope): 본 시스템의 MVP 정산 엔진은 아르바이트 현장의 핵심인 **1일 8시간 초과 연장(+25%)** 및 **심야 22:00~05:00(+25%)** 할증을 표준 산식으로 제공하며, 주 40시간 초과분 및 법정휴일(+35%) 할증은 확장 인터페이스로 분리합니다. 또한 월중 시급 인상 시에는 해당 귀속월 정산 시점의 계약 시급을 `applied_hourly_wage` 스냅샷으로 일괄 적용하며, 확정 이후 과거 명세서는 영구 보존됩니다.)*
 2. **점포별 급여 마감일(`pay_cutoff_day`) 대응**:
-   * 일본 매장은 `말일 마감(99)`, `15일 마감(15)`, `25일 마감(25)` 등 매장마다 급여 산정 기간이 다릅니다.
+   * 일본 매장은 `말일 마감(99)`, `15일 마감(15)`, `25일 마감(25)`, `28일 마감(28)` 등 매장마다 급여 산정 기간이 다릅니다.
 
 ### 6.2 ⭐ [핵심 알고리즘 명세] 마감일 산출 공식 & 오차 0건 급여 정산 코드
 
@@ -779,15 +794,16 @@ public class PayrollCalculator {
     ) {}
 
     /**
-     * 1. 점포의 급여 마감일(payCutoffDay)에 따른 귀속연월(YYYY-MM)의 실제 근태 집계 시작일~종료일 산출
+     * 1. 점포의 급여 마감일(payCutoffDay: 1~28 또는 99=말일)에 따른 귀속연월(YYYY-MM)의 실제 근태 집계 시작일~종료일 산출
      * 예: targetYearMonth = "2026-10"
-     * - payCutoffDay가 99(말일) 또는 28 이상이면 -> 2026-10-01 ~ 2026-10-31
+     * - payCutoffDay가 99(말일, 29 이상)이면 -> 2026-10-01 ~ 2026-10-31
      * - payCutoffDay가 15(15일 마감)이면 -> 2026-09-16 ~ 2026-10-15
      * - payCutoffDay가 25(25일 마감)이면 -> 2026-09-26 ~ 2026-10-25
+     * - payCutoffDay가 28(28일 마감)이면 -> 2026-09-29 ~ 2026-10-28
      */
     public static DateRange getCutoffDateRange(String targetYearMonth, int payCutoffDay) {
         YearMonth ym = YearMonth.parse(targetYearMonth);
-        if (payCutoffDay >= 28) {
+        if (payCutoffDay >= 29 || payCutoffDay <= 0) {
             return new DateRange(ym.atDay(1), ym.atEndOfMonth());
         }
         LocalDate endDate = ym.atDay(payCutoffDay);
@@ -835,16 +851,19 @@ public class PayrollCalculator {
 ```
 
 ### 6.3 화면(View) 및 REST API 명세
-1. **`GET /payroll` $\rightarrow$ `templates/payroll/list.html`**
+1. **`GET /payroll` → `templates/payroll/list.html`**
    * 상단: 귀속연월 선택기(기본값 `"2026-10"`), **`[⚡ 당월 급여 일괄 정산 실행]`** 버튼, **`[📊 세무용 급여대장 엑셀(.xlsx) 다운로드]`** 버튼.
    * 중앙 요약 카드: 당월 총 지급 인건비 합계, 총 근무시간 합계, 야간/연장 할증 수당 합계, 교통비 합계.
-   * 하단 테이블: 직원별 정산 내역 (`직원명`, `적용시급(스냅샷)`, `출근일수`, `실근무(시간:분)`, `기본급`, `야간할증(25%)`, `연장할증(25%)`, `교통비`, **`총 지급액`**, `상태(DRAFT/CONFIRMED)`, **`[급여명세서 상세]`**, **`[확정]`** 버튼).
+   * 하단 테이블: 직원별 정산 내역 (`직원명`, `적용시급(스냅샷)`, `출근일수`, `실근무(시간:분)`, `기본급`, `야간할증(25%)`, `연장할증(25%)`, `교통비`, **`총 지급액`**, `상태(DRAFT/CONFIRMED/PAID)`, **`[급여명세서 상세]`**, **`[확정]`** 버튼).
 2. **`POST /api/payroll/calculate` (급여 일괄 계산 및 Upsert)**
    * Request: `{ "storeId": 1, "targetYearMonth": "2026-10" }`
    * 점포의 `pay_cutoff_day`를 조회해 `startDate ~ endDate`를 구한 뒤, 해당 기간 내 `attendance_status = 'COMPLETED'`인 기록을 직원별로 합산하여 `PayrollCalculator.calculateMonthlyPay()` 실행 후 `payroll` 테이블에 저장(`ON DUPLICATE KEY UPDATE`).
-   * **SQL 집계 주의사항**: 출근 일수가 0일인 직원의 `SUM()` 결과가 `NULL`이 되어 NPE가 발생하지 않도록 반드시 `COALESCE(SUM(net_work_minutes), 0)`과 같이 NULL 방어 함수를 사용합니다.
+   * **SQL 집계 및 정산 무결성 주의사항**:
+     * 출근 일수가 0일인 직원의 `SUM()` 결과가 `NULL`이 되어 NPE가 발생하지 않도록 반드시 `COALESCE(SUM(net_work_minutes), 0)`과 같이 NULL 방어 함수를 사용합니다.
+     * **확정 명세서 보호**: 이미 `payroll_status`가 `'CONFIRMED'` 또는 `'PAID'`로 확정된 직원의 행은 재정산 시 덮어쓰지 않고 스킵(`WHERE payroll_status = 'DRAFT'`)하여 확정된 급여대장의 무결성을 보장합니다.
+     * **미승인 수정요청 경고**: 정산 대상 기간 내 아직 점주가 처리하지 않은 `attendance_mod_request` (`approval_status = 'PENDING'`) 또는 `MOD_REQUESTED` 상태의 근태가 존재하면 정산 실행 전 경고 메시지를 반환하거나 화면에 안내합니다.
 3. **`GET /api/payroll/excel?storeId=1&targetYearMonth=2026-10` (Apache POI 엑셀 다운로드)**
-   * `XSSFWorkbook`을 생성하여 세무사 제출용 포맷의 엑셀 시트를 생성하고 `HttpServletResponse` 스트림으로 출력.
+   * `XSSFWorkbook`을 생성하여 세무사 제출용 포맷의 엑셀 시트(`給与台帳`)를 생성하고 `HttpServletResponse` 스트림으로 출력.
 4. **`GET /api/payroll/{payrollId}/detail` (개인별 급여명세서 상세 모달 조회)**
    * **응답 JSON (`PayrollDetailResponseDto`)**:
      ```json
@@ -854,17 +873,17 @@ public class PayrollCalculator {
          "payrollId": 1,
          "staffName": "佐藤 花子",
          "targetYearMonth": "2026-10",
-         "appliedHourlyWage": 1163,
+         "appliedHourlyWage": 1300,
          "summary": {
            "workDaysCount": 15,
            "totalWorkMinutes": 5400,
            "totalNightMinutes": 900,
            "totalOvertimeMinutes": 360,
-           "basePay": 104670,
-           "nightAllowance": 4361,
-           "overtimeAllowance": 1745,
+           "basePay": 117000,
+           "nightAllowance": 4875,
+           "overtimeAllowance": 1950,
            "transportAllowance": 7500,
-           "grossPay": 118276,
+           "grossPay": 131325,
            "payrollStatus": "CONFIRMED"
          },
          "dailyAttendances": [
@@ -911,22 +930,26 @@ public class PayrollCalculator {
 
 ---
 
-## 제8장. [확장 도메인 6 - 4인용] 경영 분석(BI) 대시보드 & 일본 세법 "103만 엔의 벽" 시뮬레이터
+## 제8장. [확장 도메인 6 - 4인용] 경영 분석(BI) 대시보드 & 일본 개정 세법 "연수입의 벽(年収の壁)" 시뮬레이터
 
 > **담당**: 4인 팀의 팀원 D  
 > **패키지**: `com.example.kintai.domain.analytics`
 
-### 8.1 도메인 개론: 일본의 "103만 엔 / 130만 엔 소득의 벽(年収の壁)"이란?
-* 일본에서 대학생이나 주부 아르바이트생은 **연간 총 급여 소득(1월~12월 합계, 비과세 교통비 제외)이 103만 엔을 초과하면 본인에게 소득세가 부과되고 부모/배우자의 세금 부양공제(38만~63만 엔) 대상에서 탈락**합니다. 또한 **130만 엔을 넘으면 사회보험료(연금·건강보험)가 강제 부과**되어 오히려 실수령액이 줄어듭니다.
-* 따라서 일본 알바생들은 연말(10~12월)이 되면 *"점장님, 저 올해 103만 엔 넘을 것 같아서 다음 달 시프트 못 들어가요"*라며 대량 결원을 일으킵니다.
-* 이를 시스템에서 미리 추적하여 **연간 누적 기본급+수당 합계가 103만 엔의 80%(82.4만 엔)를 넘으면 점주에게 미리 경고해 주는 기능**은 일본 현지 면접관이 무릎을 치는 킬러 기능입니다.
+### 8.1 도메인 개론: 일본의 "연수입의 벽(年収の壁: 123만·130만·150만·160만 엔, 구 103만 엔)"이란?
+* 일본 아르바이트 시장에서는 연간 총 급여 소득(1월~12월 합계, 비과세 교통비 제외)이 일정 기준을 넘으면 세금이나 사회보험료 부담이 급증하여 알바생들이 연말(10~12월)에 집중적으로 시프트를 줄이는 **"연수입의 벽(年収の壁)으로 인한 연말 인력 대란"**이 발생합니다.
+* **2025~2026년 일본 세제개정(令和7年度税制改正) 완벽 반영**:
+  * **123만 엔의 벽 (일반 부양공제 기준, 구 103만 엔)**: 기초공제 및 급여소득공제 인상에 따라 일반 피부양자 세금 공제 한도가 103만 엔에서 **123만 엔**으로 상향.
+  * **130만 엔의 벽 (사회보험 피부양자 기준)**: 초과 시 국민연금·건강보험 피부양자에서 제외되어 직접 사회보험료 납부 의무 발생 (일부 대규모 사업장은 106만 엔).
+  * **150만 엔의 벽 (대학생 특례 - 특정친족특별공제 `特定親族特別控除`)**: 19세 이상 23세 미만 대학생 자녀의 경우 연수입 **150만 엔**까지 부모가 만액(63만 엔) 소득공제를 받을 수 있도록 신설.
+  * **160만 엔의 벽 (본인 소득세 비과세 한도)**: 본인 소득세 비과세 한도가 160만 엔까지 확대.
+* 이를 시스템에서 미리 추적하여 **직원별 목표 한도(123만 / 130만 / 150만 엔 선택 가능, 기본값 123만·130만 엔)의 80%를 넘으면 점주에게 미리 경고해 주는 기능**은 일본 현지 면접관이 최신 노무·세법 트렌드 이해도에 감탄하는 킬러 기능입니다.
 
-### 8.2 상세 API 및 화면 명세 (`GET /analytics` $\rightarrow$ `templates/analytics/dashboard.html`)
+### 8.2 상세 API 및 화면 명세 (`GET /analytics` → `templates/analytics/dashboard.html`)
 1. **시프트 편성 기준 당월 예상 인건비 시뮬레이션 (`GET /api/analytics/projected-cost?storeId=1&yearMonth=2026-10`)**:
    * 아직 월말이 오지 않았더라도, 현재 `shift_schedule`에 `CONFIRMED`된 시프트 시간과 직원별 시급을 곱하여 **"이번 달 예상 총 인건비"**를 실시간 시뮬레이션.
-2. **알바생별 '103만 엔 / 130만 엔의 벽' 모니터링 (`GET /api/analytics/tax-barrier?storeId=1&year=2026`)**:
+2. **알바생별 '연수입의 벽(年収の壁)' 모니터링 (`GET /api/analytics/tax-barrier?storeId=1&year=2026&barrierAmount=1230000`)**:
    * 해당 연도(`target_year_month LIKE '2026-%'`)의 직원별 누적 과세 급여(`SUM(base_pay + night_allowance + overtime_allowance)` — *비과세인 `transport_allowance`는 세법상 제외하는 디테일!*)를 집계.
-   * `1,030,000엔`에서 누적 과세 급여를 빼서 **"올해 남은 근무 가능 금액(잔여 한도)"**과 **"현재 시급 기준 올해 앞으로 더 일할 수 있는 최대 시간"**을 계산하여 프로그레스 바로 시각화.
+   * 선택된 기준 벽(`1,230,000엔[부양기준]`, `1,300,000엔[사회보험]`, `1,500,000엔[대학생특례]` 또는 구 기준 `1,030,000엔` 중 드롭다운 선택 가능)에서 누적 과세 급여를 빼서 **"올해 남은 근무 가능 금액(잔여 한도)"**과 **"현재 시급 기준 올해 앞으로 더 일할 수 있는 최대 시간"**을 계산하여 프로그레스 바로 시각화.
 
 ---
 
@@ -988,10 +1011,10 @@ public class PayrollCalculator {
 6. src/main/resources/templates/payroll/list.html (일본어 UI)
 ```
 
-### 💬 [3~4인 확장: 팀원 C/D용 프롬프트] LINE 메신저 봇 & 경영 분석(103만엔의 벽) 대시보드 구현
+### 💬 [3~4인 확장: 팀원 C/D용 프롬프트] LINE 메신저 봇 & 경영 분석(연수입의 벽) 대시보드 구현
 ```text
-첨부한 kintai_requirements_specification.md 문서를 기준으로 '제7장. LINE 메신저 봇 & 실시간 알림 센터'와 '제8장. 경영 분석(BI) 대시보드 & 일본 세법 103만 엔의 벽 시뮬레이터'를 구현해 줘.
-LINE 채널 토큰이 설정되지 않은 로컬 환경에서도 발표 시연이 가능하도록 웹 화면 우측 하단에 연두색 LINE 말풍선 미리보기 토스트가 뜨는 하이브리드 기능과, 비과세 교통비를 제외한 연간 누적 과세 급여 기반 103만 엔/130만 엔 도달 위험도 프로그레스 바를 포함해 줘.
+첨부한 kintai_requirements_specification.md 문서를 기준으로 '제7장. LINE 메신저 봇 & 실시간 알림 센터'와 '제8장. 경영 분석(BI) 대시보드 & 일본 개정 세법 연수입의 벽(年収の壁) 시뮬레이터'를 구현해 줘.
+LINE 채널 토큰이 설정되지 않은 로컬 환경에서도 발표 시연이 가능하도록 웹 화면 우측 하단에 연두색 LINE 말풍선 미리보기 토스트가 뜨는 하이브리드 기능과, 비과세 교통비를 제외한 연간 누적 과세 급여 기반 연수입의 벽(123만 엔/130만 엔/150만 엔 기준 선택 가능) 도달 위험도 프로그레스 바를 포함해 줘.
 ★ 중요: 모든 화면 텍스트와 알림 문구는 명세서 1.5절 용어집을 준수하여 100% 자연스러운 일본어(日本語)로 작성해 줘.
 아래 파일들을 전체 코드로 작성해 줘:
 1. com.example.kintai.domain.notification.service.LineNotificationService.java
@@ -999,5 +1022,5 @@ LINE 채널 토큰이 설정되지 않은 로컬 환경에서도 발표 시연�
 3. com.example.kintai.domain.analytics.mapper.AnalyticsMapper.java & src/main/resources/mapper/analytics/AnalyticsMapper.xml
 4. com.example.kintai.domain.analytics.service.AnalyticsService.java
 5. com.example.kintai.domain.analytics.controller.AnalyticsController.java (GET /analytics 및 /api/analytics/** 포함)
-6. src/main/resources/templates/analytics/dashboard.html (Chart.js 통계 차트 및 103만 엔 소득의 벽 프로그레스 바 일본어 UI)
+6. src/main/resources/templates/analytics/dashboard.html (Chart.js 통계 차트 및 연수입의 벽 프로그레스 바 일본어 UI)
 ```

@@ -100,7 +100,9 @@ CREATE TABLE IF NOT EXISTS attendance (
 CREATE TABLE IF NOT EXISTS attendance_mod_request (
     mod_request_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '근태 수정 요청 PK',
     attendance_id BIGINT NULL COMMENT '대상 근태 FK (타각 완전 누락 사후 생성 시 NULL 허용)',
+    store_id BIGINT NOT NULL COMMENT '점포 FK (사후 신규 생성 시 필수)',
     store_staff_id BIGINT NOT NULL COMMENT '요청 직원 FK',
+    work_date DATE NOT NULL COMMENT '근무 기준일 (사후 신규 생성 시 필수)',
     before_clock_in_at DATETIME NULL COMMENT '수정 전 출근 일시 (사후 신규 생성 시 NULL 허용)',
     before_clock_out_at DATETIME NULL COMMENT '수정 전 퇴근 일시',
     before_break_minutes INT NOT NULL DEFAULT 0 COMMENT '수정 전 휴게시간(분)',
@@ -114,6 +116,7 @@ CREATE TABLE IF NOT EXISTS attendance_mod_request (
     reviewed_at DATETIME NULL COMMENT '승인/반려 처리 일시',
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_mod_attendance FOREIGN KEY (attendance_id) REFERENCES attendance (attendance_id),
+    CONSTRAINT fk_mod_store FOREIGN KEY (store_id) REFERENCES store (store_id),
     CONSTRAINT fk_mod_staff FOREIGN KEY (store_staff_id) REFERENCES store_staff (store_staff_id),
     CONSTRAINT fk_mod_reviewer FOREIGN KEY (reviewer_id) REFERENCES member (member_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
