@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{common/layout :: layout(~{::title}, ~{::#content})}">
+<head>
+    <title>勤怠修正申請 承認 | KINTAI SYSTEM</title>
+</head>
+<body>
+<div id="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-1"><i class="fa-solid fa-user-check text-primary me-2"></i>勤怠修正申請 承認一覧</h3>
+            <p class="text-muted small mb-0">スタッフから提出された打刻漏れ・修正申請の確認および承認・却下を行います。</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <select class="form-select" id="statusFilter" style="width: 160px;">
+                <option value="">すべて</option>
+                <option value="PENDING" selected>未処理 (PENDING)</option>
+                <option value="APPROVED">承認済 (APPROVED)</option>
+                <option value="REJECTED">却下済 (REJECTED)</option>
+            </select>
+            <button class="btn btn-outline-primary fw-bold" id="btnRefreshList">
+                <i class="fa-solid fa-rotate-right me-1"></i>更新
+            </button>
+        </div>
+    </div>
+
+    <!-- 수정 신청 목록 테이블 카드 -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 text-center">
+                    <thead class="table-light text-secondary">
+                        <tr>
+                            <th>申請ID</th>
+                            <th>申請日</th>
+                            <th>スタッフ名</th>
+                            <th>勤務基準日</th>
+                            <th>修正前 (出退勤/休憩)</th>
+                            <th>修正後 (出退勤/休憩)</th>
+                            <th>申請理由</th>
+                            <th>状態</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modRequestsTableBody">
+                        <tr>
+                            <td colspan="9" class="py-4 text-muted">データを読み込み中...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 반려 사유 입력 모달 -->
+    <div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="rejectModalLabel"><i class="fa-solid fa-ban text-danger me-2"></i>申請の却下</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="rejectModRequestId">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">却下理由 <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="rejectReasonInput" rows="3" placeholder="却下理由を入力してください（例：該当時間の防犯カメラ記録と不一致）" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                    <button type="button" class="btn btn-danger fw-bold" id="btnSubmitReject">却下する</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 스크립트 영역 -->
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            const storeId = /*[[${storeId}]]*/ 1;
+            const rejectModal = new bootstrap.Modal(document.getElementById('rejectModal'));
+
+            function formatTime(dtStr) {
+                if (!dtStr) return '-';
+                return dtStr.substring(11, 16);
+            }
+
+            function loadModRequests() {
+                const status = document.getElementById('statusFilter').value;
+                const tbody = document.getElementById('modRequestsTableBody');
+                tbody.innerHTML = '<tr><td colspan="9" class="py-4 text-muted"><i class="fa-solid fa-spinner fa-spin me-2"></i>読み込み中...</td></tr>';
+
+                let url = `/api/attendance/mod-requests?storeId=${storeId}`;
+                if (status) {
+                    url += `&status=${status}`;
+                }
+
+                fetch(url)
+                    .then(res => res.json())
+                    .then(resData => {
+                        const list = resData.data;
+                        if (!list || list.length === 0) {
+                            tbody.innerHTML = '<tr><td colspan="9" class="py-4 text-muted">該当する勤怠修正申請はありません。</td></tr>';
+                            return;
+                        }
+
+                        tbody.innerHTML = list.map(item => {
+                            let badge = '<span class="badge bg-warning text-dark">未処理</span>';
+                            if (item.approvalStatus === 'APPROVED') {
+                                badge = '<span class="badge bg-success">承認済</span>';
+                            } else if (item.approvalStatus === 'REJECTED') {
+                                badge = `<span class="badge bg-danger" title="${item.rejectReason || ''}">却下済</span>`;
+                            }
+
+                            const beforeText = item.beforeClockInAt
+                                ? `${formatTime(item.beforeClockInAt)}~${formatTime(item.beforeClockOutAt)} (${item.beforeBreakMinutes || 0}分)`
+                                : '<span class="text-muted">（新規作成）</span>';
+
+                            const reqText = `<strong>${formatTime(item.requestedClockInAt)}~${formatTime(item.requestedClockOutAt)}</strong> (${item.requestedBreakMinutes || 0}分)`;
+
+                            let actionBtns = '-';
+                            if (item.approvalStatus === 'PENDING') {
+                                actionBtns = `
+                                    <div class="btn-group">
+                                        <button class="btn btn-sm btn-outline-success fw-bold btn-approve" data-id="${item.modRequestId}">承認</button>
+                                        <button class="btn btn-sm btn-outline-danger fw-bold btn-reject" data-id="${item.modRequestId}">却下</button>
+                                    </div>
+                                `;
+                            }
+
+                            return `
+                                <tr>
+                                    <td>${item.modRequestId}</td>
+                                    <td class="text-muted small">${item.createdAt ? item.createdAt.substring(0, 10) : '-'}</td>
+                                    <td class="fw-bold">${item.staffName}</td>
+                                    <td>${item.workDate}</td>
+                                    <td>${beforeText}</td>
+                                    <td class="text-primary">${reqText}</td>
+                                    <td class="text-start" style="max-width: 200px;"><small>${item.reason || ''}</small></td>
+                                    <td>${badge}</td>
+                                    <td>${actionBtns}</td>
+                                </tr>
+                            `;
+                        }).join('');
+
+                        attachListeners();
+                    })
+                    .catch(err => {
+                        tbody.innerHTML = `<tr><td colspan="9" class="py-4 text-danger">読み込みエラー: ${err}</td></tr>`;
+                    });
+            }
+
+            function attachListeners() {
+                // 승인 처리
+                document.querySelectorAll('.btn-approve').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        const modRequestId = this.getAttribute('data-id');
+                        if (!confirm('この勤怠修正申請を承認しますか？\n実労働時間および割増時間が再計算され反映されます。')) {
+                            return;
+                        }
+
+                        fetch(`/api/attendance/mod-requests/${modRequestId}/review`, {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({ action: 'APPROVE' })
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert(data.message || '承認処理が完了しました。');
+                                loadModRequests();
+                            } else {
+                                alert('承認エラー: ' + data.message);
+                            }
+                        })
+                        .catch(err => alert('通信エラー: ' + err));
+                    });
+                });
+
+                // 반려 모달 열기
+                document.querySelectorAll('.btn-reject').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        const modRequestId = this.getAttribute('data-id');
+                        document.getElementById('rejectModRequestId').value = modRequestId;
+                        document.getElementById('rejectReasonInput').value = '';
+                        rejectModal.show();
+                    });
+                });
+            }
+
+            // 반려 전송 버튼
+            document.getElementById('btnSubmitReject').addEventListener('click', function () {
+                const modRequestId = document.getElementById('rejectModRequestId').value;
+                const reason = document.getElementById('rejectReasonInput').value.trim();
+
+                if (!reason) {
+                    alert('却下理由を入力してください。');
+                    return;
+                }
+
+                fetch(`/api/attendance/mod-requests/${modRequestId}/review`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        action: 'REJECT',
+                        rejectReason: reason
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message || '却下処理が完了しました。');
+                        rejectModal.hide();
+                        loadModRequests();
+                    } else {
+                        alert('却下エラー: ' + data.message);
+                    }
+                })
+                .catch(err => alert('通信エラー: ' + err));
+            });
+
+            document.getElementById('statusFilter').addEventListener('change', loadModRequests);
+            document.getElementById('btnRefreshList').addEventListener('click', loadModRequests);
+
+            loadModRequests();
+        });
+    </script>
+</div>
+</body>
+</html>

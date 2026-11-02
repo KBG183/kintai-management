@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{common/layout :: layout(~{::title}, ~{::#content})}">
+<head>
+    <title>給与計算・台帳 | KINTAI SYSTEM</title>
+</head>
+<body>
+<div id="content">
+    <!-- 헤더 및 컨트롤 바 -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-1"><i class="fa-solid fa-file-invoice-dollar text-primary me-2"></i>給与計算・月別給与台帳</h3>
+            <p class="text-muted small mb-0">勤怠実績から自動集計された給与台帳の確認・確定、および明細書の確認を行えます。</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <input type="month" class="form-control" id="targetMonthInput" th:value="${targetYearMonth}" style="width: 170px;">
+            <button class="btn btn-outline-primary fw-bold" id="btnFilterMonth">
+                <i class="fa-solid fa-magnifying-glass me-1"></i>表示
+            </button>
+            <button class="btn btn-primary fw-bold" id="btnCalculatePayroll">
+                <i class="fa-solid fa-calculator me-1"></i>給与一括計算
+            </button>
+            <button class="btn btn-success fw-bold" id="btnExportExcel">
+                <i class="fa-solid fa-file-excel me-1"></i>Excel出力
+            </button>
+        </div>
+    </div>
+
+    <!-- 알림 영역 -->
+    <div id="payrollAlertArea"></div>
+
+    <!-- 급여 목록 카드 -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 text-center">
+                    <thead class="table-light text-secondary">
+                        <tr>
+                            <th>氏名</th>
+                            <th>状態</th>
+                            <th>勤務日数</th>
+                            <th>総労働時間</th>
+                            <th>深夜労働</th>
+                            <th>残業</th>
+                            <th>基本給</th>
+                            <th>深夜手当</th>
+                            <th>残業手当</th>
+                            <th>通勤手当</th>
+                            <th class="table-primary text-primary fw-bold">総支給額</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="payrollTableBody">
+                        <tr>
+                            <td colspan="12" class="py-4 text-muted">データを読み込み中...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 개인별 급여명세서 상세 모달 -->
+    <div class="modal fade" id="payrollDetailModal" tabindex="-1" aria-labelledby="payrollDetailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-light">
+                    <div>
+                        <h5 class="modal-title fw-bold" id="payrollDetailModalLabel">
+                            <i class="fa-solid fa-receipt me-2 text-primary"></i>給与明細詳細
+                        </h5>
+                        <small class="text-muted" id="modalSubTitle">-</small>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <!-- 요약 카드 행 -->
+                    <div class="row g-3 mb-4 text-center" id="summaryCardRow">
+                        <!-- JS에서 동적 주입 -->
+                    </div>
+
+                    <!-- 일별 근태 및 계산 내역 테이블 -->
+                    <h6 class="fw-bold mb-3"><i class="fa-solid fa-list-check me-2"></i>日別勤怠・支給内訳</h6>
+                    <div class="table-responsive border rounded">
+                        <table class="table table-sm table-striped align-middle mb-0 text-center" style="font-size: 0.9rem;">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>勤務日</th>
+                                    <th>出勤</th>
+                                    <th>退勤</th>
+                                    <th>休憩(分)</th>
+                                    <th>実働(分)</th>
+                                    <th>深夜(分)</th>
+                                    <th>残業(分)</th>
+                                    <th>適用時給</th>
+                                    <th>基本給</th>
+                                    <th>深夜手当</th>
+                                    <th>残業手当</th>
+                                    <th>通勤手当</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dailyDetailTableBody">
+                                <!-- JS에서 동적 주입 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 자바스크립트 영역 -->
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            const storeId = /*[[${storeId}]]*/ 1;
+            let currentYearMonth = /*[[${targetYearMonth}]]*/ '2026-10';
+            const detailModal = new bootstrap.Modal(document.getElementById('payrollDetailModal'));
+
+            // 분을 "H時間M分" 형식으로 변환
+            function formatMinutes(min) {
+                if (!min) return '0分';
+                const h = Math.floor(min / 60);
+                const m = min % 60;
+                return h > 0 ? `${h}時間${m}分` : `${m}分`;
+            }
+
+            // 금액 엔화 포맷
+            function formatYen(amount) {
+                return (amount || 0).toLocaleString() + '円';
+            }
+
+            // 급여 목록 로드
+            function loadPayrollList() {
+                const tbody = document.getElementById('payrollTableBody');
+                tbody.innerHTML = '<tr><td colspan="12" class="py-4 text-muted"><i class="fa-solid fa-spinner fa-spin me-2"></i>データを読み込み中...</td></tr>';
+
+                fetch(`/api/payroll/list?storeId=${storeId}&yearMonth=${currentYearMonth}`)
+                    .then(res => res.json())
+                    .then(resData => {
+                        const list = resData.data;
+                        if (!list || list.length === 0) {
+                            tbody.innerHTML = '<tr><td colspan="12" class="py-4 text-muted">該当月の給与データがありません。「給与一括計算」を実行してください。</td></tr>';
+                            return;
+                        }
+
+                        tbody.innerHTML = list.map(item => {
+                            const isConfirmed = item.payrollStatus === 'CONFIRMED';
+                            const statusBadge = isConfirmed
+                                ? '<span class="badge bg-success">確定</span>'
+                                : '<span class="badge bg-warning text-dark">未確定(DRAFT)</span>';
+
+                            const confirmBtn = isConfirmed
+                                ? '<button class="btn btn-sm btn-outline-secondary" disabled>確定済</button>'
+                                : `<button class="btn btn-sm btn-outline-success fw-bold btn-confirm" data-id="${item.payrollId}" data-gross="${item.grossPay}" data-name="${item.staffName}">確定</button>`;
+
+                            return `
+                                <tr>
+                                    <td class="fw-bold">${item.staffName}</td>
+                                    <td>${statusBadge}</td>
+                                    <td>${item.workDaysCount}日</td>
+                                    <td>${formatMinutes(item.totalWorkMinutes)}</td>
+                                    <td>${formatMinutes(item.totalNightMinutes)}</td>
+                                    <td>${formatMinutes(item.totalOvertimeMinutes)}</td>
+                                    <td>${formatYen(item.basePay)}</td>
+                                    <td>${formatYen(item.nightAllowance)}</td>
+                                    <td>${formatYen(item.overtimeAllowance)}</td>
+                                    <td>${formatYen(item.transportAllowance)}</td>
+                                    <td class="table-primary fw-bold text-primary">${formatYen(item.grossPay)}</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <button class="btn btn-sm btn-outline-primary btn-detail" data-id="${item.payrollId}">明細</button>
+                                            ${confirmBtn}
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('');
+
+                        attachActionListeners();
+                    })
+                    .catch(err => {
+                        tbody.innerHTML = `<tr><td colspan="12" class="py-4 text-danger">読み込みエラー: ${err}</td></tr>`;
+                    });
+            }
+
+            // 이벤트 리스너 바인딩
+            function attachActionListeners() {
+                // 명세 버튼
+                document.querySelectorAll('.btn-detail').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        const payrollId = this.getAttribute('data-id');
+                        openDetailModal(payrollId);
+                    });
+                });
+
+                // 확정 버튼 (F02 Silent Update 방어: 현재 화면 표시 금액 동봉)
+                document.querySelectorAll('.btn-confirm').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        const payrollId = this.getAttribute('data-id');
+                        const grossPay = parseInt(this.getAttribute('data-gross'));
+                        const staffName = this.getAttribute('data-name');
+
+                        if (!confirm(`【給与確定の確認】\n対象: ${staffName} さん\n総支給額: ${grossPay.toLocaleString()}円\n\nこの給与データを確定しますか？確定後は修正できません。`)) {
+                            return;
+                        }
+
+                        fetch(`/api/payroll/${payrollId}/confirm`, {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({ expectedGrossPay: grossPay })
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert(data.message || '給与が確定されました。');
+                                loadPayrollList();
+                            } else {
+                                alert('確定エラー: ' + data.message);
+                            }
+                        })
+                        .catch(err => alert('通信エラー: ' + err));
+                    });
+                });
+            }
+
+            // 상세 모달 열기
+            function openDetailModal(payrollId) {
+                fetch(`/api/payroll/${payrollId}/detail`)
+                    .then(res => res.json())
+                    .then(resData => {
+                        const d = resData.data;
+                        document.getElementById('modalSubTitle').innerText = `${d.staffName} さん | 対象月: ${d.targetYearMonth} | 適用時給: ${d.appliedHourlyWage ? d.appliedHourlyWage.toLocaleString() + '円' : '日別変動'}`;
+
+                        // 요약 카드
+                        const s = d.summary;
+                        document.getElementById('summaryCardRow').innerHTML = `
+                            <div class="col-md-2">
+                                <div class="p-2 border rounded bg-light">
+                                    <div class="text-muted small">勤務日数</div>
+                                    <div class="h5 mb-0 fw-bold">${s.workDaysCount}日</div>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="p-2 border rounded bg-light">
+                                    <div class="text-muted small">総実労働</div>
+                                    <div class="h5 mb-0 fw-bold">${formatMinutes(s.totalWorkMinutes)}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="p-2 border rounded bg-light">
+                                    <div class="text-muted small">基本給</div>
+                                    <div class="h5 mb-0 fw-bold">${formatYen(s.basePay)}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="p-2 border rounded bg-light">
+                                    <div class="text-muted small">深夜・残業手当</div>
+                                    <div class="h5 mb-0 fw-bold">${formatYen(s.nightAllowance + s.overtimeAllowance)}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="p-2 border rounded bg-light">
+                                    <div class="text-muted small">通勤手当</div>
+                                    <div class="h5 mb-0 fw-bold">${formatYen(s.transportAllowance)}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="p-2 border rounded bg-primary text-white">
+                                    <div class="small">総支給額</div>
+                                    <div class="h5 mb-0 fw-bold">${formatYen(s.grossPay)}</div>
+                                </div>
+                            </div>
+                        `;
+
+                        // 일별 상세 내역
+                        const tbody = document.getElementById('dailyDetailTableBody');
+                        if (!d.dailyAttendances || d.dailyAttendances.length === 0) {
+                            tbody.innerHTML = '<tr><td colspan="12" class="py-3 text-muted">日別詳細データがありません。</td></tr>';
+                        } else {
+                            tbody.innerHTML = d.dailyAttendances.map(row => `
+                                <tr>
+                                    <td class="fw-bold">${row.workDate}</td>
+                                    <td>${row.clockInAt}</td>
+                                    <td>${row.clockOutAt}</td>
+                                    <td>${row.breakMinutes}</td>
+                                    <td>${row.netWorkMinutes}</td>
+                                    <td>${row.nightMinutes}</td>
+                                    <td>${row.overtimeMinutes}</td>
+                                    <td>${formatYen(row.appliedHourlyWage)}</td>
+                                    <td>${formatYen(row.basePay)}</td>
+                                    <td>${formatYen(row.nightAllowance)}</td>
+                                    <td>${formatYen(row.overtimeAllowance)}</td>
+                                    <td>${formatYen(row.transportAmount)}</td>
+                                </tr>
+                            `).join('');
+                        }
+
+                        detailModal.show();
+                    })
+                    .catch(err => alert('詳細データ取得エラー: ' + err));
+            }
+
+            // 월 필터 버튼
+            document.getElementById('btnFilterMonth').addEventListener('click', function () {
+                const val = document.getElementById('targetMonthInput').value;
+                if (val) {
+                    currentYearMonth = val;
+                    loadPayrollList();
+                }
+            });
+
+            // 급여 일괄 계산 버튼
+            document.getElementById('btnCalculatePayroll').addEventListener('click', function () {
+                if (!confirm(`${currentYearMonth} の給与一括計算を実行しますか？`)) {
+                    return;
+                }
+
+                fetch('/api/payroll/calculate', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        storeId: storeId,
+                        targetYearMonth: currentYearMonth
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message || '給与計算が完了しました。');
+                        loadPayrollList();
+                    } else {
+                        alert('計算エラー: ' + data.message);
+                    }
+                })
+                .catch(err => alert('通信エラー: ' + err));
+            });
+
+            // Excel 다운로드 버튼
+            document.getElementById('btnExportExcel').addEventListener('click', function () {
+                window.location.href = `/api/payroll/excel?storeId=${storeId}&yearMonth=${currentYearMonth}`;
+            });
+
+            // 초기 로드
+            loadPayrollList();
+        });
+    </script>
+</div>
+</body>
+</html>

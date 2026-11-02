@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.kintai.domain.payroll.mapper.PayrollMapper">
+
+    <select id="findPayrollsByStoreAndMonth" resultType="com.example.kintai.domain.payroll.dto.PayrollDto">
+        SELECT
+            p.payroll_id,
+            p.store_id,
+            p.store_staff_id,
+            m.name AS staff_name,
+            p.target_year_month,
+            p.range_start_date,
+            p.range_end_date,
+            p.work_days_count,
+            p.total_work_minutes,
+            p.total_night_minutes,
+            p.total_overtime_minutes,
+            p.applied_hourly_wage,
+            p.applied_transport_limit,
+            p.base_pay,
+            p.night_allowance,
+            p.overtime_allowance,
+            p.transport_allowance,
+            p.gross_pay,
+            p.payroll_status,
+            p.confirmed_at,
+            p.paid_at
+        FROM payroll p
+        JOIN store_staff ss ON p.store_staff_id = ss.store_staff_id
+        JOIN member m ON ss.member_id = m.member_id
+        WHERE p.store_id = #{storeId}
+          AND p.target_year_month = #{targetYearMonth}
+        ORDER BY p.store_staff_id ASC
+    </select>
+
+    <select id="findById" resultType="com.example.kintai.domain.payroll.dto.PayrollDto">
+        SELECT
+            p.payroll_id,
+            p.store_id,
+            p.store_staff_id,
+            m.name AS staff_name,
+            p.target_year_month,
+            p.range_start_date,
+            p.range_end_date,
+            p.work_days_count,
+            p.total_work_minutes,
+            p.total_night_minutes,
+            p.total_overtime_minutes,
+            p.applied_hourly_wage,
+            p.applied_transport_limit,
+            p.base_pay,
+            p.night_allowance,
+            p.overtime_allowance,
+            p.transport_allowance,
+            p.gross_pay,
+            p.payroll_status,
+            p.confirmed_at,
+            p.paid_at
+        FROM payroll p
+        JOIN store_staff ss ON p.store_staff_id = ss.store_staff_id
+        JOIN member m ON ss.member_id = m.member_id
+        WHERE p.payroll_id = #{payrollId}
+    </select>
+
+    <insert id="upsertPayroll" useGeneratedKeys="true" keyProperty="payrollId">
+        INSERT INTO payroll (
+            store_id,
+            store_staff_id,
+            target_year_month,
+            range_start_date,
+            range_end_date,
+            work_days_count,
+            total_work_minutes,
+            total_night_minutes,
+            total_overtime_minutes,
+            applied_hourly_wage,
+            applied_transport_limit,
+            base_pay,
+            night_allowance,
+            overtime_allowance,
+            transport_allowance,
+            gross_pay,
+            payroll_status
+        ) VALUES (
+            #{storeId},
+            #{storeStaffId},
+            #{targetYearMonth},
+            #{rangeStartDate},
+            #{rangeEndDate},
+            #{workDaysCount},
+            #{totalWorkMinutes},
+            #{totalNightMinutes},
+            #{totalOvertimeMinutes},
+            #{appliedHourlyWage},
+            #{appliedTransportLimit},
+            #{basePay},
+            #{nightAllowance},
+            #{overtimeAllowance},
+            #{transportAllowance},
+            #{grossPay},
+            #{payrollStatus}
+        )
+        ON DUPLICATE KEY UPDATE
+            work_days_count = VALUES(work_days_count),
+            total_work_minutes = VALUES(total_work_minutes),
+            total_night_minutes = VALUES(total_night_minutes),
+            total_overtime_minutes = VALUES(total_overtime_minutes),
+            applied_hourly_wage = VALUES(applied_hourly_wage),
+            applied_transport_limit = VALUES(applied_transport_limit),
+            base_pay = VALUES(base_pay),
+            night_allowance = VALUES(night_allowance),
+            overtime_allowance = VALUES(overtime_allowance),
+            transport_allowance = VALUES(transport_allowance),
+            gross_pay = VALUES(gross_pay),
+            updated_at = CURRENT_TIMESTAMP
+    </insert>
+
+    <insert id="insertPayrollDailyDetail" useGeneratedKeys="true" keyProperty="payrollDailyDetailId">
+        INSERT INTO payroll_daily_detail (
+            payroll_id,
+            attendance_id,
+            work_date,
+            applied_hourly_wage,
+            total_break_minutes,
+            net_work_minutes,
+            night_work_minutes,
+            overtime_minutes,
+            base_pay,
+            night_allowance,
+            overtime_allowance,
+            transport_amount
+        ) VALUES (
+            #{payrollId},
+            #{attendanceId},
+            #{workDate},
+            #{appliedHourlyWage},
+            #{totalBreakMinutes},
+            #{netWorkMinutes},
+            #{nightWorkMinutes},
+            #{overtimeMinutes},
+            #{basePay},
+            #{nightAllowance},
+            #{overtimeAllowance},
+            #{transportAmount}
+        )
+    </insert>
+
+    <select id="findDailyDetailsByPayrollId" resultType="com.example.kintai.domain.payroll.dto.PayrollDailyDetailDto">
+        SELECT
+            payroll_daily_detail_id,
+            payroll_id,
+            attendance_id,
+            work_date,
+            applied_hourly_wage,
+            total_break_minutes,
+            net_work_minutes,
+            night_work_minutes,
+            overtime_minutes,
+            base_pay,
+            night_allowance,
+            overtime_allowance,
+            transport_amount
+        FROM payroll_daily_detail
+        WHERE payroll_id = #{payrollId}
+        ORDER BY work_date ASC
+    </select>
+
+    <delete id="deleteDailyDetailsByPayrollId">
+        DELETE FROM payroll_daily_detail
+        WHERE payroll_id = #{payrollId}
+    </delete>
+
+    <update id="updatePayrollStatusConfirm">
+        UPDATE payroll
+        SET payroll_status = 'CONFIRMED',
+            confirmed_at = #{confirmedAt},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE payroll_id = #{payrollId}
+          AND payroll_status = 'DRAFT'
+    </update>
+
+    <select id="countUnresolvedAttendance" resultType="int">
+        SELECT COUNT(*)
+        FROM attendance
+        WHERE store_staff_id = #{storeStaffId}
+          AND work_date &gt;= #{startDate}
+          AND work_date &lt;= #{endDate}
+          AND attendance_status IN ('WORKING', 'ON_BREAK', 'MOD_REQUESTED')
+    </select>
+
+    <select id="getPayCutoffDayByStoreId" resultType="java.lang.Integer">
+        SELECT pay_cutoff_day
+        FROM store
+        WHERE store_id = #{storeId}
+    </select>
+
+    <select id="findHourlyWageForStaffOnDate" resultType="java.lang.Integer">
+        SELECT hourly_wage
+        FROM store_staff_contract_history
+        WHERE store_staff_id = #{storeStaffId}
+          AND effective_from &lt;= #{workDate}
+          AND (effective_to IS NULL OR effective_to &gt; #{workDate})
+        ORDER BY effective_from DESC
+        LIMIT 1
+    </select>
+
+    <select id="findTransportLimitForStaffOnDate" resultType="java.lang.Integer">
+        SELECT monthly_transport_limit
+        FROM store_staff_contract_history
+        WHERE store_staff_id = #{storeStaffId}
+          AND effective_from &lt;= #{date}
+          AND (effective_to IS NULL OR effective_to &gt; #{date})
+        ORDER BY effective_from DESC
+        LIMIT 1
+    </select>
+
+    <select id="findDailyTransportFeeForStaffOnDate" resultType="java.lang.Integer">
+        SELECT daily_transport_fee
+        FROM store_staff_contract_history
+        WHERE store_staff_id = #{storeStaffId}
+          AND effective_from &lt;= #{date}
+          AND (effective_to IS NULL OR effective_to &gt; #{date})
+        ORDER BY effective_from DESC
+        LIMIT 1
+    </select>
+
+    <select id="lockStoreStaffForUpdate">
+        SELECT store_staff_id
+        FROM store_staff
+        WHERE store_staff_id = #{storeStaffId}
+        FOR UPDATE
+    </select>
+
+    <select id="findActiveStaffIdsByStoreId" resultType="java.lang.Long">
+        SELECT store_staff_id
+        FROM store_staff
+        WHERE store_id = #{storeId}
+          AND employment_status = 'ACTIVE'
+    </select>
+
+</mapper>

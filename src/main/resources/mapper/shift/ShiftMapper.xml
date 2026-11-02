@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.kintai.domain.shift.mapper.ShiftMapper">
+
+    <select id="findShiftEvents" resultType="com.example.kintai.domain.shift.dto.ShiftDto">
+        SELECT
+            s.shift_id,
+            s.store_id,
+            s.store_staff_id,
+            m.name AS staff_name,
+            s.work_date,
+            s.requested_start_at,
+            s.requested_end_at,
+            s.confirmed_start_at,
+            s.confirmed_end_at,
+            s.planned_break_minutes,
+            s.status,
+            s.staff_memo,
+            s.owner_memo
+        FROM shift_schedule s
+        JOIN store_staff ss ON s.store_staff_id = ss.store_staff_id
+        JOIN member m ON ss.member_id = m.member_id
+        WHERE s.store_id = #{storeId}
+          AND s.work_date &gt;= #{startDate}
+          AND s.work_date &lt; #{endDate}
+        ORDER BY s.work_date ASC, COALESCE(s.confirmed_start_at, s.requested_start_at) ASC
+    </select>
+
+    <select id="findById" resultType="com.example.kintai.domain.shift.dto.ShiftDto">
+        SELECT
+            s.shift_id,
+            s.store_id,
+            s.store_staff_id,
+            m.name AS staff_name,
+            s.work_date,
+            s.requested_start_at,
+            s.requested_end_at,
+            s.confirmed_start_at,
+            s.confirmed_end_at,
+            s.planned_break_minutes,
+            s.status,
+            s.staff_memo,
+            s.owner_memo
+        FROM shift_schedule s
+        JOIN store_staff ss ON s.store_staff_id = ss.store_staff_id
+        JOIN member m ON ss.member_id = m.member_id
+        WHERE s.shift_id = #{shiftId}
+    </select>
+
+    <insert id="insertShift" useGeneratedKeys="true" keyProperty="shiftId">
+        INSERT INTO shift_schedule (
+            store_id,
+            store_staff_id,
+            work_date,
+            requested_start_at,
+            requested_end_at,
+            confirmed_start_at,
+            confirmed_end_at,
+            planned_break_minutes,
+            status,
+            staff_memo,
+            owner_memo
+        ) VALUES (
+            #{storeId},
+            #{storeStaffId},
+            #{workDate},
+            #{requestedStartAt},
+            #{requestedEndAt},
+            #{confirmedStartAt},
+            #{confirmedEndAt},
+            #{plannedBreakMinutes},
+            #{status},
+            #{staffMemo},
+            #{ownerMemo}
+        )
+    </insert>
+
+    <update id="updateShiftConfirm">
+        UPDATE shift_schedule
+        SET confirmed_start_at = #{confirmedStartAt},
+            confirmed_end_at = #{confirmedEndAt},
+            planned_break_minutes = #{plannedBreakMinutes},
+            status = #{status},
+            owner_memo = #{ownerMemo},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE shift_id = #{shiftId}
+    </update>
+
+    <select id="existsOverlapShift" resultType="boolean">
+        SELECT COUNT(*) &gt; 0
+        FROM shift_schedule
+        WHERE store_staff_id = #{storeStaffId}
+          AND work_date = #{workDate}
+          AND status != 'REJECTED'
+          <if test="excludeShiftId != null">
+              AND shift_id != #{excludeShiftId}
+          </if>
+          AND (
+              (confirmed_start_at IS NOT NULL AND confirmed_start_at &lt; #{endTime} AND confirmed_end_at &gt; #{startTime})
+              OR
+              (confirmed_start_at IS NULL AND requested_start_at &lt; #{endTime} AND requested_end_at &gt; #{startTime})
+          )
+    </select>
+
+    <select id="lockStoreStaffForUpdate">
+        SELECT store_staff_id
+        FROM store_staff
+        WHERE store_staff_id = #{storeStaffId}
+        FOR UPDATE
+    </select>
+
+</mapper>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{common/layout :: layout(~{::title}, ~{::#content})}">
+<head>
+    <title>勤怠打刻 | KINTAI SYSTEM</title>
+</head>
+<body>
+<div id="content">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- 1. 타각 시계 카드 -->
+            <div class="card shadow-sm border-0 mb-4 text-center">
+                <div class="card-body p-4">
+                    <h5 class="text-muted mb-2" id="currentDateText">2026年10月30日 (金)</h5>
+                    <h1 class="display-3 fw-bold text-primary mb-3" id="currentTimeText">00:00:00</h1>
+
+                    <div class="row justify-content-center mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">打刻スタッフ選択 (テスト用)</label>
+                            <select class="form-select form-select-lg text-center" id="selectStaff">
+                                <option value="1" selected>山田 太郎 (Staff ID: 1)</option>
+                                <option value="2">佐藤 花子 (Staff ID: 2)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 4대 타각 버튼 그룹 -->
+                    <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
+                        <button type="button" class="btn btn-primary btn-lg px-4 py-3 fw-bold" id="btnClockIn">
+                            <i class="fa-solid fa-arrow-right-to-bracket me-2"></i>出勤
+                        </button>
+                        <button type="button" class="btn btn-warning btn-lg px-4 py-3 fw-bold" id="btnBreakStart">
+                            <i class="fa-solid fa-mug-hot me-2"></i>休憩開始
+                        </button>
+                        <button type="button" class="btn btn-info btn-lg px-4 py-3 fw-bold text-white" id="btnBreakEnd">
+                            <i class="fa-solid fa-person-walking-arrow-right me-2"></i>休憩終了
+                        </button>
+                        <button type="button" class="btn btn-danger btn-lg px-4 py-3 fw-bold" id="btnClockOut">
+                            <i class="fa-solid fa-arrow-right-from-bracket me-2"></i>退勤
+                        </button>
+                    </div>
+
+                    <div class="mt-4" id="punchAlertArea"></div>
+                </div>
+            </div>
+
+            <!-- 2. 근태 수정 신청 카드 -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-0"><i class="fa-solid fa-pen-to-square text-secondary me-2"></i>打刻漏れ・勤怠修正申請</h5>
+                    <span class="badge bg-light text-dark border">事後承認フロー</span>
+                </div>
+                <div class="card-body p-4">
+                    <form id="modRequestForm">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-bold">対象日</label>
+                                <input type="date" class="form-control" id="modWorkDate" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-bold">修正後 出勤時刻</label>
+                                <input type="time" class="form-control" id="modClockIn" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-bold">修正後 退勤時刻</label>
+                                <input type="time" class="form-control" id="modClockOut" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-bold">修正後 休憩合計 (分)</label>
+                                <input type="number" class="form-control" id="modBreakMinutes" value="60" min="0" step="15" required>
+                            </div>
+                            <div class="col-md-8 mb-3">
+                                <label class="form-label fw-bold">修正申請理由</label>
+                                <input type="text" class="form-control" id="modReason" placeholder="例: 打刻忘れのため、システム障害のため" required>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <button type="button" class="btn btn-secondary px-4 fw-bold" id="btnSubmitModRequest">
+                                <i class="fa-solid fa-paper-plane me-1"></i>修正申請を送信
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 스크립트 영역 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 1. 실시간 시계
+            function updateClock() {
+                const now = new Date();
+                const days = ['日', '月', '火', '水', '木', '金', '土'];
+                const dateStr = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日 (${days[now.getDay()]})`;
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+
+                document.getElementById('currentDateText').innerText = dateStr;
+                document.getElementById('currentTimeText').innerText = `${hours}:${minutes}:${seconds}`;
+            }
+            setInterval(updateClock, 1000);
+            updateClock();
+
+            // 오늘 날짜 기본 세팅
+            const todayStr = new Date().toISOString().substring(0, 10);
+            document.getElementById('modWorkDate').value = todayStr;
+
+            // 2. 타각 전송 함수
+            function sendPunch(punchType) {
+                const staffId = document.getElementById('selectStaff').value;
+                const alertArea = document.getElementById('punchAlertArea');
+                alertArea.innerHTML = '';
+
+                fetch('/api/attendance/punch', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        storeStaffId: parseInt(staffId),
+                        punchType: punchType
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alertArea.innerHTML = `
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="fa-solid fa-circle-check me-2"></i>${data.message || '打刻が完了しました。'}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="閉じる"></button>
+                            </div>`;
+                    } else {
+                        alertArea.innerHTML = `
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="fa-solid fa-triangle-exclamation me-2"></i>エラー: ${data.message}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="閉じる"></button>
+                            </div>`;
+                    }
+                })
+                .catch(err => {
+                    alertArea.innerHTML = `
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fa-solid fa-triangle-exclamation me-2"></i>通信エラー: ${err}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="閉じる"></button>
+                        </div>`;
+                });
+            }
+
+            document.getElementById('btnClockIn').addEventListener('click', () => sendPunch('CLOCK_IN'));
+            document.getElementById('btnBreakStart').addEventListener('click', () => sendPunch('BREAK_START'));
+            document.getElementById('btnBreakEnd').addEventListener('click', () => sendPunch('BREAK_END'));
+            document.getElementById('btnClockOut').addEventListener('click', () => sendPunch('CLOCK_OUT'));
+
+            // 3. 근태 수정 신청
+            document.getElementById('btnSubmitModRequest').addEventListener('click', function () {
+                const staffId = document.getElementById('selectStaff').value;
+                const workDate = document.getElementById('modWorkDate').value;
+                const clockIn = document.getElementById('modClockIn').value;
+                const clockOut = document.getElementById('modClockOut').value;
+                const breakMin = document.getElementById('modBreakMinutes').value;
+                const reason = document.getElementById('modReason').value;
+
+                if (!workDate || !clockIn || !clockOut || !reason) {
+                    alert('すべての必須項目を入力してください。');
+                    return;
+                }
+
+                const payload = {
+                    storeStaffId: parseInt(staffId),
+                    reqWorkDate: workDate,
+                    reqClockInAt: `${workDate}T${clockIn}:00`,
+                    reqClockOutAt: `${workDate}T${clockOut}:00`,
+                    reqTotalBreakMinutes: parseInt(breakMin),
+                    modReason: reason,
+                    breaks: []
+                };
+
+                fetch('/api/attendance/mod-request', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message || '勤怠修正申請を送信しました。');
+                        document.getElementById('modReason').value = '';
+                    } else {
+                        alert('申請エラー: ' + data.message);
+                    }
+                })
+                .catch(err => alert('通信エラー: ' + err));
+            });
+        });
+    </script>
+</div>
+</body>
+</html>

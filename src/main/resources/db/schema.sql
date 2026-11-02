@@ -1,8 +1,12 @@
--- 데이터베이스 생성 및 선택
+-- ==============================================================================
+-- 日本型 勤怠・シフト・給与管理システム (Kintai Management System)
+-- データベース スキーマ 定義書 (schema.sql) - rev.3 最終完全版
+-- ==============================================================================
+
 CREATE DATABASE IF NOT EXISTS kintai_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE kintai_db;
 
--- 1. 회원 (점주 및 알바생)
+-- 1. 회원 (점주 및 알바생 계정 마스터)
 CREATE TABLE IF NOT EXISTS member (
     member_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '회원 PK',
     email VARCHAR(100) NOT NULL UNIQUE COMMENT '로그인 이메일',
@@ -15,40 +19,63 @@ CREATE TABLE IF NOT EXISTS member (
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 2. 점포
+-- 2. 점포 (매장 정보 및 급여 마감일/타각 토큰 기준)
 CREATE TABLE IF NOT EXISTS store (
     store_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '점포 PK',
     owner_id BIGINT NOT NULL COMMENT '점주 회원 FK',
     store_name VARCHAR(100) NOT NULL COMMENT '매장명',
+    prefecture_code CHAR(2) NOT NULL DEFAULT '13' COMMENT '일본 도도부현 코드(기본 13=도쿄도)',
     invite_code VARCHAR(20) NOT NULL UNIQUE COMMENT '직원 등록용 초대 코드',
-    qr_token VARCHAR(100) NOT NULL COMMENT 'QR 출퇴근 인증 토큰',
+    qr_token VARCHAR(100) NOT NULL UNIQUE COMMENT '매장별 QR 토큰(고유성만 보장하며 실제 위치를 증명하지는 않음)',
     open_time TIME NOT NULL DEFAULT '09:00:00' COMMENT '기본 오픈 시간',
     close_time TIME NOT NULL DEFAULT '23:00:00' COMMENT '기본 마감 시간',
-    pay_cutoff_day INT NOT NULL DEFAULT 99 COMMENT '급여 마감일 (99=말일)',
+    pay_cutoff_day INT NOT NULL DEFAULT 99 COMMENT '급여 마감일 (1~28 또는 99=말일)',
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_store_owner FOREIGN KEY (owner_id) REFERENCES member (member_id)
+    CONSTRAINT fk_store_owner FOREIGN KEY (owner_id) REFERENCES member (member_id),
+    CONSTRAINT chk_store_cutoff CHECK (pay_cutoff_day BETWEEN 1 AND 28 OR pay_cutoff_day = 99)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 3. 점포 소속 직원 (근로 계약 및 시급/교통비 기준)
+-- 3. 점포 소속 직원 (다점포 매핑 및 개별 시급/통근수당 계약)
 CREATE TABLE IF NOT EXISTS store_staff (
     store_staff_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '점포 직원 매핑 PK',
     store_id BIGINT NOT NULL COMMENT '점포 FK',
     member_id BIGINT NOT NULL COMMENT '직원 회원 FK',
-    hourly_wage INT NOT NULL COMMENT '기본 시급(엔/원)',
-    daily_transport_fee INT NOT NULL DEFAULT 0 COMMENT '1일 왕복 교통비',
-    monthly_transport_limit INT NOT NULL DEFAULT 15000 COMMENT '월 교통비 상한액',
+    hourly_wage INT NOT NULL COMMENT '현재 표시용 시급(엔; 급여 계산 원본은 계약 이력)',
+    daily_transport_fee INT NOT NULL DEFAULT 0 COMMENT '1일 왕복 교통비(예: 500)',
+    monthly_transport_limit INT NOT NULL DEFAULT 15000 COMMENT '월 교통비 상한액(예: 15000)',
     employment_status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' COMMENT '재직상태 (PENDING, ACTIVE, RESIGNED)',
     joined_date DATE NOT NULL COMMENT '입사일',
     resigned_date DATE NULL COMMENT '퇴사일',
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT uq_store_member UNIQUE (store_id, member_id),
+    CONSTRAINT uq_store_staff_id_store UNIQUE (store_staff_id, store_id),
     CONSTRAINT fk_staff_store FOREIGN KEY (store_id) REFERENCES store (store_id),
-    CONSTRAINT fk_staff_member FOREIGN KEY (member_id) REFERENCES member (member_id)
+    CONSTRAINT fk_staff_member FOREIGN KEY (member_id) REFERENCES member (member_id),
+    CONSTRAINT chk_staff_wage CHECK (hourly_wage > 0),
+    CONSTRAINT chk_staff_transport CHECK (daily_transport_fee >= 0 AND monthly_transport_limit >= 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 4. 시프트 스케줄 (팀원 A: 희망 제출 및 확정)
+-- 3-A. 직원 계약 조건 이력(적용일 기준; 급여 계산 시 적용 시급/교통비 조회 원본)
+CREATE TABLE IF NOT EXISTS store_staff_contract_history (
+    contract_history_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '계약 이력 PK',
+    store_staff_id BIGINT NOT NULL COMMENT '점포 소속 직원 FK',
+    effective_from DATE NOT NULL COMMENT '적용 시작일(포함)',
+    effective_to DATE NULL COMMENT '적용 종료일(미포함; NULL이면 현재 유효)',
+    hourly_wage INT NOT NULL COMMENT '적용 시급(엔)',
+    daily_transport_fee INT NOT NULL DEFAULT 0 COMMENT '적용 1일 통근수당 지급액',
+    monthly_transport_limit INT NOT NULL DEFAULT 15000 COMMENT '적용 월 통근수당 지급 상한(회사 계약 기준)',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uq_contract_effective_from UNIQUE (store_staff_id, effective_from),
+    CONSTRAINT fk_contract_staff FOREIGN KEY (store_staff_id) REFERENCES store_staff (store_staff_id),
+    CONSTRAINT chk_contract_dates CHECK (effective_to IS NULL OR effective_to > effective_from),
+    CONSTRAINT chk_contract_wage CHECK (hourly_wage > 0),
+    CONSTRAINT chk_contract_transport CHECK (daily_transport_fee >= 0 AND monthly_transport_limit >= 0),
+    INDEX idx_contract_staff_period (store_staff_id, effective_from, effective_to)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 4. 시프트 스케줄 (희망 시프트 제출 및 점주 확정 통합 테이블)
 CREATE TABLE IF NOT EXISTS shift_schedule (
     shift_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '시프트 PK',
     store_id BIGINT NOT NULL COMMENT '점포 FK',
@@ -67,10 +94,12 @@ CREATE TABLE IF NOT EXISTS shift_schedule (
     INDEX idx_shift_store_date (store_id, work_date),
     INDEX idx_shift_staff_date (store_staff_id, work_date),
     CONSTRAINT fk_shift_store FOREIGN KEY (store_id) REFERENCES store (store_id),
-    CONSTRAINT fk_shift_staff FOREIGN KEY (store_staff_id) REFERENCES store_staff (store_staff_id)
+    CONSTRAINT fk_shift_staff_store FOREIGN KEY (store_staff_id, store_id) REFERENCES store_staff (store_staff_id, store_id),
+    CONSTRAINT chk_shift_break CHECK (planned_break_minutes >= 0),
+    CONSTRAINT chk_shift_status CHECK (status IN ('SUBMITTED', 'CONFIRMED', 'REJECTED'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 5. 출퇴근 근태 기록 (팀원 B: 타임카드 및 일별 시간 산출)
+-- 5. 출퇴근 근태 기록 (타임카드 및 일별 실근무·야간·연장 분 단위 산출)
 CREATE TABLE IF NOT EXISTS attendance (
     attendance_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '근태 PK',
     store_id BIGINT NOT NULL COMMENT '점포 FK',
@@ -79,12 +108,12 @@ CREATE TABLE IF NOT EXISTS attendance (
     work_date DATE NOT NULL COMMENT '출근 기준일',
     clock_in_at DATETIME NOT NULL COMMENT '출근 타각 일시',
     clock_out_at DATETIME NULL COMMENT '퇴근 타각 일시',
-    break_start_at DATETIME NULL COMMENT '휴게 시작 일시',
-    break_end_at DATETIME NULL COMMENT '휴게 종료 일시',
-    total_break_minutes INT NOT NULL DEFAULT 0 COMMENT '총 휴게시간(분)',
+    break_start_at DATETIME NULL COMMENT '현재 진행 중 휴게의 시작 시각(ON_BREAK 상태에서만 사용)',
+    break_end_at DATETIME NULL COMMENT '마지막 완료 휴게 종료 시각(표시용; 합산은 attendance_break 기준)',
+    total_break_minutes INT NOT NULL DEFAULT 0 COMMENT '완료된 모든 휴게 구간 합계(분; 파생값)',
     net_work_minutes INT NOT NULL DEFAULT 0 COMMENT '실근무시간(분, 휴게 제외)',
     night_work_minutes INT NOT NULL DEFAULT 0 COMMENT '야간근로시간(분, 22:00~05:00)',
-    overtime_minutes INT NOT NULL DEFAULT 0 COMMENT '연장잔업시간(분, 1일 8시간 초과분)',
+    overtime_minutes INT NOT NULL DEFAULT 0 COMMENT '연장잔업시간(분, 1일 8시간=480분 초과분)',
     clock_in_method VARCHAR(20) NOT NULL DEFAULT 'BUTTON' COMMENT '타각 방식 (BUTTON, QR, MANUAL_APPROVED)',
     attendance_status VARCHAR(20) NOT NULL DEFAULT 'WORKING' COMMENT '상태 (WORKING, ON_BREAK, COMPLETED, MOD_REQUESTED)',
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -92,11 +121,27 @@ CREATE TABLE IF NOT EXISTS attendance (
     INDEX idx_att_store_date (store_id, work_date),
     INDEX idx_att_staff_date (store_staff_id, work_date),
     CONSTRAINT fk_att_store FOREIGN KEY (store_id) REFERENCES store (store_id),
-    CONSTRAINT fk_att_staff FOREIGN KEY (store_staff_id) REFERENCES store_staff (store_staff_id),
-    CONSTRAINT fk_att_shift FOREIGN KEY (shift_id) REFERENCES shift_schedule (shift_id)
+    CONSTRAINT fk_att_staff_store FOREIGN KEY (store_staff_id, store_id) REFERENCES store_staff (store_staff_id, store_id),
+    CONSTRAINT fk_att_shift FOREIGN KEY (shift_id) REFERENCES shift_schedule (shift_id),
+    CONSTRAINT chk_attendance_minutes CHECK (total_break_minutes >= 0 AND net_work_minutes >= 0 AND night_work_minutes >= 0 AND overtime_minutes >= 0),
+    CONSTRAINT chk_attendance_status CHECK (attendance_status IN ('WORKING', 'ON_BREAK', 'COMPLETED', 'MOD_REQUESTED'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 6. 근태 수정 요청 (팀원 B: 타각 누락/오류 수정 및 점주 승인)
+-- 5-A. 근태별 휴게 구간(하루 여러 번의 휴게를 모두 보존)
+CREATE TABLE IF NOT EXISTS attendance_break (
+    attendance_break_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '휴게 구간 PK',
+    attendance_id BIGINT NOT NULL COMMENT '근태 FK',
+    break_start_at DATETIME NOT NULL COMMENT '휴게 시작 일시',
+    break_end_at DATETIME NOT NULL COMMENT '휴게 종료 일시',
+    duration_minutes INT NOT NULL COMMENT '휴게 구간 길이(분)',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_break_attendance (attendance_id, break_start_at),
+    CONSTRAINT fk_break_attendance FOREIGN KEY (attendance_id) REFERENCES attendance (attendance_id),
+    CONSTRAINT chk_break_range CHECK (break_end_at > break_start_at),
+    CONSTRAINT chk_break_duration CHECK (duration_minutes > 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 6. 근태 수정 요청 (타각 누락·오류 수정 및 점주 승인 감사 이력)
 CREATE TABLE IF NOT EXISTS attendance_mod_request (
     mod_request_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '근태 수정 요청 PK',
     attendance_id BIGINT NULL COMMENT '대상 근태 FK (타각 완전 누락 사후 생성 시 NULL 허용)',
@@ -117,31 +162,74 @@ CREATE TABLE IF NOT EXISTS attendance_mod_request (
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_mod_attendance FOREIGN KEY (attendance_id) REFERENCES attendance (attendance_id),
     CONSTRAINT fk_mod_store FOREIGN KEY (store_id) REFERENCES store (store_id),
-    CONSTRAINT fk_mod_staff FOREIGN KEY (store_staff_id) REFERENCES store_staff (store_staff_id),
-    CONSTRAINT fk_mod_reviewer FOREIGN KEY (reviewer_id) REFERENCES member (member_id)
+    CONSTRAINT fk_mod_staff_store FOREIGN KEY (store_staff_id, store_id) REFERENCES store_staff (store_staff_id, store_id),
+    CONSTRAINT fk_mod_reviewer FOREIGN KEY (reviewer_id) REFERENCES member (member_id),
+    CONSTRAINT chk_mod_status CHECK (approval_status IN ('PENDING', 'APPROVED', 'REJECTED'))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 7. 월별 급여 정산 (팀원 B: 일본 노동기준법 계산 결과 및 엑셀 출력 원본)
+-- 6-A. 수정 요청의 휴게 구간 스냅샷(승인 전·요청값을 감사 목적으로 보존)
+CREATE TABLE IF NOT EXISTS attendance_mod_break (
+    mod_break_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '수정 요청 휴게 구간 PK',
+    mod_request_id BIGINT NOT NULL COMMENT '수정 요청 FK',
+    break_set_type VARCHAR(10) NOT NULL COMMENT 'BEFORE 또는 REQUESTED',
+    break_start_at DATETIME NOT NULL,
+    break_end_at DATETIME NOT NULL,
+    duration_minutes INT NOT NULL,
+    CONSTRAINT fk_mod_break_request FOREIGN KEY (mod_request_id) REFERENCES attendance_mod_request (mod_request_id),
+    CONSTRAINT chk_mod_break_type CHECK (break_set_type IN ('BEFORE', 'REQUESTED')),
+    CONSTRAINT chk_mod_break_range CHECK (break_end_at > break_start_at),
+    CONSTRAINT chk_mod_break_duration CHECK (duration_minutes > 0),
+    INDEX idx_mod_break_request (mod_request_id, break_set_type)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 7. 월별 급여 정산 (적용 규칙에 따른 계산 스냅샷 및 엑셀 출력 원본)
 CREATE TABLE IF NOT EXISTS payroll (
     payroll_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '급여 정산 PK',
     store_id BIGINT NOT NULL COMMENT '점포 FK',
     store_staff_id BIGINT NOT NULL COMMENT '점포 직원 FK',
-    target_year_month CHAR(7) NOT NULL COMMENT '귀속 연월 (YYYY-MM)',
+    target_year_month CHAR(7) NOT NULL COMMENT '정산 표시 연월 (YYYY-MM)',
+    range_start_date DATE NOT NULL COMMENT '실제 정산 집계 시작일(포함)',
+    range_end_date DATE NOT NULL COMMENT '실제 정산 집계 종료일(포함)',
     work_days_count INT NOT NULL DEFAULT 0 COMMENT '총 출근 일수',
     total_work_minutes INT NOT NULL DEFAULT 0 COMMENT '월 총 실근무시간(분)',
     total_night_minutes INT NOT NULL DEFAULT 0 COMMENT '월 총 야간근로시간(분)',
     total_overtime_minutes INT NOT NULL DEFAULT 0 COMMENT '월 총 연장근로시간(분)',
-    applied_hourly_wage INT NOT NULL COMMENT '정산 시점 기본 시급 스냅샷',
-    base_pay INT NOT NULL DEFAULT 0 COMMENT '기본급 (실근무시간 기준)',
+    applied_hourly_wage INT NULL COMMENT '정산 기간에 시급이 한 가지인 경우 표시용 스냅샷; 복수 시급이면 NULL',
+    applied_transport_limit INT NOT NULL DEFAULT 0 COMMENT '정산 시 사용한 회사 통근수당 지급 상한 스냅샷',
+    base_pay INT NOT NULL DEFAULT 0 COMMENT '기본급 (일별 적용 시급 기준 100%)',
     night_allowance INT NOT NULL DEFAULT 0 COMMENT '야간 근로 할증 수당 (25% 가산분)',
     overtime_allowance INT NOT NULL DEFAULT 0 COMMENT '연장 잔업 할증 수당 (25% 가산분)',
     transport_allowance INT NOT NULL DEFAULT 0 COMMENT '교통비 지급액 (월 상한액 적용 후)',
     gross_pay INT NOT NULL DEFAULT 0 COMMENT '총 지급액',
     payroll_status VARCHAR(20) NOT NULL DEFAULT 'DRAFT' COMMENT '상태 (DRAFT, CONFIRMED, PAID)',
     confirmed_at DATETIME NULL COMMENT '정산 확정 일시',
+    paid_at DATETIME NULL COMMENT '지급 처리 일시(선택 기능)',
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT uq_payroll_staff_month UNIQUE (store_staff_id, target_year_month),
     CONSTRAINT fk_payroll_store FOREIGN KEY (store_id) REFERENCES store (store_id),
-    CONSTRAINT fk_payroll_staff FOREIGN KEY (store_staff_id) REFERENCES store_staff (store_staff_id)
+    CONSTRAINT fk_payroll_staff_store FOREIGN KEY (store_staff_id, store_id) REFERENCES store_staff (store_staff_id, store_id),
+    CONSTRAINT chk_payroll_range CHECK (range_end_date >= range_start_date),
+    CONSTRAINT chk_payroll_status CHECK (payroll_status IN ('DRAFT', 'CONFIRMED', 'PAID'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 7-A. 급여 확정 시점의 일별 상세 스냅샷(확정 명세서와 근태 변경 후 값의 불일치 방지)
+CREATE TABLE IF NOT EXISTS payroll_daily_detail (
+    payroll_daily_detail_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '급여 일별 상세 PK',
+    payroll_id BIGINT NOT NULL COMMENT '급여 정산 FK',
+    attendance_id BIGINT NOT NULL COMMENT '원본 근태 FK',
+    work_date DATE NOT NULL COMMENT '근무일',
+    applied_hourly_wage INT NOT NULL COMMENT '해당 근무일 적용 시급 스냅샷',
+    total_break_minutes INT NOT NULL DEFAULT 0,
+    net_work_minutes INT NOT NULL DEFAULT 0,
+    night_work_minutes INT NOT NULL DEFAULT 0,
+    overtime_minutes INT NOT NULL DEFAULT 0,
+    base_pay INT NOT NULL DEFAULT 0,
+    night_allowance INT NOT NULL DEFAULT 0,
+    overtime_allowance INT NOT NULL DEFAULT 0,
+    transport_amount INT NOT NULL DEFAULT 0 COMMENT '회사 지급 규칙으로 일자별 배분한 통근수당',
+    CONSTRAINT fk_payroll_detail_payroll FOREIGN KEY (payroll_id) REFERENCES payroll (payroll_id),
+    CONSTRAINT fk_payroll_detail_attendance FOREIGN KEY (attendance_id) REFERENCES attendance (attendance_id),
+    CONSTRAINT uq_payroll_detail_attendance UNIQUE (payroll_id, attendance_id),
+    INDEX idx_payroll_detail_date (payroll_id, work_date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

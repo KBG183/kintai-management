@@ -22,3 +22,10 @@ VALUES
     (1, 1, 2, 1300, 500, 15000, 'ACTIVE', '2026-10-01'),
     (2, 1, 3, 1350, 600, 15000, 'ACTIVE', '2026-10-15')
 ON DUPLICATE KEY UPDATE hourly_wage=VALUES(hourly_wage);
+
+-- 3-A. 직원 계약 조건 이력 (급여 계산의 단일 원본 데이터)
+INSERT INTO store_staff_contract_history (contract_history_id, store_staff_id, effective_from, effective_to, hourly_wage, daily_transport_fee, monthly_transport_limit)
+VALUES 
+    (1, 1, '2026-10-01', NULL, 1300, 500, 15000),
+    (2, 2, '2026-10-15', NULL, 1350, 600, 15000)
+ON DUPLICATE KEY UPDATE hourly_wage=VALUES(hourly_wage);

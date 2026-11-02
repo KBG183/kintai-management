@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.kintai.domain.attendance.mapper.AttendanceMapper">
+
+    <select id="findActiveAttendance" resultType="com.example.kintai.domain.attendance.dto.AttendanceDto">
+        SELECT
+            attendance_id,
+            store_id,
+            store_staff_id,
+            shift_id,
+            work_date,
+            clock_in_at,
+            clock_out_at,
+            break_start_at,
+            break_end_at,
+            total_break_minutes,
+            net_work_minutes,
+            night_work_minutes,
+            overtime_minutes,
+            clock_in_method,
+            attendance_status
+        FROM attendance
+        WHERE store_staff_id = #{storeStaffId}
+          AND attendance_status IN ('WORKING', 'ON_BREAK')
+        ORDER BY attendance_id DESC
+        LIMIT 1
+    </select>
+
+    <select id="findById" resultType="com.example.kintai.domain.attendance.dto.AttendanceDto">
+        SELECT
+            attendance_id,
+            store_id,
+            store_staff_id,
+            shift_id,
+            work_date,
+            clock_in_at,
+            clock_out_at,
+            break_start_at,
+            break_end_at,
+            total_break_minutes,
+            net_work_minutes,
+            night_work_minutes,
+            overtime_minutes,
+            clock_in_method,
+            attendance_status
+        FROM attendance
+        WHERE attendance_id = #{attendanceId}
+    </select>
+
+    <insert id="insertAttendance" useGeneratedKeys="true" keyProperty="attendanceId">
+        INSERT INTO attendance (
+            store_id,
+            store_staff_id,
+            shift_id,
+            work_date,
+            clock_in_at,
+            clock_out_at,
+            break_start_at,
+            break_end_at,
+            total_break_minutes,
+            net_work_minutes,
+            night_work_minutes,
+            overtime_minutes,
+            clock_in_method,
+            attendance_status
+        ) VALUES (
+            #{storeId},
+            #{storeStaffId},
+            #{shiftId},
+            #{workDate},
+            #{clockInAt},
+            #{clockOutAt},
+            #{breakStartAt},
+            #{breakEndAt},
+            #{totalBreakMinutes},
+            #{netWorkMinutes},
+            #{nightWorkMinutes},
+            #{overtimeMinutes},
+            #{clockInMethod},
+            #{attendanceStatus}
+        )
+    </insert>
+
+    <update id="updateAttendance">
+        UPDATE attendance
+        SET clock_out_at = #{clockOutAt},
+            break_start_at = #{breakStartAt},
+            break_end_at = #{breakEndAt},
+            total_break_minutes = #{totalBreakMinutes},
+            net_work_minutes = #{netWorkMinutes},
+            night_work_minutes = #{nightWorkMinutes},
+            overtime_minutes = #{overtimeMinutes},
+            attendance_status = #{attendanceStatus},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE attendance_id = #{attendanceId}
+    </update>
+
+    <insert id="insertBreak" useGeneratedKeys="true" keyProperty="attendanceBreakId">
+        INSERT INTO attendance_break (
+            attendance_id,
+            break_start_at,
+            break_end_at,
+            duration_minutes
+        ) VALUES (
+            #{attendanceId},
+            #{breakStartAt},
+            #{breakEndAt},
+            #{durationMinutes}
+        )
+    </insert>
+
+    <select id="findBreaksByAttendanceId" resultType="com.example.kintai.domain.attendance.dto.AttendanceBreakDto">
+        SELECT
+            attendance_break_id,
+            attendance_id,
+            break_start_at,
+            break_end_at,
+            duration_minutes
+        FROM attendance_break
+        WHERE attendance_id = #{attendanceId}
+        ORDER BY break_start_at ASC
+    </select>
+
+    <delete id="deleteBreaksByAttendanceId">
+        DELETE FROM attendance_break
+        WHERE attendance_id = #{attendanceId}
+    </delete>
+
+    <select id="isPayrollConfirmedForDate" resultType="boolean">
+        SELECT COUNT(*) &gt; 0
+        FROM payroll
+        WHERE store_staff_id = #{storeStaffId}
+          AND #{workDate} &gt;= range_start_date
+          AND #{workDate} &lt;= range_end_date
+          AND payroll_status IN ('CONFIRMED', 'PAID')
+    </select>
+
+    <select id="lockStoreStaffForUpdate">
+        SELECT store_staff_id
+        FROM store_staff
+        WHERE store_staff_id = #{storeStaffId}
+        FOR UPDATE
+    </select>
+
+    <select id="findConfirmedShiftIdForDate" resultType="java.lang.Long">
+        SELECT shift_id
+        FROM shift_schedule
+        WHERE store_staff_id = #{storeStaffId}
+          AND work_date = #{workDate}
+          AND status = 'CONFIRMED'
+        LIMIT 1
+    </select>
+
+    <select id="findCompletedAttendancesForStaffAndPeriod" resultType="com.example.kintai.domain.attendance.dto.AttendanceDto">
+        SELECT
+            attendance_id,
+            store_id,
+            store_staff_id,
+            shift_id,
+            work_date,
+            clock_in_at,
+            clock_out_at,
+            total_break_minutes,
+            net_work_minutes,
+            night_work_minutes,
+            overtime_minutes,
+            clock_in_method,
+            attendance_status
+        FROM attendance
+        WHERE store_staff_id = #{storeStaffId}
+          AND work_date &gt;= #{startDate}
+          AND work_date &lt;= #{endDate}
+          AND attendance_status = 'COMPLETED'
+        ORDER BY work_date ASC
+    </select>
+
+    <!-- 근태 수정 요청 신규 등록 -->
+    <insert id="insertModRequest" useGeneratedKeys="true" keyProperty="modRequestId">
+        INSERT INTO attendance_mod_request (
+            attendance_id,
+            store_id,
+            store_staff_id,
+            work_date,
+            before_clock_in_at,
+            before_clock_out_at,
+            before_break_minutes,
+            requested_clock_in_at,
+            requested_clock_out_at,
+            requested_break_minutes,
+            reason,
+            approval_status
+        ) VALUES (
+            #{attendanceId},
+            #{storeId},
+            #{storeStaffId},
+            #{workDate},
+            #{beforeClockInAt},
+            #{beforeClockOutAt},
+            #{beforeBreakMinutes},
+            #{requestedClockInAt},
+            #{requestedClockOutAt},
+            #{requestedBreakMinutes},
+            #{reason},
+            'PENDING'
+        )
+    </insert>
+
+    <!-- 근태 수정 휴게 구간 등록 -->
+    <insert id="insertModBreak">
+        INSERT INTO attendance_mod_break (
+            mod_request_id,
+            break_set_type,
+            break_start_at,
+            break_end_at,
+            duration_minutes
+        ) VALUES (
+            #{modRequestId},
+            #{breakSetType},
+            #{startAt},
+            #{endAt},
+            #{duration}
+        )
+    </insert>
+
+    <!-- 점포별 근태 수정 요청 목록 조회 -->
+    <select id="findModRequestsByStoreId" resultType="com.example.kintai.domain.attendance.dto.AttendanceModResponseDto">
+        SELECT
+            r.mod_request_id,
+            r.attendance_id,
+            r.store_id,
+            r.store_staff_id,
+            m.full_name AS staff_name,
+            r.work_date,
+            r.before_clock_in_at,
+            r.before_clock_out_at,
+            r.before_break_minutes,
+            r.requested_clock_in_at,
+            r.requested_clock_out_at,
+            r.requested_break_minutes,
+            r.reason,
+            r.approval_status,
+            r.reject_reason,
+            r.created_at
+        FROM attendance_mod_request r
+        JOIN store_staff ss ON r.store_staff_id = ss.store_staff_id
+        JOIN member m ON ss.member_id = m.member_id
+        WHERE r.store_id = #{storeId}
+        <if test="status != null and status != ''">
+            AND r.approval_status = #{status}
+        </if>
+        ORDER BY r.mod_request_id DESC
+    </select>
+
+    <!-- 수정 요청 단건 조회 -->
+    <select id="findModRequestById" resultType="com.example.kintai.domain.attendance.dto.AttendanceModResponseDto">
+        SELECT
+            r.mod_request_id,
+            r.attendance_id,
+            r.store_id,
+            r.store_staff_id,
+            m.full_name AS staff_name,
+            r.work_date,
+            r.before_clock_in_at,
+            r.before_clock_out_at,
+            r.before_break_minutes,
+            r.requested_clock_in_at,
+            r.requested_clock_out_at,
+            r.requested_break_minutes,
+            r.reason,
+            r.approval_status,
+            r.reject_reason,
+            r.created_at
+        FROM attendance_mod_request r
+        JOIN store_staff ss ON r.store_staff_id = ss.store_staff_id
+        JOIN member m ON ss.member_id = m.member_id
+        WHERE r.mod_request_id = #{modRequestId}
+    </select>
+
+    <!-- 수정 요청의 휴게 목록 조회 -->
+    <select id="findModBreaksByRequestId" resultType="com.example.kintai.domain.attendance.dto.AttendanceBreakDto">
+        SELECT
+            mod_break_id AS attendance_break_id,
+            mod_request_id AS attendance_id,
+            break_start_at,
+            break_end_at,
+            duration_minutes
+        FROM attendance_mod_break
+        WHERE mod_request_id = #{modRequestId}
+          AND break_set_type = #{breakSetType}
+        ORDER BY break_start_at ASC
+    </select>
+
+    <!-- 수정 요청 승인/반려 상태 갱신 -->
+    <update id="updateModRequestReview">
+        UPDATE attendance_mod_request
+        SET approval_status = #{status},
+            reviewer_id = #{reviewerId},
+            reject_reason = #{rejectReason},
+            reviewed_at = #{reviewedAt}
+        WHERE mod_request_id = #{modRequestId}
+    </update>
+
+</mapper>
