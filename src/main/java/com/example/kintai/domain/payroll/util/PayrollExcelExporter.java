@@ -20,7 +20,7 @@ public final class PayrollExcelExporter {
         try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             Sheet sheet = workbook.createSheet("給与台帳_" + targetYearMonth);
 
-            // 헤더 스타일 설정
+            // ヘッダースタイル設定
             CellStyle headerStyle = workbook.createCellStyle();
             Font headerFont = workbook.createFont();
             headerFont.setBold(true);
@@ -31,21 +31,21 @@ public final class PayrollExcelExporter {
             headerStyle.setAlignment(HorizontalAlignment.CENTER);
             headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
-            // 숫자 (금액) 스타일
+            // 金額スタイル（円記号表示）
             CellStyle currencyStyle = workbook.createCellStyle();
             DataFormat dataFormat = workbook.createDataFormat();
             currencyStyle.setDataFormat(dataFormat.getFormat("#,##0\"円\""));
             currencyStyle.setAlignment(HorizontalAlignment.RIGHT);
 
-            // 일반 숫자 (시간/일수) 스타일
+            // 一般数値（時間・日数）スタイル
             CellStyle numberStyle = workbook.createCellStyle();
             numberStyle.setAlignment(HorizontalAlignment.RIGHT);
 
-            // 중앙 정렬 스타일
+            // 中央揃えスタイル
             CellStyle centerStyle = workbook.createCellStyle();
             centerStyle.setAlignment(HorizontalAlignment.CENTER);
 
-            // 1. 헤더 생성
+            // 1. ヘッダー行の作成
             String[] headers = {
                     "氏名", "状態", "勤務日数", "総労働時間(分)", "深夜労働(分)", 
                     "残業(分)", "基本給", "深夜手当", "残業手当", "通勤手当", "総支給額"
@@ -59,7 +59,7 @@ public final class PayrollExcelExporter {
                 cell.setCellStyle(headerStyle);
             }
 
-            // 2. 데이터 행 작성
+            // 2. データ行の書き込み
             int rowIdx = 1;
             for (PayrollDto p : payrollList) {
                 Row row = sheet.createRow(rowIdx++);
@@ -119,7 +119,7 @@ public final class PayrollExcelExporter {
                 c10.setCellStyle(currencyStyle);
             }
 
-            // 열 너비 자동 조정
+            // 列幅の自動調整
             for (int i = 0; i < headers.length; i++) {
                 sheet.autoSizeColumn(i);
                 sheet.setColumnWidth(i, Math.max(sheet.getColumnWidth(i), 3500));

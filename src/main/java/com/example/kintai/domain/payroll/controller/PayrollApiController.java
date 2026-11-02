@@ -27,7 +27,7 @@ public class PayrollApiController {
     }
 
     /**
-     * 월별 급여 목록 조회
+     * 月別給与一覧取得
      */
     @GetMapping("/list")
     public ResponseEntity<ApiResponse<List<PayrollDto>>> getPayrollList(
@@ -39,7 +39,7 @@ public class PayrollApiController {
     }
 
     /**
-     * 월별 급여 일괄 계산 (Upsert)
+     * 月別給与一括計算 (Upsert)
      */
     @PostMapping("/calculate")
     public ResponseEntity<ApiResponse<Void>> calculateMonthlyPayroll(
@@ -50,7 +50,7 @@ public class PayrollApiController {
     }
 
     /**
-     * 급여 확정 (장부 잠금 - F01, F02, F04 방어 적용)
+     * 給与確定処理 (帳簿ロック・排他制御適用)
      */
     @PostMapping("/{payrollId}/confirm")
     public ResponseEntity<ApiResponse<Void>> confirmPayroll(
@@ -62,7 +62,7 @@ public class PayrollApiController {
     }
 
     /**
-     * 개인별 급여명세서 상세 조회 (일별 근태 및 계산 내역)
+     * スタッフ個人別給与明細詳細取得 (日別勤怠および計算内訳)
      */
     @GetMapping("/{payrollId}/detail")
     public ResponseEntity<ApiResponse<PayrollDetailResponseDto>> getPayrollDetail(

@@ -51,27 +51,27 @@ public class CalendarEventDto {
         LocalDateTime eventStart;
         LocalDateTime eventEnd;
 
-        // F08 방어: 점주 직접 배정 시프트(requested_*가 NULL)가 취소되더라도 이벤트 구간이 NULL이 되지 않도록 방어
+        // オーナー直接割り当てシフト（requested_*がNULL）の場合でもイベント区間がNULLにならないよう防衛
         if ("CONFIRMED".equalsIgnoreCase(status)) {
             eventStart = shift.getConfirmedStartAt() != null ? shift.getConfirmedStartAt() : shift.getRequestedStartAt();
             eventEnd = shift.getConfirmedEndAt() != null ? shift.getConfirmedEndAt() : shift.getRequestedEndAt();
-            dto.setColor("#0d6efd"); // 파란색
+            dto.setColor("#0d6efd"); // 青色（確定）
             String timeRange = (eventStart != null && eventEnd != null) 
-                    ? " (" + eventStart.format(timeFormatter) + "~" + eventEnd.format(timeFormatter) + ")" 
+                    ? " (" + eventStart.format(timeFormatter) + " - " + eventEnd.format(timeFormatter) + ")" 
                     : "";
             dto.setTitle("[確定] " + shift.getStaffName() + timeRange);
         } else if ("SUBMITTED".equalsIgnoreCase(status)) {
             eventStart = shift.getRequestedStartAt();
             eventEnd = shift.getRequestedEndAt();
-            dto.setColor("#fd7e14"); // 주황색
+            dto.setColor("#fd7e14"); // オレンジ色（希望）
             String timeRange = (eventStart != null && eventEnd != null) 
-                    ? " (" + eventStart.format(timeFormatter) + "~" + eventEnd.format(timeFormatter) + ")" 
+                    ? " (" + eventStart.format(timeFormatter) + " - " + eventEnd.format(timeFormatter) + ")" 
                     : "";
             dto.setTitle("[希望] " + shift.getStaffName() + timeRange);
-        } else { // REJECTED 등
+        } else { // REJECTED など
             eventStart = shift.getRequestedStartAt() != null ? shift.getRequestedStartAt() : shift.getConfirmedStartAt();
             eventEnd = shift.getRequestedEndAt() != null ? shift.getRequestedEndAt() : shift.getConfirmedEndAt();
-            dto.setColor("#6c757d"); // 회색
+            dto.setColor("#6c757d"); // グレー
             dto.setTitle("[未割当] " + shift.getStaffName());
         }
 

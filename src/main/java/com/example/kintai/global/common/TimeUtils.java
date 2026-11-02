@@ -5,14 +5,14 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 /**
- * 전사 공통 시간·분(Minute) 변환 유틸리티
+ * 共通時間・分（Minute）変換ユーティリティ
  */
 public final class TimeUtils {
 
     private TimeUtils() {}
 
     /**
-     * 분(Minute)을 일본어/표준 시간 포맷("04:45" 또는 "4時間45分")으로 변환
+     * 分（Minute）を標準時間フォーマット（"04:45"）に変換
      */
     public static String formatMinutesToHHmm(int totalMinutes) {
         int safeMinutes = Math.max(0, totalMinutes);
@@ -21,6 +21,9 @@ public final class TimeUtils {
         return String.format("%02d:%02d", hours, mins);
     }
 
+    /**
+     * 分（Minute）を日本語時間フォーマット（"4時間45分"）に変換
+     */
     public static String formatMinutesToJapanese(int totalMinutes) {
         int safeMinutes = Math.max(0, totalMinutes);
         int hours = safeMinutes / 60;
@@ -29,8 +32,7 @@ public final class TimeUtils {
     }
 
     /**
-     * 기준일(workDate)과 출퇴근 시각 문자열("18:00", "02:00")을 받아
-     * 자정 넘김(철야 익일 퇴근)을 자동 판별하여 퇴근 LocalDateTime을 생성한다.
+     * 勤務基準日と出退勤時刻文字列から、日跨ぎ（夜勤翌日退勤）を自動判定して退勤 LocalDateTime を生成
      */
     public static LocalDateTime resolveEndDateTime(LocalDate workDate, String startTimeStr, String endTimeStr) {
         LocalTime startTime = LocalTime.parse(startTimeStr);

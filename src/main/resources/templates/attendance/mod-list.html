@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ja" xmlns:th="http://www.thymeleaf.org"
       th:replace="~{common/layout :: layout(~{::title}, ~{::#content})}">
 <head>
@@ -24,7 +24,7 @@
         </div>
     </div>
 
-    <!-- 수정 신청 목록 테이블 카드 -->
+    <!-- 修正申請一覧テーブルカード -->
     <div class="card shadow-sm border-0 mb-4">
         <div class="card-body p-0">
             <div class="table-responsive">
@@ -52,7 +52,7 @@
         </div>
     </div>
 
-    <!-- 반려 사유 입력 모달 -->
+    <!-- 却下理由入力モーダル -->
     <div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -75,7 +75,7 @@
         </div>
     </div>
 
-    <!-- 스크립트 영역 -->
+    <!-- スクリプト領域 -->
     <script th:inline="javascript">
         document.addEventListener('DOMContentLoaded', function () {
             const storeId = /*[[${storeId}]]*/ 1;
@@ -152,7 +152,7 @@
             }
 
             function attachListeners() {
-                // 승인 처리
+                // 承認処理
                 document.querySelectorAll('.btn-approve').forEach(btn => {
                     btn.addEventListener('click', function () {
                         const modRequestId = this.getAttribute('data-id');
@@ -178,7 +178,7 @@
                     });
                 });
 
-                // 반려 모달 열기
+                // 却下モーダルオープン
                 document.querySelectorAll('.btn-reject').forEach(btn => {
                     btn.addEventListener('click', function () {
                         const modRequestId = this.getAttribute('data-id');
@@ -189,7 +189,7 @@
                 });
             }
 
-            // 반려 전송 버튼
+            // 却下送信ボタン
             document.getElementById('btnSubmitReject').addEventListener('click', function () {
                 const modRequestId = document.getElementById('rejectModRequestId').value;
                 const reason = document.getElementById('rejectReasonInput').value.trim();

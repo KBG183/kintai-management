@@ -176,7 +176,7 @@
         ORDER BY work_date ASC
     </select>
 
-    <!-- 근태 수정 요청 신규 등록 -->
+    <!-- 勤怠修正申請の新規登録 -->
     <insert id="insertModRequest" useGeneratedKeys="true" keyProperty="modRequestId">
         INSERT INTO attendance_mod_request (
             attendance_id,
@@ -207,7 +207,7 @@
         )
     </insert>
 
-    <!-- 근태 수정 휴게 구간 등록 -->
+    <!-- 勤怠修正休憩区間の登録 -->
     <insert id="insertModBreak">
         INSERT INTO attendance_mod_break (
             mod_request_id,
@@ -224,7 +224,7 @@
         )
     </insert>
 
-    <!-- 점포별 근태 수정 요청 목록 조회 -->
+    <!-- 店舗別勤怠修正申請一覧取得 -->
     <select id="findModRequestsByStoreId" resultType="com.example.kintai.domain.attendance.dto.AttendanceModResponseDto">
         SELECT
             r.mod_request_id,
@@ -253,7 +253,7 @@
         ORDER BY r.mod_request_id DESC
     </select>
 
-    <!-- 수정 요청 단건 조회 -->
+    <!-- 修正申請単件取得 -->
     <select id="findModRequestById" resultType="com.example.kintai.domain.attendance.dto.AttendanceModResponseDto">
         SELECT
             r.mod_request_id,
@@ -278,7 +278,7 @@
         WHERE r.mod_request_id = #{modRequestId}
     </select>
 
-    <!-- 수정 요청의 휴게 목록 조회 -->
+    <!-- 修正申請の休憩区間一覧取得 -->
     <select id="findModBreaksByRequestId" resultType="com.example.kintai.domain.attendance.dto.AttendanceBreakDto">
         SELECT
             mod_break_id AS attendance_break_id,
@@ -292,7 +292,7 @@
         ORDER BY break_start_at ASC
     </select>
 
-    <!-- 수정 요청 승인/반려 상태 갱신 -->
+    <!-- 修正申請の承認・却下状態更新 -->
     <update id="updateModRequestReview">
         UPDATE attendance_mod_request
         SET approval_status = #{status},

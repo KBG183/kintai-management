@@ -31,6 +31,6 @@ public interface ShiftMapper {
             @Param("excludeShiftId") Long excludeShiftId
     );
 
-    // [F04 방어]: 동시성 충돌 방지를 위한 비관적 락 (SELECT ... FOR UPDATE)
+    // 排他制御: 同時更新防止のための悲観的ロック (SELECT ... FOR UPDATE)
     void lockStoreStaffForUpdate(@Param("storeStaffId") Long storeStaffId);
 }

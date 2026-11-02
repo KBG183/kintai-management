@@ -18,7 +18,7 @@ public class MemberService {
     public MemberDto getMemberById(Long memberId) {
         MemberDto member = memberMapper.findById(memberId);
         if (member == null) {
-            throw new IllegalArgumentException("해당 회원을 찾을 수 없습니다. (ID: " + memberId + ")");
+            throw new IllegalArgumentException("該当する会員が見つかりません。(ID: " + memberId + ")");
         }
         return member;
     }

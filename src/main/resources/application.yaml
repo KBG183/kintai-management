@@ -6,21 +6,21 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/kintai_db?useSSL=false&serverTimezone=Asia/Tokyo&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
     username: root
-    password: 1234  # 환경에 맞게 수정하세요.
+    password: 1234  # 環境に合わせて変更してください
 
   thymeleaf:
-    cache: false # 개발 중 HTML 수정 시 바로 반영되도록 설정
+    cache: false # 開発環境用キャッシュ無効化
 
-# MyBatis 4.x 연동 설정
+# MyBatis 連携設定
 mybatis:
   mapper-locations: classpath:mapper/**/*.xml
   type-aliases-package: com.example.kintai.domain
   configuration:
-    map-underscore-to-camel-case: true # DB 컬럼 snake_case -> Java camelCase 자동 매핑
+    map-underscore-to-camel-case: true # DBカラム（snake_case）から Java（camelCase）への自動マッピング
     default-fetch-size: 100
 
-# 일본 노무·세법 법정 기준값 설정 (2026년 10월 개정 기준, 하드코딩 방지)
+# 日本の労働基準法・税法法定基準値設定（2026年10月改正基準）
 kintai:
   legal:
-    min-hourly-wage: 1280        # 도쿄도 최저시급 (2026년 10월 개정 기준)
-    tax-barrier-default: 1230000 # 연수입의 벽 기본 부양공제 기준 (123만 엔, 구 103만 엔)
+    min-hourly-wage: 1280        # 東京都最低賃金 (2026年10月改定基準)
+    tax-barrier-default: 1230000 # 年収の壁（配偶者控除・扶養控除基準: 123万円）

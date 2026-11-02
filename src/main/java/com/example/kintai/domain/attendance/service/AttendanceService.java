@@ -23,7 +23,7 @@ public class AttendanceService {
     }
 
     /**
-     * 실시간 타각 처리 (출근, 휴게시작, 휴게종료, 퇴근)
+     * リアルタイム打刻処理（出勤・休憩開始・休憩終了・退勤）
      */
     @Transactional
     public AttendanceDto punch(AttendancePunchDto punchDto) {
@@ -32,7 +32,7 @@ public class AttendanceService {
         LocalDateTime now = LocalDateTime.now();
         LocalDate today = now.toLocalDate();
 
-        // [F04 방어]: 동시성 충돌 방지를 위한 비관적 락 직렬화
+        // 排他制御: 同時打刻の競合を防止する悲観的ロック
         attendanceMapper.lockStoreStaffForUpdate(storeStaffId);
 
         AttendanceDto active = attendanceMapper.findActiveAttendance(storeStaffId);
@@ -60,7 +60,7 @@ public class AttendanceService {
             throw new IllegalStateException("既に出勤中の打刻が存在します。");
         }
 
-        // [F01 방어]: 해당 일자가 속한 급여가 이미 CONFIRMED 또는 PAID이면 출근 타각 차단
+        // 該当日の給与が既に確定済（CONFIRMED / PAID）の場合は新規打刻を遮断
         if (attendanceMapper.isPayrollConfirmedForDate(punchDto.getStoreStaffId(), today)) {
             throw new IllegalStateException("対象期間の給与は既に確定済みのため、新規打刻はできません。");
         }
@@ -120,14 +120,14 @@ public class AttendanceService {
             throw new IllegalStateException("勤務中のみ退勤打刻が可能です。(休憩中の場合は先に休憩を終了してください)");
         }
 
-        // 다회 휴게 구간 목록 조회
+        // 休憩区間一覧の取得
         List<AttendanceBreakDto> breakEntities = attendanceMapper.findBreaksByAttendanceId(active.getAttendanceId());
         List<AttendanceTimeCalculator.BreakInterval> breakIntervals = new ArrayList<>();
         for (AttendanceBreakDto b : breakEntities) {
             breakIntervals.add(new AttendanceTimeCalculator.BreakInterval(b.getBreakStartAt(), b.getBreakEndAt()));
         }
 
-        // 시간 계산기 호출 (정밀 분 단위 산출)
+        // 時間計算機（分単位精密計算）呼び出し
         AttendanceTimeCalculator.CalculationResult calc = AttendanceTimeCalculator.calculate(
                 active.getClockInAt(),
                 now,
@@ -150,22 +150,22 @@ public class AttendanceService {
     }
 
     /**
-     * [F01 & F05 & F04 방어]: 근태 수정 신청 등록
+     * 勤怠修正申請の登録（スタッフ申請）
      */
     @Transactional
     public Long requestModification(AttendanceModRequestDto requestDto) {
         Long storeStaffId = requestDto.getStoreStaffId();
         LocalDate workDate = requestDto.getWorkDate();
 
-        // [F04 방어]: 비관적 락 확보
+        // 排他制御: 悲観的ロックの確保
         attendanceMapper.lockStoreStaffForUpdate(storeStaffId);
 
-        // [F01 방어]: 해당 근무일에 귀속된 급여가 이미 확정(CONFIRMED/PAID)된 경우 변경 차단
+        // 該当勤務日の給与が確定済の場合は修正申請を遮断
         if (attendanceMapper.isPayrollConfirmedForDate(storeStaffId, workDate)) {
             throw new IllegalStateException("指定された勤務日 (" + workDate + ") は既に給与が確定されているため、修正申請できません。");
         }
 
-        // [F05 방어]: 출근일과 근무 기준일 일치 검증
+        // 出勤日と勤務基準日の一致検証
         if (!requestDto.getRequestedClockInAt().toLocalDate().equals(workDate)) {
             throw new IllegalArgumentException("出勤時刻の日付は勤務基準日と一致している必要があります。");
         }
@@ -173,7 +173,7 @@ public class AttendanceService {
             throw new IllegalArgumentException("退勤時刻は出勤時刻より後である必要があります。");
         }
 
-        // 기존 근태가 있는 경우 원본 스냅샷 조회
+        // 既存勤怠が存在する場合は元のスナップショットを取得
         AttendanceDto original = null;
         if (requestDto.getAttendanceId() != null) {
             original = attendanceMapper.findById(requestDto.getAttendanceId());
@@ -186,10 +186,10 @@ public class AttendanceService {
         }
 
         if (requestDto.getStoreId() == null) {
-            requestDto.setStoreId(1L); // 기본 점포 보정
+            requestDto.setStoreId(1L); // デフォルト店舗補正
         }
 
-        // 요청 총 휴게시간 계산
+        // 申請合計休憩時間の計算
         int totalBreakMin = (requestDto.getRequestedBreakMinutes() != null) ? requestDto.getRequestedBreakMinutes() : 0;
         if (requestDto.getRequestedBreaks() != null && !requestDto.getRequestedBreaks().isEmpty()) {
             int sumBreak = 0;
@@ -200,11 +200,11 @@ public class AttendanceService {
         }
         requestDto.setRequestedBreakMinutes(totalBreakMin);
 
-        // 1. 수정 요청 등록
+        // 1. 修正申請レコード登録
         attendanceMapper.insertModRequest(requestDto);
         Long modRequestId = requestDto.getModRequestId();
 
-        // 2. 수정 전 휴게 구간 스냅샷 저장
+        // 2. 修正前休憩区間スナップショットの保存
         if (original != null) {
             List<AttendanceBreakDto> beforeBreaks = attendanceMapper.findBreaksByAttendanceId(original.getAttendanceId());
             for (AttendanceBreakDto b : beforeBreaks) {
@@ -212,7 +212,7 @@ public class AttendanceService {
             }
         }
 
-        // 3. 수정 요청 휴게 구간 스냅샷 저장
+        // 3. 修正希望休憩区間スナップショットの保存
         if (requestDto.getRequestedBreaks() != null) {
             for (AttendanceModRequestDto.BreakTimeDto b : requestDto.getRequestedBreaks()) {
                 int dur = (int) Duration.between(b.getStartAt(), b.getEndAt()).toMinutes();
@@ -224,14 +224,14 @@ public class AttendanceService {
     }
 
     /**
-     * 점포별 근태 수정 요청 목록 조회
+     * 店舗別勤怠修正申請一覧取得
      */
     public List<AttendanceModResponseDto> getModRequests(Long storeId, String status) {
         return attendanceMapper.findModRequestsByStoreId(storeId, status);
     }
 
     /**
-     * [F01 & F04 방어]: 점주 근태 수정 요청 승인 또는 반려
+     * 店長による勤怠修正申請の承認または却下処理
      */
     @Transactional
     public void reviewModification(Long modRequestId, Long reviewerId, AttendanceModReviewDto reviewDto) {
@@ -244,10 +244,10 @@ public class AttendanceService {
             throw new IllegalStateException("既に処理された申請です。(状態: " + req.getApprovalStatus() + ")");
         }
 
-        // [F04 방어]: 비관적 락 확보
+        // 排他制御: 悲観的ロックの確保
         attendanceMapper.lockStoreStaffForUpdate(req.getStoreStaffId());
 
-        // [F01 방어]: 해당 근무일에 귀속된 급여가 이미 확정된 경우 승인 불가
+        // 該当勤務日の給与が確定済の場合は承認不可
         if (attendanceMapper.isPayrollConfirmedForDate(req.getStoreStaffId(), req.getWorkDate())) {
             throw new IllegalStateException("指定された勤務日は既に給与が確定されているため、承認できません。");
         }
@@ -259,7 +259,7 @@ public class AttendanceService {
             return;
         }
 
-        // 승인 (APPROVE) 처리
+        // 承認（APPROVE）処理
         List<AttendanceBreakDto> reqBreaks = attendanceMapper.findModBreaksByRequestId(modRequestId, "REQUESTED");
         List<AttendanceTimeCalculator.BreakInterval> breakIntervals = new ArrayList<>();
         int totalBreakMin = 0;
@@ -273,7 +273,7 @@ public class AttendanceService {
             totalBreakMin = req.getRequestedBreakMinutes();
         }
 
-        // 정밀 분 단위 근태 시간 계산
+        // 分単位精密勤怠計算
         AttendanceTimeCalculator.CalculationResult calc = AttendanceTimeCalculator.calculate(
                 req.getRequestedClockInAt(),
                 req.getRequestedClockOutAt(),
@@ -281,7 +281,7 @@ public class AttendanceService {
         );
 
         if (req.getAttendanceId() != null) {
-            // 기존 근태 업데이트
+            // 既存勤怠の更新
             AttendanceDto att = attendanceMapper.findById(req.getAttendanceId());
             if (att != null) {
                 att.setClockInAt(req.getRequestedClockInAt());
@@ -293,7 +293,7 @@ public class AttendanceService {
                 att.setAttendanceStatus("COMPLETED");
                 attendanceMapper.updateAttendance(att);
 
-                // 휴게 테이블 교체
+                // 休憩テーブルの置換
                 attendanceMapper.deleteBreaksByAttendanceId(att.getAttendanceId());
                 for (AttendanceBreakDto b : reqBreaks) {
                     b.setAttendanceId(att.getAttendanceId());
@@ -301,7 +301,7 @@ public class AttendanceService {
                 }
             }
         } else {
-            // 완전 누락 사후 신규 근태 생성
+            // 完全打刻漏れによる事後新規勤怠生成
             AttendanceDto newAtt = new AttendanceDto();
             newAtt.setStoreId(req.getStoreId());
             newAtt.setStoreStaffId(req.getStoreStaffId());

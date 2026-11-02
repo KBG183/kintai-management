@@ -20,7 +20,7 @@ public final class PayrollCalculator {
     ) {}
 
     /**
-     * 점포의 급여 마감일(payCutoffDay: 1~28 또는 99=말일)에 따른 실제 정산 집계 기간을 산출한다.
+     * 店舗の給与締日（payCutoffDay: 1~28 または 99=末日締）に基づく実際の集計期間を算出
      */
     public static DateRange resolveDateRange(String targetYearMonthStr, int payCutoffDay) {
         YearMonth ym;
@@ -43,12 +43,12 @@ public final class PayrollCalculator {
     }
 
     /**
-     * [F06 방어]: 동일 근무일의 실근무, 야간, 연장 근무 분을 합산한 후 정밀 HALF_UP 반올림하여 일별 급여를 산출한다.
+     * 同一勤務日の実労働、深夜、時間外残業分数を合算し、HALF_UP丸めによって日別支給額を算出
      *
-     * @param hourlyWage 근무일 기준 적용 계약 시급
-     * @param totalNetWorkMinutes 해당 일자의 총 실근무시간 (분)
-     * @param totalNightMinutes 해당 일자의 총 야간근로시간 (분)
-     * @param totalOvertimeMinutes 해당 일자의 총 연장근로시간 (분)
+     * @param hourlyWage 勤務日基準の適用契約時給
+     * @param totalNetWorkMinutes 該当日の総実労働時間 (分)
+     * @param totalNightMinutes 該当日の総深夜労働時間 (分)
+     * @param totalOvertimeMinutes 該当日の総時間外労働時間 (分)
      */
     public static DailyPayResult calculateDailyPay(
             int hourlyWage,
@@ -56,13 +56,13 @@ public final class PayrollCalculator {
             int totalNightMinutes,
             int totalOvertimeMinutes
     ) {
-        // 기본급 (100%): 시급 * 실근무분 / 60
+        // 基本給 (100%): 時給 * 実労働分 / 60
         int basePay = yenRound(BigDecimal.valueOf(hourlyWage).multiply(BigDecimal.valueOf(totalNetWorkMinutes)), 60);
 
-        // 야간 할증 (25%): 시급 * 0.25 * 야간분 / 60 = 시급 * 야간분 / 240
+        // 深夜割増 (25%): 時給 * 0.25 * 深夜分 / 60 = 時給 * 深夜分 / 240
         int nightAllowance = yenRound(BigDecimal.valueOf(hourlyWage).multiply(BigDecimal.valueOf(totalNightMinutes)), 240);
 
-        // 연장 할증 (25%): 시급 * 0.25 * 연장분 / 60 = 시급 * 연장분 / 240
+        // 時間外割増 (25%): 時給 * 0.25 * 残業分 / 60 = 時給 * 残業分 / 240
         int overtimeAllowance = yenRound(BigDecimal.valueOf(hourlyWage).multiply(BigDecimal.valueOf(totalOvertimeMinutes)), 240);
 
         int totalPay = basePay + nightAllowance + overtimeAllowance;
@@ -70,7 +70,7 @@ public final class PayrollCalculator {
     }
 
     /**
-     * 일본 엔화 정수 반올림 (RoundingMode.HALF_UP)
+     * 日本円の整数四捨五入 (RoundingMode.HALF_UP)
      */
     public static int yenRound(BigDecimal numerator, int denominator) {
         return numerator.divide(BigDecimal.valueOf(denominator), 0, RoundingMode.HALF_UP)

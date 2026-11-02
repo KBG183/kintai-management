@@ -28,13 +28,13 @@ public interface AttendanceMapper {
 
     int deleteBreaksByAttendanceId(@Param("attendanceId") Long attendanceId);
 
-    // [F01 방어]: 해당 근무일에 귀속된 급여가 이미 CONFIRMED 또는 PAID 상태인지 확인
+    // 該当勤務日の給与が確定済（CONFIRMED / PAID）か確認
     boolean isPayrollConfirmedForDate(
             @Param("storeStaffId") Long storeStaffId,
             @Param("workDate") LocalDate workDate
     );
 
-    // [F04 방어]: 동시성 충돌 방지를 위한 비관적 락 (SELECT ... FOR UPDATE)
+    // 同時更新防止のための悲観的ロック (SELECT ... FOR UPDATE)
     void lockStoreStaffForUpdate(@Param("storeStaffId") Long storeStaffId);
 
     Long findConfirmedShiftIdForDate(
@@ -48,7 +48,7 @@ public interface AttendanceMapper {
             @Param("endDate") LocalDate endDate
     );
 
-    // 근태 수정 신청 관련
+    // 勤怠修正申請関連
     int insertModRequest(AttendanceModRequestDto modRequest);
 
     int insertModBreak(

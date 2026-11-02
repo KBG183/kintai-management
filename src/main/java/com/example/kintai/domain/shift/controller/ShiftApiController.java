@@ -23,7 +23,7 @@ public class ShiftApiController {
     }
 
     /**
-     * 월간 캘린더 이벤트 목록 조회
+     * 月間カレンダー用シフトイベント一覧取得
      */
     @GetMapping("/events")
     public ResponseEntity<List<CalendarEventDto>> getEvents(
@@ -36,7 +36,7 @@ public class ShiftApiController {
     }
 
     /**
-     * 알바생 희망 시프트 제출
+     * スタッフによる希望シフト提出
      */
     @PostMapping("/request")
     public ResponseEntity<ApiResponse<Long>> requestShift(@RequestBody ShiftRequestDto requestDto) {
@@ -45,7 +45,7 @@ public class ShiftApiController {
     }
 
     /**
-     * 점주 시프트 확정
+     * 店長によるシフト確定・更新
      */
     @PutMapping("/{shiftId}/confirm")
     public ResponseEntity<ApiResponse<Void>> confirmShift(

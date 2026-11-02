@@ -32,7 +32,7 @@ public class PayrollService {
     }
 
     /**
-     * 월별 급여 일괄 집계 및 계산 (Upsert)
+     * 月別給与の一括集計および計算 (Upsert)
      */
     @Transactional
     public void calculateMonthlyPayroll(Long storeId, String targetYearMonth) {
@@ -52,10 +52,10 @@ public class PayrollService {
 
     @Transactional
     public PayrollDto calculatePayrollForStaff(Long storeId, Long staffId, String targetYearMonth, LocalDate startDate, LocalDate endDate) {
-        // [F04 방어]: 동시성 충돌 방지를 위한 비관적 락 직렬화
+        // 排他制御: 同時計算競合を防止する悲観的ロック
         payrollMapper.lockStoreStaffForUpdate(staffId);
 
-        // 미처리 근태 확인 (진행 중 타각이나 수정 신청이 있으면 정산 중단)
+        // 未処理勤怠の確認（打刻途中や未承認申請がある場合は計算中断）
         int unresolvedCount = payrollMapper.countUnresolvedAttendance(staffId, startDate, endDate);
         if (unresolvedCount > 0) {
             throw new IllegalStateException("未承認または打刻途中の勤怠が存在するため、給与計算を中断しました。(職員ID: " + staffId + ")");
@@ -63,7 +63,7 @@ public class PayrollService {
 
         List<AttendanceDto> attendances = attendanceMapper.findCompletedAttendancesForStaffAndPeriod(staffId, startDate, endDate);
 
-        // [F10 방어]: 통근수당 상한액(정산 1회당 상한) 조회
+        // 通勤手当上限額（1回の精算あたりの上限）の取得
         Integer transportLimitVal = payrollMapper.findTransportLimitForStaffOnDate(staffId, endDate);
         int transportLimit = (transportLimitVal != null) ? transportLimitVal : 15000;
 
@@ -89,12 +89,12 @@ public class PayrollService {
             int hourlyWage = hourlyWageVal;
             uniqueWages.add(hourlyWage);
 
-            // [F09 방어]: 2026년 도쿄도 최저시급(1,280엔) 미달 여부 방어
+            // 2026年東京都最低賃金 (1,280円) 割れを防止
             if (hourlyWage < 1280) {
                 throw new IllegalStateException("契約時給 (" + hourlyWage + "円) が法定最低賃金 (1,280円) を下回っています。");
             }
 
-            // [F06 방어]: 일별 합산 후 HALF_UP 정밀 반올림 계산
+            // 日別計算（端数は HALF_UP で厳密に丸め）
             PayrollCalculator.DailyPayResult dailyPay = PayrollCalculator.calculateDailyPay(
                     hourlyWage,
                     att.getNetWorkMinutes(),
@@ -102,7 +102,7 @@ public class PayrollService {
                     att.getOvertimeMinutes()
             );
 
-            // [F10 방어]: 1일 1회 통근수당 지급 및 잔여 상한액 내 배분
+            // 1日1回通勤手当支給および月額上限枠内での配分
             int transportAmount = 0;
             if (!workedDates.contains(workDate)) {
                 workedDates.add(workDate);
@@ -160,7 +160,7 @@ public class PayrollService {
 
         payrollMapper.upsertPayroll(payroll);
 
-        // 일별 상세 스냅샷 교체 저장
+        // 日別詳細スナップショットの再保存
         payrollMapper.deleteDailyDetailsByPayrollId(payroll.getPayrollId());
         for (PayrollDailyDetailDto detail : detailsToInsert) {
             detail.setPayrollId(payroll.getPayrollId());
@@ -171,7 +171,7 @@ public class PayrollService {
     }
 
     /**
-     * [F01 & F02 & F04 방어]: 급여 확정 잠금 (장부 불변성 보장)
+     * 給与確定ロック処理（帳簿の不変性を保証）
      */
     @Transactional
     public void confirmPayroll(Long payrollId, PayrollConfirmRequestDto confirmDto) {
@@ -184,22 +184,21 @@ public class PayrollService {
             throw new IllegalStateException("既に確定済みの給与データです。");
         }
 
-        // [F04 방어]: 동시성 충돌 방지를 위한 비관적 락
+        // 排他制御: 悲観的ロック
         payrollMapper.lockStoreStaffForUpdate(existing.getStoreStaffId());
 
-        // [F01 방어]: 정산 대상 기간 종료 필수 검증
-        // 오늘 날짜가 정산 종료일보다 뒤여야 함 (당월 기간이 아직 끝나지 않았는데 조기 확정하는 사태 원천 차단)
+        // 精算対象期間終了の検証（締め期間終了前の早期確定を防止）
         if (!LocalDate.now().isAfter(existing.getRangeEndDate())) {
             throw new IllegalStateException("精算対象期間 (" + existing.getRangeEndDate() + ") が終了する前に給与を確定することはできません。");
         }
 
-        // 미처리 근태 확인
+        // 未処理勤怠の確認
         int unresolved = payrollMapper.countUnresolvedAttendance(existing.getStoreStaffId(), existing.getRangeStartDate(), existing.getRangeEndDate());
         if (unresolved > 0) {
             throw new IllegalStateException("未処理の勤怠修正申請または勤務中打刻が存在するため、確定できません。");
         }
 
-        // 최신 데이터로 재계산
+        // 最新データによる再計算
         PayrollDto recalculated = calculatePayrollForStaff(
                 existing.getStoreId(),
                 existing.getStoreStaffId(),
@@ -208,7 +207,7 @@ public class PayrollService {
                 existing.getRangeEndDate()
         );
 
-        // [F02 방어]: 점주가 화면에서 검토한 금액과 재계산 금액 불일치 시 Silent Update 차단
+        // 店長が確認した金額と再計算金額の不一致チェック
         if (confirmDto != null && confirmDto.getExpectedGrossPay() != null) {
             int expected = confirmDto.getExpectedGrossPay();
             int actual = recalculated.getGrossPay();
@@ -221,7 +220,7 @@ public class PayrollService {
     }
 
     /**
-     * 개인별 급여명세서 상세 모달 조회
+     * スタッフ個人別給与明細詳細モーダル用データ取得
      */
     public PayrollDetailResponseDto getPayrollDetail(Long payrollId) {
         PayrollDto payroll = payrollMapper.findById(payrollId);
@@ -266,7 +265,7 @@ public class PayrollService {
             daily.setOvertimeAllowance(d.getOvertimeAllowance());
             daily.setTransportAmount(d.getTransportAmount());
 
-            // 원본 근태에서 실제 타각 시각 보충
+            // 元勤怠データから打刻時刻情報を補完
             AttendanceDto originalAtt = attendanceMapper.findById(d.getAttendanceId());
             if (originalAtt != null) {
                 daily.setClockInAt(originalAtt.getClockInAt() != null ? originalAtt.getClockInAt().format(timeFormatter) : "-");

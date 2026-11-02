@@ -6,7 +6,7 @@ import java.util.List;
 
 public class AttendanceModRequestDto {
     private Long modRequestId;
-    private Long attendanceId; // null이면 타각 완전 누락 사후 생성
+    private Long attendanceId; // NULLの場合は打刻漏れによる事後新規作成
     private Long storeId;
     private Long storeStaffId;
     private LocalDate workDate;

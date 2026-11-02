@@ -1,4 +1,6 @@
 /**
- * [공통 / 팀원 A] 점포(store) 및 점포 소속 직원(store_staff) 도메인
+ * 店舗および所属スタッフマスタドメイン (Store & Staff Domain)
+ * - 店舗マスタ管理（開店・閉店時刻、給与締日設定）
+ * - スタッフの掛け持ち契約および時給・通勤手当マスタ
  */
 package com.example.kintai.domain.store;

@@ -4,7 +4,7 @@
 
 <mapper namespace="com.example.kintai.domain.member.mapper.MemberMapper">
 
-    <!-- 회원 단건 조회 샘플 -->
+    <!-- 会員単件取得 -->
     <select id="findById" resultType="com.example.kintai.domain.member.dto.MemberDto">
         SELECT
             member_id,
@@ -20,7 +20,7 @@
         WHERE member_id = #{memberId}
     </select>
 
-    <!-- 회원 전체 목록 조회 샘플 -->
+    <!-- 会員全件一覧取得 -->
     <select id="findAll" resultType="com.example.kintai.domain.member.dto.MemberDto">
         SELECT
             member_id,

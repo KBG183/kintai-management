@@ -15,18 +15,18 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                // 개발 초기 CSRF 비활성화 및 모든 요청 허용
+                // 開発段階でのCSRF無効化および全リクエストの許可
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll() // 모든 URL을 로그인 없이 접속 허용
+                        .anyRequest().permitAll() // 全URLのアクセスを許可
                 )
-                .formLogin(login -> login.disable()) // 기본 로그인 창 끄기
+                .formLogin(login -> login.disable()) // デフォルトログインフォームの無効化
                 .httpBasic(basic -> basic.disable());
 
         return http.build();
     }
 
-    // 비밀번호 암호화 빈 등록
+    // パスワード暗号化（BCrypt）Bean定義
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

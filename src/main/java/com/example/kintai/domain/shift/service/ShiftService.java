@@ -26,7 +26,7 @@ public class ShiftService {
     }
 
     /**
-     * 월간 캘린더 이벤트 목록 조회
+     * 月間カレンダー用シフトイベント一覧取得
      */
     public List<CalendarEventDto> getCalendarEvents(Long storeId, LocalDate startDate, LocalDate endDate) {
         List<ShiftDto> shifts = shiftMapper.findShiftEvents(storeId, startDate, endDate);
@@ -36,11 +36,11 @@ public class ShiftService {
     }
 
     /**
-     * 알바생 희망 시프트 제출
+     * スタッフによる希望シフト提出
      */
     @Transactional
     public Long requestShift(ShiftRequestDto requestDto) {
-        // [F04 방어]: 동시성 충돌 방지를 위한 비관적 락 직렬화
+        // 排他制御: 悲観的ロックによる直列化
         shiftMapper.lockStoreStaffForUpdate(requestDto.getStoreStaffId());
 
         LocalDate workDate = requestDto.getWorkDate();
@@ -50,13 +50,12 @@ public class ShiftService {
         LocalDateTime startAt = LocalDateTime.of(workDate, startLocalTime);
         LocalDateTime endAt = TimeUtils.resolveEndDateTime(workDate, requestDto.getRequestedStartTime(), requestDto.getRequestedEndTime());
 
-        // [F07 방어]: 16시간 초과 검증 정확도 보장
-        // Duration.toHours() > 16은 소수점을 절사하여 16시간 59분(1019분)을 16으로 계산해 통과시키는 버그가 발생하므로 compareTo 사용
+        // 16時間超過検証の精度担保（Duration.compareToによる正確な比較）
         if (Duration.between(startAt, endAt).compareTo(Duration.ofHours(16)) > 0) {
             throw new IllegalArgumentException("1回のシフト時間は最大16時間以内である必要があります。");
         }
 
-        // 중복 시프트 검사
+        // 重複シフト検証
         if (shiftMapper.existsOverlapShift(requestDto.getStoreStaffId(), workDate, startAt, endAt, null)) {
             throw new IllegalStateException("指定された時間帯に既に別のシフトが存在します。");
         }
@@ -76,7 +75,7 @@ public class ShiftService {
     }
 
     /**
-     * 점주 시프트 확정 및 휴게시간 법정 기준 검증
+     * 店長によるシフト確定および法定休憩時間の検証
      */
     @Transactional
     public void confirmShift(Long shiftId, ShiftConfirmDto confirmDto) {
@@ -89,17 +88,17 @@ public class ShiftService {
         LocalDateTime confirmedStartAt = LocalDateTime.of(workDate, LocalTime.parse(confirmDto.getConfirmedStartTime()));
         LocalDateTime confirmedEndAt = TimeUtils.resolveEndDateTime(workDate, confirmDto.getConfirmedStartTime(), confirmDto.getConfirmedEndTime());
 
-        // [F07 방어]: 16시간 초과 정밀 검사
+        // 16時間超過検証
         if (Duration.between(confirmedStartAt, confirmedEndAt).compareTo(Duration.ofHours(16)) > 0) {
             throw new IllegalArgumentException("1回のシフト時間は最大16時間以内である必要があります。");
         }
 
-        // 중복 시프트 검사 (본인 제외)
+        // 重複シフト検証（自身を除く）
         if (shiftMapper.existsOverlapShift(existing.getStoreStaffId(), workDate, confirmedStartAt, confirmedEndAt, shiftId)) {
             throw new IllegalStateException("指定された確定時間帯に他のシフトと重複が発生します。");
         }
 
-        // 일본 노동기준법 제34조 기반 휴게시간 계산 (6시간 초과 45분, 8시간 초과 60분)
+        // 日本労働基準法第34条に基づく休憩時間計算 (6時間超45分、8時間超60分)
         int plannedBreak = (confirmDto.getPlannedBreakMinutes() != null)
                 ? confirmDto.getPlannedBreakMinutes()
                 : calculateRecommendedBreakMinutes(confirmedStartAt, confirmedEndAt);
@@ -114,16 +113,16 @@ public class ShiftService {
     }
 
     /**
-     * 일본 노동기준법 제34조 휴게시간 추천 산정
+     * 日本労働基準法第34条 休憩時間推奨算定
      */
     public int calculateRecommendedBreakMinutes(LocalDateTime startAt, LocalDateTime endAt) {
         long grossMinutes = Duration.between(startAt, endAt).toMinutes();
         if (grossMinutes <= 360) {
-            return 0; // 6시간 이하
+            return 0; // 6時間以下
         } else if (grossMinutes <= 525) {
-            return 45; // 6시간 초과 8시간 이하 (체류 525분 - 45분 = 실근무 480분=8시간)
+            return 45; // 6時間超 8時間以下 (滞在 525分 - 45分 = 実働 480分=8時間)
         } else {
-            return 60; // 8시간 초과
+            return 60; // 8時間超
         }
     }
 }

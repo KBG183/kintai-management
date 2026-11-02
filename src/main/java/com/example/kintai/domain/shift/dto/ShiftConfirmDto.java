@@ -3,7 +3,7 @@ package com.example.kintai.domain.shift.dto;
 public class ShiftConfirmDto {
     private String confirmedStartTime; // "17:00"
     private String confirmedEndTime;   // "23:30"
-    private Integer plannedBreakMinutes; // null 가능 (자동 산정)
+    private Integer plannedBreakMinutes; // NULL許容（未指定時は自動算定）
     private String status;              // "CONFIRMED" or "REJECTED"
     private String ownerMemo;
 

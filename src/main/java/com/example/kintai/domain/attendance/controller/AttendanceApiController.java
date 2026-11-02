@@ -19,7 +19,7 @@ public class AttendanceApiController {
     }
 
     /**
-     * 실시간 출퇴근/휴게 타각 API
+     * リアルタイム出退勤・休憩打刻 API
      */
     @PostMapping("/punch")
     public ResponseEntity<ApiResponse<AttendanceDto>> punch(@RequestBody AttendancePunchDto punchDto) {
@@ -28,7 +28,7 @@ public class AttendanceApiController {
     }
 
     /**
-     * 현재 진행 중인 근태 조회 API
+     * 現在進行中の勤務実績取得 API
      */
     @GetMapping("/active")
     public ResponseEntity<ApiResponse<AttendanceDto>> getActiveAttendance(@RequestParam("storeStaffId") Long storeStaffId) {
@@ -37,7 +37,7 @@ public class AttendanceApiController {
     }
 
     /**
-     * 근태 수정 신청 등록 API (알바생)
+     * 勤怠修正申請登録 API（スタッフ申請）
      */
     @PostMapping("/mod-request")
     public ResponseEntity<ApiResponse<Long>> requestModification(@RequestBody AttendanceModRequestDto requestDto) {
@@ -46,7 +46,7 @@ public class AttendanceApiController {
     }
 
     /**
-     * 근태 수정 신청 목록 조회 API (점주)
+     * 勤怠修正申請一覧取得 API（店長・管理者用）
      */
     @GetMapping("/mod-requests")
     public ResponseEntity<ApiResponse<List<AttendanceModResponseDto>>> getModRequests(
@@ -58,14 +58,14 @@ public class AttendanceApiController {
     }
 
     /**
-     * 근태 수정 신청 승인/반려 API (점주)
+     * 勤怠修正申請の承認・却下審査 API（店長用）
      */
     @PostMapping("/mod-requests/{modRequestId}/review")
     public ResponseEntity<ApiResponse<Void>> reviewModification(
             @PathVariable("modRequestId") Long modRequestId,
             @RequestBody AttendanceModReviewDto reviewDto
     ) {
-        // 개발 모드: 점주 ID 1 임시 적용
+        // 開発環境用: オーナーID 1 を適用
         Long reviewerId = 1L;
         attendanceService.reviewModification(modRequestId, reviewerId, reviewDto);
         return ResponseEntity.ok(ApiResponse.ok("審査処理が完了しました。", null));

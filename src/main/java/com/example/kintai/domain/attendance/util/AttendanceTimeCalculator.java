@@ -31,7 +31,7 @@ public final class AttendanceTimeCalculator {
     ) {}
 
     /**
-     * 출퇴근 시각과 휴게 구간 목록을 바탕으로 실근무, 야간근로, 일별 연장근로를 분 단위로 정밀 산출한다.
+     * 出退勤時刻および休憩区間一覧に基づき、実労働、深夜労働、法定時間外残業を分単位で厳密に算出
      */
     public static CalculationResult calculate(
             LocalDateTime clockInAt,
@@ -47,7 +47,7 @@ public final class AttendanceTimeCalculator {
 
         List<BreakInterval> breaks = (rawBreaks != null) ? rawBreaks : Collections.emptyList();
 
-        // 휴게 구간 정합성 검증 (출퇴근 범위 내, 상호 겹침 금지)
+        // 休憩区間の整合性検証（出退勤範囲内かつ重複禁止）
         for (int i = 0; i < breaks.size(); i++) {
             BreakInterval b = breaks.get(i);
             if (b.startAt().isBefore(clockInAt) || b.endAt().isAfter(clockOutAt)) {
@@ -73,9 +73,9 @@ public final class AttendanceTimeCalculator {
         }
 
         int netWorkMinutes = totalStayMinutes - totalBreakMinutes;
-        int overtimeMinutes = Math.max(0, netWorkMinutes - 480); // 1일 8시간(480분) 초과분
+        int overtimeMinutes = Math.max(0, netWorkMinutes - 480); // 1日8時間（480分）超過分
 
-        // 야간 시간대(22:00 ~ 05:00) 실근로시간 계산 (야간과 겹친 휴게시간만 분리 차감)
+        // 深夜時間帯（22:00 ~ 翌05:00）実労働時間計算（深夜帯と重なった休憩時間のみ控除）
         int grossNightStayMinutes = calculateNightMinutesInRange(clockInAt, clockOutAt);
         int nightBreakMinutes = 0;
         for (BreakInterval b : breaks) {
@@ -94,7 +94,7 @@ public final class AttendanceTimeCalculator {
     }
 
     /**
-     * 특정 구간과 법정 야간시간대(22:00 ~ 익일 05:00)의 중첩 분을 계산한다.
+     * 指定区間と法定深夜時間帯（22:00 ~ 翌05:00）の重複分数を算出
      */
     private static int calculateNightMinutesInRange(LocalDateTime start, LocalDateTime end) {
         LocalDate startDate = start.toLocalDate();

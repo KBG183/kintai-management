@@ -1,7 +1,7 @@
 package com.example.kintai.domain.payroll.dto;
 
 public class PayrollConfirmRequestDto {
-    private Integer expectedGrossPay; // 점주가 화면에서 확인한 총 지급액 스냅샷
+    private Integer expectedGrossPay; // 店長が画面上で確認した総支給額のスナップショット
     private Integer expectedTotalPay;
 
     public PayrollConfirmRequestDto() {}

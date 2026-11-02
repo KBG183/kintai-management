@@ -17,7 +17,7 @@ public class MemberController {
     private final MemberService memberService;
 
     /**
-     * [화면 샘플] Thymeleaf 공통 레이아웃과 데이터 바인딩 예시
+     * 【画面サンプル】Thymeleaf共通レイアウトおよびデータバインディング確認
      * URL: GET /members/sample
      */
     @GetMapping("/members/sample")
@@ -28,7 +28,7 @@ public class MemberController {
     }
 
     /**
-     * [REST API 샘플] Fetch API나 모바일 통신을 위한 JSON 응답 예시
+     * 【REST API】全スタッフ・オーナー一覧取得 (JSON)
      * URL: GET /api/members
      */
     @GetMapping("/api/members")
@@ -38,7 +38,7 @@ public class MemberController {
     }
 
     /**
-     * [REST API 샘플] 단건 조회
+     * 【REST API】単一会員情報取得
      * URL: GET /api/members/{id}
      */
     @GetMapping("/api/members/{id}")

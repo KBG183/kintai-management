@@ -1,7 +1,7 @@
 /**
- * [팀원 A] 시프트 스케줄(shift_schedule) 도메인
- * - 희망 시프트 웹 캘린더 제출
- * - 희망 vs 확정 시프트 단일 캘린더 대조 조율
- * - FullCalendar 연동 JSON API
+ * シフト管理・スケジュールドメイン (Shift Domain)
+ * - スタッフ希望シフトの提出およびFullCalendar連携
+ * - 店長によるシフト確定・調整および排他制御（悲観的ロック）
+ * - 月間・週間カレンダー表示用 JSON API
  */
 package com.example.kintai.domain.shift;
