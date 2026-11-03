@@ -20,6 +20,22 @@
         WHERE member_id = #{memberId}
     </select>
 
+    <!-- メールアドレスによる会員取得（認証用） -->
+    <select id="findByEmail" resultType="com.example.kintai.domain.member.dto.MemberDto">
+        SELECT
+            member_id,
+            email,
+            password,
+            name,
+            phone,
+            role,
+            is_active,
+            created_at,
+            updated_at
+        FROM member
+        WHERE email = #{email}
+    </select>
+
     <!-- 会員全件一覧取得 -->
     <select id="findAll" resultType="com.example.kintai.domain.member.dto.MemberDto">
         SELECT
@@ -34,6 +50,34 @@
             updated_at
         FROM member
         ORDER BY member_id DESC
+    </select>
+
+    <!-- 会員IDに紐づく有効な店舗スタッフID取得 -->
+    <select id="findStoreStaffIdByMemberId" resultType="java.lang.Long">
+        SELECT store_staff_id
+        FROM store_staff
+        WHERE member_id = #{memberId}
+          AND employment_status = 'ACTIVE'
+        LIMIT 1
+    </select>
+
+    <!-- 会員IDに紐づく所属店舗・スタッフ識別情報取得 -->
+    <select id="findStaffStoreInfoByMemberId" resultType="com.example.kintai.global.security.StaffStoreInfoDto">
+        SELECT
+            store_staff_id AS storeStaffId,
+            store_id       AS storeId
+        FROM store_staff
+        WHERE member_id = #{memberId}
+          AND employment_status = 'ACTIVE'
+        LIMIT 1
+    </select>
+
+    <!-- オーナー会員IDに紐づく代表店舗ID取得 -->
+    <select id="findStoreIdByOwnerMemberId" resultType="java.lang.Long">
+        SELECT store_id
+        FROM store
+        WHERE owner_id = #{memberId}
+        LIMIT 1
     </select>
 
 </mapper>

@@ -85,11 +85,24 @@
                         <a class="nav-link" href="/attendance"><i class="fa-solid fa-clock me-1"></i>勤怠打刻</a>
                     </li>
                 </ul>
-                <div class="d-flex align-items-center">
-                    <span sec:authorize="isAnonymous()" class="badge bg-secondary">開発モード（未ログイン）</span>
-                    <span sec:authorize="isAuthenticated()" class="text-muted small">
-                        <span sec:authentication="name">user</span> さん
+                <div class="d-flex align-items-center gap-2">
+                    <span sec:authorize="isAnonymous()">
+                        <a href="/login" class="btn btn-outline-primary btn-sm">
+                            <i class="fa-solid fa-right-to-bracket me-1"></i>ログイン
+                        </a>
                     </span>
+                    <div sec:authorize="isAuthenticated()" class="d-flex align-items-center gap-2">
+                        <span class="badge bg-primary" sec:authorize="hasRole('OWNER')">管理者</span>
+                        <span class="badge bg-success" sec:authorize="hasRole('STAFF')">従業員</span>
+                        <span class="text-secondary small fw-semibold">
+                            <i class="fa-regular fa-user me-1"></i><span sec:authentication="name">user</span>
+                        </span>
+                        <form th:action="@{/logout}" method="post" class="d-inline m-0">
+                            <button type="submit" class="btn btn-outline-secondary btn-sm py-0 px-2">
+                                <i class="fa-solid fa-right-from-bracket me-1"></i>ログアウト
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
