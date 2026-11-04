@@ -67,8 +67,17 @@ public class AttendanceService {
 
         Long shiftId = attendanceMapper.findConfirmedShiftIdForDate(punchDto.getStoreStaffId(), today);
 
+        // 店舗ID補正 (DTO未指定時は店舗所属マスタから補完)
+        Long storeId = punchDto.getStoreId();
+        if (storeId == null) {
+            storeId = attendanceMapper.findStoreIdByStoreStaffId(punchDto.getStoreStaffId());
+            if (storeId == null) {
+                throw new IllegalStateException("所属店舗情報が存在しないため打刻できません。(storeStaffId: " + punchDto.getStoreStaffId() + ")");
+            }
+        }
+
         AttendanceDto attendance = new AttendanceDto();
-        attendance.setStoreId(punchDto.getStoreId());
+        attendance.setStoreId(storeId);
         attendance.setStoreStaffId(punchDto.getStoreStaffId());
         attendance.setShiftId(shiftId);
         attendance.setWorkDate(today);
@@ -186,7 +195,11 @@ public class AttendanceService {
         }
 
         if (requestDto.getStoreId() == null) {
-            requestDto.setStoreId(1L); // デフォルト店舗補正
+            Long storeId = attendanceMapper.findStoreIdByStoreStaffId(storeStaffId);
+            if (storeId == null) {
+                throw new IllegalStateException("所属店舗情報が存在しないため修正申請できません。(storeStaffId: " + storeStaffId + ")");
+            }
+            requestDto.setStoreId(storeId);
         }
 
         // 申請合計休憩時間の計算

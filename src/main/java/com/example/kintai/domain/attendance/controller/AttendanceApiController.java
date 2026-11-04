@@ -32,8 +32,13 @@ public class AttendanceApiController {
             @RequestBody AttendancePunchDto punchDto,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        if (userDetails != null && userDetails.getStoreStaffId() != null) {
-            punchDto.setStoreStaffId(userDetails.getStoreStaffId());
+        if (userDetails != null) {
+            if (userDetails.getStoreStaffId() != null) {
+                punchDto.setStoreStaffId(userDetails.getStoreStaffId());
+            }
+            if (userDetails.getStoreId() != null) {
+                punchDto.setStoreId(userDetails.getStoreId());
+            }
         }
         AttendanceDto result = attendanceService.punch(punchDto);
         return ResponseEntity.ok(ApiResponse.ok("打刻が完了しました。", result));
