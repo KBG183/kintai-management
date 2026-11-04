@@ -37,6 +37,9 @@ public interface AttendanceMapper {
     // 同時更新防止のための悲観的ロック (SELECT ... FOR UPDATE)
     void lockStoreStaffForUpdate(@Param("storeStaffId") Long storeStaffId);
 
+    // 店舗スタッフ所属情報から店舗IDを取得
+    Long findStoreIdByStoreStaffId(@Param("storeStaffId") Long storeStaffId);
+
     Long findConfirmedShiftIdForDate(
             @Param("storeStaffId") Long storeStaffId,
             @Param("workDate") LocalDate workDate

@@ -144,6 +144,13 @@
         FOR UPDATE
     </select>
 
+    <select id="findStoreIdByStoreStaffId" resultType="java.lang.Long">
+        SELECT store_id
+        FROM store_staff
+        WHERE store_staff_id = #{storeStaffId}
+        LIMIT 1
+    </select>
+
     <select id="findConfirmedShiftIdForDate" resultType="java.lang.Long">
         SELECT shift_id
         FROM shift_schedule
