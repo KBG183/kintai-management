@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja" xmlns:th="http://www.thymeleaf.org"
       th:replace="~{common/layout :: layout(~{::title}, ~{::#content})}">
 <head>
@@ -11,12 +11,20 @@
             <!-- 1. 打刻時計カード -->
             <div class="card shadow-sm border-0 mb-4 text-center">
                 <div class="card-body p-4">
-                    <h5 class="text-muted mb-2" id="currentDateText">2026年10月30日 (金)</h5>
+                    <h5 class="text-muted mb-2" id="currentDateText">2026年11月04日</h5>
                     <h1 class="display-3 fw-bold text-primary mb-3" id="currentTimeText">00:00:00</h1>
+
+                    <!-- 現在の勤務ステータスバッジ -->
+                    <div class="mb-4">
+                        <span class="badge bg-secondary fs-6 px-4 py-2" id="currentStatusBadge">
+                            <i class="fa-solid fa-clock me-1"></i>状態取得中...
+                        </span>
+                        <div class="text-muted small mt-2" id="currentStatusDetail">打刻履歴を確認しています</div>
+                    </div>
 
                     <div class="row justify-content-center mb-4">
                         <div class="col-md-6">
-                            <label class="form-label fw-bold">打刻スタッフ選択 (テスト用)</label>
+                            <label class="form-label fw-bold">打刻対象スタッフ</label>
                             <select class="form-select form-select-lg text-center" id="selectStaff">
                                 <option value="1" selected>山田 太郎 (Staff ID: 1)</option>
                                 <option value="2">佐藤 花子 (Staff ID: 2)</option>
@@ -24,18 +32,18 @@
                         </div>
                     </div>
 
-                    <!-- 4大打刻ボタングループ -->
+                    <!-- 4大打刻ボタングループ (状態遷移ガード付き) -->
                     <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
-                        <button type="button" class="btn btn-primary btn-lg px-4 py-3 fw-bold" id="btnClockIn">
+                        <button type="button" class="btn btn-primary btn-lg px-4 py-3 fw-bold" id="btnClockIn" disabled>
                             <i class="fa-solid fa-arrow-right-to-bracket me-2"></i>出勤
                         </button>
-                        <button type="button" class="btn btn-warning btn-lg px-4 py-3 fw-bold" id="btnBreakStart">
+                        <button type="button" class="btn btn-warning btn-lg px-4 py-3 fw-bold" id="btnBreakStart" disabled>
                             <i class="fa-solid fa-mug-hot me-2"></i>休憩開始
                         </button>
-                        <button type="button" class="btn btn-info btn-lg px-4 py-3 fw-bold text-white" id="btnBreakEnd">
+                        <button type="button" class="btn btn-info btn-lg px-4 py-3 fw-bold text-white" id="btnBreakEnd" disabled>
                             <i class="fa-solid fa-person-walking-arrow-right me-2"></i>休憩終了
                         </button>
-                        <button type="button" class="btn btn-danger btn-lg px-4 py-3 fw-bold" id="btnClockOut">
+                        <button type="button" class="btn btn-danger btn-lg px-4 py-3 fw-bold" id="btnClockOut" disabled>
                             <i class="fa-solid fa-arrow-right-from-bracket me-2"></i>退勤
                         </button>
                     </div>
@@ -54,7 +62,7 @@
                     <form id="modRequestForm">
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label class="form-label fw-bold">対象日</label>
+                                <label class="form-label fw-bold">対象勤務基準日</label>
                                 <input type="date" class="form-control" id="modWorkDate" required>
                             </div>
                             <div class="col-md-4 mb-3">
@@ -73,7 +81,7 @@
                             </div>
                             <div class="col-md-8 mb-3">
                                 <label class="form-label fw-bold">修正申請理由</label>
-                                <input type="text" class="form-control" id="modReason" placeholder="例: 打刻忘れのため、システム障害のため" required>
+                                <input type="text" class="form-control" id="modReason" placeholder="例: 打刻忘れのため、店舗端末通信不具合のため" required>
                             </div>
                         </div>
                         <div class="text-end">
@@ -90,7 +98,7 @@
     <!-- スクリプト領域 -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // 1. リアルタイム時計
+            // 1. リアルタイムデジタル時計
             function updateClock() {
                 const now = new Date();
                 const days = ['日', '月', '火', '水', '木', '金', '土'];
@@ -105,15 +113,92 @@
             setInterval(updateClock, 1000);
             updateClock();
 
-            // 本日日付の初期設定
+            // 修正申請日付の初期値設定（本日）
             const todayStr = new Date().toISOString().substring(0, 10);
             document.getElementById('modWorkDate').value = todayStr;
 
-            // 2. 打刻送信関数
+            // 時刻フォーマット補助関数 (YYYY-MM-DDTHH:mm:ss -> HH:mm)
+            function formatTime(isoStr) {
+                if (!isoStr) return '--:--';
+                const parts = isoStr.split('T');
+                if (parts.length > 1) {
+                    return parts[1].substring(0, 5);
+                }
+                return isoStr.substring(11, 16);
+            }
+
+            // 2. 勤務ステータス同期とボタン活性制御
+            const btnClockIn = document.getElementById('btnClockIn');
+            const btnBreakStart = document.getElementById('btnBreakStart');
+            const btnBreakEnd = document.getElementById('btnBreakEnd');
+            const btnClockOut = document.getElementById('btnClockOut');
+            const statusBadge = document.getElementById('currentStatusBadge');
+            const statusDetail = document.getElementById('currentStatusDetail');
+
+            function syncAttendanceState() {
+                const staffId = document.getElementById('selectStaff').value;
+                fetch(`/api/attendance/active?storeStaffId=${staffId}`)
+                    .then(res => res.json())
+                    .then(res => {
+                        const active = res.data;
+                        if (!active || !active.attendanceStatus) {
+                            // 未出勤
+                            statusBadge.className = 'badge bg-secondary fs-6 px-4 py-2';
+                            statusBadge.innerHTML = '<i class="fa-solid fa-moon me-1"></i>未出勤';
+                            statusDetail.innerText = '本日の出勤打刻を行ってください';
+                            btnClockIn.disabled = false;
+                            btnBreakStart.disabled = true;
+                            btnBreakEnd.disabled = true;
+                            btnClockOut.disabled = true;
+                        } else if (active.attendanceStatus === 'WORKING') {
+                            // 勤務中
+                            statusBadge.className = 'badge bg-success fs-6 px-4 py-2';
+                            statusBadge.innerHTML = '<i class="fa-solid fa-briefcase me-1"></i>勤務中';
+                            statusDetail.innerText = `出勤時刻: ${formatTime(active.clockInAt)} (累計休憩: ${active.totalBreakMinutes || 0}分)`;
+                            btnClockIn.disabled = true;
+                            btnBreakStart.disabled = false;
+                            btnBreakEnd.disabled = true;
+                            btnClockOut.disabled = false;
+                        } else if (active.attendanceStatus === 'ON_BREAK') {
+                            // 休憩中
+                            statusBadge.className = 'badge bg-warning text-dark fs-6 px-4 py-2';
+                            statusBadge.innerHTML = '<i class="fa-solid fa-mug-hot me-1"></i>休憩中';
+                            statusDetail.innerText = `休憩開始: ${formatTime(active.breakStartAt)} (累計休憩: ${active.totalBreakMinutes || 0}分)`;
+                            btnClockIn.disabled = true;
+                            btnBreakStart.disabled = true;
+                            btnBreakEnd.disabled = false;
+                            btnClockOut.disabled = true;
+                        } else if (active.attendanceStatus === 'COMPLETED') {
+                            // 退勤済
+                            statusBadge.className = 'badge bg-info text-white fs-6 px-4 py-2';
+                            statusBadge.innerHTML = '<i class="fa-solid fa-circle-check me-1"></i>退勤済';
+                            statusDetail.innerText = `本日の勤務終了 (実労働: ${active.netWorkMinutes || 0}分, 深夜: ${active.nightWorkMinutes || 0}分)`;
+                            btnClockIn.disabled = true;
+                            btnBreakStart.disabled = true;
+                            btnBreakEnd.disabled = true;
+                            btnClockOut.disabled = true;
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Failed to sync attendance status:', err);
+                    });
+            }
+
+            // スタッフ切り替え時の再同期
+            document.getElementById('selectStaff').addEventListener('change', syncAttendanceState);
+            syncAttendanceState();
+
+            // 3. 打刻送信関数 (Fetch API 非同期通信)
             function sendPunch(punchType) {
                 const staffId = document.getElementById('selectStaff').value;
                 const alertArea = document.getElementById('punchAlertArea');
                 alertArea.innerHTML = '';
+
+                // ボタン連打防止
+                btnClockIn.disabled = true;
+                btnBreakStart.disabled = true;
+                btnBreakEnd.disabled = true;
+                btnClockOut.disabled = true;
 
                 fetch('/api/attendance/punch', {
                     method: 'POST',
@@ -128,32 +213,34 @@
                     if (data.success) {
                         alertArea.innerHTML = `
                             <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                <i class="fa-solid fa-circle-check me-2"></i>${data.message || '打刻が完了しました。'}
+                                <i class="fa-solid fa-circle-check me-2"></i>${data.message || '打刻が正常に完了しました。'}
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="閉じる"></button>
                             </div>`;
                     } else {
                         alertArea.innerHTML = `
                             <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                <i class="fa-solid fa-triangle-exclamation me-2"></i>エラー: ${data.message}
+                                <i class="fa-solid fa-triangle-exclamation me-2"></i>打刻エラー: ${data.message}
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="閉じる"></button>
                             </div>`;
                     }
+                    syncAttendanceState();
                 })
                 .catch(err => {
                     alertArea.innerHTML = `
                         <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <i class="fa-solid fa-triangle-exclamation me-2"></i>通信エラー: ${err}
+                            <i class="fa-solid fa-triangle-exclamation me-2"></i>通信エラーが発生しました: ${err}
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="閉じる"></button>
                         </div>`;
+                    syncAttendanceState();
                 });
             }
 
-            document.getElementById('btnClockIn').addEventListener('click', () => sendPunch('CLOCK_IN'));
-            document.getElementById('btnBreakStart').addEventListener('click', () => sendPunch('BREAK_START'));
-            document.getElementById('btnBreakEnd').addEventListener('click', () => sendPunch('BREAK_END'));
-            document.getElementById('btnClockOut').addEventListener('click', () => sendPunch('CLOCK_OUT'));
+            btnClockIn.addEventListener('click', () => sendPunch('CLOCK_IN'));
+            btnBreakStart.addEventListener('click', () => sendPunch('BREAK_START'));
+            btnBreakEnd.addEventListener('click', () => sendPunch('BREAK_END'));
+            btnClockOut.addEventListener('click', () => sendPunch('CLOCK_OUT'));
 
-            // 3. 勤怠修正申請
+            // 4. 勤怠修正申請の送信
             document.getElementById('btnSubmitModRequest').addEventListener('click', function () {
                 const staffId = document.getElementById('selectStaff').value;
                 const workDate = document.getElementById('modWorkDate').value;
@@ -169,11 +256,11 @@
 
                 const payload = {
                     storeStaffId: parseInt(staffId),
-                    reqWorkDate: workDate,
-                    reqClockInAt: `${workDate}T${clockIn}:00`,
-                    reqClockOutAt: `${workDate}T${clockOut}:00`,
-                    reqTotalBreakMinutes: parseInt(breakMin),
-                    modReason: reason,
+                    workDate: workDate,
+                    requestedClockInAt: `${workDate}T${clockIn}:00`,
+                    requestedClockOutAt: `${workDate}T${clockOut}:00`,
+                    requestedBreakMinutes: parseInt(breakMin),
+                    reason: reason,
                     breaks: []
                 };
 
@@ -185,13 +272,13 @@
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        alert(data.message || '勤怠修正申請を送信しました。');
+                        alert(data.message || '勤怠修正申請を送信しました。店長の承認をお待ちください。');
                         document.getElementById('modReason').value = '';
                     } else {
                         alert('申請エラー: ' + data.message);
                     }
                 })
-                .catch(err => alert('通信エラー: ' + err));
+                .catch(err => alert('通信エラーが発生しました: ' + err));
             });
         });
     </script>
