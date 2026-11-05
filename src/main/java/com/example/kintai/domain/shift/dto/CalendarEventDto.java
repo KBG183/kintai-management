@@ -41,6 +41,14 @@ public class CalendarEventDto {
     }
 
     public static CalendarEventDto from(ShiftDto shift) {
+        return from(shift, null, true);
+    }
+
+    /**
+     * プライバシー保護・サーバーサイドマスキング対応
+     * 他スタッフの個人メモは管理者(ROLE_OWNER/ROLE_MANAGER)または本人のみに限定して返却
+     */
+    public static CalendarEventDto from(ShiftDto shift, Long currentStaffId, boolean isManager) {
         CalendarEventDto dto = new CalendarEventDto();
         dto.setId(String.valueOf(shift.getShiftId()));
 
@@ -84,10 +92,18 @@ public class CalendarEventDto {
         props.setStaffName(shift.getStaffName());
         props.setStatus(shift.getStatus());
         props.setPlannedBreakMinutes(shift.getPlannedBreakMinutes());
-        props.setStaffMemo(shift.getStaffMemo());
-        props.setOwnerMemo(shift.getOwnerMemo());
-        dto.setExtendedProps(props);
 
+        // サーバーサイド・プライバシー保護マスク
+        boolean isSelf = (currentStaffId != null && currentStaffId.equals(shift.getStoreStaffId()));
+        if (isManager || isSelf) {
+            props.setStaffMemo(shift.getStaffMemo());
+            props.setOwnerMemo(shift.getOwnerMemo());
+        } else {
+            props.setStaffMemo(null); // 他スタッフのメモはAPIペイロードから完全除外
+            props.setOwnerMemo(null);
+        }
+
+        dto.setExtendedProps(props);
         return dto;
     }
 

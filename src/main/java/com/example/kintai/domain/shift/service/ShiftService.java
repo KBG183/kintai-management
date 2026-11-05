@@ -26,29 +26,72 @@ public class ShiftService {
     }
 
     /**
-     * 月間カレンダー用シフトイベント一覧取得
+     * 月間カレンダー用シフトイベント一覧取得 (店舗全体・プライバシーマスク連動)
      */
-    public List<CalendarEventDto> getCalendarEvents(Long storeId, LocalDate startDate, LocalDate endDate) {
+    public List<CalendarEventDto> getCalendarEvents(Long storeId, LocalDate startDate, LocalDate endDate, Long currentStaffId, boolean isManager) {
         List<ShiftDto> shifts = shiftMapper.findShiftEvents(storeId, startDate, endDate);
+        return shifts.stream()
+                .map(s -> CalendarEventDto.from(s, currentStaffId, isManager))
+                .toList();
+    }
+
+    public List<CalendarEventDto> getCalendarEvents(Long storeId, LocalDate startDate, LocalDate endDate) {
+        return getCalendarEvents(storeId, startDate, endDate, null, true);
+    }
+
+    /**
+     * スタッフ本人用シフト一覧取得 (IDOR防止: セッション認証済みのstoreStaffIdに基づく取得)
+     */
+    public List<CalendarEventDto> getStaffShiftEvents(Long storeStaffId, LocalDate startDate, LocalDate endDate) {
+        if (storeStaffId == null) {
+            throw new IllegalArgumentException("店舗スタッフIDが指定されていません。");
+        }
+        List<ShiftDto> shifts = shiftMapper.findStaffShiftList(storeStaffId, startDate, endDate);
         return shifts.stream()
                 .map(CalendarEventDto::from)
                 .toList();
     }
 
     /**
-     * スタッフによる希望シフト提出
+     * スタッフによる希望シフト提出 (過去日付拒否・時間逆転防止・排他ロック)
      */
     @Transactional
     public Long requestShift(ShiftRequestDto requestDto) {
-        // 排他制御: 悲観的ロックによる直列化
+        if (requestDto == null) {
+            throw new IllegalArgumentException("リクエストデータが空です。");
+        }
+        if (requestDto.getStoreStaffId() == null) {
+            throw new IllegalArgumentException("店舗スタッフIDは必須です。");
+        }
+        if (requestDto.getWorkDate() == null) {
+            throw new IllegalArgumentException("勤務日は必須です。");
+        }
+        if (requestDto.getWorkDate().isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("過去の日付に対する希望シフトは申請できません。");
+        }
+        if (requestDto.getRequestedStartTime() == null || requestDto.getRequestedEndTime() == null) {
+            throw new IllegalArgumentException("開始時刻および終了時刻は必須です。");
+        }
+
+        // 排他制御: 悲観的ロックによる直列化 (同一スタッフの多重登録レースコンディション防止)
         shiftMapper.lockStoreStaffForUpdate(requestDto.getStoreStaffId());
 
         LocalDate workDate = requestDto.getWorkDate();
-        LocalTime startLocalTime = LocalTime.parse(requestDto.getRequestedStartTime());
-        LocalTime endLocalTime = LocalTime.parse(requestDto.getRequestedEndTime());
+        LocalTime startLocalTime;
+        LocalTime endLocalTime;
+        try {
+            startLocalTime = LocalTime.parse(requestDto.getRequestedStartTime());
+            endLocalTime = LocalTime.parse(requestDto.getRequestedEndTime());
+        } catch (Exception e) {
+            throw new IllegalArgumentException("時刻のフォーマットが不正です。(HH:mm形式で入力してください)", e);
+        }
 
         LocalDateTime startAt = LocalDateTime.of(workDate, startLocalTime);
         LocalDateTime endAt = TimeUtils.resolveEndDateTime(workDate, requestDto.getRequestedStartTime(), requestDto.getRequestedEndTime());
+
+        if (!endAt.isAfter(startAt)) {
+            throw new IllegalArgumentException("終了日時は開始日時より後である必要があります。");
+        }
 
         // 16時間超過検証の精度担保（Duration.compareToによる正確な比較）
         if (Duration.between(startAt, endAt).compareTo(Duration.ofHours(16)) > 0) {
@@ -75,18 +118,82 @@ public class ShiftService {
     }
 
     /**
-     * 店長によるシフト確定および法定休憩時間の検証
+     * スタッフ本人による希望シフト申請の取消 (IDOR防御: 本人かつSUBMITTED状態のみ削除可能)
      */
     @Transactional
-    public void confirmShift(Long shiftId, ShiftConfirmDto confirmDto) {
+    public void deleteShiftRequest(Long shiftId, Long storeStaffId) {
+        if (shiftId == null || storeStaffId == null) {
+            throw new IllegalArgumentException("シフトIDおよび店舗スタッフIDは必須です。");
+        }
+
+        // 排他ロック
+        shiftMapper.lockStoreStaffForUpdate(storeStaffId);
+
+        ShiftDto existing = shiftMapper.findById(shiftId);
+        if (existing == null) {
+            throw new IllegalArgumentException("指定されたシフトが存在しません。(ID: " + shiftId + ")");
+        }
+
+        // IDOR検証: 自身のシフトであるかの確認
+        if (!existing.getStoreStaffId().equals(storeStaffId)) {
+            throw new SecurityException("他のスタッフのシフトを削除する権限がありません。(IDOR遮断)");
+        }
+
+        // 状態検証: すでに確定されたシフトはスタッフ側からは削除不可（店長へ要連絡）
+        if (!"SUBMITTED".equals(existing.getStatus())) {
+            throw new IllegalStateException("確定済または却下済のシフトは申請取消できません。店長へ直接ご相談ください。");
+        }
+
+        int deletedCount = shiftMapper.deleteShiftRequest(shiftId, storeStaffId);
+        if (deletedCount == 0) {
+            throw new IllegalStateException("シフトの取消に失敗しました。");
+        }
+    }
+
+    /**
+     * 店長によるシフト確定および法定休憩時間の検証 (自店舗データ検証によるクロス店舗IDOR防止)
+     */
+    @Transactional
+    public void confirmShift(Long shiftId, Long storeId, ShiftConfirmDto confirmDto) {
+        if (shiftId == null || storeId == null || confirmDto == null) {
+            throw new IllegalArgumentException("シフト確定パラメータが不足しています。");
+        }
+
         ShiftDto existing = shiftMapper.findById(shiftId);
         if (existing == null) {
             throw new IllegalArgumentException("存在しないシフトです。(ID: " + shiftId + ")");
         }
 
+        // 店舗間IDOR検証: 自身の管理店舗のシフトであるかの確認
+        if (!existing.getStoreId().equals(storeId)) {
+            throw new SecurityException("他店舗のシフトを確定・変更する権限がありません。(店舗間IDOR遮断)");
+        }
+
+        // 排他ロック (スタッフIDに対して悲観的ロック)
+        shiftMapper.lockStoreStaffForUpdate(existing.getStoreStaffId());
+
+        if (confirmDto.getConfirmedStartTime() == null || confirmDto.getConfirmedEndTime() == null) {
+            throw new IllegalArgumentException("確定開始時刻および終了時刻は必須です。");
+        }
+
         LocalDate workDate = existing.getWorkDate();
-        LocalDateTime confirmedStartAt = LocalDateTime.of(workDate, LocalTime.parse(confirmDto.getConfirmedStartTime()));
+        LocalTime startLocalTime;
+        LocalTime endLocalTime;
+        try {
+            startLocalTime = LocalTime.parse(confirmDto.getConfirmedStartTime());
+            endLocalTime = LocalTime.parse(confirmDto.getConfirmedEndTime());
+        } catch (Exception e) {
+            throw new IllegalArgumentException("確定時刻のフォーマットが不正です。(HH:mm形式)", e);
+        }
+
+        LocalDateTime confirmedStartAt = LocalDateTime.of(workDate, startLocalTime);
         LocalDateTime confirmedEndAt = TimeUtils.resolveEndDateTime(workDate, confirmDto.getConfirmedStartTime(), confirmDto.getConfirmedEndTime());
+
+        if (!confirmedEndAt.isAfter(confirmedStartAt)) {
+            throw new IllegalArgumentException("終了日時は開始日時より後である必要があります。");
+        }
+
+        long grossMinutes = Duration.between(confirmedStartAt, confirmedEndAt).toMinutes();
 
         // 16時間超過検証
         if (Duration.between(confirmedStartAt, confirmedEndAt).compareTo(Duration.ofHours(16)) > 0) {
@@ -102,6 +209,10 @@ public class ShiftService {
         int plannedBreak = (confirmDto.getPlannedBreakMinutes() != null)
                 ? confirmDto.getPlannedBreakMinutes()
                 : calculateRecommendedBreakMinutes(confirmedStartAt, confirmedEndAt);
+
+        if (plannedBreak < 0 || plannedBreak >= grossMinutes) {
+            throw new IllegalArgumentException("計画休憩時間は0分以上かつ総拘束時間未満である必要があります。");
+        }
 
         existing.setConfirmedStartAt(confirmedStartAt);
         existing.setConfirmedEndAt(confirmedEndAt);

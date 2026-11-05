@@ -55,6 +55,9 @@ public class SecurityConfig {
                                 "/attendance",
                                 "/attendance/**",
                                 "/shift/**",
+                                "/shifts",
+                                "/shifts/**",
+                                "/api/shifts/**",
                                 "/api/attendance/**",
                                 "/api/shift/**"
                         ).hasAnyRole("STAFF", "OWNER")
