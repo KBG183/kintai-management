@@ -33,4 +33,21 @@ public interface ShiftMapper {
 
     // 排他制御: 同時更新防止のための悲観的ロック (SELECT ... FOR UPDATE)
     void lockStoreStaffForUpdate(@Param("storeStaffId") Long storeStaffId);
+
+    /**
+     * スタッフ本人による希望シフト申請の取消・削除 (IDOR防止および確定済削除禁止)
+     */
+    int deleteShiftRequest(
+            @Param("shiftId") Long shiftId,
+            @Param("storeStaffId") Long storeStaffId
+    );
+
+    /**
+     * 特定スタッフのシフト一覧取得 (自店舗・自身のシフト確認用)
+     */
+    List<ShiftDto> findStaffShiftList(
+            @Param("storeStaffId") Long storeStaffId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
 }
