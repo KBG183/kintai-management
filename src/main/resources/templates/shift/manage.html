@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{common/layout :: layout(~{::title}, ~{::#content})}">
+<head>
+    <title>シフト確定・勤怠照合管理 | KINTAI SYSTEM</title>
+</head>
+<body>
+<div id="content">
+    <!-- CSRF トークン保持用 -->
+    <meta name="_csrf" th:content="${_csrf?.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf?.headerName}"/>
+
+    <!-- ページヘッダー -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-1"><i class="fa-solid fa-calendar-check text-primary me-2"></i>シフト確定・勤怠リアルタイム照合</h3>
+            <p class="text-muted small mb-0">スタッフから申請された希望シフトの一括承認・却下、および本日の勤務予定と実際の打刻実績をリアルタイムに対照確認します。</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <a th:href="@{/shifts}" class="btn btn-outline-secondary btn-sm">
+                <i class="fa-regular fa-calendar-days me-1"></i>シフトカレンダーへ戻る
+            </a>
+            <button id="btnBatchConfirm" class="btn btn-primary btn-sm fw-bold">
+                <i class="fa-solid fa-check-double me-1"></i>未確定シフトを一括確定
+            </button>
+        </div>
+    </div>
+
+    <!-- タブ切り替え: 1. 未確定シフト一覧 / 2. 本日の勤怠照合 (予定 vs 実績) -->
+    <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active fw-bold" id="pills-pending-tab" data-bs-toggle="pill" data-bs-target="#pills-pending" type="button" role="tab">
+                <i class="fa-solid fa-clock-rotate-left me-1"></i>未確定シフト一覧
+                <span id="badgePendingCount" class="badge bg-danger ms-1">0</span>
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link fw-bold" id="pills-comparison-tab" data-bs-toggle="pill" data-bs-target="#pills-comparison" type="button" role="tab">
+                <i class="fa-solid fa-user-clock me-1"></i>本日の勤怠対照 (予定 vs 実績)
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="pills-tabContent">
+        <!-- 1. 未確定シフト承認タブ -->
+        <div class="tab-pane fade show active" id="pills-pending" role="tabpanel">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-list-check text-warning me-2"></i>承認待ち希望シフト</h5>
+                    <div>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="loadPendingShifts()">
+                            <i class="fa-solid fa-rotate-right me-1"></i>再読込
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                            <tr>
+                                <th style="width: 40px;" class="text-center">
+                                    <input type="checkbox" id="checkAllPending" class="form-check-input">
+                                </th>
+                                <th>勤務日</th>
+                                <th>スタッフ氏名</th>
+                                <th>申請時間帯</th>
+                                <th>スタッフ備考</th>
+                                <th class="text-center">アクション</th>
+                            </tr>
+                            </thead>
+                            <tbody id="pendingShiftTableBody">
+                            <tr>
+                                <td colspan="6" class="text-center py-4 text-muted">
+                                    <i class="fa-solid fa-spinner fa-spin me-2"></i>読み込み中...
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. 本日の勤怠照合タブ -->
+        <div class="tab-pane fade" id="pills-comparison" role="tabpanel">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-3">
+                        <h5 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-timeline text-primary me-2"></i>シフト予定・実績 照合モニタ</h5>
+                        <div class="input-group input-group-sm" style="width: 200px;">
+                            <span class="input-group-text bg-light">対象日付</span>
+                            <input type="date" id="comparisonDate" class="form-control">
+                        </div>
+                    </div>
+                    <div>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="loadShiftComparison()">
+                            <i class="fa-solid fa-rotate-right me-1"></i>再読込
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                            <tr>
+                                <th>スタッフ氏名</th>
+                                <th>シフト予定 (拘束/実働)</th>
+                                <th>打刻実績 (出退勤/休憩)</th>
+                                <th>対照判定</th>
+                                <th>労働時間差異</th>
+                            </tr>
+                            </thead>
+                            <tbody id="comparisonTableBody">
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-muted">
+                                    <i class="fa-solid fa-spinner fa-spin me-2"></i>読み込み中...
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- シフト単件確定・時間調整モーダル -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold" id="confirmModalLabel"><i class="fa-solid fa-check me-2"></i>シフト確定・時間調整</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="閉じる"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="modalShiftId">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">対象スタッフ</label>
+                        <input type="text" class="form-control bg-light" id="modalStaffName" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">勤務日</label>
+                        <input type="text" class="form-control bg-light" id="modalWorkDate" readonly>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-bold">確定出勤時刻</label>
+                            <input type="time" class="form-control" id="modalStartTime" required>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-bold">確定退勤時刻</label>
+                            <input type="time" class="form-control" id="modalEndTime" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">計画休憩時間 (分)</label>
+                        <input type="number" class="form-control" id="modalBreakMinutes" placeholder="未入力時は法定自動計算">
+                        <div class="form-text small">※未入力の場合、労働基準法第34条に基づき自動算定（6h超45分、8h超60分）されます。</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">店長メモ・指示事項 (任意)</label>
+                        <textarea class="form-control" id="modalOwnerMemo" rows="2" placeholder="例: ピーク時間帯のヘルプ確定"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                    <button type="button" class="btn btn-danger" onclick="executeReject()"><i class="fa-solid fa-ban me-1"></i>申請却下</button>
+                    <button type="button" class="btn btn-success fw-bold" onclick="executeConfirm()"><i class="fa-solid fa-check me-1"></i>確定する</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- スクリプト定義 -->
+<th:block layout:fragment="scripts">
+<script>
+    let csrfToken = '';
+    let csrfHeader = '';
+    let pendingShiftsCache = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+        csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content') || '';
+        csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || '';
+
+        // 日付初期設定 (本日)
+        const todayStr = new Date().toISOString().split('T')[0];
+        document.getElementById('comparisonDate').value = todayStr;
+
+        // 全選択チェックボックス連動
+        document.getElementById('checkAllPending').addEventListener('change', (e) => {
+            const checkboxes = document.querySelectorAll('.check-pending-item');
+            checkboxes.forEach(cb => cb.checked = e.target.checked);
+        });
+
+        // 日付変更時に対照データを再読込
+        document.getElementById('comparisonDate').addEventListener('change', loadShiftComparison);
+
+        // 一括確定ボタン
+        document.getElementById('btnBatchConfirm').addEventListener('click', executeBatchConfirm);
+
+        // 初回ロード
+        loadPendingShifts();
+        loadShiftComparison();
+    });
+
+    /**
+     * 未確定シフト一覧取得
+     */
+    async function loadPendingShifts() {
+        const tbody = document.getElementById('pendingShiftTableBody');
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted"><i class="fa-solid fa-spinner fa-spin me-2"></i>読み込み中...</td></tr>';
+
+        try {
+            const res = await fetch('/api/shifts/pending');
+            if (!res.ok) throw new Error('未確定シフトの取得に失敗しました。');
+            const list = await res.json();
+            pendingShiftsCache = list;
+
+            document.getElementById('badgePendingCount').textContent = list.length;
+
+            if (list.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted"><i class="fa-regular fa-circle-check text-success me-2"></i>現在、承認待ちの希望シフトはありません。</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = '';
+            list.forEach(item => {
+                const tr = document.createElement('tr');
+                const startTime = formatTime(item.requestedStartAt);
+                const endTime = formatTime(item.requestedEndAt);
+
+                tr.innerHTML = `
+                    <td class="text-center">
+                        <input type="checkbox" class="form-check-input check-pending-item" value="${item.shiftId}">
+                    </td>
+                    <td class="fw-bold">${item.workDate}</td>
+                    <td>${item.staffName || 'スタッフ'}</td>
+                    <td><span class="badge bg-light text-dark border">${startTime} ～ ${endTime}</span></td>
+                    <td class="small text-muted">${item.staffMemo || '-'}</td>
+                    <td class="text-center">
+                        <button class="btn btn-sm btn-outline-primary" onclick="openConfirmModal(${item.shiftId})">
+                            <i class="fa-solid fa-sliders me-1"></i>調整・確定
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } catch (err) {
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i>${err.message}</td></tr>`;
+        }
+    }
+
+    /**
+     * シフト予定 vs 実績 照合データ取得
+     */
+    async function loadShiftComparison() {
+        const tbody = document.getElementById('comparisonTableBody');
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted"><i class="fa-solid fa-spinner fa-spin me-2"></i>読み込み中...</td></tr>';
+        const dateVal = document.getElementById('comparisonDate').value;
+
+        try {
+            const url = dateVal ? `/api/shifts/comparison?date=${dateVal}` : '/api/shifts/comparison';
+            const res = await fetch(url);
+            if (!res.ok) throw new Error('照合データの取得に失敗しました。');
+            const list = await res.json();
+
+            if (list.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted"><i class="fa-solid fa-circle-info text-info me-2"></i>指定日のシフト予定および打刻実績はありません。</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = '';
+            list.forEach(item => {
+                const tr = document.createElement('tr');
+
+                // 予定セル
+                let plannedHtml = '-';
+                if (item.plannedStartAt && item.plannedEndAt) {
+                    const pStart = formatTime(item.plannedStartAt);
+                    const pEnd = formatTime(item.plannedEndAt);
+                    plannedHtml = `<div class="fw-bold">${pStart} ～ ${pEnd}</div><small class="text-muted">実働予定: ${item.plannedWorkMinutes || 0}分 (休憩 ${item.plannedBreakMinutes || 0}分)</small>`;
+                }
+
+                // 実績セル
+                let actualHtml = '-';
+                if (item.actualClockInAt) {
+                    const aStart = formatTime(item.actualClockInAt);
+                    const aEnd = item.actualClockOutAt ? formatTime(item.actualClockOutAt) : '<span class="text-primary fw-bold">勤務中</span>';
+                    actualHtml = `<div>${aStart} ～ ${aEnd}</div><small class="text-muted">実労働: ${item.actualWorkMinutes || 0}分 (休憩 ${item.actualBreakMinutes || 0}分)</small>`;
+                }
+
+                // 判定バッジ
+                const badgeClass = getStatusBadgeClass(item.comparisonStatus);
+                const statusHtml = `<span class="badge ${badgeClass} p-2">${item.statusLabel || item.comparisonStatus}</span>`;
+
+                // 労働差異
+                let diffHtml = '-';
+                if (item.diffWorkMinutes !== null && item.diffWorkMinutes !== undefined) {
+                    const diff = item.diffWorkMinutes;
+                    if (diff > 0) {
+                        diffHtml = `<span class="text-danger fw-bold">+${diff}分 (残業)</span>`;
+                    } else if (diff < 0) {
+                        diffHtml = `<span class="text-secondary">${diff}分</span>`;
+                    } else {
+                        diffHtml = `<span class="text-success fw-bold">±0分 (定時)</span>`;
+                    }
+                }
+
+                tr.innerHTML = `
+                    <td class="fw-bold">${item.staffName || 'スタッフ'}</td>
+                    <td>${plannedHtml}</td>
+                    <td>${actualHtml}</td>
+                    <td>${statusHtml}</td>
+                    <td>${diffHtml}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } catch (err) {
+            tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i>${err.message}</td></tr>`;
+        }
+    }
+
+    function getStatusBadgeClass(status) {
+        switch (status) {
+            case 'NORMAL': return 'bg-success';
+            case 'WORKING': return 'bg-primary';
+            case 'LATE':
+            case 'EARLY_LEAVE':
+            case 'LATE_AND_EARLY': return 'bg-warning text-dark';
+            case 'ABSENT': return 'bg-danger';
+            case 'UNSCHEDULED': return 'bg-info text-dark';
+            default: return 'bg-secondary';
+        }
+    }
+
+    function formatTime(dtStr) {
+        if (!dtStr) return '';
+        const d = new Date(dtStr);
+        return d.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false });
+    }
+
+    /**
+     * 単件確定モーダルを開く
+     */
+    function openConfirmModal(shiftId) {
+        const item = pendingShiftsCache.find(s => s.shiftId === shiftId);
+        if (!item) return;
+
+        document.getElementById('modalShiftId').value = item.shiftId;
+        document.getElementById('modalStaffName').value = item.staffName || 'スタッフ';
+        document.getElementById('modalWorkDate').value = item.workDate;
+        document.getElementById('modalStartTime').value = formatTime(item.requestedStartAt);
+        document.getElementById('modalEndTime').value = formatTime(item.requestedEndAt);
+        document.getElementById('modalBreakMinutes').value = item.plannedBreakMinutes || '';
+        document.getElementById('modalOwnerMemo').value = item.ownerMemo || '';
+
+        const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+        modal.show();
+    }
+
+    /**
+     * 単件確定実行
+     */
+    async function executeConfirm() {
+        const shiftId = document.getElementById('modalShiftId').value;
+        const startTime = document.getElementById('modalStartTime').value;
+        const endTime = document.getElementById('modalEndTime').value;
+        const breakMin = document.getElementById('modalBreakMinutes').value;
+        const ownerMemo = document.getElementById('modalOwnerMemo').value;
+
+        if (!startTime || !endTime) {
+            alert('開始時刻および終了時刻は必須です。');
+            return;
+        }
+
+        const body = {
+            confirmedStartTime: startTime,
+            confirmedEndTime: endTime,
+            plannedBreakMinutes: breakMin ? parseInt(breakMin) : null,
+            status: 'CONFIRMED',
+            ownerMemo: ownerMemo
+        };
+
+        try {
+            const res = await fetch(`/api/shifts/${shiftId}/confirm`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
+                },
+                body: JSON.stringify(body)
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || 'シフト確定に失敗しました。');
+
+            alert('シフトを確定しました。');
+            bootstrap.Modal.getInstance(document.getElementById('confirmModal')).hide();
+            loadPendingShifts();
+            loadShiftComparison();
+        } catch (err) {
+            alert('エラー: ' + err.message);
+        }
+    }
+
+    /**
+     * 単件却下実行
+     */
+    async function executeReject() {
+        if (!confirm('このシフト申請を却下しますか？')) return;
+        const shiftId = document.getElementById('modalShiftId').value;
+        const ownerMemo = document.getElementById('modalOwnerMemo').value;
+
+        try {
+            const res = await fetch(`/api/shifts/${shiftId}/reject`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
+                },
+                body: JSON.stringify({ ownerMemo: ownerMemo })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || 'シフト却下に失敗しました。');
+
+            alert('シフト申請を却下しました。');
+            bootstrap.Modal.getInstance(document.getElementById('confirmModal')).hide();
+            loadPendingShifts();
+            loadShiftComparison();
+        } catch (err) {
+            alert('エラー: ' + err.message);
+        }
+    }
+
+    /**
+     * 複数シフト一括確定実行
+     */
+    async function executeBatchConfirm() {
+        const checkedBoxes = document.querySelectorAll('.check-pending-item:checked');
+        if (checkedBoxes.length === 0) {
+            alert('一括確定するシフトを選択してください。');
+            return;
+        }
+
+        const shiftIds = Array.from(checkedBoxes).map(cb => parseInt(cb.value));
+        if (!confirm(`選択した ${shiftIds.length} 件の希望シフトを一括確定しますか？`)) return;
+
+        try {
+            const res = await fetch('/api/shifts/batch-confirm', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
+                },
+                body: JSON.stringify({
+                    shiftIds: shiftIds,
+                    ownerMemo: '管理者一括確定'
+                })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || '一括確定に失敗しました。');
+
+            alert(`${data.data || shiftIds.length}件のシフトを一括確定しました。`);
+            loadPendingShifts();
+            loadShiftComparison();
+        } catch (err) {
+            alert('エラー: ' + err.message);
+        }
+    }
+</script>
+</th:block>
+</body>
+</html>

@@ -1,7 +1,10 @@
 package com.example.kintai.domain.shift.controller;
 
 import com.example.kintai.domain.shift.dto.CalendarEventDto;
+import com.example.kintai.domain.shift.dto.ShiftBatchConfirmDto;
+import com.example.kintai.domain.shift.dto.ShiftComparisonDto;
 import com.example.kintai.domain.shift.dto.ShiftConfirmDto;
+import com.example.kintai.domain.shift.dto.ShiftDto;
 import com.example.kintai.domain.shift.dto.ShiftRequestDto;
 import com.example.kintai.domain.shift.service.ShiftService;
 import com.example.kintai.global.common.ApiResponse;
@@ -141,5 +144,93 @@ public class ShiftApiController {
 
         shiftService.confirmShift(shiftId, userDetails.getStoreId(), confirmDto);
         return ResponseEntity.ok(ApiResponse.ok("シフトが確定されました。", null));
+    }
+
+    /**
+     * 店長によるシフト申請の却下 (自店舗検証および権限チェック)
+     */
+    @PutMapping("/{shiftId}/reject")
+    public ResponseEntity<ApiResponse<Void>> rejectShift(
+            @PathVariable("shiftId") Long shiftId,
+            @RequestBody(required = false) ShiftConfirmDto confirmDto,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        if (userDetails == null || userDetails.getStoreId() == null) {
+            throw new AccessDeniedException("店長認証セッションおよび店舗情報が必要です。(IDOR遮断)");
+        }
+        boolean isManager = userDetails.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_OWNER") || a.getAuthority().equals("ROLE_MANAGER"));
+        if (!isManager) {
+            throw new AccessDeniedException("シフト却下権限がありません。(店長・管理者権限が必要)");
+        }
+
+        String memo = (confirmDto != null) ? confirmDto.getOwnerMemo() : null;
+        shiftService.rejectShift(shiftId, userDetails.getStoreId(), memo);
+        return ResponseEntity.ok(ApiResponse.ok("シフト申請を却下しました。", null));
+    }
+
+    /**
+     * 店長による未確定シフトの複数一括確定
+     */
+    @PostMapping("/batch-confirm")
+    public ResponseEntity<ApiResponse<Integer>> batchConfirmShifts(
+            @RequestBody ShiftBatchConfirmDto batchDto,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        if (userDetails == null || userDetails.getStoreId() == null) {
+            throw new AccessDeniedException("店長認証セッションおよび店舗情報が必要です。(IDOR遮断)");
+        }
+        boolean isManager = userDetails.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_OWNER") || a.getAuthority().equals("ROLE_MANAGER"));
+        if (!isManager) {
+            throw new AccessDeniedException("一括確定権限がありません。(店長・管理者権限が必要)");
+        }
+
+        int confirmedCount = shiftService.batchConfirmShifts(userDetails.getStoreId(), batchDto);
+        return ResponseEntity.ok(ApiResponse.ok(confirmedCount + "件のシフトを一括確定しました。", confirmedCount));
+    }
+
+    /**
+     * 店舗内の申請中（未確定）シフト一覧取得
+     */
+    @GetMapping("/pending")
+    public ResponseEntity<List<ShiftDto>> getPendingShifts(
+            @RequestParam(value = "start", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+            @RequestParam(value = "end", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        if (userDetails == null || userDetails.getStoreId() == null) {
+            throw new AccessDeniedException("店長認証セッションが必要です。(IDOR遮断)");
+        }
+        boolean isManager = userDetails.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_OWNER") || a.getAuthority().equals("ROLE_MANAGER"));
+        if (!isManager) {
+            throw new AccessDeniedException("未確定シフト閲覧権限がありません。");
+        }
+
+        List<ShiftDto> pendingList = shiftService.getPendingShifts(userDetails.getStoreId(), start, end);
+        return ResponseEntity.ok(pendingList);
+    }
+
+    /**
+     * シフト予定 vs 実績打刻 リアルタイム照合API
+     */
+    @GetMapping("/comparison")
+    public ResponseEntity<List<ShiftComparisonDto>> getShiftComparison(
+            @RequestParam(value = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        if (userDetails == null || userDetails.getStoreId() == null) {
+            throw new AccessDeniedException("店長認証セッションが必要です。(IDOR遮断)");
+        }
+        boolean isManager = userDetails.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_OWNER") || a.getAuthority().equals("ROLE_MANAGER"));
+        if (!isManager) {
+            throw new AccessDeniedException("シフト対照閲覧権限がありません。");
+        }
+
+        LocalDate targetDate = (date != null) ? date : LocalDate.now();
+        List<ShiftComparisonDto> comparisonList = shiftService.compareShiftWithAttendance(userDetails.getStoreId(), targetDate);
+        return ResponseEntity.ok(comparisonList);
     }
 }

@@ -16,4 +16,16 @@ public class ShiftController {
         model.addAttribute("storeId", storeId);
         return "shift/calendar";
     }
+
+    /**
+     * 店長専用 シフト確定・勤怠リアルタイム照合管理画面
+     */
+    @GetMapping("/shifts/manage")
+    public String shiftManagementView(
+            @RequestParam(name = "storeId", defaultValue = "1") Long storeId,
+            Model model
+    ) {
+        model.addAttribute("storeId", storeId);
+        return "shift/manage";
+    }
 }
