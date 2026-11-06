@@ -50,4 +50,45 @@ public interface ShiftMapper {
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate
     );
+
+    /**
+     * 店舗内の申請中（未確定）シフト一覧取得
+     */
+    List<ShiftDto> findPendingShifts(
+            @Param("storeId") Long storeId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
+
+    /**
+     * 店舗内の未確定シフト件数カウント
+     */
+    int countPendingShifts(@Param("storeId") Long storeId);
+
+    /**
+     * 特定勤務日の確定シフト一覧取得（実績打刻照合エンジン用）
+     */
+    List<ShiftDto> findConfirmedShiftsByDate(
+            @Param("storeId") Long storeId,
+            @Param("workDate") LocalDate workDate
+    );
+
+    /**
+     * シフト状態の単件更新（店舗IDOR防御付き却下・承認処理）
+     */
+    int updateShiftStatus(
+            @Param("shiftId") Long shiftId,
+            @Param("storeId") Long storeId,
+            @Param("status") String status,
+            @Param("ownerMemo") String ownerMemo
+    );
+
+    /**
+     * 複数シフトの一括確定処理 (申請時間を確定時間として一括昇格)
+     */
+    int batchConfirmShifts(
+            @Param("storeId") Long storeId,
+            @Param("shiftIds") List<Long> shiftIds,
+            @Param("ownerMemo") String ownerMemo
+    );
 }

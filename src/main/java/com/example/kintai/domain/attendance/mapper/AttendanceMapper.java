@@ -52,6 +52,13 @@ public interface AttendanceMapper {
     );
 
     // 勤怠修正申請関連
+    /**
+     * 店舗および指定勤務日の全スタッフ勤怠実績取得（シフト・勤怠リアルタイム対照用）
+     */
+    List<AttendanceDto> findAttendancesByStoreAndDate(
+            @Param("storeId") Long storeId,
+            @Param("workDate") LocalDate workDate
+    );
     int insertModRequest(AttendanceModRequestDto modRequest);
 
     int insertModBreak(

@@ -142,4 +142,88 @@
         ORDER BY s.work_date ASC, COALESCE(s.confirmed_start_at, s.requested_start_at) ASC
     </select>
 
+    <select id="findPendingShifts" resultType="com.example.kintai.domain.shift.dto.ShiftDto">
+        SELECT
+            s.shift_id,
+            s.store_id,
+            s.store_staff_id,
+            m.name AS staff_name,
+            s.work_date,
+            s.requested_start_at,
+            s.requested_end_at,
+            s.confirmed_start_at,
+            s.confirmed_end_at,
+            s.planned_break_minutes,
+            s.status,
+            s.staff_memo,
+            s.owner_memo
+        FROM shift_schedule s
+        JOIN store_staff ss ON s.store_staff_id = ss.store_staff_id
+        JOIN member m ON ss.member_id = m.member_id
+        WHERE s.store_id = #{storeId}
+          AND s.status = 'SUBMITTED'
+          <if test="startDate != null">
+              AND s.work_date &gt;= #{startDate}
+          </if>
+          <if test="endDate != null">
+              AND s.work_date &lt; #{endDate}
+          </if>
+        ORDER BY s.work_date ASC, s.requested_start_at ASC
+    </select>
+
+    <select id="countPendingShifts" resultType="int">
+        SELECT COUNT(*)
+        FROM shift_schedule
+        WHERE store_id = #{storeId}
+          AND status = 'SUBMITTED'
+    </select>
+
+    <select id="findConfirmedShiftsByDate" resultType="com.example.kintai.domain.shift.dto.ShiftDto">
+        SELECT
+            s.shift_id,
+            s.store_id,
+            s.store_staff_id,
+            m.name AS staff_name,
+            s.work_date,
+            s.requested_start_at,
+            s.requested_end_at,
+            s.confirmed_start_at,
+            s.confirmed_end_at,
+            s.planned_break_minutes,
+            s.status,
+            s.staff_memo,
+            s.owner_memo
+        FROM shift_schedule s
+        JOIN store_staff ss ON s.store_staff_id = ss.store_staff_id
+        JOIN member m ON ss.member_id = m.member_id
+        WHERE s.store_id = #{storeId}
+          AND s.work_date = #{workDate}
+          AND s.status = 'CONFIRMED'
+        ORDER BY s.confirmed_start_at ASC
+    </select>
+
+    <update id="updateShiftStatus">
+        UPDATE shift_schedule
+        SET status = #{status},
+            owner_memo = #{ownerMemo},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE shift_id = #{shiftId}
+          AND store_id = #{storeId}
+    </update>
+
+    <update id="batchConfirmShifts">
+        UPDATE shift_schedule
+        SET confirmed_start_at = COALESCE(confirmed_start_at, requested_start_at),
+            confirmed_end_at = COALESCE(confirmed_end_at, requested_end_at),
+            status = 'CONFIRMED',
+            owner_memo = COALESCE(#{ownerMemo}, owner_memo),
+            updated_at = CURRENT_TIMESTAMP
+        WHERE store_id = #{storeId}
+          AND status = 'SUBMITTED'
+          AND shift_id IN
+          <foreach item="item" collection="shiftIds" open="(" separator="," close=")">
+              #{item}
+          </foreach>
+    </update>
+
 </mapper>

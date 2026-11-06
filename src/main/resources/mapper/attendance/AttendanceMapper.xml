@@ -309,4 +309,28 @@
         WHERE mod_request_id = #{modRequestId}
     </update>
 
+    <!-- 店舗および指定勤務日の全スタッフ勤怠実績取得（シフト・勤怠リアルタイム対照用） -->
+    <select id="findAttendancesByStoreAndDate" resultType="com.example.kintai.domain.attendance.dto.AttendanceDto">
+        SELECT
+            attendance_id,
+            store_id,
+            store_staff_id,
+            shift_id,
+            work_date,
+            clock_in_at,
+            clock_out_at,
+            break_start_at,
+            break_end_at,
+            total_break_minutes,
+            net_work_minutes,
+            night_work_minutes,
+            overtime_minutes,
+            clock_in_method,
+            attendance_status
+        FROM attendance
+        WHERE store_id = #{storeId}
+          AND work_date = #{workDate}
+        ORDER BY clock_in_at ASC
+    </select>
+
 </mapper>
