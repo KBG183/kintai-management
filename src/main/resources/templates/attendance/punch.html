@@ -52,7 +52,97 @@
                 </div>
             </div>
 
-            <!-- 2. 勤怠修正申請カード -->
+            <!-- 2. 労働基準法第37条 割増賃金シミュレーターカード -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-0 text-dark">
+                        <i class="fa-solid fa-scale-balanced text-primary me-2"></i>労働基準法第37条 割増賃金・重畳割増シミュレーター
+                    </h5>
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">法令遵守エンジン (法定外125% / 深夜125% / 重畳150%)</span>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-muted small mb-3">
+                        出退勤日時と休憩時間を指定することで、日跨ぎ深夜（22:00~翌05:00）や法定時間外（8時間超過）の重畳割増（150%）を分単位で即時試算します。
+                    </p>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">出勤日時</label>
+                            <input type="datetime-local" class="form-control" id="simClockIn" value="2026-11-09T13:00">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">退勤日時</label>
+                            <input type="datetime-local" class="form-control" id="simClockOut" value="2026-11-10T01:00">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">適用時給 (円)</label>
+                            <input type="number" class="form-control" id="simHourlyWage" value="1500" min="1280" step="10">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">休憩開始・終了日時 (例: 17:00~18:00)</label>
+                            <div class="input-group">
+                                <input type="time" class="form-control" id="simBreakStart" value="17:00">
+                                <span class="input-group-text">~</span>
+                                <input type="time" class="form-control" id="simBreakEnd" value="18:00">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-end mt-3">
+                        <button type="button" class="btn btn-outline-primary px-4 fw-bold" id="btnRunSimulation">
+                            <i class="fa-solid fa-calculator me-1"></i>割増賃金を精密試算
+                        </button>
+                    </div>
+
+                    <!-- 試算結果エリア -->
+                    <div id="simResultArea" class="mt-4" style="display: none;">
+                        <div class="table-responsive border rounded">
+                            <table class="table table-bordered table-sm align-middle mb-0 text-center">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>区分</th>
+                                        <th>適用割増率</th>
+                                        <th>労働時間 (分 / 時間)</th>
+                                        <th>支給見込額 (円)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="text-start ps-3 fw-bold">所定内通常労働</td>
+                                        <td><span class="badge bg-secondary">100%</span></td>
+                                        <td id="resRegularWork">-</td>
+                                        <td id="resRegularPay" class="fw-bold">-</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-start ps-3 fw-bold">所定内深夜労働 (22:00~05:00)</td>
+                                        <td><span class="badge bg-info text-white">125% (+25%)</span></td>
+                                        <td id="resRegularNightWork">-</td>
+                                        <td id="resRegularNightPay" class="fw-bold">-</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-start ps-3 fw-bold">法定外通常残業 (8h超過)</td>
+                                        <td><span class="badge bg-warning text-dark">125% (+25%)</span></td>
+                                        <td id="resOvertimeWork">-</td>
+                                        <td id="resOvertimePay" class="fw-bold">-</td>
+                                    </tr>
+                                    <tr class="table-danger">
+                                        <td class="text-start ps-3 fw-bold text-danger">法定外深夜残業 (重畳割増)</td>
+                                        <td><span class="badge bg-danger">150% (+50%)</span></td>
+                                        <td id="resNightOvertimeWork" class="fw-bold text-danger">-</td>
+                                        <td id="resNightOvertimePay" class="fw-bold text-danger">-</td>
+                                    </tr>
+                                    <tr class="table-light fw-bold">
+                                        <td class="text-start ps-3">実働合計 / 総支給額</td>
+                                        <td>-</td>
+                                        <td id="resTotalNetWork">-</td>
+                                        <td id="resTotalPay" class="text-primary fs-5">-</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. 勤怠修正申請カード -->
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
                     <h5 class="fw-bold mb-0"><i class="fa-solid fa-pen-to-square text-secondary me-2"></i>打刻漏れ・勤怠修正申請</h5>
@@ -240,7 +330,65 @@
             btnBreakEnd.addEventListener('click', () => sendPunch('BREAK_END'));
             btnClockOut.addEventListener('click', () => sendPunch('CLOCK_OUT'));
 
-            // 4. 勤怠修正申請の送信
+            // 4. 割増賃金シミュレーター実行関数
+            document.getElementById('btnRunSimulation').addEventListener('click', function () {
+                const clockIn = document.getElementById('simClockIn').value;
+                const clockOut = document.getElementById('simClockOut').value;
+                const wage = parseInt(document.getElementById('simHourlyWage').value);
+                const bStart = document.getElementById('simBreakStart').value;
+                const bEnd = document.getElementById('simBreakEnd').value;
+
+                if (!clockIn || !clockOut || isNaN(wage)) {
+                    alert('出退勤日時および時給を入力してください。');
+                    return;
+                }
+
+                const inDate = clockIn.substring(0, 10);
+                const breaks = (bStart && bEnd) ? [{
+                    startAt: `${inDate}T${bStart}:00`,
+                    endAt: `${inDate}T${bEnd}:00`
+                }] : [];
+
+                const payload = {
+                    clockInAt: clockIn + (clockIn.length === 16 ? ':00' : ''),
+                    clockOutAt: clockOut + (clockOut.length === 16 ? ':00' : ''),
+                    hourlyWage: wage,
+                    breaks: breaks
+                };
+
+                fetch('/api/labor/simulate', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        const d = data.data;
+                        document.getElementById('resRegularWork').innerText = `${d.regularWorkMinutes} 分 (${(d.regularWorkMinutes / 60).toFixed(1)}h)`;
+                        document.getElementById('resRegularPay').innerText = `${d.regularPay.toLocaleString()} 円`;
+
+                        document.getElementById('resRegularNightWork').innerText = `${d.regularNightWorkMinutes} 分 (${(d.regularNightWorkMinutes / 60).toFixed(1)}h)`;
+                        document.getElementById('resRegularNightPay').innerText = `${d.regularNightPay.toLocaleString()} 円`;
+
+                        document.getElementById('resOvertimeWork').innerText = `${d.overtimeWorkMinutes} 分 (${(d.overtimeWorkMinutes / 60).toFixed(1)}h)`;
+                        document.getElementById('resOvertimePay').innerText = `${d.overtimePay.toLocaleString()} 円`;
+
+                        document.getElementById('resNightOvertimeWork').innerText = `${d.nightOvertimeWorkMinutes} 分 (${(d.nightOvertimeWorkMinutes / 60).toFixed(1)}h)`;
+                        document.getElementById('resNightOvertimePay').innerText = `${d.nightOvertimePay.toLocaleString()} 円`;
+
+                        document.getElementById('resTotalNetWork').innerText = `${d.netWorkMinutes} 分 (${(d.netWorkMinutes / 60).toFixed(1)}h)`;
+                        document.getElementById('resTotalPay').innerText = `${d.totalPay.toLocaleString()} 円`;
+
+                        document.getElementById('simResultArea').style.display = 'block';
+                    } else {
+                        alert('シミュレーション試算エラー: ' + data.message);
+                    }
+                })
+                .catch(err => alert('通信エラーが発生しました: ' + err));
+            });
+
+            // 5. 勤怠修正申請の送信
             document.getElementById('btnSubmitModRequest').addEventListener('click', function () {
                 const staffId = document.getElementById('selectStaff').value;
                 const workDate = document.getElementById('modWorkDate').value;
