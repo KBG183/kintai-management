@@ -59,6 +59,20 @@ public interface AttendanceMapper {
             @Param("storeId") Long storeId,
             @Param("workDate") LocalDate workDate
     );
+
+    /**
+     * 店舗スタッフIDに基づくスタッフ氏名取得（労働基準法明細表示用）
+     */
+    String findStaffNameByStoreStaffId(@Param("storeStaffId") Long storeStaffId);
+
+    /**
+     * 勤務日時点の契約時給取得
+     */
+    Integer findHourlyWageForStaffOnDate(
+            @Param("storeStaffId") Long storeStaffId,
+            @Param("workDate") LocalDate workDate
+    );
+
     int insertModRequest(AttendanceModRequestDto modRequest);
 
     int insertModBreak(

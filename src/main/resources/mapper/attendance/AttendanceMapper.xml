@@ -238,7 +238,7 @@
             r.attendance_id,
             r.store_id,
             r.store_staff_id,
-            m.full_name AS staff_name,
+            m.name AS staff_name,
             r.work_date,
             r.before_clock_in_at,
             r.before_clock_out_at,
@@ -267,7 +267,7 @@
             r.attendance_id,
             r.store_id,
             r.store_staff_id,
-            m.full_name AS staff_name,
+            m.name AS staff_name,
             r.work_date,
             r.before_clock_in_at,
             r.before_clock_out_at,
@@ -331,6 +331,23 @@
         WHERE store_id = #{storeId}
           AND work_date = #{workDate}
         ORDER BY clock_in_at ASC
+    </select>
+
+    <!-- スタッフ氏名取得 -->
+    <select id="findStaffNameByStoreStaffId" resultType="java.lang.String">
+        SELECT m.name
+        FROM store_staff ss
+        JOIN member m ON ss.member_id = m.member_id
+        WHERE ss.store_staff_id = #{storeStaffId}
+        LIMIT 1
+    </select>
+
+    <!-- 勤務日時点の契約時給取得 -->
+    <select id="findHourlyWageForStaffOnDate" resultType="java.lang.Integer">
+        SELECT ss.hourly_wage
+        FROM store_staff ss
+        WHERE ss.store_staff_id = #{storeStaffId}
+        LIMIT 1
     </select>
 
 </mapper>
