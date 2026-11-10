@@ -95,11 +95,52 @@ public interface AttendanceMapper {
             @Param("breakSetType") String breakSetType
     );
 
+    /**
+     * 複数申請IDに対する休憩区間一括取得（N+1問題の解消）
+     */
+    List<AttendanceBreakDto> findModBreaksByRequestIds(@Param("requestIds") List<Long> requestIds);
+
     int updateModRequestReview(
             @Param("modRequestId") Long modRequestId,
             @Param("status") String status,
             @Param("reviewerId") Long reviewerId,
             @Param("rejectReason") String rejectReason,
             @Param("reviewedAt") LocalDateTime reviewedAt
+    );
+
+    /**
+     * 勤怠ステータスの単体更新
+     */
+    int updateAttendanceStatus(
+            @Param("attendanceId") Long attendanceId,
+            @Param("attendanceStatus") String attendanceStatus
+    );
+
+    /**
+     * 同一スタッフにおける勤務時間の重複件数をカウント（勤務時間重複防止）
+     */
+    int countOverlappingAttendances(
+            @Param("storeStaffId") Long storeStaffId,
+            @Param("clockInAt") LocalDateTime clockInAt,
+            @Param("clockOutAt") LocalDateTime clockOutAt,
+            @Param("excludeAttendanceId") Long excludeAttendanceId
+    );
+
+    /**
+     * 事後新規登録された勤怠IDを修正申請レコードに紐付け
+     */
+    int updateModRequestAttendanceId(
+            @Param("modRequestId") Long modRequestId,
+            @Param("attendanceId") Long attendanceId
+    );
+
+    /**
+     * 同一スタッフ・同一勤務日の先行完了勤務の実労働時間合計（分）を取得（分割勤務中抜け対応）
+     */
+    int sumPriorNetWorkMinutesOnDate(
+            @Param("storeStaffId") Long storeStaffId,
+            @Param("workDate") LocalDate workDate,
+            @Param("excludeAttendanceId") Long excludeAttendanceId,
+            @Param("beforeTime") LocalDateTime beforeTime
     );
 }

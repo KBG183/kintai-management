@@ -2,6 +2,7 @@ package com.example.kintai.domain.attendance.dto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class AttendanceModResponseDto {
     private Long modRequestId;
@@ -16,6 +17,8 @@ public class AttendanceModResponseDto {
     private LocalDateTime requestedClockInAt;
     private LocalDateTime requestedClockOutAt;
     private Integer requestedBreakMinutes;
+    private List<AttendanceBreakDto> beforeBreaks;
+    private List<AttendanceBreakDto> requestedBreaks;
     private String reason;
     private String approvalStatus;
     private String rejectReason;
@@ -58,6 +61,12 @@ public class AttendanceModResponseDto {
 
     public Integer getRequestedBreakMinutes() { return requestedBreakMinutes; }
     public void setRequestedBreakMinutes(Integer requestedBreakMinutes) { this.requestedBreakMinutes = requestedBreakMinutes; }
+
+    public List<AttendanceBreakDto> getBeforeBreaks() { return beforeBreaks; }
+    public void setBeforeBreaks(List<AttendanceBreakDto> beforeBreaks) { this.beforeBreaks = beforeBreaks; }
+
+    public List<AttendanceBreakDto> getRequestedBreaks() { return requestedBreaks; }
+    public void setRequestedBreaks(List<AttendanceBreakDto> requestedBreaks) { this.requestedBreaks = requestedBreaks; }
 
     public String getReason() { return reason; }
     public void setReason(String reason) { this.reason = reason; }

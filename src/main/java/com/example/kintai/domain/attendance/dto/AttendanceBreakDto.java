@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 public class AttendanceBreakDto {
     private Long attendanceBreakId;
     private Long attendanceId;
+    private String breakSetType; // "BEFORE" or "REQUESTED" (勤怠修正申請用スナップショット区分)
     private LocalDateTime breakStartAt;
     private LocalDateTime breakEndAt;
     private Integer durationMinutes;
@@ -22,6 +23,9 @@ public class AttendanceBreakDto {
 
     public Long getAttendanceId() { return attendanceId; }
     public void setAttendanceId(Long attendanceId) { this.attendanceId = attendanceId; }
+
+    public String getBreakSetType() { return breakSetType; }
+    public void setBreakSetType(String breakSetType) { this.breakSetType = breakSetType; }
 
     public LocalDateTime getBreakStartAt() { return breakStartAt; }
     public void setBreakStartAt(LocalDateTime breakStartAt) { this.breakStartAt = breakStartAt; }

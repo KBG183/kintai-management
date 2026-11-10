@@ -85,15 +85,19 @@
 
     <update id="updateAttendance">
         UPDATE attendance
-        SET clock_out_at = #{clockOutAt},
-            break_start_at = #{breakStartAt},
-            break_end_at = #{breakEndAt},
-            total_break_minutes = #{totalBreakMinutes},
-            net_work_minutes = #{netWorkMinutes},
-            night_work_minutes = #{nightWorkMinutes},
-            overtime_minutes = #{overtimeMinutes},
-            attendance_status = #{attendanceStatus},
+        <set>
+            <if test="clockInAt != null">clock_in_at = #{clockInAt},</if>
+            <if test="clockOutAt != null">clock_out_at = #{clockOutAt},</if>
+            <if test="breakStartAt != null">break_start_at = #{breakStartAt},</if>
+            <if test="breakEndAt != null">break_end_at = #{breakEndAt},</if>
+            <if test="totalBreakMinutes != null">total_break_minutes = #{totalBreakMinutes},</if>
+            <if test="netWorkMinutes != null">net_work_minutes = #{netWorkMinutes},</if>
+            <if test="nightWorkMinutes != null">night_work_minutes = #{nightWorkMinutes},</if>
+            <if test="overtimeMinutes != null">overtime_minutes = #{overtimeMinutes},</if>
+            <if test="clockInMethod != null">clock_in_method = #{clockInMethod},</if>
+            <if test="attendanceStatus != null">attendance_status = #{attendanceStatus},</if>
             updated_at = CURRENT_TIMESTAMP
+        </set>
         WHERE attendance_id = #{attendanceId}
     </update>
 
@@ -290,6 +294,7 @@
         SELECT
             mod_break_id AS attendance_break_id,
             mod_request_id AS attendance_id,
+            break_set_type,
             break_start_at,
             break_end_at,
             duration_minutes
@@ -299,13 +304,60 @@
         ORDER BY break_start_at ASC
     </select>
 
-    <!-- 修正申請の承認・却下状態更新 -->
+    <!-- 複数修正申請の全休憩区間一括取得（N+1クエリ解消） -->
+    <select id="findModBreaksByRequestIds" resultType="com.example.kintai.domain.attendance.dto.AttendanceBreakDto">
+        SELECT
+            mod_break_id AS attendance_break_id,
+            mod_request_id AS attendance_id,
+            break_set_type,
+            break_start_at,
+            break_end_at,
+            duration_minutes
+        FROM attendance_mod_break
+        WHERE mod_request_id IN
+        <foreach item="id" collection="requestIds" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        ORDER BY break_start_at ASC
+    </select>
+
+    <!-- 修正申請の承認・却下状態更新 (CAS: PENDING状態の場合のみ1件更新) -->
     <update id="updateModRequestReview">
         UPDATE attendance_mod_request
         SET approval_status = #{status},
             reviewer_id = #{reviewerId},
             reject_reason = #{rejectReason},
-            reviewed_at = #{reviewedAt}
+            reviewed_at = #{reviewedAt},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE mod_request_id = #{modRequestId}
+          AND approval_status = 'PENDING'
+    </update>
+
+    <!-- 勤怠ステータスの単体更新 -->
+    <update id="updateAttendanceStatus">
+        UPDATE attendance
+        SET attendance_status = #{attendanceStatus},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE attendance_id = #{attendanceId}
+    </update>
+
+    <!-- 同一スタッフにおける勤務時間の重複件数をカウント（勤務時間重複防止） -->
+    <select id="countOverlappingAttendances" resultType="int">
+        SELECT COUNT(*)
+        FROM attendance
+        WHERE store_staff_id = #{storeStaffId}
+          <if test="excludeAttendanceId != null">
+              AND attendance_id != #{excludeAttendanceId}
+          </if>
+          AND clock_in_at &lt; #{clockOutAt}
+          AND (clock_out_at IS NULL OR clock_out_at &gt; #{clockInAt})
+    </select>
+
+    <!-- 事後新規登録された勤怠IDを修正申請レコードに紐付け -->
+    <update id="updateModRequestAttendanceId">
+        UPDATE attendance_mod_request
+        SET attendance_id = #{attendanceId},
+            updated_at = CURRENT_TIMESTAMP
         WHERE mod_request_id = #{modRequestId}
     </update>
 
@@ -348,6 +400,21 @@
         FROM store_staff ss
         WHERE ss.store_staff_id = #{storeStaffId}
         LIMIT 1
+    </select>
+
+    <!-- 同一スタッフ・同一勤務日の先行完了勤務の実労働時間合計（分）を取得（分割勤務中抜け対応） -->
+    <select id="sumPriorNetWorkMinutesOnDate" resultType="java.lang.Integer">
+        SELECT COALESCE(SUM(net_work_minutes), 0)
+        FROM attendance
+        WHERE store_staff_id = #{storeStaffId}
+          AND work_date = #{workDate}
+          AND attendance_status = 'COMPLETED'
+          <if test="excludeAttendanceId != null">
+              AND attendance_id != #{excludeAttendanceId}
+          </if>
+          <if test="beforeTime != null">
+              AND clock_out_at &lt;= #{beforeTime}
+          </if>
     </select>
 
 </mapper>
