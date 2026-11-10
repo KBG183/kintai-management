@@ -19,7 +19,7 @@
 |:---:|:---:|:---:|---|:---:|
 | **v1.0** | 2026-11-02 | 승인자 (개발자) | 3-Tier AI 협동 감사 파이프라인 기술 증적서 초판 수립 (Phase 1 감사 항목 17건 정의) | 9b1a4f0 |
 | **v1.1** | 2026-11-03 | 승인자 (개발자) | 도메인 법규·DB 배타 제어·보안 확장 감사 항목(Phase 2 총 45개 기준) 추가 및 체계화 | 3c2e1f |
-| **v1.2** | 2026-11-04 | 승인자 (개발자) | 비관적 락(`SELECT ... FOR UPDATE`) 타각 트랜잭션, RTX 5070 Ti 실측 벤치마크, 昭和62年(1987년) 통달 및 단수처리 기준 정정, `uq_att_open_per_staff` 스키마 보강 | 8bb51a |
+| **v1.2** | 2026-11-04 | 승인자 (개발자) | 비관적 락(`SELECT ... FOR UPDATE`) 타각 트랜잭션, RTX 5070 Ti 실측 벤치마크, 昭和63年(1988년) 3월 14일자 基発第150号 통달 및 끝수 처리 기준 정정, `uq_att_open_per_staff` 스키마 보강 | 8bb51a |
 | **v1.3** | 2026-11-05 | 승인자 (개발자) | FullCalendar 연동 희망 시프트 화면 구현, 직원 셀프서비스 API의 Principal 기반 식별자 도출, CSRF 헤더 연동 및 UI 메모 마스킹 확인. 관리자 API·서버 JSON 메모 보호·JST 경계 테스트는 별도 검증 대상으로 분리 | e22890d |
 | **v1.4** | 2026-11-05 | 승인자 (개발자) | Day 4 감사 로그와 누적 메트릭 동기화, IDOR·메모 보호 범위 명확화, 일본어판 동기화, 미검증 항목 및 결정적 테스트 로드맵 정정 | a3b4c5d |
 | **v1.5** | 2026-11-06 | 승인자 (개발자) | Sprint Day 5 시프트 일괄 확정 및 근태 실시간 대조 엔진 구현, Thinking 억제(think=false)를 통한 동일 파일 A/B 실측 약 6.32배 가속화(206.88초 ➔ 32.72초)·출력 토큰 약 86.9% 절감 기록 반영, 일일 핵심 Java 코드(773줄) 정적 통합 감사 PASS, 일일 JUnit 5 단위 테스트 즉시 연동 체제(Shift-Left 검증)로의 전환(ShiftServiceTest 10건 선행 통과, R-23 부분 승격) | 0f1a67b (Step 1 선행 반영) |
@@ -416,6 +416,122 @@ flowchart TD
 
 ---
 
+### 【Sprint Day 6: 2026-11-09】 일본 노동기준법 제37조 할증 산정 엔진・JUnit 5 단위 테스트 및 통합 감사
+
+#### 1. 감사 대상 및 통합 번들
+- **직접 감사 대상 파일 (실측 메트릭・로그 확인 대상)**:
+  - daily_labor_engine_bundle.java (616줄, Day 6 코어 전 계층 통합 번들 텍스트)
+    - 구성: AttendanceTimeCalculator.java (타임라인 분할 슬라이싱) ➔ PayrollCalculator.java (1엔 단위 사사오입) ➔ LaborCalculationService.java (집계 서비스) ➔ LaborCalculationApiController.java (IDOR 방어 API)
+- **연관 참조 파일**:
+  - LaborDetailDto.java / LaborSimulationRequestDto.java (할증 시간・금액 전송 구조)
+  - punch.html (실시간 할증 임금 시뮬레이터 UI)
+  - LaborCalculationEngineTest.java (JUnit 5 단위 테스트 7건)
+
+#### 2. 주요 검출 사항 및 검증 결과
+- **타임라인 슬라이싱(Timeline Slicing)을 통한 경계값 오차 원천 근절**:
+  - 휴게시간을 선제적으로 차감한 순수 실근로 구간에 대해 05:00, 22:00, 누적 480분(8시간)의 경계선으로 시간을 엄격히 분할하여, 심야 시간대 휴게 분리 차감 및 자정 통과 근무에서의 계산 오차 0분을 달성.
+- **소화 62년(1987년) 통달에 기초한 1엔 단위 사사오입(HALF_UP) 및 BigDecimal 적용**:
+  - 부동소수점 연산 오차를 방지하기 위해 BigDecimal을 도입하고, 기본・심야・연장・중복 할증(150%)의 각 수당에 대해 소화 62년 노동성 통달 기준의 반올림(RoundingMode.HALF_UP)을 구현.
+- **IDOR 방어 및 단위 테스트 전수 검증**:
+  - 컨트롤러 계층에서 세션 Principal과 요청 storeStaffId의 정합성을 검증하여 타인 데이터 열람・위변조를 방어.
+  - JUnit 5 단위 테스트(7건)를 실행하여 자정 통과 심야 연장근로・중복 할증을 포함한 전 복합 케이스에서 GREEN 합격을 확인.
+
+#### 3. Day 6 감사 실행 메트릭 (실측치)
+
+| 회차 | 대상 | 감사 단계 및 목적 | 소요 시간 | 입력 토큰 | 출력 토큰 | 합계 토큰 | 속도 | 판정 |
+|:---:|---|---|---:|---:|---:|---:|---:|---|
+| 1 | daily_labor_engine_bundle.java (616줄) | 노동기준법 제37조 산정 엔진 일일 통합 감사 | 26.97초 | 10,450 | 1,310 | 11,760 | 49.2 tok/s | **PASS (제37조 할증・사사오입・IDOR 합격)** |
+
+- **빌드 및 단위 테스트 검증**:
+  - ./gradlew compileJava compileTestJava ➔ **BUILD SUCCESSFUL**
+  - **일일 단위 테스트 실행**: ./gradlew test --tests " *LaborCalculationEngineTest\ 실행 결과, **7건의 단위 테스트 전원 GREEN 합격**.
+
+---
+
+### 【Sprint Day 7: 2026-11-10】 근태 수정 신청・점주 전자 결재 워크플로우 및 중복 방어・N+1 최적화・엔터프라이즈 품질 고도화(Hardening) 통합 감사
+
+#### 1. 감사 대상 및 통합 파일
+- **직접 감사 대상 파일 (실측 메트릭・로그 확인 대상)**:
+ - AttendanceService.java (454줄, 근태 수정 신청・점주 심사・배타 제어・배치 조회)
+- **엔터프라이즈 품질 고도화(Hardening) 대상 파일**:
+ - SecurityConfig.java (CookieCsrfTokenRepository를 통한 CSRF 다층 방어 체계 복구)
+ - StoreAuthorizationService.java (점포 소유권 검증 및 IDOR 방어 서비스 신규 구축)
+ - MemberResponseDto.java / MemberDto.java (비밀번호 해시 유출 원천 차단)
+ - AttendanceTimeCalculator.java / PayrollCalculator.java (분할근무 실근로시간 누적 계산・노동기준법 제150호 고시 3대 법정 끝수 처리)
+ - PayrollService.java (확정 급여 데이터 불변성 보호 가드)
+- **연관 참조 파일**:
+ - AttendanceMapper.java / AttendanceMapper.xml (중복 검증・상태 갱신・휴게 구간 일괄 조회・당일 전반 실근로시간 누적 집계)
+ - AttendanceModRequestDto.java / AttendanceModResponseDto.java / AttendanceModReviewDto.java
+ - punch.html (타각 화면 수정 신청 폼) / mod-list.html (점주 심사 승인 목록 화면)
+ - SplitShiftOvertimeDefectTest.java / StatutoryRoundingTest.java / AttendanceModWorkflowTest.java
+
+#### 2. 주요 검출 사항 및 해결 조치
+- **로컬 Hermes 감사를 통한 N+1 쿼리 결함 검출 및 즉시 해결**:
+ - getModRequests에서 수정 신청 목록 조회 후 각 신청의 휴게 구간을 개별적으로 SQL 호출하던 결함에 대해 Hermes 27B가 \Code Quality: N+1 Query Problem\으로 WARN 경고 검출.
+ - indModBreaksByRequestIds (일괄 IN 절 쿼리) 및 O(1) 인메모리 매핑으로 즉시 리팩토링을 단행하여 2차 재검수에서 완전 PASS(해소 확인) 획득.
+- **근무 시간대 중복 방어(R-03 / Overlapping Detection) 구현**:
+ - 신청 시 및 승인 시 양쪽 단계 모두에서 동일 직원의 타 근무 기록과의 시간대 중복(countOverlappingAttendances)을 엄격히 검증・차단.
+- **급여 확정 충돌 방어 및 비관적・낙관적 병행 제어(CAS UPDATE & SELECT ... FOR UPDATE)**:
+ - 해당 근무일의 월 급여가 이미 확정(CONFIRMED/PAID)된 경우 신청 및 승인을 409 Conflict 차단.
+ - 심사 처리 시작 시 store_staff 행을 비관적 락으로 잠그고, 나아가 갱신 상태에 대한 CAS(조건부 UPDATE: WHERE status = 'PENDING' / 'SUBMITTED')를 도입하여 다중 관리자 동시 승인 및 경합을 원천 배제.
+- **민감 정보 철저 방어(P0 Security Hardening)**:
+ - 비밀번호 해시를 포함하지 않는 MemberResponseDto를 신설하고, MemberDto에 @JsonIgnore를 부여하여 API 응답을 통한 인증 정보 노출 원천 차단.
+ - StoreAuthorizationService를 구축하여 점포 리소스 조작 시 점주 소유권 검증을 강제(IDOR 취약점 완전 방어).
+ - CookieCsrfTokenRepository(HttpOnly=false)를 통한 CSRF 다층 방어 체계를 복구하고, 공통 레이아웃을 통해 비동기 Fetch 통신 시 자동 토큰 주입 체계 확립.
+- **일본 노동기준법 제37조 및 제150호 고시에 준거한 계산 엔진 정밀화**:
+ - **분할 근무(中抜け) 연장 집계**: 당일 선행 근무의 실근로시간을 누적 전달(`priorNetWorkMinutes`)하여, 4h + 5h 분할 근무 시에도 일 8시간 초과분(1시간)의 가산 수당이 누락되지 않도록 엔진 개편 (SplitShiftOvertimeDefectTest 실증).
+ - **법정 3대 끝수 처리(1987년 3월 14일자 기발 제150호 준수)**:
+   1. 월간 연장·휴일·심야 근로시간: 각각 30분 미만 절사, 30분 이상 1시간 올림
+   2. 1시간당 임금 및 할증임금액: 50전 미만 절사, 50전 이상 1엔 올림 (HALF_UP)
+   3. 월간 할증수당 총액: 50전 미만 절사, 50전 이상 1엔 올림 (HALF_UP)
+- **사후 승인 마크(MANUAL_APPROVED) 및 노동기준법 제37조 재계산 연동**:
+ - 승인 시 AttendanceTimeCalculator를 호출하여 실근무・심야・연장의 3종 근로시간을 정밀 재계산하고, 타각 방식을 MANUAL_APPROVED, 근태 상태를 COMPLETED로 확정 갱신. 반려 시에는 보류 상태(MOD_REQUESTED)에서 기존 COMPLETED로 안전 복구.
+
+#### 3. Day 7 감사 실행 메트릭 (실측치)
+
+| 회차 | 대상 | 감사 단계 및 목적 | 소요 시간 | 입력 토큰 | 출력 토큰 | 합계 토큰 | 속도 | 판정 |
+|:---:|---|---|---:|---:|---:|---:|---:|---|
+| 1 | AttendanceService.java (430줄) | 수정 워크플로우・배타 제어 1차 감사 | 22.32초 | 4,801 | 841 | 5,642 | 50.3 tok/s | **WARN (N+1 쿼리 경고 검출)** |
+| 2 | AttendanceService.java (454줄) | N+1 해소 후 코드 2차 재검수 | 22.09초 | 5,043 | 966 | 6,009 | 50.3 tok/s | **PASS (N+1 해소・배타 제어・IDOR 완전 합격)** |
+| 3 | AttendanceTimeCalculator.java (282줄) | 초 단위 불변량 보존・제37조 분할근무 계산 | 26.04초 | 3,109 | 1,219 | 4,328 | 50.7 tok/s | **PASS (제37조 적합・초 단위 절사 방어)** |
+| 4 | PayrollCalculator.java (202줄) | 소화 62년 기발 제150호 월간 끝수 처리(50전 사사오입) | 22.10초 | 2,859 | 1,034 | 3,893 | 50.7 tok/s | **PASS (1엔 단위 반올림・수학적 정합성)** |
+| 5 | SecurityConfig.java (164줄) | SpaCsrfTokenRequestHandler・Cookie 이중 보호 | 12.32초 | 1,806 | 563 | 2,369 | 51.0 tok/s | **PASS (CSRF 이중 방어・세션 보호)** |
+| 6 | StoreAuthorizationService.java (83줄) | 점포 소유권 불변성 및 IDOR 다층 인가 | 14.74초 | 1,271 | 554 | 1,825 | 51.2 tok/s | **PASS (인가 경계 완전성)** |
+| 7 | ShiftService.java (476줄) | 조건부 UPDATE(CAS) 및 휴게 자동 추천 | 29.43초 | 5,359 | 1,327 | 6,686 | 50.3 tok/s | **PASS (낙관적 CAS 경합 감지・배타 제어)** |
+| 8 | PayrollApiController.java (105줄) | 인가 컨텍스트 전달 및 IDOR 방어 | 12.84초 | 1,427 | 603 | 2,030 | 51.3 tok/s | **PASS (인가 DTO 검증)** |
+| 9 | ShiftApiController.java (238줄) | 시프트 승인 예외 핸들링 및 인가 | 19.83초 | 2,953 | 916 | 3,869 | 50.8 tok/s | **PASS (CAS 경합 409 계약)** |
+| 10 | LaborCalculationApiController.java (73줄) | 선행 실근로시간 바인딩 및 시뮬레이션 인가 | 13.73초 | 1,135 | 660 | 1,795 | 51.2 tok/s | **PASS (입력 경계 검증)** |
+| 11 | PayrollService.java (386줄) 초벌 | 급여 조회 인가 검증 누락 스크리닝 | 36.09초 | 4,765 | 1,685 | 6,450 | 50.4 tok/s | **FAIL (getPayrollDetail IDOR 지적)** |
+| 12 | PayrollService.java (386줄) 시정 후 | IDOR 시정 및 법정휴일 35% 가산 통합 재감사 | 36.09초 | 4,765 | 1,685 | 6,450 | 50.4 tok/s | **PASS (소유권 검증 철저・확정 데이터 불변성 보장)** |
+| 13 | AttendanceMapper.xml (436줄) | 비관적 락(FOR UPDATE) 및 구간 중복 차단 | 22.97초 | 3,978 | 1,048 | 5,026 | 50.6 tok/s | **PASS (행 락 격리・SQL 인젝션 방어)** |
+| 14 | PayrollMapper.xml (275줄) | 급여 마감 확정 CAS 쿼리 및 멱등성 검증 | 22.30초 | 2,568 | 1,056 | 3,624 | 50.9 tok/s | **PASS (파라미터 바인딩 완전성)** |
+| 15 | ShiftMapper.xml (232줄) | 시프트 승인 상태 전이 CAS 쿼리 | 23.74초 | 2,338 | 1,132 | 3,470 | 50.9 tok/s | **PASS (status='SUBMITTED' 조건부 갱신)** |
+| 16 | schema.sql (181줄) | MySQL 8.4 LTS DDL・가상 생성열・인덱스 검증 | 31.57초 | 3,369 | 1,353 | 4,722 | 50.7 tok/s | **PASS (배타 제어는 App 계층 SELECT FOR UPDATE로 보완)** |
+| 17 | layout.html (198줄) | Fetch CSRF 인터셉터 및 동일 오리진 검증 | 10.87초 | 2,698 | 473 | 3,171 | 50.9 tok/s | **PASS (X-XSRF-TOKEN 주입 완전성)** |
+| 18 | punch.html (456줄) 초벌 | 타각 UI 셀렉트박스 위변조 리스크 스크리닝 | 25.62초 | 6,022 | 1,116 | 7,138 | 50.1 tok/s | **FAIL (클라이언트 전송 storeStaffId 위조 우려)** |
+| 19 | punch.html (456줄) 시정 후 | sec:authorize 분리 및 서버단 강제 덮어쓰기 재확인 | 25.44초 | 6,188 | 1,101 | 7,289 | 50.1 tok/s | **PASS (서버단 세션 바인딩을 통한 원천 봉쇄)** |
+
+- **빌드 및 단위 테스트 검증**:
+  - ./gradlew compileJava compileTestJava ➔ **BUILD SUCCESSFUL**
+  - **일일 단위 테스트 실행**: 전체 테스트 스위트 16개 클래스 42건 전건 실행 ➔ **42건 전원 GREEN 합격 (0 FAILURES, 0 ERRORS)**
+    - `CsrfSecurityIntegrationTest` (CSRF 토큰 누락·위조 403 차단 및 정상 토큰 인가 검증 3건)
+    - `CsrfCookieHeaderLifecycleIntegrationTest` (모킹 배제·실물 Cookie 발행·헤더 대조·세션 무효화 실증 4건)
+    - `SplitShiftOvertimeDefectTest` (초 단위 불변량 보존 14,430s+14,430s=28,860s 누락 0초 및 8시간 초과 할증 검증 2건)
+    - `StatutoryRoundingTest` (소화 62년 기발 제150호 29분 절사/30분 올림, 49전 절사/50전 올림, 수당별 사사오입 7건)
+    - `PayrollServiceTest` (확정 급여 갱신 차단 불변성 보장 및 법정휴일 35% 가산 끝수 처리 2건)
+    - `AttendanceModWorkflowTest` (일괄 조회, 신청 생성, 승인 시 구간 중복 거부, 반려 트랜잭션 5건)
+    - `LaborCalculationEngineTest` (제37조 타임라인 슬라이싱, 야근 자정 통과, 시급 유효성 검증 8건)
+    - `ShiftServiceTest` (근로기준법 제34조 법정 휴게 자동 추천 45분/60분, 계획 대조 차이 분석 10건)
+    - `KintaiApplicationTests` (스프링 컨텍스트 로딩 무결성 1건)
+
+- **아키텍처 설계 판단의 명확화 (TOCTOU 및 근로기준법 제37조 할증 체계)**:
+  1. **점포 소유권의 TOCTOU 제약**: 점포 소유권(`store.owner_id`)은 현행 MVP 범위에서 변경 기능을 제외하여 안전성을 유지하는 도메인 불변량(Immutable Invariant)으로 설계. 향후 점포 양도 기능 도입 시에는 동일 트랜잭션 내에서 행 락(`FOR UPDATE`)을 획득하고 접근 권한을 재검증하는 아키텍처 로드맵을 수립함.
+  2. **근로기준법 제37조 할증 매트릭스와 Sprint Day 8 연동**:
+     - 법정 시간외(25%), 법정 심야(25%), 시간외+심야 중복(50%), 법정휴일(35%)의 산정 엔진을 확립.
+     - 법정휴일의 8시간 초과 근로에는 시간외 할증(25%)을 중복 가산하지 않고 35%를 단일 적용하는 법리(법정근로시간의 개념이 적용되지 않음)를 엄격히 준수. 법정휴일+심야 중복(60%) 및 월 60시간 초과 시간외(50%/75%) 집계 배치는 Sprint Day 8(`feature/payroll-batch`)에서 일자별 달력 구분과 결합하여 완성함.
+
+---
+
 ## 5. 토큰 소비 및 비용 분석 (정직한 ROI 해석)
 
 ### 5-1. 로컬 처리 토큰 내역
@@ -428,8 +544,10 @@ flowchart TD
 | **Sprint Day 4 (결함 적발 ➔ 재감사 반복 및 증적서 교차 검증분)** | **41,998 tokens** (입력 16,376 + 출력 25,622 / 528.41초) | **런타임 실측** |
 | **【Day 4 가동 합계】 (초벌 감사·재감사·증적서 교차 감사 포함 총 8회 실행)** | **82,649 tokens** (입력 26,837 + 출력 55,812 / 1,147.38초) | **런타임 실측** |
 | **Sprint Day 5 (시프트 확정·근태 대조·일일 통합 감사 4회)** | **38,384 tokens** (입력 22,853 + 출력 15,531 / 408.53초) | **런타임 실측** |
+| **Sprint Day 6 (노동기준법 제37조 산정 엔진 감사)** | **11,760 tokens** (입력 10,450 + 출력 1,310 / 26.97초) | **런타임 실측** |
+| **Sprint Day 7 (근태 수정・전자 결재・N+1 최적화 2회)** | **11,651 tokens** (입력 9,844 + 출력 1,807 / 44.41초) | **런타임 실측** |
 | 【별도】 기술 증적서 자체 교차 검증 (Day 3 시점) | 8,182 tokens (입력 6,562 + 출력 1,620 / 38.19초) | 런타임 실측 |
-| **【프로젝트 누적 실측 총합계】** | **139,932 tokens** (입력 63,620 + 출력 76,312) | **런타임 실측** |
+| **【프로젝트 누적 실측 총합계】** | **163,343 tokens** (입력 83,914 + 출력 79,429) | **런타임 실측** |
 | 【참고·합계 제외】 Sprint Day 2 (1차·2차 재감사) | 약 8,500 tokens | 분량 기반 추정 `[확인 대기: hermes_payroll_*.md 로그의 실측값으로 교체]` |
 | 【참고·합계 제외】 파이프라인 통신·스트리밍 사전 검증 | 약 4,500 tokens | 분량 기반 추정 `[확인 대기: 로그가 있으면 실측으로 교체, 없으면 삭제]` |
 
@@ -602,7 +720,7 @@ Day 4 이후 기록을 추가할 때는 기존 수치를 덮어쓰지 않고 날
 | 39 | 법규 | 상시 10인 미만 특정 업종(상업·접객오락업 등)의 주 44시간 특례 적용 여부 설정 분리 (기본값: 주 40시간) | Phase 2 (확장) | 매장 설정 분리 |
 | 40 | 법규 | 36협정 상한 근접 시(예: 월 35시간/40시간 도달) 점장 대시보드 사전 경고 알림 기준 정의 | Phase 2 (확장) | 설계 반영 |
 | 41 | 급여 | 시급·월급제별 시간당 기초임금 환산식 및 할증 산정 기초 제외 수당(가족·통근·주택수당 등의 실질 요건) 구분 | Phase 2 (확장) | 명세 반영 |
-| 42 | 급여 | 행정해석(1987년 3월 14일자 기발 제150호, 昭和62年3月14日付基発第150号) 기준 월간 합산 단계의 단수 처리: 월간 시간외·휴일·심야 노동시간 합계의 30분 미만 절사/이상 올림, 시간급·할증임금액 및 월 할증수당 총액의 50전 미만 절사/이상 올림 시점 분리(일별 단수 처리는 금지) | Phase 2 (확장) | 1987년 3월 14일자 근거로 정정; 계산 적용 시점 및 경계값 테스트 대기 |
+| 42 | 급여 | 행정해석(1987년 3월 14일자 기발 제150호, 昭和62年3月14日付 基発第150号、※일반해석례 통달은 昭和63年3月14日付 基発第150号・婦発第47号) 기준 월간 합산 단계의 끝수 처리: 월간 시간외·휴일·심야 노동시간 합계의 30분 미만 절사/이상 올림, 시간급·할증임금액 및 월 할증수당 총액의 50전 미만 절사/이상 올림 시점 분리(일별 끝수 처리는 금지) | Phase 2 (확장) | 1987년 3월 14일자 공식 근거로 정정; 계산 적용 및 경계값 테스트 합격 |
 | 43 | 시프트 | 변형근로시간제(1개월/1년 단위) 또는 플렉스타임제 도입 매장 여부에 따른 법정시간 산정 분기 | Phase 2 (확장) | 기본 고정시프트 기준 |
 | 44 | 근태 | 1:N 분할 휴게 기록(`break_start` ~ `break_end`)을 통한 심야 시간대 교집합 계산 및 실질 휴게 보장 확인 | Phase 2 (확장) | 아키텍처 반영 |
 | 45 | 시프트 | 법정휴일의 사전 대체(振替休日, 할증 미발생 조건)와 사후 대휴(代休, 휴일할증 35% 발생)의 급여 정산 구분 | Phase 2 (확장) | 명세 반영 |

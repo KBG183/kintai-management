@@ -64,6 +64,37 @@
         WHERE p.payroll_id = #{payrollId}
     </select>
 
+    <select id="findByStaffAndMonth" resultType="com.example.kintai.domain.payroll.dto.PayrollDto">
+        SELECT
+            p.payroll_id,
+            p.store_id,
+            p.store_staff_id,
+            m.name AS staff_name,
+            p.target_year_month,
+            p.range_start_date,
+            p.range_end_date,
+            p.work_days_count,
+            p.total_work_minutes,
+            p.total_night_minutes,
+            p.total_overtime_minutes,
+            p.applied_hourly_wage,
+            p.applied_transport_limit,
+            p.base_pay,
+            p.night_allowance,
+            p.overtime_allowance,
+            p.transport_allowance,
+            p.gross_pay,
+            p.payroll_status,
+            p.confirmed_at,
+            p.paid_at
+        FROM payroll p
+        JOIN store_staff ss ON p.store_staff_id = ss.store_staff_id
+        JOIN member m ON ss.member_id = m.member_id
+        WHERE p.store_staff_id = #{storeStaffId}
+          AND p.target_year_month = #{targetYearMonth}
+        LIMIT 1
+    </select>
+
     <insert id="upsertPayroll" useGeneratedKeys="true" keyProperty="payrollId">
         INSERT INTO payroll (
             store_id,

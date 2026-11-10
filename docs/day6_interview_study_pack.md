@@ -21,7 +21,7 @@
      - **法定外通常残業**（125%支給）: 8時間超過 かつ 通常時間帯
      - **法定外深夜残業（重畳割増）**（150%支給）: 8時間超過 かつ 深夜時間帯
 
-### 昭和62年労働省告示第37号（端数処理通達）の完全遵守
+### 昭和63年3月14日付 基発第150号（行政通達: 端数処理基準）の完全遵守
 * 1日ごとの割増手当算定において、50銭（0.5円）未満を切り捨て、50銭以上を切り上げる「四捨五入（`RoundingMode.HALF_UP`）」を `BigDecimal` で厳格に実装。
 * 浮動小数点数（`double` / `float`）による1円のズレ（丸め誤差）を完全に排除。
 
@@ -298,7 +298,7 @@ import java.time.YearMonth;
 import java.time.format.DateTimeParseException;
 
 /**
- * 日本労働基準法第37条および昭和62年労働省告示第37号（端数処理通達）に準拠した給与算定ユーティリティ。
+ * 日本労働基準法第37条および昭和63年3月14日付 基発第150号（端数処理通達）に準拠した給与算定ユーティリティ。
  * 時間外（25%）、深夜（25%）、深夜残業（重畳割増: 50%）および1円単位四捨五入（RoundingMode.HALF_UP）を厳密に処理する。
  */
 public final class PayrollCalculator {
@@ -553,7 +553,7 @@ class LaborCalculationEngineTest {
         }
 
         @Test
-        @DisplayName("昭和62年通達基準 1円単位四捨五入(HALF_UP)丸め検証")
+        @DisplayName("昭和63年3月14日付 基発第150号基準 1円単位四捨五入(HALF_UP)丸め検証")
         void yenRounding_ShouldRoundHalfUpCorrectly() {
             assertThat(PayrollCalculator.calculateDailyPay(1280, 33, 0, 0).totalPay()).isEqualTo(704);
             assertThat(PayrollCalculator.calculateDailyPay(1280, 35, 0, 0).totalPay()).isEqualTo(747);

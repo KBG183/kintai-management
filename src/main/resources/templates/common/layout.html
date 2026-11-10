@@ -14,6 +14,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:if="${_csrf}" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:if="${_csrf}" th:content="${_csrf.headerName}"/>
     <title th:replace="${title}">勤怠・シフト・給与管理システム</title>
 
     <!-- Bootstrap 5.3 CSS -->
@@ -26,6 +28,75 @@
     <!-- Bootstrap JS / jQuery: 本文内のインラインスクリプトから使えるよう head で読み込む -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <!-- CSRF 自動付与インターセプター (Same-Origin保護 & Cookie/Meta双方対応) -->
+    <script>
+        (function() {
+            function getCookie(name) {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) return parts.pop().split(';').shift();
+                return null;
+            }
+
+            function isSameOrigin(targetUrl) {
+                if (!targetUrl) return true;
+                if (typeof targetUrl !== 'string') {
+                    if (targetUrl instanceof Request) targetUrl = targetUrl.url;
+                    else targetUrl = String(targetUrl);
+                }
+                if (targetUrl.startsWith('/') && !targetUrl.startsWith('//')) return true;
+                try {
+                    const parsed = new URL(targetUrl, window.location.origin);
+                    return parsed.origin === window.location.origin;
+                } catch (e) {
+                    return false;
+                }
+            }
+
+            const originalFetch = window.fetch;
+            window.fetch = function(input, init = {}) {
+                let url = input;
+                let method = (init.method || (input instanceof Request ? input.method : 'GET')).toUpperCase();
+
+                // 状態変更リクエストかつ同一オリジン宛の場合にのみCSRFトークンを注入
+                if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method) && isSameOrigin(url)) {
+                    let csrfToken = null;
+                    let csrfHeader = 'X-XSRF-TOKEN';
+
+                    // 1. Meta タグから優先取得 (XOR保護トークン)
+                    const metaToken = document.querySelector('meta[name="_csrf"]');
+                    const metaHeader = document.querySelector('meta[name="_csrf_header"]');
+                    if (metaToken && metaHeader) {
+                        csrfToken = metaToken.getAttribute('content');
+                        csrfHeader = metaHeader.getAttribute('content');
+                    }
+
+                    // 2. Cookieから取得 (XSRF-TOKEN 平文トークン)
+                    if (!csrfToken) {
+                        csrfToken = getCookie('XSRF-TOKEN');
+                        csrfHeader = 'X-XSRF-TOKEN';
+                    }
+
+                    if (csrfToken) {
+                        if (input instanceof Request) {
+                            input.headers.set(csrfHeader, csrfToken);
+                        } else {
+                            init.headers = init.headers || {};
+                            if (init.headers instanceof Headers) {
+                                if (!init.headers.has(csrfHeader)) init.headers.append(csrfHeader, csrfToken);
+                            } else if (Array.isArray(init.headers)) {
+                                init.headers.push([csrfHeader, csrfToken]);
+                            } else {
+                                if (!init.headers[csrfHeader]) init.headers[csrfHeader] = csrfToken;
+                            }
+                        }
+                    }
+                }
+                return originalFetch.call(this, input, init);
+            };
+        })();
+    </script>
 
     <style>
         body {

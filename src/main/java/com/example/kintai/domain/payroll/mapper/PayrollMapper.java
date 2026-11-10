@@ -19,6 +19,11 @@ public interface PayrollMapper {
 
     PayrollDto findById(@Param("payrollId") Long payrollId);
 
+    PayrollDto findByStaffAndMonth(
+            @Param("storeStaffId") Long storeStaffId,
+            @Param("targetYearMonth") String targetYearMonth
+    );
+
     int upsertPayroll(PayrollDto payroll);
 
     int insertPayrollDailyDetail(PayrollDailyDetailDto detail);

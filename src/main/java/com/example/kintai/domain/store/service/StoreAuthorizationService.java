@@ -1,10 +1,8 @@
 package com.example.kintai.domain.store.service;
 
+import com.example.kintai.domain.store.mapper.StoreAuthMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -16,18 +14,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 public class StoreAuthorizationService {
-
-    @Mapper
-    public interface StoreAuthMapper {
-        @Select("SELECT owner_id FROM store WHERE store_id = #{storeId}")
-        Long findOwnerIdByStoreId(@Param("storeId") Long storeId);
-
-        @Select("SELECT s.owner_id FROM store s JOIN store_staff ss ON s.store_id = ss.store_id WHERE ss.store_staff_id = #{storeStaffId}")
-        Long findOwnerIdByStoreStaffId(@Param("storeStaffId") Long storeStaffId);
-
-        @Select("SELECT s.owner_id FROM store s JOIN payroll p ON s.store_id = p.store_id WHERE p.payroll_id = #{payrollId}")
-        Long findOwnerIdByPayrollId(@Param("payrollId") Long payrollId);
-    }
 
     private final StoreAuthMapper storeAuthMapper;
 
@@ -77,6 +63,21 @@ public class StoreAuthorizationService {
             log.warn("IDOR検知: スタッフ所属店舗所有権不一致 storeStaffId={}, currentMemberId={}, actualOwnerId={}",
                     storeStaffId, currentMemberId, ownerId);
             throw new AccessDeniedException("対象スタッフに対する管理権限がありません。");
+        }
+    }
+
+    /**
+     * 勤怠修正申請IDに基づく店舗オーナーシップ検証
+     */
+    public void validateModRequestStoreOwnership(Long modRequestId, Long currentMemberId) {
+        if (modRequestId == null || currentMemberId == null) {
+            throw new AccessDeniedException("修正申請IDまたは認証情報が不正です。");
+        }
+        Long ownerId = storeAuthMapper.findOwnerIdByModRequestId(modRequestId);
+        if (ownerId == null || !ownerId.equals(currentMemberId)) {
+            log.warn("IDOR検知: 勤怠修正申請所有権不一致 modRequestId={}, currentMemberId={}, actualOwnerId={}",
+                    modRequestId, currentMemberId, ownerId);
+            throw new AccessDeniedException("対象勤怠修正申請に対する審査権限がありません。");
         }
     }
 }

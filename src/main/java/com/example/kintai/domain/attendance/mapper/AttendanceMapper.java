@@ -143,4 +143,14 @@ public interface AttendanceMapper {
             @Param("excludeAttendanceId") Long excludeAttendanceId,
             @Param("beforeTime") LocalDateTime beforeTime
     );
+
+    /**
+     * 同一スタッフ・同一勤務日の先行完了勤務の実労働時間合計（秒）を取得（秒精度・中抜け対応）
+     */
+    long sumPriorNetWorkSecondsOnDate(
+            @Param("storeStaffId") Long storeStaffId,
+            @Param("workDate") LocalDate workDate,
+            @Param("excludeAttendanceId") Long excludeAttendanceId,
+            @Param("beforeTime") LocalDateTime beforeTime
+    );
 }

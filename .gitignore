@@ -37,4 +37,12 @@ out/
 .vscode/
 
 # docs/ is tracked for portfolio evidence
+audit_reports/
+scripts/
+AGENTS.md
+hermes_audit_report.md
+initial_db_schema.md
+kintai_requirements_specification_revised.md
+docs/hermes_*.md
+
 

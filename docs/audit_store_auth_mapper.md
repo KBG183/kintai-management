@@ -1,0 +1,14 @@
+﻿### [Hermes Audit Execution Metrics]
+| Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed |
+|---|---|---|---|---|---|
+| C:\dev\kintai\src\main\java\com\example\kintai\domain\store\mapper\StoreAuthMapper.java (37 lines) | qwen27b:latest | 11.35s | 763 tokens | 545 tokens | 51.4 tokens/s |
+
+| Audit Item | Verdict (PASS / WARN / FAIL) | Detailed Finding & Recommendation (English) |
+|---|---|---|
+| Japanese Labor Standards Act Art 37 Compliance | N/A | This mapper class handles data retrieval for authorization checks only. It does not contain logic for calculating overtime, night work premiums, or payroll amounts. Therefore, it is not directly subject to Labor Standards Act calculation rules. |
+| Payroll Math & Rounding | N/A | No mathematical operations or rounding logic are present in this code. This is a data access object (DAO) layer component. |
+| Concurrency & Security: IDOR Prevention | PASS | The mapper provides specific methods to retrieve the `owner_id` associated with a `storeId`, `storeStaffId`, `payrollId`, or `modRequestId`. This design supports IDOR (Insecure Direct Object Reference) prevention by allowing the service layer to verify if the current user's ID matches the retrieved owner ID before granting access. The SQL queries correctly join tables to establish the ownership chain. |
+| Concurrency & Security: Transactional Integrity | WARN | The mapper itself is stateless and does not define transactions. However, the calling service layer **must** ensure that these `SELECT` operations are executed within a consistent transactional context if they are part of a read-then-write sequence (e.g., checking ownership before updating a record). If the ownership check and the subsequent update are not in the same transaction with appropriate isolation levels, race conditions could theoretically occur, though the risk is low for read-only checks. Ensure the service layer uses `@Transactional` where these checks precede mutations. |
+| Exception Handling & Boundary Validation | WARN | The mapper methods return `Long` (nullable). If a `storeId`, `storeStaffId`, `payrollId`, or `modRequestId` does not exist in the database, the query will return `null`. The calling service layer **must** explicitly handle these `null` cases to prevent `NullPointerException` or unauthorized access bypasses. It is recommended to add validation in the service layer to throw a specific `ResourceNotFoundException` or `AccessDeniedException` if the returned owner ID is `null` or does not match the current user. |
+| SQL Injection Security | PASS | The code uses MyBatis `#{}` parameter placeholders, which provide prepared statement protection against SQL injection. No string concatenation is used in the SQL queries. |
+| Code Maintainability & Clarity | PASS | The code is clean, well-documented with Javadoc, and follows standard MyBatis mapper conventions. The separation of concerns is appropriate. |

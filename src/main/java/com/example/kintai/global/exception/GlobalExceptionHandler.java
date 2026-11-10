@@ -28,6 +28,14 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.fail(ex.getMessage()));
     }
 
+    // 認可・権限不一致例外 (AccessDeniedException) のハンドリング（HTTP 403 Forbidden）
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleAccessDeniedException(org.springframework.security.access.AccessDeniedException ex) {
+        log.warn("アクセス拒絶 (AccessDenied): {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ApiResponse.fail(ex.getMessage()));
+    }
+
     // その他サーバー内部例外のハンドリング（SQLやスタックトレースの隠蔽およびロギング）
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGeneralException(Exception ex, HttpServletRequest request) throws Exception {

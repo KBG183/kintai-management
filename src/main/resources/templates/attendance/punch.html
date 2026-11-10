@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       th:replace="~{common/layout :: layout(~{::title}, ~{::#content})}">
 <head>
     <title>勤怠打刻 | KINTAI SYSTEM</title>
@@ -25,10 +26,19 @@
                     <div class="row justify-content-center mb-4">
                         <div class="col-md-6">
                             <label class="form-label fw-bold">打刻対象スタッフ</label>
-                            <select class="form-select form-select-lg text-center" id="selectStaff">
-                                <option value="1" selected>山田 太郎 (Staff ID: 1)</option>
-                                <option value="2">佐藤 花子 (Staff ID: 2)</option>
-                            </select>
+                            <div sec:authorize="hasRole('OWNER')">
+                                <select class="form-select form-select-lg text-center" id="selectStaff">
+                                    <option value="1" selected>山田 太郎 (Staff ID: 1)</option>
+                                    <option value="2">佐藤 花子 (Staff ID: 2)</option>
+                                </select>
+                                <div class="form-text text-muted small">※ オーナー権限：代理打刻・確認対象スタッフを選択</div>
+                            </div>
+                            <div sec:authorize="!hasRole('OWNER')">
+                                <select class="form-select form-select-lg text-center" id="selectStaff" disabled>
+                                    <option value="1" selected>山田 太郎 (Staff ID: 1 - ログイン中)</option>
+                                </select>
+                                <div class="form-text text-muted small">※ スタッフ本人打刻モード（改ざん防止固定）</div>
+                            </div>
                         </div>
                     </div>
 
@@ -402,14 +412,24 @@
                     return;
                 }
 
+                let outDate = workDate;
+                if (clockOut < clockIn) {
+                    const d = new Date(workDate + 'T00:00:00');
+                    d.setDate(d.getDate() + 1);
+                    const y = d.getFullYear();
+                    const m = String(d.getMonth() + 1).padStart(2, '0');
+                    const day = String(d.getDate()).padStart(2, '0');
+                    outDate = `${y}-${m}-${day}`;
+                }
+
                 const payload = {
                     storeStaffId: parseInt(staffId),
                     workDate: workDate,
                     requestedClockInAt: `${workDate}T${clockIn}:00`,
-                    requestedClockOutAt: `${workDate}T${clockOut}:00`,
-                    requestedBreakMinutes: parseInt(breakMin),
+                    requestedClockOutAt: `${outDate}T${clockOut}:00`,
+                    requestedBreakMinutes: parseInt(breakMin || 0),
                     reason: reason,
-                    breaks: []
+                    requestedBreaks: []
                 };
 
                 fetch('/api/attendance/mod-request', {

@@ -417,4 +417,19 @@
           </if>
     </select>
 
+    <!-- 同一スタッフ・同一勤務日の先行完了勤務の実労働時間合計（秒精度）を取得（分割勤務中抜け対応） -->
+    <select id="sumPriorNetWorkSecondsOnDate" resultType="java.lang.Long">
+        SELECT COALESCE(SUM(TIMESTAMPDIFF(SECOND, clock_in_at, clock_out_at) - (total_break_minutes * 60)), 0)
+        FROM attendance
+        WHERE store_staff_id = #{storeStaffId}
+          AND work_date = #{workDate}
+          AND attendance_status = 'COMPLETED'
+          <if test="excludeAttendanceId != null">
+              AND attendance_id != #{excludeAttendanceId}
+          </if>
+          <if test="beforeTime != null">
+              AND clock_out_at &lt;= #{beforeTime}
+          </if>
+    </select>
+
 </mapper>

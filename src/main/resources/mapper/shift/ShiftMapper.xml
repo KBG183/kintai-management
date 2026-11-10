@@ -77,6 +77,7 @@
         )
     </insert>
 
+    <!-- シフト確定・却下更新 (CAS: SUBMITTED状態のシフトのみ1件更新) -->
     <update id="updateShiftConfirm">
         UPDATE shift_schedule
         SET confirmed_start_at = #{confirmedStartAt},
@@ -86,6 +87,7 @@
             owner_memo = #{ownerMemo},
             updated_at = CURRENT_TIMESTAMP
         WHERE shift_id = #{shiftId}
+          AND status = 'SUBMITTED'
     </update>
 
     <select id="existsOverlapShift" resultType="boolean">

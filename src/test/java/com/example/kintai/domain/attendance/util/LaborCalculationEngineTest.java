@@ -173,7 +173,7 @@ class LaborCalculationEngineTest {
         }
 
         @Test
-        @DisplayName("昭和62年通達基準 1円単位四捨五入(HALF_UP)丸め検証")
+        @DisplayName("昭和62年3月14日付 基発第150号基準 1円単位四捨五入(HALF_UP)丸め検証")
         void yenRounding_ShouldRoundHalfUpCorrectly() {
             // 時給1,280円で33分労働の場合: 1280 * 33 / 60 = 704.0円 -> 704円
             assertThat(PayrollCalculator.calculateDailyPay(1280, 33, 0, 0).totalPay()).isEqualTo(704);
