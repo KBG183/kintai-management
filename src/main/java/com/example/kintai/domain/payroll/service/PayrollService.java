@@ -21,10 +21,12 @@ public class PayrollService {
 
     private final PayrollMapper payrollMapper;
     private final AttendanceMapper attendanceMapper;
+    private final com.example.kintai.domain.store.service.StoreAuthorizationService storeAuthorizationService;
 
-    public PayrollService(PayrollMapper payrollMapper, AttendanceMapper attendanceMapper) {
+    public PayrollService(PayrollMapper payrollMapper, AttendanceMapper attendanceMapper, com.example.kintai.domain.store.service.StoreAuthorizationService storeAuthorizationService) {
         this.payrollMapper = payrollMapper;
         this.attendanceMapper = attendanceMapper;
+        this.storeAuthorizationService = storeAuthorizationService;
     }
 
     public List<PayrollDto> getPayrollsByStoreAndMonth(Long storeId, String targetYearMonth) {
@@ -54,6 +56,13 @@ public class PayrollService {
     public PayrollDto calculatePayrollForStaff(Long storeId, Long staffId, String targetYearMonth, LocalDate startDate, LocalDate endDate) {
         // 排他制御: 同時計算競合を防止する悲観的ロック
         payrollMapper.lockStoreStaffForUpdate(staffId);
+
+        // 確定済み給与の不変性保護 (CONFIRMED / PAID の場合は再計算・上書きを遮断)
+        PayrollDto existingPayroll = payrollMapper.findByStaffAndMonth(staffId, targetYearMonth);
+        if (existingPayroll != null && !"DRAFT".equals(existingPayroll.getPayrollStatus())) {
+            throw new IllegalStateException("指定年月 (" + targetYearMonth + ") の給与は既に確定済み(" +
+                    existingPayroll.getPayrollStatus() + ") のため、再計算できません。(給与不変性保護)");
+        }
 
         // 未処理勤怠の確認（打刻途中や未承認申請がある場合は計算中断）
         int unresolvedCount = payrollMapper.countUnresolvedAttendance(staffId, startDate, endDate);
@@ -171,6 +180,80 @@ public class PayrollService {
     }
 
     /**
+     * 【行政通達 昭和62年3月14日付 基発第150号 準拠】
+     * 月間3大端数処理（時間外・深夜・休日の30分境界月間丸めおよび50銭境界手当集計）を適用した法定集計
+     */
+    public StatutoryPayrollResult applyStatutoryMonthlyRounding(PayrollDto payroll) {
+        return applyStatutoryMonthlyRounding(payroll, 0);
+    }
+
+    /**
+     * 【行政通達 昭和62年3月14日付 基発第150号 準拠】
+     * 月間3大端数処理（時間外・深夜・休日の30分境界月間丸めおよび50銭境界手当集計、休日労働時間連動版）
+     */
+    public StatutoryPayrollResult applyStatutoryMonthlyRounding(PayrollDto payroll, int totalHolidayMinutes) {
+        if (payroll == null) {
+            throw new IllegalArgumentException("給与データは必須です。");
+        }
+
+        // ① 月間労働時間の端数処理（時間外・深夜・休日それぞれ30分未満切り捨て、30分以上1時間に切り上げ）
+        int roundedOvertimeHours = PayrollCalculator.StatutoryRounding.roundMonthlyHours(payroll.getTotalOvertimeMinutes());
+        int roundedNightHours = PayrollCalculator.StatutoryRounding.roundMonthlyHours(payroll.getTotalNightMinutes());
+        int roundedHolidayHours = PayrollCalculator.StatutoryRounding.roundMonthlyHours(Math.max(0, totalHolidayMinutes));
+
+        int hourlyWage = (payroll.getAppliedHourlyWage() != null) ? payroll.getAppliedHourlyWage() : 1280;
+
+        // ② 1時間あたりの割増賃金額（50銭未満切り捨て、50銭以上1円切り上げ）
+        // 時間外: 25%加算
+        int overtimeHourlyPremium = PayrollCalculator.StatutoryRounding.roundHourlyRate(
+                java.math.BigDecimal.valueOf(hourlyWage).multiply(java.math.BigDecimal.valueOf(0.25))
+        );
+        // 深夜: 25%加算
+        int nightHourlyPremium = PayrollCalculator.StatutoryRounding.roundHourlyRate(
+                java.math.BigDecimal.valueOf(hourlyWage).multiply(java.math.BigDecimal.valueOf(0.25))
+        );
+        // 休日: 35%加算 (労基法第37条第1項)
+        int holidayHourlyPremium = PayrollCalculator.StatutoryRounding.roundHourlyRate(
+                java.math.BigDecimal.valueOf(hourlyWage).multiply(java.math.BigDecimal.valueOf(0.35))
+        );
+
+        // ③ 月間割増手当総額の端数処理（項目別独立集計・50銭未満切り捨て、50銭以上1円切り上げ）
+        int roundedOvertimeAllowance = PayrollCalculator.StatutoryRounding.roundMonthlyAllowanceTotal(
+                java.math.BigDecimal.valueOf((long) overtimeHourlyPremium * roundedOvertimeHours)
+        );
+        int roundedNightAllowance = PayrollCalculator.StatutoryRounding.roundMonthlyAllowanceTotal(
+                java.math.BigDecimal.valueOf((long) nightHourlyPremium * roundedNightHours)
+        );
+        int roundedHolidayAllowance = PayrollCalculator.StatutoryRounding.roundMonthlyAllowanceTotal(
+                java.math.BigDecimal.valueOf((long) holidayHourlyPremium * roundedHolidayHours)
+        );
+
+        return new StatutoryPayrollResult(
+                roundedOvertimeHours,
+                roundedNightHours,
+                roundedHolidayHours,
+                overtimeHourlyPremium,
+                nightHourlyPremium,
+                holidayHourlyPremium,
+                roundedOvertimeAllowance,
+                roundedNightAllowance,
+                roundedHolidayAllowance
+        );
+    }
+
+    public record StatutoryPayrollResult(
+            int roundedOvertimeHours,
+            int roundedNightHours,
+            int roundedHolidayHours,
+            int overtimeHourlyPremium,
+            int nightHourlyPremium,
+            int holidayHourlyPremium,
+            int statutoryOvertimeAllowance,
+            int statutoryNightAllowance,
+            int statutoryHolidayAllowance
+    ) {}
+
+    /**
      * 給与確定ロック処理（帳簿の不変性を保証）
      */
     @Transactional
@@ -217,6 +300,16 @@ public class PayrollService {
         }
 
         payrollMapper.updatePayrollStatusConfirm(payrollId, LocalDateTime.now());
+    }
+
+    /**
+     * スタッフ個人別給与明細詳細モーダル用データ取得（認可検証付き）
+     */
+    public PayrollDetailResponseDto getPayrollDetail(Long payrollId, Long currentMemberId) {
+        if (currentMemberId != null) {
+            storeAuthorizationService.validatePayrollOwnership(payrollId, currentMemberId);
+        }
+        return getPayrollDetail(payrollId);
     }
 
     /**

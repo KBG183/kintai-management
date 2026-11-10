@@ -1,5 +1,6 @@
 package com.example.kintai.domain.member.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -12,7 +13,10 @@ import java.time.LocalDateTime;
 public class MemberDto {
     private Long memberId;
     private String email;
+
+    @JsonIgnore
     private String password;
+
     private String name;
     private String phone;
     private String role;

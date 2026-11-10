@@ -9,8 +9,9 @@ import java.time.YearMonth;
 import java.time.format.DateTimeParseException;
 
 /**
- * 日本労働基準法第37条および昭和62年労働省告示第37号（端数処理通達）に準拠した給与算定ユーティリティ。
- * 時間外（25%）、深夜（25%）、深夜残業（重畳割増: 50%）および1円単位四捨五入（RoundingMode.HALF_UP）を厳密に処理する。
+ * 日本労働基準法第37条および昭和62年3月14日付 基発第150号（行政通達: 賃金計算等の端数処理）に準拠した給与算定ユーティリティ。
+ * 時間外（25%）、深夜（25%）、深夜残業（重畳割増: 50%）および法定端数処理（50銭・30分境界）を厳密に処理する。
+ * （※なお、労働基準法関係解釈例の一般通達は昭和63年3月14日付 基発第150号・婦発第47号）
  */
 public final class PayrollCalculator {
 
@@ -145,5 +146,57 @@ public final class PayrollCalculator {
     public static int yenRound(BigDecimal numerator, int denominator) {
         return numerator.divide(BigDecimal.valueOf(denominator), 0, RoundingMode.HALF_UP)
                 .intValueExact();
+    }
+
+    /**
+     * 【行政通達 昭和62年3月14日付 基発第150号 準拠】月間3大端数処理ユーティリティ
+     */
+    public static final class StatutoryRounding {
+
+        private StatutoryRounding() {}
+
+        /**
+         * ① 1箇月における時間外労働・休日労働・深夜労働の各時間数の合計における端数処理:
+         * 30分未満の端数を切り捨て、30分以上を1時間に切り上げる。
+         *
+         * @param totalMinutes 月間の対象労働時間（分）
+         * @return 端数処理後の時間（時間単位、整数）
+         */
+        public static int roundMonthlyHours(int totalMinutes) {
+            if (totalMinutes < 0) {
+                throw new IllegalArgumentException("時間数は0以上である必要があります。");
+            }
+            int hours = totalMinutes / 60;
+            int remainingMinutes = totalMinutes % 60;
+            return (remainingMinutes >= 30) ? hours + 1 : hours;
+        }
+
+        /**
+         * ② 1時間当たりの賃金額および割増賃金額における端数処理:
+         * 50銭未満の端数を切り捨て、50銭以上1円未満を1円に切り上げる（HALF_UP）。
+         *
+         * @param exactRateExact 未丸めの時間給または割増単価（BigDecimal）
+         * @return 端数処理後の1円単位単価
+         */
+        public static int roundHourlyRate(BigDecimal exactRateExact) {
+            if (exactRateExact == null) {
+                throw new IllegalArgumentException("単価は必須です。");
+            }
+            return exactRateExact.setScale(0, RoundingMode.HALF_UP).intValueExact();
+        }
+
+        /**
+         * ③ 1箇月における時間外労働・休日労働・深夜労働の各割増賃金の総額における端数処理:
+         * 1円未満の端数を50銭未満切り捨て、50銭以上1円未満を1円に切り上げる（HALF_UP）。
+         *
+         * @param exactMonthlyAllowance 未丸めの月間割増手当総額（BigDecimal）
+         * @return 端数処理後の1円単位月間手当額
+         */
+        public static int roundMonthlyAllowanceTotal(BigDecimal exactMonthlyAllowance) {
+            if (exactMonthlyAllowance == null) {
+                throw new IllegalArgumentException("手当額は必須です。");
+            }
+            return exactMonthlyAllowance.setScale(0, RoundingMode.HALF_UP).intValueExact();
+        }
     }
 }

@@ -7,8 +7,10 @@ import com.example.kintai.domain.shift.dto.ShiftConfirmDto;
 import com.example.kintai.domain.shift.dto.ShiftDto;
 import com.example.kintai.domain.shift.dto.ShiftRequestDto;
 import com.example.kintai.domain.shift.service.ShiftService;
+import com.example.kintai.domain.store.service.StoreAuthorizationService;
 import com.example.kintai.global.common.ApiResponse;
 import com.example.kintai.global.security.CustomUserDetails;
+import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,13 +23,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/shifts")
+@RequiredArgsConstructor
 public class ShiftApiController {
 
     private final ShiftService shiftService;
-
-    public ShiftApiController(ShiftService shiftService) {
-        this.shiftService = shiftService;
-    }
+    private final StoreAuthorizationService storeAuthorizationService;
 
     /**
      * 月間カレンダー用シフトイベント一覧取得 (店舗全体)
@@ -52,7 +52,8 @@ public class ShiftApiController {
 
         Long targetStoreId;
         if (isManager && storeId != null) {
-            // 店長・管理者ロールのみ明示的な他店舗参照を許可
+            // 店長・管理者ロールであっても自身が所有する店舗であるかを厳格に検証 (多店舗IDOR完全遮断)
+            storeAuthorizationService.validateStoreOwnership(storeId, userDetails.getMemberId());
             targetStoreId = storeId;
         } else if (userDetails.getStoreId() != null) {
             // 一般スタッフはセッションに紐づく自身の所属店舗のみ参照可能 (クロス店舗閲覧遮断)

@@ -2,6 +2,10 @@ package com.example.kintai.config;
 
 import com.example.kintai.global.security.CustomAuthenticationSuccessHandler;
 import com.example.kintai.global.security.CustomUserDetailsService;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,6 +16,17 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
+import org.springframework.security.web.csrf.CsrfTokenRequestHandler;
+import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
+import org.springframework.util.StringUtils;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+import java.util.function.Supplier;
 
 /**
  * Spring Security 6 セキュリティ設定クラス
@@ -27,11 +42,16 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        CookieCsrfTokenRepository tokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+        SpaCsrfTokenRequestHandler requestHandler = new SpaCsrfTokenRequestHandler();
+
         http
-                // REST API エンドポイントに対する CSRF 緩和（SPA/Fetch API との連携を考慮）
+                // BREACH攻撃防御とSPA/Fetch（Cookie/Header）の互換性を両立するCSRF多層防御設定
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/api/**")
+                        .csrfTokenRepository(tokenRepository)
+                        .csrfTokenRequestHandler(requestHandler)
                 )
+                .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
                         // 静的リソースおよび認証関連エンドポイントの開放
                         .requestMatchers(
@@ -40,8 +60,7 @@ public class SecurityConfig {
                                 "/images/**",
                                 "/favicon.ico",
                                 "/login",
-                                "/login-process",
-                                "/members/sample"
+                                "/login-process"
                         ).permitAll()
                         // オーナー専用エンドポイント（給与計算、勤怠修正承認等）
                         .requestMatchers(
@@ -58,38 +77,34 @@ public class SecurityConfig {
                                 "/shifts",
                                 "/shifts/**",
                                 "/api/shifts/**",
-                                "/api/attendance/**",
-                                "/api/shift/**"
-                        ).hasAnyRole("STAFF", "OWNER")
-                        // その他の全リクエストは認証必須
+                                "/api/attendance/**"
+                        ).hasAnyRole("STAFF", "OWNER", "ADMIN")
+                        // サンプル確認用画面
+                        .requestMatchers(
+                                "/members/sample",
+                                "/api/members/**"
+                        ).hasRole("ADMIN")
+                        // その他のリクエストは認証必須
                         .anyRequest().authenticated()
                 )
-                // フォームログイン設定
                 .formLogin(login -> login
                         .loginPage("/login")
                         .loginProcessingUrl("/login-process")
-                        .usernameParameter("email")
+                        .usernameParameter("username")
                         .passwordParameter("password")
                         .successHandler(successHandler)
                         .failureUrl("/login?error=true")
                         .permitAll()
                 )
-                // ログアウト設定
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout=true")
                         .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID")
+                        .deleteCookies("JSESSIONID", "XSRF-TOKEN")
                         .permitAll()
                 )
-                // 認可例外ハンドリング（権限不足時の403画面を防止しログイン画面へ案内）
                 .exceptionHandling(ex -> ex
-                        .accessDeniedPage("/login?denied=true")
-                )
-                // セッション管理設定
-                .sessionManagement(session -> session
-                        .maximumSessions(2)
-                        .maxSessionsPreventsLogin(false)
+                        .accessDeniedPage("/access-denied")
                 );
 
         return http.build();
@@ -98,5 +113,51 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder authBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        authBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+        return authBuilder.build();
+    }
+
+    /**
+     * SPA/Fetch API向けCSRFトークンリクエストハンドラー
+     * ヘッダー経由（Cookieの生トークン）は平文比較、フォーム送信はBREACH防御（XOR）を自動判別
+     */
+    static final class SpaCsrfTokenRequestHandler implements CsrfTokenRequestHandler {
+        private final CsrfTokenRequestHandler plain = new CsrfTokenRequestAttributeHandler();
+        private final CsrfTokenRequestHandler xor = new XorCsrfTokenRequestAttributeHandler();
+
+        @Override
+        public void handle(HttpServletRequest request, HttpServletResponse response, Supplier<CsrfToken> csrfToken) {
+            this.xor.handle(request, response, csrfToken);
+            csrfToken.get(); // クッキーを確実に発行させるため遅延ロードを即時解決
+        }
+
+        @Override
+        public String resolveCsrfTokenValue(HttpServletRequest request, CsrfToken csrfToken) {
+            String headerValue = request.getHeader(csrfToken.getHeaderName());
+            return (StringUtils.hasText(headerValue))
+                    ? this.plain.resolveCsrfTokenValue(request, csrfToken)
+                    : this.xor.resolveCsrfTokenValue(request, csrfToken);
+        }
+    }
+
+    /**
+     * レスポンスヘッダーおよびCookieに最新のCSRFトークンを確実に反映させるフィルター
+     */
+    static final class CsrfCookieFilter extends OncePerRequestFilter {
+        @Override
+        protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+                throws ServletException, IOException {
+            CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+            if (csrfToken != null) {
+                // クッキーの書き出しをトリガー
+                csrfToken.getToken();
+            }
+            filterChain.doFilter(request, response);
+        }
     }
 }

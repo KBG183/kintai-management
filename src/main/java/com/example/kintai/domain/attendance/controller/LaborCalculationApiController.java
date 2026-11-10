@@ -5,8 +5,10 @@ import com.example.kintai.domain.attendance.dto.LaborDetailDto;
 import com.example.kintai.domain.attendance.dto.LaborSimulationRequestDto;
 import com.example.kintai.domain.attendance.mapper.AttendanceMapper;
 import com.example.kintai.domain.attendance.service.LaborCalculationService;
+import com.example.kintai.domain.store.service.StoreAuthorizationService;
 import com.example.kintai.global.common.ApiResponse;
 import com.example.kintai.global.security.CustomUserDetails;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,18 +19,12 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/api/labor")
+@RequiredArgsConstructor
 public class LaborCalculationApiController {
 
     private final LaborCalculationService laborCalculationService;
     private final AttendanceMapper attendanceMapper;
-
-    public LaborCalculationApiController(
-            LaborCalculationService laborCalculationService,
-            AttendanceMapper attendanceMapper
-    ) {
-        this.laborCalculationService = laborCalculationService;
-        this.attendanceMapper = attendanceMapper;
-    }
+    private final StoreAuthorizationService storeAuthorizationService;
 
     /**
      * 登録済み勤怠実績の労働基準法第37条精密内訳取得 API
@@ -39,22 +35,24 @@ public class LaborCalculationApiController {
             @PathVariable("attendanceId") Long attendanceId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
+        if (userDetails == null) {
+            throw new AccessDeniedException("認証情報が存在しません。(IDOR遮断)");
+        }
+
         AttendanceDto attendance = attendanceMapper.findById(attendanceId);
         if (attendance == null) {
             throw new IllegalArgumentException("指定された勤怠実績が存在しません。(ID: " + attendanceId + ")");
         }
 
-        // IDOR 防護チェック
-        if (userDetails != null) {
-            if ("ROLE_STAFF".equals(userDetails.getRole())) {
-                if (userDetails.getStoreStaffId() != null && !userDetails.getStoreStaffId().equals(attendance.getStoreStaffId())) {
-                    throw new AccessDeniedException("他人の勤怠労働法明細を閲覧する権限がありません。");
-                }
-            } else if ("ROLE_OWNER".equals(userDetails.getRole())) {
-                if (userDetails.getStoreId() != null && !userDetails.getStoreId().equals(attendance.getStoreId())) {
-                    throw new AccessDeniedException("他店舗のスタッフ勤怠労働法明細を閲覧する権限がありません。");
-                }
+        // IDOR 防護チェック: スタッフは本人のみ、オーナーは所有店舗のみ許可
+        if ("ROLE_STAFF".equals(userDetails.getRole())) {
+            if (userDetails.getStoreStaffId() == null || !userDetails.getStoreStaffId().equals(attendance.getStoreStaffId())) {
+                throw new AccessDeniedException("他人の勤怠労働法明細を閲覧する権限がありません。");
             }
+        } else if ("ROLE_OWNER".equals(userDetails.getRole())) {
+            storeAuthorizationService.validateStoreOwnership(attendance.getStoreId(), userDetails.getMemberId());
+        } else {
+            throw new AccessDeniedException("閲覧権限がありません。");
         }
 
         LaborDetailDto result = laborCalculationService.calculateDetailedLabor(attendanceId);

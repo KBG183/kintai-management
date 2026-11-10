@@ -231,7 +231,10 @@ public class ShiftService {
         existing.setStatus(confirmDto.getStatus() != null ? confirmDto.getStatus() : "CONFIRMED");
         existing.setOwnerMemo(confirmDto.getOwnerMemo());
 
-        shiftMapper.updateShiftConfirm(existing);
+        int affected = shiftMapper.updateShiftConfirm(existing);
+        if (affected != 1) {
+            throw new IllegalStateException("他の管理者によって既にシフトが確定されたか、状態が変更されています。(CAS競合防止)");
+        }
     }
 
     /**
