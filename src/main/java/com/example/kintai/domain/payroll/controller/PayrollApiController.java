@@ -56,6 +56,19 @@ public class PayrollApiController {
     }
 
     /**
+     * 店舗全体の月次給与一括確定 (排他悲観的ロック適用・帳簿ロック, オーナー店舗所有権検証必須)
+     */
+    @PostMapping("/confirm-month")
+    public ResponseEntity<ApiResponse<Integer>> confirmMonthlyPayroll(
+            @RequestBody PayrollCalculateRequestDto requestDto,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        storeAuthorizationService.validateStoreOwnership(requestDto.getStoreId(), userDetails.getMemberId());
+        int confirmedCount = payrollService.confirmMonthlyPayroll(requestDto.getStoreId(), requestDto.getTargetYearMonth());
+        return ResponseEntity.ok(ApiResponse.ok("月次給与の一括確定が完了しました。(確定件数: " + confirmedCount + "件)", confirmedCount));
+    }
+
+    /**
      * 給与確定処理 (帳簿ロック・排他制御適用, 給与データ所有権検証必須)
      */
     @PostMapping("/{payrollId}/confirm")

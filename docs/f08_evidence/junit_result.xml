@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="F-08: PayrollService 내부 호출 시 실제 DB 변경 및 트랜잭션 전체 롤백 원자성 정밀 실측" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-11-11T06:18:26.252Z" hostname="BK" time="5.998">
+  <properties/>
+  <testcase name="내부 재계산(calculatePayrollForStaff)으로 금액/상세 변경 도중 예외 발생 시, 실제 DB가 초기 상태로 100% 롤백되는지 실측" classname="com.example.kintai.domain.payroll.service.PayrollServiceTransactionRollbackIntegrationTest" time="1.092"/>
+  <system-out><![CDATA[15:18:26.489 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.PayrollServiceTransactionRollbackIntegrationTest]: PayrollServiceTransactionRollbackIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+15:18:26.654 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.PayrollServiceTransactionRollbackIntegrationTest
+15:18:26.750 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.PayrollServiceTransactionRollbackIntegrationTest]: PayrollServiceTransactionRollbackIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+15:18:26.752 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.PayrollServiceTransactionRollbackIntegrationTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-11-11T15:18:27.205+09:00  INFO 4264 --- [    Test worker] erviceTransactionRollbackIntegrationTest : Starting PayrollServiceTransactionRollbackIntegrationTest using Java 17.0.12 with PID 4264 (started by klad3 in C:\dev\kintai)
+2026-11-11T15:18:27.207+09:00  INFO 4264 --- [    Test worker] erviceTransactionRollbackIntegrationTest : No active profile set, falling back to 1 default profile: "default"
+2026-11-11T15:18:28.705+09:00  INFO 4264 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-11-11T15:18:28.963+09:00  INFO 4264 --- [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@63553e9f
+2026-11-11T15:18:28.965+09:00  INFO 4264 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-11-11T15:18:29.926+09:00  INFO 4264 --- [    Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-11-11T15:18:31.127+09:00  INFO 4264 --- [    Test worker] erviceTransactionRollbackIntegrationTest : Started PayrollServiceTransactionRollbackIntegrationTest in 4.282 seconds (process running for 6.058)
+[F-08 검증 예외 포착]: 確認時と金額が一致しません。(確認額: 999999円, 再計算額: 94600円)。再確認が必要です。
+==================================================================
+[F-08 엄밀 실측 검증 결과 (테스트 레벨 @Transactional 없음)]
+1. 롤백 후 GrossPay      (기대값: 10900, 실측값: 10900)
+2. 롤백 후 WorkDaysCount (기대값: 1,     실측값: 1)
+3. 롤백 후 상세 레코드 수 (기대값: 1,     실측값: 1)
+4. 롤백 후 상태          (기대값: DRAFT, 실측값: DRAFT)
+==================================================================
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

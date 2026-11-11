@@ -1,0 +1,31 @@
+﻿*************************** 1. row ***************************
+       Table: payroll
+Create Table: CREATE TABLE `payroll` (
+  `payroll_id` bigint NOT NULL AUTO_INCREMENT COMMENT '�޿� ���� PK',
+  `store_id` bigint NOT NULL COMMENT '���� FK',
+  `store_staff_id` bigint NOT NULL COMMENT '���� ���� FK',
+  `target_year_month` char(7) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '�ͼ� ���� (YYYY-MM)',
+  `range_start_date` date NOT NULL,
+  `range_end_date` date NOT NULL,
+  `work_days_count` int NOT NULL DEFAULT '0' COMMENT '�� ��� �ϼ�',
+  `total_work_minutes` int NOT NULL DEFAULT '0' COMMENT '�� �� �Ǳٹ��ð�(��)',
+  `total_night_minutes` int NOT NULL DEFAULT '0' COMMENT '�� �� �߰��ٷνð�(��)',
+  `total_overtime_minutes` int NOT NULL DEFAULT '0' COMMENT '�� �� ����ٷνð�(��)',
+  `applied_hourly_wage` int NOT NULL COMMENT '���� ���� �⺻ �ñ� ������',
+  `applied_transport_limit` int NOT NULL DEFAULT '15000',
+  `base_pay` int NOT NULL DEFAULT '0' COMMENT '�⺻�� (�Ǳٹ��ð� ����)',
+  `night_allowance` int NOT NULL DEFAULT '0' COMMENT '�߰� �ٷ� ���� ���� (25% �����)',
+  `overtime_allowance` int NOT NULL DEFAULT '0' COMMENT '���� �ܾ� ���� ���� (25% �����)',
+  `transport_allowance` int NOT NULL DEFAULT '0' COMMENT '����� ���޾� (�� ���Ѿ� ���� ��)',
+  `gross_pay` int NOT NULL DEFAULT '0' COMMENT '�� ���޾�',
+  `payroll_status` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'DRAFT' COMMENT '���� (DRAFT, CONFIRMED, PAID)',
+  `confirmed_at` datetime DEFAULT NULL COMMENT '���� Ȯ�� �Ͻ�',
+  `paid_at` datetime DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`payroll_id`),
+  UNIQUE KEY `uq_payroll_staff_month` (`store_staff_id`,`target_year_month`),
+  KEY `fk_payroll_store` (`store_id`),
+  CONSTRAINT `fk_payroll_staff` FOREIGN KEY (`store_staff_id`) REFERENCES `store_staff` (`store_staff_id`),
+  CONSTRAINT `fk_payroll_store` FOREIGN KEY (`store_id`) REFERENCES `store` (`store_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci

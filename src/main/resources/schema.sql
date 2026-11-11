@@ -180,3 +180,25 @@ CREATE TABLE IF NOT EXISTS payroll (
     CONSTRAINT fk_payroll_store FOREIGN KEY (store_id) REFERENCES store (store_id),
     CONSTRAINT fk_payroll_staff FOREIGN KEY (store_staff_id) REFERENCES store_staff (store_staff_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 8. 給与日別詳細スナップショット (PayrollDailyDetail)
+CREATE TABLE IF NOT EXISTS payroll_daily_detail (
+    payroll_daily_detail_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '給与日別詳細ID',
+    payroll_id BIGINT NOT NULL COMMENT '給与台帳ID',
+    attendance_id BIGINT NOT NULL COMMENT '勤怠ID',
+    work_date DATE NOT NULL COMMENT '勤務日',
+    applied_hourly_wage INT NOT NULL COMMENT '該当勤務日適用時給スナップショット',
+    total_break_minutes INT NOT NULL DEFAULT 0 COMMENT '休憩合計時間 (分)',
+    net_work_minutes INT NOT NULL DEFAULT 0 COMMENT '実労働時間 (分)',
+    night_work_minutes INT NOT NULL DEFAULT 0 COMMENT '深夜労働時間 (分)',
+    overtime_minutes INT NOT NULL DEFAULT 0 COMMENT '時間外労働時間 (分)',
+    base_pay INT NOT NULL DEFAULT 0 COMMENT '日別基本給 (円)',
+    night_allowance INT NOT NULL DEFAULT 0 COMMENT '日別深夜割増手当 (円)',
+    overtime_allowance INT NOT NULL DEFAULT 0 COMMENT '日別時間外割増手当 (円)',
+    transport_amount INT NOT NULL DEFAULT 0 COMMENT '日別交通費 (円)',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '作成日時',
+    CONSTRAINT fk_payroll_detail_payroll FOREIGN KEY (payroll_id) REFERENCES payroll (payroll_id) ON DELETE CASCADE,
+    CONSTRAINT fk_payroll_detail_attendance FOREIGN KEY (attendance_id) REFERENCES attendance (attendance_id),
+    CONSTRAINT uq_payroll_detail_attendance UNIQUE (payroll_id, attendance_id),
+    INDEX idx_payroll_detail_date (payroll_id, work_date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

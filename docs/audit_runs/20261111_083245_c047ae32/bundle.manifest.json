@@ -1,0 +1,8 @@
+﻿{
+    "timestamp_utc":  "2026-11-11T08:32:45.5818288Z",
+    "target_file":  "src/main/java/com/example/kintai/domain/payroll/controller/PayrollApiController.java",
+    "resolved_path":  "C:\\dev\\kintai\\src\\main\\java\\com\\example\\kintai\\domain\\payroll\\controller\\PayrollApiController.java",
+    "sha256":  "c047ae3282b79c4d8a60fe9f99a352016d07f9ccb063602df1d5ee866821bdf9",
+    "line_count":  117,
+    "git_head":  "072c60dc1bc97a7357005f3b6b6b1a20ff00b8cc"
+}

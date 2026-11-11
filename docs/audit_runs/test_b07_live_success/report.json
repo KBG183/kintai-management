@@ -1,0 +1,46 @@
+﻿{
+    "run_id":  "20261111_053725_c13eb9f1",
+    "generated_at":  "2026-11-11T14:37:36.6834042+09:00",
+    "findings":  [
+                     {
+                         "finding_id":  "AUDIT-001",
+                         "audit_item":  "Japanese Labor Standards Act Art 37 Compliance",
+                         "severity":  "P0",
+                         "verdict":  "N/A",
+                         "evidence":  "`SampleTestClass.java` contains no payroll logic.",
+                         "analysis":  "The provided code is a basic arithmetic utility class (`add` method) and does not contain any logic related to night work, overtime, or wage calculation. Therefore, compliance with Japanese Labor Standards Act Article 37 cannot be assessed and is not applicable."
+                     },
+                     {
+                         "finding_id":  "AUDIT-002",
+                         "audit_item":  "Payroll Math \u0026 Rounding Logic",
+                         "severity":  "P0",
+                         "verdict":  "N/A",
+                         "evidence":  "No `RoundingMode` or decimal calculations found.",
+                         "analysis":  "The code performs simple integer addition (`int a + int b`). There are no floating-point operations, currency calculations, or rounding modes (e.g., `HALF_UP`) present. This audit item is not applicable to the current code snippet."
+                     },
+                     {
+                         "finding_id":  "AUDIT-003",
+                         "audit_item":  "Concurrency \u0026 Security (Transactions/Locking)",
+                         "severity":  "P1",
+                         "verdict":  "N/A",
+                         "evidence":  "No Spring annotations (`@Transactional`, `@Lock`) or database operations found.",
+                         "analysis":  "The class is a plain Java class without Spring Boot dependencies, database interactions, or state management. Consequently, there are no concurrency risks, transaction isolation issues, or pessimistic locking requirements to audit."
+                     },
+                     {
+                         "finding_id":  "AUDIT-004",
+                         "audit_item":  "IDOR Vulnerability Check",
+                         "severity":  "P1",
+                         "verdict":  "N/A",
+                         "evidence":  "No user context or resource access logic found.",
+                         "analysis":  "The method `add(int a, int b)` does not take user identifiers, access resources based on user identity, or interact with other staff records. Therefore, Insecure Direct Object Reference (IDOR) vulnerabilities are not applicable."
+                     },
+                     {
+                         "finding_id":  "AUDIT-005",
+                         "audit_item":  "Exception Handling \u0026 Boundary Validation",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "`public int add(int a, int b) { return a + b; }`",
+                         "analysis":  "While not a security failure, the method lacks boundary validation for integer overflow. If `a` and `b` are large positive integers, their sum may exceed `Integer.MAX_VALUE`, resulting in an unexpected negative number due to Java\u0027s two\u0027s complement overflow. **Recommendation:** If this logic is ever used in financial or critical calculations, consider using `long` types or adding explicit overflow checks. For general utility purposes, this is a minor informational warning."
+                     }
+                 ]
+}

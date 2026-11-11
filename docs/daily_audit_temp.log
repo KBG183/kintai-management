@@ -1,0 +1,4 @@
+[Day 8-1 / temp_audit_day8_bundle.java / 69.42s / in: 17638, out: 2724 / 47.7 tok/s / F-02(TOCTOU), F-07(Negative Hours) 적발]
+[Day 8-2 / temp_audit_day8_bundle.java / 42.48s / in: 17981, out: 1551 / 47.8 tok/s / F-02(DB NOT EXISTS 서브쿼리 가드), F-07(음수 방어) 완비 및 전 항목 공식 PASS]
+[Day 8-3 / qwen_audit_target_bundle.java / 37.18s / in: 1926, out: 1695 / 51.0 tok/s / F-04 1차 중간 번들 검수 (독립 감사관 생략 오류 직후 즉시 가동)]
+[Day 8-4 / qwen_final_audit_bundle.java / 40.45s / in: 1706, out: 2010 / 51.0 tok/s / F-04 동시성 및 2단계 락(F-04-03), 미처리 근태가드(F-04-07) 공식 PASS 획득]

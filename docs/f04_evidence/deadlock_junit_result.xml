@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="F-04: 락 순서 역전에 따른 실제 MySQL InnoDB 데드락(1213 / 40001) 재현 및 검증" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-11-11T06:24:39.520Z" hostname="BK" time="6.128">
+  <properties/>
+  <testcase name="독립 JDBC 커넥션 2개에서 상호 역순 락 획득 시 MySQL 1213 데드락 감지 및 40001 SQLState 실측" classname="com.example.kintai.domain.payroll.service.PayrollLockOrderDeadlockReproductionIntegrationTest" time="1.063"/>
+  <system-out><![CDATA[15:24:39.739 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.PayrollLockOrderDeadlockReproductionIntegrationTest]: PayrollLockOrderDeadlockReproductionIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+15:24:39.933 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.PayrollLockOrderDeadlockReproductionIntegrationTest
+15:24:40.040 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.PayrollLockOrderDeadlockReproductionIntegrationTest]: PayrollLockOrderDeadlockReproductionIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+15:24:40.042 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.PayrollLockOrderDeadlockReproductionIntegrationTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-11-11T15:24:40.524+09:00  INFO 16992 --- [    Test worker] OrderDeadlockReproductionIntegrationTest : Starting PayrollLockOrderDeadlockReproductionIntegrationTest using Java 17.0.12 with PID 16992 (started by klad3 in C:\dev\kintai)
+2026-11-11T15:24:40.526+09:00  INFO 16992 --- [    Test worker] OrderDeadlockReproductionIntegrationTest : No active profile set, falling back to 1 default profile: "default"
+2026-11-11T15:24:42.014+09:00  INFO 16992 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-11-11T15:24:42.309+09:00  INFO 16992 --- [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@7e81617a
+2026-11-11T15:24:42.313+09:00  INFO 16992 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-11-11T15:24:43.307+09:00  INFO 16992 --- [    Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-11-11T15:24:44.544+09:00  INFO 16992 --- [    Test worker] OrderDeadlockReproductionIntegrationTest : Started PayrollLockOrderDeadlockReproductionIntegrationTest in 4.409 seconds (process running for 6.088)
+[Conn-1] Step 1: store_staff 행 락 획득 완료
+[Conn-2] Step 1: payroll 행 락 획득 완료
+[Conn-2] Step 2: store_staff 행 락 요청 시도 (데드락 유발)
+[Conn-1] Step 2: payroll 행 락 요청 시도
+[Conn-2] Step 2 성공 (생존자 트랜잭션)
+[Conn-1] SQLException 포착: ErrorCode=1213, SQLState=40001, Msg=Deadlock found when trying to get lock; try restarting transaction
+==================================================================
+[F-04 데드락 정밀 실측 결과]
+Conn-1 Exception: ErrorCode=1213, SQLState=40001 (Deadlock found when trying to get lock; try restarting transaction)
+Conn-2 Exception: SURVIVED & COMMITTED
+==================================================================
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

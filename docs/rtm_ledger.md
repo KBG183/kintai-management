@@ -1,0 +1,11 @@
+# Requirements Traceability Matrix (RTM) - F-04 Residual Audit
+
+| ID | 요구사항 원문 및 의미 | 수행할 작업 | 완료 조건 (DoD) | 필요 증거 | 관련 코드/위치 | 상태 | 검증 명령 / 비고 |
+|:---:|---|---|---|---|---|:---:|---|
+| **R-01** | `confirmMonthlyPayroll` 실제 단일 DB 트랜잭션/커넥션 경계 확인 | 선별, 부모락, 재조회, 검증, UPDATE가 단일 Connection 및 활성 트랜잭션 내에서 실행됨을 입증 | `TransactionSynchronizationManager.isActualTransactionActive() == true` 및 단일 `CONNECTION_ID()` 확인 | 테스트 로그, Connection ID 출력 | `PayrollService.java` (`confirmMonthlyPayroll`) | **VERIFIED** | 통합 테스트 실측 완료 (`BUILD SUCCESSFUL in 29s`) |
+| **R-02** | 최종 재조회 이후 신규 DRAFT 경쟁 조건 재현 및 격리 검증 | T1(재조회 후 CAS 직전 대기)과 T2(신규 DRAFT 생성/커밋) 간 기술적 격리 실측 및 업무 정책 문서화 | 신규 DRAFT가 DRAFT 상태로 안전하게 보존됨 기술 실측 완료. (업무 정책 채택 여부는 사용자 승인 대기) | JUnit XML, DB 상태 조회 쿼리 결과, `r02_business_policy.md` | `PayrollService.java`, `PayrollMapper.xml` | **VERIFIED (기술 검증)** | 기술적 격리 테스트 통과 완료 (업무 정책 승인 대기) |
+| **R-03** | Mapper SQL 및 상태 필터(DRAFT 전용, 갱신 건수 대조) 전수 조사 | `findDraftStaffIdsByStoreAndMonth`, `lockStoreStaffForUpdate`, `lockStorePayrollsForUpdate`, `updateAllPayrollStatusConfirm` SQL 및 파라미터 수록 | 4개 쿼리의 DRAFT 필터 조건 및 affected rows 일치 검증 확인 | SQL 원문, XML 라인 번호, 파라미터 매핑표 | `PayrollMapper.xml` | **VERIFIED** | 정적 분석 및 DDL 대조 완료 |
+| **R-04** | 실제 락 대기 및 5단계 타임라인 추적 | 상호 역순 락 획득으로 인한 InnoDB 데드락 재현 실측 및 실제 락 대기(waiting) 관계 입증 | Trx 4266/4267 간 상호 `waiting` 물리적 증거 확인. (수정된 2단계 잠금의 실시간 5단계 직렬화 타임라인과는 구분 보존) | `show_engine_innodb_status_deadlock.txt` | `docs/f04_evidence/` | **VERIFIED (데드락 입증)** | 데드락 재현 및 상호 대기 교착 관계 입증 완료 |
+| **R-05** | MySQL 8.4 LTS 최종 검증 및 26.7 분리 | 로컬 `MySQL 26.7.0 Innovation` 결과와 `MySQL 8.4 LTS` 결과를 혼합하지 않고 각각 분리 기록 | `SELECT VERSION()` 실측치 명시 및 8.4 LTS 전용 검증 분리 | DB 버전 출력, EXPLAIN 결과 분리 파일 | `docs/f04_evidence/` | **BLOCKED** | 로컬 환경에 8.4 바이너리 부재, CI 환경 검증으로 분리 |
+| **R-06** | 테스트 픽스처 독립성 및 반복 실행 안정성 검증 | 고정 ID 충돌 제거(동적 추적 ID), 대상 통합 테스트 반복 실행 안정성 검증 | 대상 통합 테스트 3회 연속 실행 성공 (마지막 `--rerun-tasks`). 전체 테스트 스위트의 순서 독립성은 별도 미검증 | `build/test-results/test/` | `PayrollMonthlyConfirmPostQueryRaceConditionIntegrationTest` | **VERIFIED (대상 반복 검증)** | 대상 테스트 3회 연속 실행 통과 확인 완료 |
+| **R-07** | 최종 독립 감사 및 11대 포맷 종합 보고 | R-01~R-06 결과를 대조하여 누락 없는지 독립 검수 후 11대 규격 보고서 출력 | 11개 항목을 누락 없이 순서대로 팩트 기술 | 최종 보고서 본문 | 본 세션 응답 | **VERIFIED** | 11대 표준 보고서 출력 완료 |

@@ -1,0 +1,23 @@
+﻿*************************** 1. row ***************************
+       Table: payroll_daily_detail
+Create Table: CREATE TABLE `payroll_daily_detail` (
+  `payroll_daily_detail_id` bigint NOT NULL AUTO_INCREMENT COMMENT '��?��ܬ���ID (PK)',
+  `payroll_id` bigint NOT NULL COMMENT '��?��ߩID (FK)',
+  `attendance_id` bigint NOT NULL COMMENT '�����ID (FK)',
+  `work_date` date NOT NULL COMMENT '������',
+  `applied_hourly_wage` int NOT NULL COMMENT '��?�������������嫹�ʫë׫���ë�',
+  `total_break_minutes` int NOT NULL DEFAULT '0',
+  `net_work_minutes` int NOT NULL DEFAULT '0',
+  `night_work_minutes` int NOT NULL DEFAULT '0',
+  `overtime_minutes` int NOT NULL DEFAULT '0',
+  `base_pay` int NOT NULL DEFAULT '0',
+  `night_allowance` int NOT NULL DEFAULT '0',
+  `overtime_allowance` int NOT NULL DEFAULT '0',
+  `transport_amount` int NOT NULL DEFAULT '0' COMMENT '���ܪ���������ި',
+  PRIMARY KEY (`payroll_daily_detail_id`),
+  UNIQUE KEY `uq_payroll_detail_attendance` (`payroll_id`,`attendance_id`),
+  KEY `fk_payroll_detail_attendance` (`attendance_id`),
+  KEY `idx_payroll_detail_date` (`payroll_id`,`work_date`),
+  CONSTRAINT `fk_payroll_detail_attendance` FOREIGN KEY (`attendance_id`) REFERENCES `attendance` (`attendance_id`),
+  CONSTRAINT `fk_payroll_detail_payroll` FOREIGN KEY (`payroll_id`) REFERENCES `payroll` (`payroll_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci

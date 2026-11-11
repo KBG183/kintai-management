@@ -1,0 +1,28 @@
+﻿*************************** 1. row ***************************
+       Table: attendance
+Create Table: CREATE TABLE `attendance` (
+  `attendance_id` bigint NOT NULL AUTO_INCREMENT COMMENT '���� PK',
+  `store_id` bigint NOT NULL COMMENT '���� FK',
+  `store_staff_id` bigint NOT NULL COMMENT '���� ���� FK',
+  `shift_id` bigint DEFAULT NULL COMMENT '����� Ȯ�� ����Ʈ FK (�̰�ȹ ��� �� NULL)',
+  `work_date` date NOT NULL COMMENT '��� ������',
+  `clock_in_at` datetime NOT NULL COMMENT '��� Ÿ�� �Ͻ�',
+  `clock_out_at` datetime DEFAULT NULL COMMENT '��� Ÿ�� �Ͻ�',
+  `break_start_at` datetime DEFAULT NULL COMMENT '�ް� ���� �Ͻ�',
+  `break_end_at` datetime DEFAULT NULL COMMENT '�ް� ���� �Ͻ�',
+  `total_break_minutes` int NOT NULL DEFAULT '0' COMMENT '�� �ްԽð�(��)',
+  `net_work_minutes` int NOT NULL DEFAULT '0' COMMENT '�Ǳٹ��ð�(��, �ް� ����)',
+  `night_work_minutes` int NOT NULL DEFAULT '0' COMMENT '�߰��ٷνð�(��, 22:00~05:00)',
+  `overtime_minutes` int NOT NULL DEFAULT '0' COMMENT '�����ܾ��ð�(��, 1�� 8�ð� �ʰ���)',
+  `clock_in_method` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'BUTTON' COMMENT 'Ÿ�� ��� (BUTTON, QR, MANUAL_APPROVED)',
+  `attendance_status` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'WORKING' COMMENT '���� (WORKING, ON_BREAK, COMPLETED, MOD_REQUESTED)',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`attendance_id`),
+  KEY `idx_att_store_date` (`store_id`,`work_date`),
+  KEY `idx_att_staff_date` (`store_staff_id`,`work_date`),
+  KEY `fk_att_shift` (`shift_id`),
+  CONSTRAINT `fk_att_shift` FOREIGN KEY (`shift_id`) REFERENCES `shift_schedule` (`shift_id`),
+  CONSTRAINT `fk_att_staff` FOREIGN KEY (`store_staff_id`) REFERENCES `store_staff` (`store_staff_id`),
+  CONSTRAINT `fk_att_store` FOREIGN KEY (`store_id`) REFERENCES `store` (`store_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci

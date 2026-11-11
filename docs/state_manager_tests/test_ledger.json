@@ -1,0 +1,40 @@
+{
+    "current_state":  "COMMITTED",
+    "last_updated_utc":  "2026-11-11T08:28:30.9829710Z",
+    "execution_id":  "a6db89ad-4539-4762-9bce-fe05f3e066e7",
+    "git_tree_oid":  "c2e584a06dc34efb952e264c2b27805200abf88d",
+    "git_object_format":  "sha1",
+    "target_bundle_sha256":  "NO_FILE",
+    "model_digest":  "23c3820b0d9326b73e97191b9fb7e16b53f6e24bb3449d2a17037c5f2b6179a1",
+    "prompt_sha256":  "8d4ef4b79c3e9812456e7921a8b54e3d92410a7b512e98c764b8a1098e72f104",
+    "config_sha256":  "a3af8d924e9e8971f00b231a4518513469eb2fb535e869a0d6cabf9119d8e2d2",
+    "script_sha256":  "d94df24a6df2c97a51d25c5016403eb44f676cbd456f648752b3e2cbc5841b0e",
+    "test_report_sha256":  "8c209336322877435643ebd4caf71cd5c264a41fc2dcd80c3b74a11d28f87673",
+    "audit_report_sha256":  "980d2ebb7593455e7bc2189f0716a64b9d137c50f6d2dc0bd3db32ef58b792f4",
+    "commit_sha":  "HEAD",
+    "history":  [
+                    {
+                        "timestamp":  "2026-11-11T08:28:30.0983357Z",
+                        "transition":  "-\u003e TESTED",
+                        "git_tree_oid":  "c2e584a06dc34efb952e264c2b27805200abf88d",
+                        "test_sha":  "8c209336322877435643ebd4caf71cd5c264a41fc2dcd80c3b74a11d28f87673"
+                    },
+                    {
+                        "timestamp":  "2026-11-11T08:28:30.4314868Z",
+                        "transition":  "-\u003e AUDIT_PASSED",
+                        "report_sha":  "980d2ebb7593455e7bc2189f0716a64b9d137c50f6d2dc0bd3db32ef58b792f4",
+                        "tree_oid":  "c2e584a06dc34efb952e264c2b27805200abf88d",
+                        "model_digest":  "23c3820b0d9326b73e97191b9fb7e16b53f6e24bb3449d2a17037c5f2b6179a1"
+                    },
+                    {
+                        "timestamp":  "2026-11-11T08:28:30.7095561Z",
+                        "transition":  "-\u003e USER_APPROVED",
+                        "tree_oid":  "c2e584a06dc34efb952e264c2b27805200abf88d"
+                    },
+                    {
+                        "timestamp":  "2026-11-11T08:28:30.9829710Z",
+                        "transition":  "-\u003e COMMITTED",
+                        "tree_oid":  "c2e584a06dc34efb952e264c2b27805200abf88d"
+                    }
+                ]
+}

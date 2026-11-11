@@ -1,0 +1,11 @@
+﻿### [Hermes Audit Execution Metrics v1.1.0]
+| Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed | Done Reason | Run ID |
+|---|---|---|---|---|---|---|---|
+| docs/test_sample.java | qwen27b:latest | 10.47s | 440 tokens | 376 tokens | 51.4 tokens/s | stop | 20261111_052947_d0be0ae1 |
+
+| Finding ID | Audit Item | Severity (P0/P1/P2/Info) | Verdict (PASS / WARN / FAIL / N/A) | Code & Test Evidence | Detailed Analysis & Recommendation |
+|---|---|---|---|---|---|
+| F-001 | Japanese Labor Standards Act Art 37 Compliance | P0 | N/A | `SimpleMath.java` contains only a basic `add` method. | The provided code snippet is a trivial utility class and does not contain any payroll calculation, shift scheduling, or labor law logic. Therefore, compliance with Article 37 (night work/overtime premiums) cannot be assessed. |
+| F-002 | Payroll Math & Rounding Logic | P0 | N/A | No monetary calculations or `RoundingMode` usage found. | The code performs simple integer addition. There is no evidence of currency handling, floating-point arithmetic, or rounding logic (e.g., `HALF_UP`) required for payroll accuracy. |
+| F-003 | Concurrency & Security (@Transactional/Locking) | P0 | N/A | No Spring annotations (`@Transactional`, `@Lock`) or database operations present. | The class is a plain Java object with no state management, database interaction, or concurrency control mechanisms. It does not address IDOR vulnerabilities or race conditions. |
+| F-004 | Exception Handling & Boundary Validation | P2 | WARN | `public int add(int a, int b)` | The method lacks input validation. While `int` addition in Java handles overflow by wrapping around (silent failure) rather than throwing an exception, robust payroll or business logic should explicitly handle or validate boundary conditions to prevent unexpected data corruption. However, for a simple math utility, this is low risk. |
