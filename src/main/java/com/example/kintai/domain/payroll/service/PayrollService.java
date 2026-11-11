@@ -167,6 +167,16 @@ public class PayrollService {
         payroll.setGrossPay(grossPay);
         payroll.setPayrollStatus("DRAFT");
 
+        // 【通達 昭和62年(63年) 基発第150号 法定月間端数処理の適用】
+        // 単一契約時給の場合は、月間割増手当総額の法定端数処理（30分境界丸め＋手当別50銭四捨五入）を反映
+        if (appliedHourlyWage != null) {
+            StatutoryPayrollResult statutoryResult = applyStatutoryMonthlyRounding(payroll);
+            // 法定端数処理結果を手当額および総支給額に反映
+            payroll.setOvertimeAllowance(statutoryResult.statutoryOvertimeAllowance());
+            payroll.setNightAllowance(statutoryResult.statutoryNightAllowance());
+            payroll.setGrossPay(payroll.getBasePay() + payroll.getNightAllowance() + payroll.getOvertimeAllowance() + payroll.getTransportAllowance());
+        }
+
         payrollMapper.upsertPayroll(payroll);
 
         // 日別詳細スナップショットの再保存

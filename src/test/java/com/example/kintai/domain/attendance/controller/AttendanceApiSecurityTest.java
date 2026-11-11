@@ -105,6 +105,101 @@ class AttendanceApiSecurityTest {
     }
 
     @Nested
+    @DisplayName("リアルタイム打刻（POST /api/attendance/punch）の店舗ID強制バインドおよびIDOR防御")
+    class PunchSecurityTest {
+
+        @Test
+        @DisplayName("オーナーが自己店舗スタッフの打刻時に誤ったstoreIdを指定しても、サーバー側で正規店舗IDに強制バインドされること")
+        void punch_OwnerForOwnStaff_ShouldForceBindCorrectStoreId() throws Exception {
+            Long ownerMemberId = 2L;
+            Long targetStaffId = 10L;
+            Long spoofedStoreId = 999L; // クライアントが改ざんまたは誤指定した店舗ID
+            Long actualStoreId = 1L;   // DBに登録された正規店舗ID
+
+            String jsonPayload = """
+                {
+                    "storeStaffId": 10,
+                    "storeId": 999,
+                    "punchType": "CLOCK_IN"
+                }
+                """;
+
+            when(storeAuthorizationService.validateStaffStoreOwnership(targetStaffId, ownerMemberId)).thenReturn(actualStoreId);
+            currentPrincipal = createOwnerDetails(ownerMemberId);
+
+            mockMvc.perform(post("/api/attendance/punch")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(jsonPayload))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.success").value(true));
+
+            // 検証：サービス層へ渡されたDTOの storeId が正規店舗ID(1L)に強制置換されていること
+            ArgumentCaptor<com.example.kintai.domain.attendance.dto.AttendancePunchDto> captor =
+                    ArgumentCaptor.forClass(com.example.kintai.domain.attendance.dto.AttendancePunchDto.class);
+            verify(attendanceService).punch(captor.capture());
+            assertThat(captor.getValue().getStoreId()).isEqualTo(actualStoreId);
+            assertThat(captor.getValue().getStoreStaffId()).isEqualTo(targetStaffId);
+        }
+
+        @Test
+        @DisplayName("オーナーが他店舗スタッフの打刻を試みた場合は HTTP 403 Forbidden で遮断されること")
+        void punch_OwnerForOtherStoreStaff_ShouldReturn403Forbidden() throws Exception {
+            Long ownerMemberId = 2L;
+            Long attackerTargetStaffId = 777L;
+
+            String jsonPayload = """
+                {
+                    "storeStaffId": 777,
+                    "punchType": "CLOCK_IN"
+                }
+                """;
+
+            doThrow(new AccessDeniedException("対象スタッフに対する管理権限がありません。"))
+                    .when(storeAuthorizationService).validateStaffStoreOwnership(attackerTargetStaffId, ownerMemberId);
+
+            currentPrincipal = createOwnerDetails(ownerMemberId);
+
+            mockMvc.perform(post("/api/attendance/punch")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(jsonPayload))
+                    .andExpect(status().isForbidden())
+                    .andExpect(jsonPath("$.success").value(false))
+                    .andExpect(jsonPath("$.message").value("対象スタッフに対する管理権限がありません。"));
+
+            verify(attendanceService, never()).punch(any());
+        }
+
+        @Test
+        @DisplayName("スタッフが打刻時に他人IDと他店IDを偽造しても、セッションの本人情報に強制バインドされること")
+        void punch_StaffAttemptsSpoofing_ShouldForceBindSessionInfo() throws Exception {
+            Long myStaffId = 10L;
+            Long myStoreId = 1L;
+
+            String jsonPayload = """
+                {
+                    "storeStaffId": 888,
+                    "storeId": 999,
+                    "punchType": "CLOCK_IN"
+                }
+                """;
+
+            currentPrincipal = createStaffDetails(1L, myStaffId, myStoreId);
+
+            mockMvc.perform(post("/api/attendance/punch")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(jsonPayload))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.success").value(true));
+
+            ArgumentCaptor<com.example.kintai.domain.attendance.dto.AttendancePunchDto> captor =
+                    ArgumentCaptor.forClass(com.example.kintai.domain.attendance.dto.AttendancePunchDto.class);
+            verify(attendanceService).punch(captor.capture());
+            assertThat(captor.getValue().getStoreStaffId()).isEqualTo(myStaffId);
+            assertThat(captor.getValue().getStoreId()).isEqualTo(myStoreId);
+        }
+    }
+
+    @Nested
     @DisplayName("勤怠修正申請（POST /api/attendance/mod-request）のIDOR防御 HTTPテスト")
     class ModRequestSecurityTest {
 

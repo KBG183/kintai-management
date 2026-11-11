@@ -52,9 +52,13 @@ public class StoreAuthorizationService {
     }
 
     /**
-     * 店舗スタッフIDに基づく店舗オーナーシップ検証
+     * 店舗スタッフIDに基づく店舗オーナーシップ検証および所属店舗ID（storeId）の安全な解決
+     *
+     * @param storeStaffId 対象店舗スタッフID
+     * @param currentMemberId 認証中ユーザーの会員ID
+     * @return 検証済みの所属店舗ID
      */
-    public void validateStaffStoreOwnership(Long storeStaffId, Long currentMemberId) {
+    public Long validateStaffStoreOwnership(Long storeStaffId, Long currentMemberId) {
         if (storeStaffId == null || currentMemberId == null) {
             throw new AccessDeniedException("スタッフIDまたは認証情報が不正です。");
         }
@@ -64,6 +68,7 @@ public class StoreAuthorizationService {
                     storeStaffId, currentMemberId, ownerId);
             throw new AccessDeniedException("対象スタッフに対する管理権限がありません。");
         }
+        return storeAuthMapper.findStoreIdByStoreStaffId(storeStaffId);
     }
 
     /**

@@ -45,8 +45,9 @@ public class AttendanceApiController {
                     punchDto.setStoreId(userDetails.getStoreId());
                 }
             } else if (punchDto.getStoreStaffId() != null) {
-                // オーナー（OWNER）代理打刻：対象スタッフがオーナー店舗の所属員であるかを厳格検証
-                storeAuthorizationService.validateStaffStoreOwnership(punchDto.getStoreStaffId(), userDetails.getMemberId());
+                // オーナー（OWNER）代理打刻：対象スタッフがオーナー店舗の所属員であるかを厳格検証し、実店舗IDを強制バインド
+                Long validatedStoreId = storeAuthorizationService.validateStaffStoreOwnership(punchDto.getStoreStaffId(), userDetails.getMemberId());
+                punchDto.setStoreId(validatedStoreId);
             }
         }
 
@@ -104,7 +105,8 @@ public class AttendanceApiController {
             if (requestDto.getStoreStaffId() == null) {
                 throw new IllegalArgumentException("対象スタッフIDが指定されていません。");
             }
-            storeAuthorizationService.validateStaffStoreOwnership(requestDto.getStoreStaffId(), userDetails.getMemberId());
+            Long validatedStoreId = storeAuthorizationService.validateStaffStoreOwnership(requestDto.getStoreStaffId(), userDetails.getMemberId());
+            requestDto.setStoreId(validatedStoreId);
         }
 
         Long modRequestId = attendanceService.requestModification(requestDto);

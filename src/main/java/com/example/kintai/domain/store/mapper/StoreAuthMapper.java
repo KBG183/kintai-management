@@ -23,6 +23,12 @@ public interface StoreAuthMapper {
     Long findOwnerIdByStoreStaffId(@Param("storeStaffId") Long storeStaffId);
 
     /**
+     * 店舗スタッフIDから所属店舗ID（store_id）を取得（テナント偽装防止用）
+     */
+    @Select("SELECT store_id FROM store_staff WHERE store_staff_id = #{storeStaffId}")
+    Long findStoreIdByStoreStaffId(@Param("storeStaffId") Long storeStaffId);
+
+    /**
      * 給与IDから対象店舗のオーナー（会員ID）を取得
      */
     @Select("SELECT s.owner_id FROM store s JOIN payroll p ON s.store_id = p.store_id WHERE p.payroll_id = #{payrollId}")
