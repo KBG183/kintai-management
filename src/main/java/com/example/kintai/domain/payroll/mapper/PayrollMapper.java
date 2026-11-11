@@ -92,4 +92,9 @@ public interface PayrollMapper {
     );
 
     List<Long> findActiveStaffIdsByStoreId(@Param("storeId") Long storeId);
+
+    List<Long> findDraftStaffIdsByStoreAndMonth(
+            @Param("storeId") Long storeId,
+            @Param("targetYearMonth") String targetYearMonth
+    );
 }

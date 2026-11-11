@@ -54,11 +54,11 @@ public class PayrollService {
 
     @Transactional
     public PayrollDto calculatePayrollForStaff(Long storeId, Long staffId, String targetYearMonth, LocalDate startDate, LocalDate endDate) {
-        // 排他制御: 同時計算競合を防止する悲観的ロック
+        // 排他制御: 同時計算競合を防止する悲観的ロック (スタッフ単位)
         payrollMapper.lockStoreStaffForUpdate(staffId);
 
-        // 確定済み給与の不変性保護 (CONFIRMED / PAID の場合は再計算・上書きを遮断)
-        PayrollDto existingPayroll = payrollMapper.findByStaffAndMonth(staffId, targetYearMonth);
+        // 確定済み給与の不変性保護 (CONFIRMED / PAID の場合は再計算・上書きを遮断, 行ロック付き照会)
+        PayrollDto existingPayroll = payrollMapper.findByStaffAndMonthForUpdate(staffId, targetYearMonth);
         if (existingPayroll != null && !"DRAFT".equals(existingPayroll.getPayrollStatus())) {
             throw new IllegalStateException("指定年月 (" + targetYearMonth + ") の給与は既に確定済み(" +
                     existingPayroll.getPayrollStatus() + ") のため、再計算できません。(給与不変性保護)");
@@ -90,6 +90,11 @@ public class PayrollService {
         List<PayrollDailyDetailDto> detailsToInsert = new ArrayList<>();
 
         for (AttendanceDto att : attendances) {
+            // 勤怠データの負値・異常値バリデーション (F-07 堅牢性保証)
+            if (att.getNetWorkMinutes() < 0 || att.getNightWorkMinutes() < 0 || att.getOvertimeMinutes() < 0 || att.getTotalBreakMinutes() < 0) {
+                throw new IllegalStateException("勤務時間または休憩時間に負の値が含まれているため、給与計算を中断しました。(勤怠ID: " + att.getAttendanceId() + ")");
+            }
+
             LocalDate workDate = att.getWorkDate();
             Integer hourlyWageVal = payrollMapper.findHourlyWageForStaffOnDate(staffId, workDate);
             if (hourlyWageVal == null || hourlyWageVal <= 0) {
@@ -179,6 +184,14 @@ public class PayrollService {
 
         payrollMapper.upsertPayroll(payroll);
 
+        // upsert 후 payrollId 보장 (ON DUPLICATE KEY UPDATE 시 기존 레코드 ID 보존)
+        if (payroll.getPayrollId() == null) {
+            PayrollDto persisted = payrollMapper.findByStaffAndMonth(staffId, targetYearMonth);
+            if (persisted != null) {
+                payroll.setPayrollId(persisted.getPayrollId());
+            }
+        }
+
         // 日別詳細スナップショットの再保存
         payrollMapper.deleteDailyDetailsByPayrollId(payroll.getPayrollId());
         for (PayrollDailyDetailDto detail : detailsToInsert) {
@@ -264,34 +277,56 @@ public class PayrollService {
     ) {}
 
     /**
-     * 給与確定ロック処理（帳簿の不変性を保証）
+     * 給与確定ロック処理（単一レコードの帳簿不変性を保証、排他悲観적ロック適用）
+     * 락 순서 역전(데드락) 방지를 위해 전역 락 계층(store_staff -> payroll)을 엄격 준수하고
+     * 무잠금 초기 조회와 잠금 후 재조회 간 storeStaffId 일치 여부를 2중 검증(Double-Checked Lock)하여 TOCTOU를 방어합니다.
      */
     @Transactional
     public void confirmPayroll(Long payrollId, PayrollConfirmRequestDto confirmDto) {
-        PayrollDto existing = payrollMapper.findById(payrollId);
+        // [Step 1] storeStaffId 및 storeId 파악을 위한 초기 무잠금 조회 (Non-locking Read)
+        PayrollDto initial = payrollMapper.findById(payrollId);
+        if (initial == null) {
+            throw new IllegalArgumentException("存在しない給与データです。(ID: " + payrollId + ")");
+        }
+        Long initialStaffId = initial.getStoreStaffId();
+        Long initialStoreId = initial.getStoreId();
+
+        // [Step 2] 전역 락 계층 1단계: store_staff 부모 행 배타적 락 선점 (Level 1 Lock)
+        payrollMapper.lockStoreStaffForUpdate(initialStaffId);
+
+        // [Step 3] 전역 락 계층 2단계: payroll 자식 행 배타적 락 획득 (Level 2 Lock)
+        PayrollDto existing = payrollMapper.findByIdForUpdate(payrollId);
         if (existing == null) {
             throw new IllegalArgumentException("存在しない給与データです。(ID: " + payrollId + ")");
         }
 
-        if (!"DRAFT".equals(existing.getPayrollStatus())) {
-            throw new IllegalStateException("既に確定済みの給与データです。");
+        // [Step 3-1] TOCTOU 방어: 잠금 후 재조회한 storeStaffId 및 storeId가 초기 조회값과 일치하는지 엄밀 검증
+        if (!initialStaffId.equals(existing.getStoreStaffId())) {
+            throw new IllegalStateException("給与レコードの職員所属情報が変更されたため、確定処理を中断しました。(初期: " +
+                    initialStaffId + ", ロック後: " + existing.getStoreStaffId() + ")");
+        }
+        if (!initialStoreId.equals(existing.getStoreId())) {
+            throw new IllegalStateException("給与レコードの店舗情報が変更されたため、確定処理を中断しました。(初期店舗: " +
+                    initialStoreId + ", ロック後店舗: " + existing.getStoreId() + ")");
         }
 
-        // 排他制御: 悲観的ロック
-        payrollMapper.lockStoreStaffForUpdate(existing.getStoreStaffId());
+        // [Step 3-2] 급여 상태 재검증 (이미 다른 관리자에 의해 확정되었는지 여부)
+        if (!"DRAFT".equals(existing.getPayrollStatus())) {
+            throw new IllegalStateException("既に確定済みの給与データです。(現在の状態: " + existing.getPayrollStatus() + ")");
+        }
 
-        // 精算対象期間終了の検証（締め期間終了前の早期確定を防止）
+        // [Step 4] 정산 대상 기간 종료의 검증 (마감 기간 종료 전 조기 확정 방지)
         if (!LocalDate.now().isAfter(existing.getRangeEndDate())) {
             throw new IllegalStateException("精算対象期間 (" + existing.getRangeEndDate() + ") が終了する前に給与を確定することはできません。");
         }
 
-        // 未処理勤怠の確認
+        // [Step 5] 미처리 근태 확인 (수정 신청 대기 또는 타각 진행 중 차단)
         int unresolved = payrollMapper.countUnresolvedAttendance(existing.getStoreStaffId(), existing.getRangeStartDate(), existing.getRangeEndDate());
         if (unresolved > 0) {
             throw new IllegalStateException("未処理の勤怠修正申請または勤務中打刻が存在するため、確定できません。");
         }
 
-        // 最新データによる再計算
+        // [Step 6] 최신 데이터 기반 재계산 (동일 트랜잭션 내 store_staff 락 재진입 안전)
         PayrollDto recalculated = calculatePayrollForStaff(
                 existing.getStoreId(),
                 existing.getStoreStaffId(),
@@ -300,7 +335,7 @@ public class PayrollService {
                 existing.getRangeEndDate()
         );
 
-        // 店長が確認した金額と再計算金額の不一致チェック
+        // [Step 7] 확인 금액과 재계산 금액 불일치 검증
         if (confirmDto != null && confirmDto.getExpectedGrossPay() != null) {
             int expected = confirmDto.getExpectedGrossPay();
             int actual = recalculated.getGrossPay();
@@ -310,6 +345,72 @@ public class PayrollService {
         }
 
         payrollMapper.updatePayrollStatusConfirm(payrollId, LocalDateTime.now());
+    }
+
+    /**
+     * 店舗全体の月次給与一括確定バッチ処理（同月全レコード悲観的ロックおよび一括確定）
+     *
+     * @param storeId 対象店舗ID
+     * @param targetYearMonth 対象年月 (YYYY-MM)
+     * @return 確定された給与件数
+     */
+    @Transactional
+    public int confirmMonthlyPayroll(Long storeId, String targetYearMonth) {
+        // [Step 1] 확정 대상 DRAFT 급여를 보유한 직원 ID 목록을 결정론적 오름차순으로 1차 선별
+        List<Long> draftStaffIds = payrollMapper.findDraftStaffIdsByStoreAndMonth(storeId, targetYearMonth);
+        if (draftStaffIds == null || draftStaffIds.isEmpty()) {
+            List<PayrollDto> allPayrolls = payrollMapper.findPayrollsByStoreAndMonth(storeId, targetYearMonth);
+            if (allPayrolls == null || allPayrolls.isEmpty()) {
+                throw new IllegalStateException("指定年月 (" + targetYearMonth + ") の給与データが存在しません。先に一括計算を実行してください。");
+            } else {
+                throw new IllegalStateException("指定年月 (" + targetYearMonth + ") の給与は全件確定済みです。");
+            }
+        }
+
+        // [Step 2] 전역 락 계층 1단계: 선별된 직원 부모 행(store_staff)들을 ID 오름차순으로 순차 선점 잠금 (Level 1 Lock)
+        for (Long staffId : draftStaffIds) {
+            payrollMapper.lockStoreStaffForUpdate(staffId);
+        }
+
+        // [Step 3] 전역 락 계층 2단계: 부모 락이 확보된 안전 상태에서 점포의 당월 급여 행들을 배타 락(Level 2 Lock)으로 재조회
+        List<PayrollDto> payrolls = payrollMapper.lockStorePayrollsForUpdate(storeId, targetYearMonth);
+        if (payrolls == null || payrolls.isEmpty()) {
+            throw new IllegalStateException("指定年月 (" + targetYearMonth + ") の給与データが存在しません。");
+        }
+
+        List<PayrollDto> draftPayrolls = payrolls.stream()
+                .filter(p -> "DRAFT".equals(p.getPayrollStatus()))
+                .toList();
+
+        if (draftPayrolls.isEmpty()) {
+            throw new IllegalStateException("指定年月 (" + targetYearMonth + ") の給与は全件確定済みです。");
+        }
+
+        // [Step 3-1] 동시성 경계 검증: 부모 락을 잡지 않은 새로운 직원의 DRAFT가 그 사이에 추가되었는지 감지
+        for (PayrollDto p : draftPayrolls) {
+            if (!draftStaffIds.contains(p.getStoreStaffId())) {
+                throw new IllegalStateException("月次確定処理中に新たな職員の給与が生成されました。(職員ID: " +
+                        p.getStoreStaffId() + ")。データの整合性を保つため再実行してください。");
+            }
+        }
+
+        LocalDate today = LocalDate.now();
+
+        // 締め期間終了および未処理勤怠の全件バリデーション
+        for (PayrollDto p : draftPayrolls) {
+            if (!today.isAfter(p.getRangeEndDate())) {
+                throw new IllegalStateException("精算対象期間 (" + p.getRangeEndDate() + ") が終了する前に月次給与を一括確定することはできません。(対象スタッフID: " + p.getStoreStaffId() + ")");
+            }
+
+            int unresolved = payrollMapper.countUnresolvedAttendance(p.getStoreStaffId(), p.getRangeStartDate(), p.getRangeEndDate());
+            if (unresolved > 0) {
+                throw new IllegalStateException("未処理の勤怠修正申請または打刻が存在するため、月次給与を一括確定できません。(対象スタッフID: " + p.getStoreStaffId() + ")");
+            }
+        }
+
+        // 店舗・対象年月の一括CONFIRMED更新 (CAS)
+        int updatedCount = payrollMapper.updateAllPayrollStatusConfirm(storeId, targetYearMonth, LocalDateTime.now());
+        return updatedCount;
     }
 
     /**

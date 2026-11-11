@@ -386,6 +386,16 @@
         FROM store_staff
         WHERE store_id = #{storeId}
           AND employment_status = 'ACTIVE'
+        ORDER BY store_staff_id ASC
+    </select>
+
+    <select id="findDraftStaffIdsByStoreAndMonth" resultType="java.lang.Long">
+        SELECT DISTINCT store_staff_id
+        FROM payroll
+        WHERE store_id = #{storeId}
+          AND target_year_month = #{targetYearMonth}
+          AND payroll_status = 'DRAFT'
+        ORDER BY store_staff_id ASC
     </select>
 
 </mapper>

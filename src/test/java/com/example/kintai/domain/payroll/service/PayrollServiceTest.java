@@ -14,6 +14,7 @@ import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,7 +43,7 @@ class PayrollServiceTest {
         confirmedPayroll.setPayrollId(100L);
         confirmedPayroll.setPayrollStatus("CONFIRMED");
 
-        when(payrollMapper.findByStaffAndMonth(staffId, targetMonth)).thenReturn(confirmedPayroll);
+        when(payrollMapper.findByStaffAndMonthForUpdate(staffId, targetMonth)).thenReturn(confirmedPayroll);
 
         IllegalStateException ex = assertThrows(IllegalStateException.class, () ->
                 payrollService.calculatePayrollForStaff(storeId, staffId, targetMonth, start, end)
@@ -78,5 +79,101 @@ class PayrollServiceTest {
         assertEquals(2600, result.statutoryNightAllowance());
         // 休日: 455円 * 5時間 = 2,275円
         assertEquals(2275, result.statutoryHolidayAllowance());
+    }
+
+    @Test
+    @DisplayName("単一給与確定時、既に確定済み(CONFIRMED)の場合は悲観的ロック照会後にIllegalStateExceptionを投げること")
+    void confirmPayroll_WhenAlreadyConfirmed_ShouldThrowIllegalStateException() {
+        Long payrollId = 200L;
+        PayrollDto existing = new PayrollDto();
+        existing.setPayrollId(payrollId);
+        existing.setStoreId(1L);
+        existing.setStoreStaffId(5L);
+        existing.setPayrollStatus("CONFIRMED");
+
+        when(payrollMapper.findById(payrollId)).thenReturn(existing);
+        when(payrollMapper.findByIdForUpdate(payrollId)).thenReturn(existing);
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class, () ->
+                payrollService.confirmPayroll(payrollId, null)
+        );
+
+        assertTrue(ex.getMessage().contains("既に確定済みの給与データです"));
+    }
+
+    @Test
+    @DisplayName("単一給与確定時、締め期間終了前(早期確定)はIllegalStateExceptionで遮断されること")
+    void confirmPayroll_WhenPeriodNotEnded_ShouldThrowIllegalStateException() {
+        Long payrollId = 201L;
+        PayrollDto existing = new PayrollDto();
+        existing.setPayrollId(payrollId);
+        existing.setStoreId(1L);
+        existing.setStoreStaffId(5L);
+        existing.setPayrollStatus("DRAFT");
+        existing.setRangeEndDate(LocalDate.now().plusDays(5)); // 未来の日付
+
+        when(payrollMapper.findById(payrollId)).thenReturn(existing);
+        when(payrollMapper.findByIdForUpdate(payrollId)).thenReturn(existing);
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class, () ->
+                payrollService.confirmPayroll(payrollId, null)
+        );
+
+        assertEquals("精算対象期間 (" + existing.getRangeEndDate() + ") が終了する前に給与を確定することはできません。", ex.getMessage());
+    }
+
+    @Test
+    @DisplayName("店舗全体の月次給与一括確定が正常に実行され全件確定されること")
+    void confirmMonthlyPayroll_Success() {
+        Long storeId = 1L;
+        String targetMonth = "2026-10";
+
+        PayrollDto p1 = new PayrollDto();
+        p1.setPayrollId(1L);
+        p1.setStoreStaffId(101L);
+        p1.setPayrollStatus("DRAFT");
+        p1.setRangeStartDate(LocalDate.of(2026, 10, 1));
+        p1.setRangeEndDate(LocalDate.of(2026, 10, 31));
+
+        PayrollDto p2 = new PayrollDto();
+        p2.setPayrollId(2L);
+        p2.setStoreStaffId(102L);
+        p2.setPayrollStatus("DRAFT");
+        p2.setRangeStartDate(LocalDate.of(2026, 10, 1));
+        p2.setRangeEndDate(LocalDate.of(2026, 10, 31));
+
+        when(payrollMapper.findDraftStaffIdsByStoreAndMonth(storeId, targetMonth)).thenReturn(java.util.List.of(101L, 102L));
+        when(payrollMapper.lockStorePayrollsForUpdate(storeId, targetMonth)).thenReturn(java.util.List.of(p1, p2));
+        when(payrollMapper.countUnresolvedAttendance(101L, p1.getRangeStartDate(), p1.getRangeEndDate())).thenReturn(0);
+        when(payrollMapper.countUnresolvedAttendance(102L, p2.getRangeStartDate(), p2.getRangeEndDate())).thenReturn(0);
+        when(payrollMapper.updateAllPayrollStatusConfirm(org.mockito.ArgumentMatchers.eq(storeId), org.mockito.ArgumentMatchers.eq(targetMonth), org.mockito.ArgumentMatchers.any())).thenReturn(2);
+
+        int confirmedCount = payrollService.confirmMonthlyPayroll(storeId, targetMonth);
+
+        assertEquals(2, confirmedCount);
+    }
+
+    @Test
+    @DisplayName("店舗全体の月次給与一括確定時、未処理勤怠が存在するスタッフがいる場合は一括確定を遮断すること")
+    void confirmMonthlyPayroll_WhenUnresolvedAttendance_ShouldThrowIllegalStateException() {
+        Long storeId = 1L;
+        String targetMonth = "2026-10";
+
+        PayrollDto p1 = new PayrollDto();
+        p1.setPayrollId(1L);
+        p1.setStoreStaffId(101L);
+        p1.setPayrollStatus("DRAFT");
+        p1.setRangeStartDate(LocalDate.of(2026, 10, 1));
+        p1.setRangeEndDate(LocalDate.of(2026, 10, 31));
+
+        when(payrollMapper.findDraftStaffIdsByStoreAndMonth(storeId, targetMonth)).thenReturn(java.util.List.of(101L));
+        when(payrollMapper.lockStorePayrollsForUpdate(storeId, targetMonth)).thenReturn(java.util.List.of(p1));
+        when(payrollMapper.countUnresolvedAttendance(101L, p1.getRangeStartDate(), p1.getRangeEndDate())).thenReturn(1);
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class, () ->
+                payrollService.confirmMonthlyPayroll(storeId, targetMonth)
+        );
+
+        assertEquals("未処理の勤怠修正申請または打刻が存在するため、月次給与を一括確定できません。(対象スタッフID: 101)", ex.getMessage());
     }
 }
