@@ -64,6 +64,36 @@
         WHERE p.payroll_id = #{payrollId}
     </select>
 
+    <select id="findByIdForUpdate" resultType="com.example.kintai.domain.payroll.dto.PayrollDto">
+        SELECT
+            p.payroll_id,
+            p.store_id,
+            p.store_staff_id,
+            m.name AS staff_name,
+            p.target_year_month,
+            p.range_start_date,
+            p.range_end_date,
+            p.work_days_count,
+            p.total_work_minutes,
+            p.total_night_minutes,
+            p.total_overtime_minutes,
+            p.applied_hourly_wage,
+            p.applied_transport_limit,
+            p.base_pay,
+            p.night_allowance,
+            p.overtime_allowance,
+            p.transport_allowance,
+            p.gross_pay,
+            p.payroll_status,
+            p.confirmed_at,
+            p.paid_at
+        FROM payroll p
+        JOIN store_staff ss ON p.store_staff_id = ss.store_staff_id
+        JOIN member m ON ss.member_id = m.member_id
+        WHERE p.payroll_id = #{payrollId}
+        FOR UPDATE
+    </select>
+
     <select id="findByStaffAndMonth" resultType="com.example.kintai.domain.payroll.dto.PayrollDto">
         SELECT
             p.payroll_id,
@@ -93,6 +123,38 @@
         WHERE p.store_staff_id = #{storeStaffId}
           AND p.target_year_month = #{targetYearMonth}
         LIMIT 1
+    </select>
+
+    <select id="findByStaffAndMonthForUpdate" resultType="com.example.kintai.domain.payroll.dto.PayrollDto">
+        SELECT
+            p.payroll_id,
+            p.store_id,
+            p.store_staff_id,
+            m.name AS staff_name,
+            p.target_year_month,
+            p.range_start_date,
+            p.range_end_date,
+            p.work_days_count,
+            p.total_work_minutes,
+            p.total_night_minutes,
+            p.total_overtime_minutes,
+            p.applied_hourly_wage,
+            p.applied_transport_limit,
+            p.base_pay,
+            p.night_allowance,
+            p.overtime_allowance,
+            p.transport_allowance,
+            p.gross_pay,
+            p.payroll_status,
+            p.confirmed_at,
+            p.paid_at
+        FROM payroll p
+        JOIN store_staff ss ON p.store_staff_id = ss.store_staff_id
+        JOIN member m ON ss.member_id = m.member_id
+        WHERE p.store_staff_id = #{storeStaffId}
+          AND p.target_year_month = #{targetYearMonth}
+        LIMIT 1
+        FOR UPDATE
     </select>
 
     <insert id="upsertPayroll" useGeneratedKeys="true" keyProperty="payrollId">
@@ -212,6 +274,32 @@
           AND payroll_status = 'DRAFT'
     </update>
 
+    <update id="updateAllPayrollStatusConfirm">
+        UPDATE payroll p
+        SET p.payroll_status = 'CONFIRMED',
+            p.confirmed_at = #{confirmedAt},
+            p.updated_at = CURRENT_TIMESTAMP
+        WHERE p.store_id = #{storeId}
+          AND p.target_year_month = #{targetYearMonth}
+          AND p.payroll_status = 'DRAFT'
+          AND NOT EXISTS (
+              SELECT 1
+              FROM attendance a
+              WHERE a.store_staff_id = p.store_staff_id
+                AND a.work_date &gt;= p.range_start_date
+                AND a.work_date &lt;= p.range_end_date
+                AND a.attendance_status IN ('WORKING', 'ON_BREAK', 'MOD_REQUESTED')
+          )
+    </update>
+
+    <select id="countPayrollsByStoreAndMonthAndStatus" resultType="int">
+        SELECT COUNT(*)
+        FROM payroll
+        WHERE store_id = #{storeId}
+          AND target_year_month = #{targetYearMonth}
+          AND payroll_status = #{payrollStatus}
+    </select>
+
     <select id="countUnresolvedAttendance" resultType="int">
         SELECT COUNT(*)
         FROM attendance
@@ -257,10 +345,39 @@
         LIMIT 1
     </select>
 
-    <select id="lockStoreStaffForUpdate">
+    <select id="lockStoreStaffForUpdate" resultType="java.lang.Long">
         SELECT store_staff_id
         FROM store_staff
         WHERE store_staff_id = #{storeStaffId}
+        FOR UPDATE
+    </select>
+
+    <select id="lockStorePayrollsForUpdate" resultType="com.example.kintai.domain.payroll.dto.PayrollDto">
+        SELECT
+            payroll_id,
+            store_id,
+            store_staff_id,
+            target_year_month,
+            range_start_date,
+            range_end_date,
+            work_days_count,
+            total_work_minutes,
+            total_night_minutes,
+            total_overtime_minutes,
+            applied_hourly_wage,
+            applied_transport_limit,
+            base_pay,
+            night_allowance,
+            overtime_allowance,
+            transport_allowance,
+            gross_pay,
+            payroll_status,
+            confirmed_at,
+            paid_at
+        FROM payroll
+        WHERE store_id = #{storeId}
+          AND target_year_month = #{targetYearMonth}
+        ORDER BY store_staff_id ASC, payroll_id ASC
         FOR UPDATE
     </select>
 

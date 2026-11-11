@@ -19,7 +19,16 @@ public interface PayrollMapper {
 
     PayrollDto findById(@Param("payrollId") Long payrollId);
 
+    // 排他制御: 単一給与確定時の同時更新防止用悲観的ロック (SELECT ... FOR UPDATE)
+    PayrollDto findByIdForUpdate(@Param("payrollId") Long payrollId);
+
     PayrollDto findByStaffAndMonth(
+            @Param("storeStaffId") Long storeStaffId,
+            @Param("targetYearMonth") String targetYearMonth
+    );
+
+    // 排他制御: 給与再計算・更新時のレコード競合防止用悲観的ロック (SELECT ... FOR UPDATE)
+    PayrollDto findByStaffAndMonthForUpdate(
             @Param("storeStaffId") Long storeStaffId,
             @Param("targetYearMonth") String targetYearMonth
     );
@@ -35,6 +44,19 @@ public interface PayrollMapper {
     int updatePayrollStatusConfirm(
             @Param("payrollId") Long payrollId,
             @Param("confirmedAt") LocalDateTime confirmedAt
+    );
+
+    // 店舗全体の月次給与一括確定 (DRAFT -> CONFIRMED)
+    int updateAllPayrollStatusConfirm(
+            @Param("storeId") Long storeId,
+            @Param("targetYearMonth") String targetYearMonth,
+            @Param("confirmedAt") LocalDateTime confirmedAt
+    );
+
+    int countPayrollsByStoreAndMonthAndStatus(
+            @Param("storeId") Long storeId,
+            @Param("targetYearMonth") String targetYearMonth,
+            @Param("payrollStatus") String payrollStatus
     );
 
     int countUnresolvedAttendance(
@@ -62,6 +84,12 @@ public interface PayrollMapper {
 
     // 排他制御: 同時更新防止のための悲観的ロック (SELECT ... FOR UPDATE)
     void lockStoreStaffForUpdate(@Param("storeStaffId") Long storeStaffId);
+
+    // 店舗全体の月次給与一括ロック (SELECT ... FOR UPDATE)
+    List<PayrollDto> lockStorePayrollsForUpdate(
+            @Param("storeId") Long storeId,
+            @Param("targetYearMonth") String targetYearMonth
+    );
 
     List<Long> findActiveStaffIdsByStoreId(@Param("storeId") Long storeId);
 }
