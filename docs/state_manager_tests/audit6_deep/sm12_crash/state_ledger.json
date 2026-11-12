@@ -1,0 +1,19 @@
+﻿{
+    "current_state":  "INIT",
+    "last_updated_utc":  "2026-11-11T08:39:28.4193204Z",
+    "execution_id":  "test-init-sm12",
+    "git_tree_oid":  "abc1234",
+    "git_object_format":  "sha1",
+    "target_bundle_sha256":  "",
+    "model_digest":  "",
+    "prompt_sha256":  "",
+    "config_sha256":  "",
+    "script_sha256":  "",
+    "test_report_sha256":  "",
+    "audit_report_sha256":  "",
+    "commit_sha":  "",
+    "remote_ref_sha":  "",
+    "history":  [
+
+                ]
+}

@@ -1,0 +1,271 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "HermesAuditResultV2",
+  "description": "Hermes Local AI Audit Result Schema v2.0 - Standardized Deterministic Audit Envelope (Final Corrected)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "audit_metadata",
+    "bundle_info",
+    "verdict_summary",
+    "findings"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": ["2.0.0"]
+    },
+    "audit_metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "run_id",
+        "timestamp_iso",
+        "model_name",
+        "model_digest",
+        "endpoint",
+        "execution_metrics"
+      ],
+      "properties": {
+        "run_id": {
+          "type": "string",
+          "pattern": "^[0-9]{8}_[0-9]{6}_[a-zA-Z0-9_-]+$"
+        },
+        "timestamp_iso": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "model_name": {
+          "type": "string"
+        },
+        "model_digest": {
+          "type": "string"
+        },
+        "endpoint": {
+          "type": "string"
+        },
+        "execution_metrics": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "duration_seconds",
+            "prompt_eval_count",
+            "eval_count",
+            "tokens_per_second"
+          ],
+          "properties": {
+            "duration_seconds": {
+              "type": "number",
+              "minimum": 0
+            },
+            "prompt_eval_count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "eval_count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "tokens_per_second": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    },
+    "bundle_info": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bundle_path",
+        "bundle_sha256",
+        "target_files",
+        "known_dependencies"
+      ],
+      "properties": {
+        "bundle_path": {
+          "type": "string"
+        },
+        "bundle_sha256": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$"
+        },
+        "target_files": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "known_dependencies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "missing_dependencies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "verdict_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "overall_verdict",
+        "total_findings",
+        "counts_by_verdict",
+        "counts_by_severity"
+      ],
+      "properties": {
+        "overall_verdict": {
+          "type": "string",
+          "enum": ["PASS", "FAIL", "WARN", "N/A", "NOT_VERIFIABLE"]
+        },
+        "total_findings": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "counts_by_verdict": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["PASS", "FAIL", "WARN", "N/A", "NOT_VERIFIABLE"],
+          "properties": {
+            "PASS": { "type": "integer", "minimum": 0 },
+            "FAIL": { "type": "integer", "minimum": 0 },
+            "WARN": { "type": "integer", "minimum": 0 },
+            "N/A": { "type": "integer", "minimum": 0 },
+            "NOT_VERIFIABLE": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "counts_by_severity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["P0", "P1", "P2", "P3", "INFO"],
+          "properties": {
+            "P0": { "type": "integer", "minimum": 0 },
+            "P1": { "type": "integer", "minimum": 0 },
+            "P2": { "type": "integer", "minimum": 0 },
+            "P3": { "type": "integer", "minimum": 0 },
+            "INFO": { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "finding_id",
+          "category",
+          "title",
+          "severity",
+          "verdict",
+          "tracking_status",
+          "location",
+          "evidence",
+          "analysis"
+        ],
+        "properties": {
+          "finding_id": {
+            "type": "string",
+            "pattern": "^F-[0-9]{3}$"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "CONCURRENCY_AND_LOCKING",
+              "TRANSACTION_MANAGEMENT",
+              "SECURITY_AND_IDOR",
+              "LABOR_STANDARDS_ACT_37",
+              "DATA_INTEGRITY_AND_VALIDATION",
+              "RESOURCE_AND_PERFORMANCE",
+              "CODE_STYLE_AND_DOCS"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["P0", "P1", "P2", "P3", "INFO"]
+          },
+          "verdict": {
+            "type": "string",
+            "enum": ["PASS", "FAIL", "WARN", "N/A", "NOT_VERIFIABLE"]
+          },
+          "tracking_status": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "IN_PROGRESS",
+              "FIXED",
+              "VERIFIED_FIXED",
+              "REOPENED",
+              "ACCEPTED_RISK"
+            ]
+          },
+          "location": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["file_path"],
+            "properties": {
+              "file_path": { "type": "string", "minLength": 1 },
+              "class_name": { "type": "string" },
+              "method_name": { "type": "string" },
+              "line_start": { "type": "integer", "minimum": 1 },
+              "line_end": { "type": "integer", "minimum": 1 }
+            }
+          },
+          "evidence": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["code_snippet_or_proof", "expected_behavior", "actual_behavior"],
+            "properties": {
+              "code_snippet_or_proof": { "type": "string", "minLength": 1 },
+              "proof_type": { "type": "string", "enum": ["EXECUTION_TEST", "STATIC_CODE_PROOF", "COUNTEREXAMPLE"] },
+              "test_file": { "type": "string" },
+              "test_id": { "type": "string" },
+              "execution_result": { "type": "string" },
+              "failure_evidence": { "type": "string" },
+              "source_file": { "type": "string" },
+              "source_line_start": { "type": "integer", "minimum": 1 },
+              "source_line_end": { "type": "integer", "minimum": 1 },
+              "code_excerpt": { "type": "string" },
+              "defect_reason": { "type": "string" },
+              "counterexample_input": { "type": "string" },
+              "counterexample_expected": { "type": "string" },
+              "counterexample_actual": { "type": "string" },
+              "counterexample_explanation": { "type": "string" },
+              "expected_behavior": { "type": "string", "minLength": 1 },
+              "actual_behavior": { "type": "string", "minLength": 1 },
+              "reproduction_test_case": { "type": "string" },
+              "counterexample_data": { "type": "string" }
+            }
+          },
+          "analysis": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["risk_evaluation", "recommendation"],
+            "properties": {
+              "risk_evaluation": { "type": "string", "minLength": 1 },
+              "applicable_laws": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "recommendation": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      }
+    }
+  }
+}

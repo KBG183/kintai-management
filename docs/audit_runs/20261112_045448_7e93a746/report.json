@@ -1,0 +1,86 @@
+﻿{
+    "run_id":  "20261112_045448_7e93a746",
+    "generated_at":  "2026-11-12T13:55:34.0248987+09:00",
+    "findings":  [
+                     {
+                         "finding_id":  "F-001",
+                         "audit_item":  "Japanese Labor Standards Act Art 37: Night Work \u0026 Overtime Calculation Logic",
+                         "severity":  "P0",
+                         "verdict":  "FAIL",
+                         "evidence":  "`PayrollExcelExporter.java` (Lines 48-55), `PayrollDto` usage",
+                         "analysis":  "**Critical Logic Gap**: The code exports `totalNightMinutes`, `totalOvertimeMinutes`, `nightAllowance`, and `overtimeAllowance` as pre-calculated values from `PayrollDto`. However, the provided code snippet **does not contain the calculation logic** for these values. It merely displays them. \u003cbr\u003e\u003cbr\u003e**Risk**: If the upstream calculation (not shown) fails to correctly apply the +25% (Night) and +50% (Night+Overtime overlap) rules, or if it fails to deduct break times from night hours, the payroll will be non-compliant with Japanese Labor Standards Act Art 37. \u003cbr\u003e\u003cbr\u003e**Recommendation**: The audit cannot verify compliance based *only* on this exporter. You must provide the calculation service (e.g., `PayrollCalculationService`) that populates `PayrollDto`. Ensure that `nightAllowance` is calculated as `(BaseRate * 1.25 * NightHours)` and `overtimeAllowance` handles the concurrent overlap correctly (e.g., `BaseRate * 1.5 * OvertimeHours` + `BaseRate * 0.25 * ConcurrentNightOvertimeHours`)."
+                     },
+                     {
+                         "finding_id":  "F-002",
+                         "audit_item":  "Payroll Math \u0026 Rounding: 1-Yen Discrepancy Prevention",
+                         "severity":  "P1",
+                         "verdict":  "WARN",
+                         "evidence":  "`PayrollExcelExporter.java` (Lines 50-55)",
+                         "analysis":  "**Rounding Logic Absent in Exporter**: The exporter writes `p.getBasePay()`, `p.getNightAllowance()`, etc., directly to cells. It assumes the `PayrollDto` contains final, rounded integer values (Yen). \u003cbr\u003e\u003cbr\u003e**Risk**: If the upstream calculation uses `double` or `float` without strict `RoundingMode.HALF_UP` to the nearest Yen before storing in the DTO, the Excel output may display decimals (if style allows) or, worse, the sum of individual components (Base + Night + OT) may not equal `GrossPay` due to floating-point precision errors or inconsistent rounding strategies per component. \u003cbr\u003e\u003cbr\u003e**Recommendation**: Verify that `PayrollDto` fields are of type `long` or `BigDecimal` (scaled to 0 decimal places). Ensure the calculation engine applies `RoundingMode.HALF_UP` to each component *before* summing them into `GrossPay`, or calculates `GrossPay` as the sum of the rounded components to ensure the ledger balances perfectly."
+                     },
+                     {
+                         "finding_id":  "F-003",
+                         "audit_item":  "Concurrency \u0026 Security: IDOR Vulnerability Check",
+                         "severity":  "P1",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollApiController.java` (Line 12)",
+                         "analysis":  "**Ownership Validation Present**: The controller explicitly calls `storeAuthorizationService.validateStoreOwnership(storeId, userDetails.getMemberId())` before accessing data. \u003cbr\u003e\u003cbr\u003e**Analysis**: This correctly prevents a user from accessing payroll data for a store they do not own or manage. The `storeId` is taken from the request parameter, but the validation ensures the current authenticated user has the right to view that specific store\u0027s data. \u003cbr\u003e\u003cbr\u003e**Recommendation**: Ensure `storeAuthorizationService.validateStoreOwnership` throws a `403 Forbidden` or `404 Not Found` exception if validation fails, and that it does not leak information about the existence of the store to unauthorized users (security through obscurity is preferred for IDOR)."
+                     },
+                     {
+                         "finding_id":  "F-004",
+                         "audit_item":  "Concurrency \u0026 Security: Transactional Integrity \u0026 Locking",
+                         "severity":  "P2",
+                         "verdict":  "N/A",
+                         "evidence":  "`PayrollService.java` (Line 8)",
+                         "analysis":  "**Read-Only Operation**: The `exportPayrollToExcel` method is a read-only operation (`getPayrollsByStoreAndMonth`). It does not modify data. Therefore, pessimistic locking (`SELECT ... FOR UPDATE`) is **not required** and would negatively impact performance. \u003cbr\u003e\u003cbr\u003e**Analysis**: The use of `@Transactional` is not strictly necessary for a pure read operation if the underlying mapper methods are read-only, but it is good practice for consistency if the data source supports snapshot isolation. No concurrency conflict exists here as no writes are performed."
+                     },
+                     {
+                         "finding_id":  "F-005",
+                         "audit_item":  "Exception Handling \u0026 Boundary Validation: Null Safety",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollExcelExporter.java` (Lines 48-55)",
+                         "analysis":  "**Null Handling Implemented**: The code explicitly checks for `null` values in `PayrollDto` fields (e.g., `p.getStoreStaffId() != null ? ... : 0`). \u003cbr\u003e\u003cbr\u003e**Analysis**: This prevents `NullPointerExceptions` during Excel cell creation. The `targetYearMonth` is also handled with a null check in the sheet name generation. \u003cbr\u003e\u003cbr\u003e**Recommendation**: Ensure that `PayrollDto` fields that are expected to be non-null (like `staffName`) are validated at the service layer. If `staffName` is null, displaying \"-\" is acceptable, but logging a warning might be beneficial for data quality monitoring."
+                     },
+                     {
+                         "finding_id":  "F-006",
+                         "audit_item":  "Exception Handling \u0026 Boundary Validation: Date Parsing",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "`PayrollApiController.java` (Line 10)",
+                         "analysis":  "**String Parameter for Date**: The `yearMonth` parameter is accepted as a `String`. \u003cbr\u003e\u003cbr\u003e**Risk**: The code does not show validation of the `yearMonth` format (e.g., \"2023-10\" vs \"2023-13\" vs \"invalid\"). If an invalid string is passed, the downstream `getPayrollsByStoreAndMonth` might throw a `DateTimeParseException` or return empty results silently. \u003cbr\u003e\u003cbr\u003e**Recommendation**: Add explicit validation in the controller or service layer. Use `@Pattern(regexp=\"\\\\d{4}-(0[1-9]"
+                     },
+                     {
+                         "finding_id":  "F-007",
+                         "audit_item":  "Resource Management: SXSSFWorkbook Cleanup",
+                         "severity":  "P1",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollExcelExporter.java` (Lines 38-42)",
+                         "analysis":  "**Proper Cleanup**: The code uses a `try-finally` block to call `workbook.dispose()` and `workbook.close()`. \u003cbr\u003e\u003cbr\u003e**Analysis**: `SXSSFWorkbook` creates temporary files on disk for the sliding window. `dispose()` is critical to delete these temp files. The code correctly handles the `IOException` from `dispose()` by ignoring it (as it\u0027s a best-effort cleanup) and ensures `close()` is called. \u003cbr\u003e\u003cbr\u003e**Recommendation**: This is correctly implemented. Ensure that the `ByteArrayOutputStream` in `exportToExcel` is also closed (it is, via try-with-resources)."
+                     },
+                     {
+                         "finding_id":  "F-008",
+                         "audit_item":  "Performance: Memory Efficiency",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollExcelExporter.java` (Line 18)",
+                         "analysis":  "**Streaming Implementation**: Uses `SXSSFWorkbook` with `ROW_ACCESS_WINDOW_SIZE = 100`. \u003cbr\u003e\u003cbr\u003e**Analysis**: This prevents `OutOfMemoryError` for large datasets by flushing rows to disk after 100 rows. The `setCompressTempFiles(true)` further optimizes disk I/O. \u003cbr\u003e\u003cbr\u003e**Recommendation**: This is a robust implementation for large exports. No changes needed."
+                     },
+                     {
+                         "finding_id":  "F-009",
+                         "audit_item":  "Data Integrity: Excel Formula Accuracy",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollExcelExporter.java` (Line 60)",
+                         "analysis":  "**Dynamic Formula Binding**: The `createSummaryRows` method (implied by context) uses dynamic row indices (`startDataRowIdx` to `currentRowIdx - 1`) to generate `SUM` and `AVERAGE` formulas. \u003cbr\u003e\u003cbr\u003e**Analysis**: The test `testLargeDataExport` verifies that for 250 rows, the formula correctly references `N6:N255`. This ensures that the summary totals are always accurate regardless of the number of employees. \u003cbr\u003e\u003cbr\u003e**Recommendation**: Ensure that the column index `N` (13) corresponds to `GrossPay` in the actual sheet layout. If columns are added/removed in the future, this hardcoded index will break. Consider using a constant for the `GrossPay` column index."
+                     },
+                     {
+                         "finding_id":  "F-010",
+                         "audit_item":  "Security: File Name Injection",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollApiController.java` (Line 15)",
+                         "analysis":  "**URL Encoding**: The file name is URL-encoded using `URLEncoder.encode(..., StandardCharsets.UTF_8)`. \u003cbr\u003e\u003cbr\u003e**Analysis**: This prevents header injection attacks via the `Content-Disposition` header. The `+` to `%20` replacement ensures spaces are handled correctly in the filename. \u003cbr\u003e\u003cbr\u003e**Recommendation**: This is a secure implementation."
+                     }
+                 ]
+}

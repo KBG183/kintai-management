@@ -1,0 +1,1 @@
+Structural fixture only. HALF_UP legal interpretation belongs to semantic regression tests.

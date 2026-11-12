@@ -1,0 +1,70 @@
+{
+  "schema_version": "2.0.0",
+  "audit_metadata": {
+    "run_id": "20261112_080004_GT04",
+    "timestamp_iso": "2026-11-12T08:00:00Z",
+    "model_name": "fixture-model",
+    "model_digest": "fixture-digest",
+    "endpoint": "http://fixture.invalid:11434",
+    "execution_metrics": {
+      "duration_seconds": 1,
+      "prompt_eval_count": 1,
+      "eval_count": 1,
+      "tokens_per_second": 1
+    }
+  },
+  "bundle_info": {
+    "bundle_path": "C:/dev/kintai/tests/hermes_v2_golden/GT-04-GROSS-NET-BREAK-BOUNDARY/bundle.txt",
+    "bundle_sha256": "1ec2d3b0ce84a253ae9e8be47250893156ea995fa23668fff193293ef23cd792",
+    "target_files": [
+      "C:/dev/kintai/tests/hermes_v2_golden/GT-04-GROSS-NET-BREAK-BOUNDARY/bundle.txt"
+    ],
+    "known_dependencies": [],
+    "missing_dependencies": []
+  },
+  "verdict_summary": {
+    "overall_verdict": "PASS",
+    "total_findings": 1,
+    "counts_by_verdict": {
+      "PASS": 1,
+      "FAIL": 0,
+      "WARN": 0,
+      "N/A": 0,
+      "NOT_VERIFIABLE": 0
+    },
+    "counts_by_severity": {
+      "P0": 0,
+      "P1": 0,
+      "P2": 0,
+      "P3": 0,
+      "INFO": 1
+    }
+  },
+  "findings": [
+    {
+      "finding_id": "F-001",
+      "category": "LABOR_STANDARDS_ACT_37",
+      "title": "Structural envelope only; work-hour semantics are external",
+      "severity": "INFO",
+      "verdict": "PASS",
+      "tracking_status": "OPEN",
+      "location": {
+        "file_path": "C:/dev/kintai/tests/hermes_v2_golden/GT-04-GROSS-NET-BREAK-BOUNDARY/bundle.txt",
+        "class_name": "Fixture",
+        "method_name": "fixture",
+        "line_start": 1,
+        "line_end": 1
+      },
+      "evidence": {
+        "code_snippet_or_proof": "Synthetic fixture evidence for deterministic verification.",
+        "expected_behavior": "The fixture follows its declared contract.",
+        "actual_behavior": "The fixture records its declared deterministic condition."
+      },
+      "analysis": {
+        "risk_evaluation": "Synthetic fixture only.",
+        "applicable_laws": [],
+        "recommendation": "Use only for offline verifier validation."
+      }
+    }
+  ]
+}

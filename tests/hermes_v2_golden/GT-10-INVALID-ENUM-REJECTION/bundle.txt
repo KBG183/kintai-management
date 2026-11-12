@@ -1,0 +1,1 @@
+Synthetic result used to test schema enum rejection only.

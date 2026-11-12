@@ -1,0 +1,78 @@
+﻿{
+    "run_id":  "20261112_055704_ae27f08f",
+    "generated_at":  "2026-11-12T14:58:01.6005020+09:00",
+    "findings":  [
+                     {
+                         "finding_id":  "F-01",
+                         "audit_item":  "Japanese Labor Standards Act Art 37: Night Work Premium Calculation",
+                         "severity":  "P0",
+                         "verdict":  "FAIL",
+                         "evidence":  "`PayrollService.calculatePayrollForStaff`: `totalNightAllowance += dailyPay.nightAllowance();`\u003cbr\u003e`PayrollCalculator.calculateDailyPay` (implied logic based on inputs)",
+                         "analysis":  "**Critical Logic Flaw**: The code calculates `nightAllowance` and `overtimeAllowance` separately and sums them. However, Japanese Labor Law Article 37(1) mandates that if night work (22:00-05:00) overlaps with overtime (\u003e8h/day), the premium rate must be **50%** (25% night + 25% overtime), not additive in a way that might double-count base or fail to apply the specific \"Night + Overtime\" combined rate correctly if the calculator doesn\u0027t explicitly handle the intersection.\u003cbr\u003e\u003cbr\u003e**Analysis**: The code passes `nightWorkMinutes` and `overtimeMinutes` separately. If `PayrollCalculator` simply adds `nightMinutes * 0.25` and `overtimeMinutes * 0.25`, it fails to account for the **overlap**. If an employee works 10 hours, 2 of which are night, and 2 of those are also overtime, the law requires 50% premium on the overlapping 2 hours. Standard additive logic often results in underpayment or overpayment depending on how the \"base\" is handled. The code does not show explicit handling of the \"Night + Overtime\" concurrent overlap premium (50%) distinct from the sum of individual premiums."
+                     },
+                     {
+                         "finding_id":  "F-02",
+                         "audit_item":  "Japanese Labor Standards Act Art 37: Break Time Deduction from Night Work",
+                         "severity":  "P1",
+                         "verdict":  "WARN",
+                         "evidence":  "`PayrollService.calculatePayrollForStaff`: `att.getNightWorkMinutes()` is used directly.\u003cbr\u003e`AttendanceDto` structure implies pre-calculated minutes.",
+                         "analysis":  "**Risk of Incorrect Deduction**: The audit checklist requires that break time between 22:00~05:00 must be deducted specifically from night work hours. The code relies on `att.getNightWorkMinutes()` provided by the `AttendanceDto`. If the upstream attendance calculation does not strictly deduct breaks *within* the night window from the *night* count (rather than just total work time), the premium will be calculated on break time, violating labor standards. The service layer does not re-validate this deduction logic; it trusts the DTO. Verification of the upstream `AttendanceService` logic is required to confirm compliance."
+                     },
+                     {
+                         "finding_id":  "F-03",
+                         "audit_item":  "Payroll Math \u0026 Rounding: Statutory Monthly Rounding (Kihatsu No. 150)",
+                         "severity":  "P1",
+                         "verdict":  "WARN",
+                         "evidence":  "`PayrollService.applyStatutoryMonthlyRounding`\u003cbr\u003e`PayrollCalculator.StatutoryRounding.roundMonthlyHours`",
+                         "analysis":  "**Complexity \u0026 Potential Discrepancy**: The code attempts to implement the \"Statutory Monthly Rounding\" (30-minute boundary rounding for hours, then 50-sen rounding for money). \u003cbr\u003e1. **Hourly Rate Calculation**: It calculates `overtimeHourlyPremium` based on the *base* hourly wage. \u003cbr\u003e2. **Monthly Aggregation**: It rounds the *total hours* first, then multiplies by the rounded hourly premium. \u003cbr\u003e**Risk**: The Japanese Ministry of Health, Labour and Welfare guidelines specify that the \"premium amount\" per hour is rounded to the nearest 50 sen *before* multiplying by the rounded hours, OR the total is rounded. The code does: `roundHourlyRate(wage * 0.25)` then `roundMonthlyAllowanceTotal(roundedHours * roundedRate)`. This is generally correct per Kihatsu No. 150, **BUT** the code applies this *only* if `appliedHourlyWage != null` (i.e., single wage rate for the month). If a staff member\u0027s wage changes mid-month, `appliedHourlyWage` is null, and the statutory rounding is **skipped**, falling back to the daily sum (`totalOvertimeAllowance`). This creates an inconsistency where staff with constant wages get statutory rounding, but those with mid-month wage changes do not, potentially leading to 1-yen discrepancies or non-compliance for the latter group."
+                     },
+                     {
+                         "finding_id":  "F-04",
+                         "audit_item":  "Concurrency \u0026 Security: Deadlock Prevention \u0026 Lock Ordering",
+                         "severity":  "P0",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollService.confirmPayroll`: Steps 1-3 (Lock `store_staff` then `payroll`).\u003cbr\u003e`PayrollService.calculatePayrollForStaff`: Locks `store_staff` then `payroll` (via `findByStaffAndMonthForUpdate`).\u003cbr\u003e`PayrollLockOrderDeadlockReproductionIntegrationTest`: Validates that reverse ordering causes deadlock, confirming the strict ordering requirement.",
+                         "analysis":  "**Robust Implementation**: The code strictly enforces a global lock hierarchy: `store_staff` (Parent) -\u003e `payroll` (Child). \u003cbr\u003e1. `calculatePayrollForStaff` locks `store_staff` first. \u003cbr\u003e2. `confirmPayroll` locks `store_staff` first, then `payroll`. \u003cbr\u003e3. The integration test `PayrollLockOrderDeadlockReproductionIntegrationTest` explicitly verifies that MySQL InnoDB detects deadlocks (Error 1213) if this order is violated, proving the developer is aware of the risk and the test validates the database behavior. The service code consistently adheres to the safe order, preventing deadlocks in normal operation."
+                     },
+                     {
+                         "finding_id":  "F-05",
+                         "audit_item":  "Concurrency \u0026 Security: IDOR Vulnerability Prevention",
+                         "severity":  "P1",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollApiController`: All endpoints call `storeAuthorizationService.validateStoreOwnership` or `validatePayrollOwnership`.\u003cbr\u003e`PayrollService.getPayrollDetail`: Calls `storeAuthorizationService.validatePayrollOwnership`.",
+                         "analysis":  "**Secure Access Control**: The controller layer consistently validates that the authenticated user (`userDetails.getMemberId()`) has ownership or administrative rights over the `storeId` or specific `payrollId` before invoking the service. The service layer also performs a secondary check in `getPayrollDetail` if `currentMemberId` is provided. This effectively prevents Insecure Direct Object References (IDOR), ensuring users cannot access payroll data for other stores or staff members they do not manage."
+                     },
+                     {
+                         "finding_id":  "F-07",
+                         "audit_item":  "Exception Handling \u0026 Boundary Validation: Date Format Parsing",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "`PayrollApiController.downloadExcel`: Validates `yearMonth` format with Regex `^\\d{4}-(0[1-9]",
+                         "analysis":  "1[0-2])$`.\u003cbr\u003e`PayrollService.calculateMonthlyPayroll`: Uses `PayrollCalculator.resolveDateRange(targetYearMonth, payCutoffDay)`."
+                     },
+                     {
+                         "finding_id":  "F-08",
+                         "audit_item":  "Transactional Integrity: Read-Only vs Write Operations",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollService`: Class-level `@Transactional(readOnly = true)`. Method-level `@Transactional` (default read-write) for `calculateMonthlyPayroll`, `calculatePayrollForStaff`, `confirmPayroll`, `confirmMonthlyPayroll`.",
+                         "analysis":  "**Correct Isolation**: The service correctly overrides the class-level `readOnly` attribute for all methods that perform writes (INSERT/UPDATE/DELETE). This ensures that the database connection is not set to read-only mode during mutations, which would cause errors. The `exportPayrollToExcel` method correctly remains `readOnly`."
+                     },
+                     {
+                         "finding_id":  "F-09",
+                         "audit_item":  "Data Consistency: Upsert and Daily Detail Synchronization",
+                         "severity":  "P1",
+                         "verdict":  "WARN",
+                         "evidence":  "`PayrollService.calculatePayrollForStaff`: \u003cbr\u003e1. `payrollMapper.upsertPayroll(payroll)`\u003cbr\u003e2. `payrollMapper.deleteDailyDetailsByPayrollId(payroll.getPayrollId())`\u003cbr\u003e3. `payrollMapper.insertPayrollDailyDetail(detail)`",
+                         "analysis":  "**Race Condition / Orphan Risk**: The code deletes all daily details and re-inserts them. While this is within a single transaction, if the `upsertPayroll` generates a *new* ID (INSERT case) vs updating an existing one, the logic handles it by re-fetching the ID if null. However, there is a subtle risk: if the `upsert` updates an existing record, the `payrollId` remains the same. The delete/insert pattern is safe *within* the transaction. \u003cbr\u003e**However**, the `upsertPayroll` SQL uses `ON DUPLICATE KEY UPDATE`. If the unique constraint is on `(store_staff_id, target_year_month)`, this is fine. But if the `payroll` table allows multiple records per staff/month (which the `findByStaffAndMonth` LIMIT 1 suggests it shouldn\u0027t, but the schema might allow), the `upsert` might create duplicates if the unique key isn\u0027t strictly enforced. Assuming the DB schema enforces the unique constraint, this is **PASS**. If not, it is a **FAIL**. Given the `LIMIT 1` in queries, it\u0027s assumed the schema is correct."
+                     },
+                     {
+                         "finding_id":  "F-10",
+                         "audit_item":  "Business Logic: Transport Allowance Cap",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollService.calculatePayrollForStaff`: \u003cbr\u003e`int remainingLimit = Math.max(0, transportLimit - totalTransportAllowance);`\u003cbr\u003e`transportAmount = Math.min(dailyTransport, remainingLimit);`",
+                         "analysis":  "**Correct Implementation**: The code correctly implements the monthly cap for transport allowance. It tracks `totalTransportAllowance` cumulatively and ensures that the sum of daily transports does not exceed the `transportLimit` retrieved from the contract history. The `Math.max(0, ...)` prevents negative limits, and `Math.min` ensures the daily amount is capped by the remaining budget."
+                     }
+                 ]
+}

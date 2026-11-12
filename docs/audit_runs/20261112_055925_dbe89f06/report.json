@@ -1,0 +1,78 @@
+﻿{
+    "run_id":  "20261112_055925_dbe89f06",
+    "generated_at":  "2026-11-12T15:00:12.5379754+09:00",
+    "findings":  [
+                     {
+                         "finding_id":  "F-01",
+                         "audit_item":  "Japanese Labor Standards Act Art 37: Night Work \u0026 Overtime Calculation Logic",
+                         "severity":  "P0",
+                         "verdict":  "FAIL",
+                         "evidence":  "`PayrollService.calculatePayrollForStaff`: `totalNightAllowance += dailyPay.nightAllowance();` and `totalOvertimeAllowance += dailyPay.overtimeAllowance();` are summed independently. `PayrollExcelExporter` displays these as separate columns.",
+                         "analysis":  "**Critical Legal Compliance Failure**: The code calculates Night Allowance and Overtime Allowance independently and sums them. However, Japanese Labor Standards Act Article 37(2) mandates that when night work (22:00-05:00) overlaps with overtime (\u003e8h/day), the premium rate must be **50%** (25% night + 25% overtime), not additive separate calculations that might result in double-counting or incorrect base application if not handled in `PayrollCalculator`. More critically, the code does not explicitly handle the \"Night + Overtime Concurrent\" scenario in the visible service logic, relying entirely on `PayrollCalculator.calculateDailyPay`. If `PayrollCalculator` simply adds `nightAllowance` and `overtimeAllowance` based on separate minute counts without checking for overlap, it violates the law. The Excel export also lacks a specific \"Night Overtime\" column, obscuring the 50% premium calculation required for audit trails."
+                     },
+                     {
+                         "finding_id":  "F-02",
+                         "audit_item":  "Payroll Math \u0026 Rounding: Statutory Monthly Rounding Application",
+                         "severity":  "P1",
+                         "verdict":  "WARN",
+                         "evidence":  "`PayrollService.applyStatutoryMonthlyRounding`: `int roundedOvertimeHours = PayrollCalculator.StatutoryRounding.roundMonthlyHours(payroll.getTotalOvertimeMinutes());`",
+                         "analysis":  "**Rounding Logic Risk**: The code applies statutory rounding (30-minute boundary) to the *total* monthly minutes before calculating the allowance. While this aligns with the \"Monthly Total\" interpretation of the Ministry of Health, Labour and Welfare notice, it is only applied if `appliedHourlyWage != null` (i.e., single wage rate). If a staff member has multiple wage rates in a month (e.g., promotion mid-month), `appliedHourlyWage` is null, and the statutory monthly rounding is **skipped**, falling back to daily sums. This creates an inconsistency where staff with single wages get statutory rounding, but those with multiple wages do not, potentially violating the uniform application of the rounding rule."
+                     },
+                     {
+                         "finding_id":  "F-03",
+                         "audit_item":  "Concurrency \u0026 Security: Pessimistic Locking Strategy",
+                         "severity":  "P1",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollService.confirmPayroll`: `payrollMapper.lockStoreStaffForUpdate(initialStaffId);` followed by `payrollMapper.findByIdForUpdate(payrollId);`",
+                         "analysis":  "**Robust Locking**: The code correctly implements a two-level locking strategy (Parent `store_staff` then Child `payroll`) to prevent deadlocks and race conditions. It also includes a TOCTOU (Time-of-Check to Time-of-Use) defense by re-verifying `storeStaffId` and `storeId` after acquiring the lock. This is a strong implementation for concurrent payroll confirmation."
+                     },
+                     {
+                         "finding_id":  "F-04",
+                         "audit_item":  "Concurrency \u0026 Security: IDOR Vulnerability Prevention",
+                         "severity":  "P1",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollApiController`: `storeAuthorizationService.validatePayrollOwnership(payrollId, userDetails.getMemberId());`",
+                         "analysis":  "**Authorization Check**: All endpoints accessing specific payroll records (`/{payrollId}/confirm`, `/{payrollId}/detail`) explicitly call `validatePayrollOwnership`. This ensures that a user cannot access or modify payroll data for a staff member they do not own or manage, mitigating IDOR vulnerabilities."
+                     },
+                     {
+                         "finding_id":  "F-05",
+                         "audit_item":  "Exception Handling \u0026 Boundary Validation: Negative Hours",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollService.calculatePayrollForStaff`: `if (att.getNetWorkMinutes() \u003c 0 ... ) { throw new IllegalStateException(...); }`",
+                         "analysis":  "**Input Validation**: The service explicitly checks for negative values in `netWorkMinutes`, `nightWorkMinutes`, `overtimeMinutes`, and `totalBreakMinutes` before processing. This prevents logical errors in payroll calculation caused by corrupted or malicious attendance data."
+                     },
+                     {
+                         "finding_id":  "F-07",
+                         "audit_item":  "Payroll Math \u0026 Rounding: Minimum Wage Enforcement",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollService.calculatePayrollForStaff`: `if (hourlyWage \u003c 1280) { throw new IllegalStateException(...); }`",
+                         "analysis":  "**Legal Compliance**: The code enforces the Tokyo minimum wage (1,280 JPY) by throwing an exception if the contracted wage is lower. This prevents illegal payroll calculations. However, hardcoding `1280` is a maintenance risk; it should be configurable or fetched from a reference table to handle future minimum wage increases."
+                     },
+                     {
+                         "finding_id":  "F-08",
+                         "audit_item":  "Excel Export: Memory Management (SXSSF)",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollExcelExporter`: `SXSSFWorkbook workbook = new SXSSFWorkbook(ROW_ACCESS_WINDOW_SIZE);` and `workbook.dispose();` in `finally` block.",
+                         "analysis":  "**Resource Management**: The use of `SXSSFWorkbook` with a rolling window of 100 rows prevents OutOfMemory errors for large datasets. The `finally` block ensures `workbook.dispose()` is called to clean up temporary files, which is critical for SXSSF. The test `testLargeDataExport` verifies this works for 250+ rows."
+                     },
+                     {
+                         "finding_id":  "F-09",
+                         "audit_item":  "Japanese Labor Standards Act Art 37: Break Time Deduction",
+                         "severity":  "P1",
+                         "verdict":  "WARN",
+                         "evidence":  "`PayrollService.calculatePayrollForStaff`: `att.getNetWorkMinutes()` is used directly.",
+                         "analysis":  "**Assumption Risk**: The code assumes `netWorkMinutes` from `AttendanceDto` has already had break times deducted correctly according to labor law (e.g., breaks \u003e30 mins are not counted as work). The audit checklist requires verifying that break time between 22:00-05:00 is deducted specifically from night work hours. Since this logic is encapsulated in `AttendanceDto` generation (not shown), it cannot be fully verified here. However, the payroll service does not re-verify break deductions, placing full trust in the upstream attendance module. If upstream fails to deduct night breaks correctly, the night allowance will be overpaid."
+                     },
+                     {
+                         "finding_id":  "F-10",
+                         "audit_item":  "Code Quality: Hardcoded Minimum Wage",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "`PayrollService.calculatePayrollForStaff`: `if (hourlyWage \u003c 1280)`",
+                         "analysis":  "**Maintainability**: The minimum wage value `1280` is hardcoded. This will become incorrect when the minimum wage changes (e.g., in April 2026 or later). It should be injected via configuration or a database lookup to ensure ongoing compliance without code changes."
+                     }
+                 ]
+}

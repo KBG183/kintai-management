@@ -1,0 +1,102 @@
+﻿{
+    "run_id":  "20261112_055031_f3916c6a",
+    "generated_at":  "2026-11-12T14:51:09.6494537+09:00",
+    "findings":  [
+                     {
+                         "finding_id":  "F-001",
+                         "audit_item":  "Japanese Labor Standards Act Art 37: Night Work \u0026 Overtime Calculation",
+                         "severity":  "P0",
+                         "verdict":  "N/A",
+                         "evidence":  "`ShiftService.java`, `ShiftMapper.xml`",
+                         "analysis":  "The provided code focuses on shift scheduling, attendance comparison, and basic break time calculation (Art 34). It does not contain the payroll calculation logic required to apply the +25% or +50% extra pay multipliers defined in Art 37. Therefore, this specific audit item is not applicable to the current code snippet, but the downstream payroll service must ensure these rules are applied based on the `confirmed_start_at` and `confirmed_end_at` fields generated here."
+                     },
+                     {
+                         "finding_id":  "F-002",
+                         "audit_item":  "Payroll Math \u0026 Rounding: RoundingMode.HALF_UP",
+                         "severity":  "P1",
+                         "verdict":  "N/A",
+                         "evidence":  "`ShiftService.java`",
+                         "analysis":  "No monetary calculations or rounding logic are present in this module. The service calculates minutes (`Duration.between(...).toMinutes()`) and compares times. Rounding logic is expected to reside in the Payroll/Finance module. Ensure that when these minute counts are converted to yen, `RoundingMode.HALF_UP` is strictly enforced to prevent 1-yen discrepancies."
+                     },
+                     {
+                         "finding_id":  "F-003",
+                         "audit_item":  "Concurrency \u0026 Security: @Transactional Presence",
+                         "severity":  "P1",
+                         "verdict":  "PASS",
+                         "evidence":  "`ShiftService.java` (Lines 38, 82, 122, 176, 219, 253)",
+                         "analysis":  "All state-modifying methods (`requestShift`, `deleteShiftRequest`, `confirmShift`, `rejectShift`, `batchConfirmShifts`) are annotated with `@Transactional`. Read-only methods inherit `readOnly = true` from the class level. This ensures data integrity during updates."
+                     },
+                     {
+                         "finding_id":  "F-004",
+                         "audit_item":  "Concurrency \u0026 Security: Pessimistic Locking",
+                         "severity":  "P1",
+                         "verdict":  "PASS",
+                         "evidence":  "`ShiftMapper.xml` (`lockStoreStaffForUpdate`), `ShiftService.java`",
+                         "analysis":  "The code correctly implements pessimistic locking using `SELECT ... FOR UPDATE` on the `store_staff` table via `shiftMapper.lockStoreStaffForUpdate(storeStaffId)` before performing critical state changes (request, delete, confirm). This prevents race conditions where multiple requests might modify the same staff\u0027s shift status simultaneously."
+                     },
+                     {
+                         "finding_id":  "F-005",
+                         "audit_item":  "Concurrency \u0026 Security: IDOR Vulnerabilities",
+                         "severity":  "P0",
+                         "verdict":  "PASS",
+                         "evidence":  "`ShiftApiController.java`, `ShiftService.java`",
+                         "analysis":  "**Controller Level:** All endpoints validate `userDetails` and enforce role-based access (Manager vs Staff). \u003cbr\u003e**Service Level:** \u003cbr\u003e1. `getEvents`: Validates store ownership for managers and forces session store ID for staff. \u003cbr\u003e2. `requestShift`: Overwrites DTO fields with session values (`setStoreStaffId`, `setStoreId`) to prevent client-side tampering. \u003cbr\u003e3. `deleteShiftRequest`: Verifies `existing.getStoreStaffId().equals(storeStaffId)`. \u003cbr\u003e4. `confirmShift`/`rejectShift`: Verifies `existing.getStoreId().equals(storeId)` to prevent cross-store manipulation. \u003cbr\u003e5. `batchConfirmShifts`: Filters by `storeId` in the loop. \u003cbr\u003eComprehensive IDOR protection is implemented."
+                     },
+                     {
+                         "finding_id":  "F-006",
+                         "audit_item":  "Exception Handling \u0026 Boundary Validation: DateTime Parsing",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`ShiftService.java` (Lines 96-101, 146-151)",
+                         "analysis":  "The code explicitly catches `DateTimeParseException` when parsing `LocalTime` from strings and throws a user-friendly `IllegalArgumentException`. It also validates that `endAt` is after `startAt` and that the duration does not exceed 16 hours. Null checks are performed for all critical DTO fields."
+                     },
+                     {
+                         "finding_id":  "F-007",
+                         "audit_item":  "Exception Handling \u0026 Boundary Validation: Negative/Null Hours",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`ShiftService.java` (Lines 103-108, 153-158)",
+                         "analysis":  "The code validates that `Duration.between(startAt, endAt)` is positive (`isAfter`) and enforces a maximum limit of 16 hours. It also validates that `plannedBreak` is non-negative and less than gross minutes. This prevents logical errors in shift duration calculations."
+                     },
+                     {
+                         "finding_id":  "F-008",
+                         "audit_item":  "Concurrency \u0026 Security: Batch Operation Atomicity",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "`ShiftService.java` (`batchConfirmShifts`), `ShiftMapper.xml` (`batchConfirmShifts` - unused in service loop)",
+                         "analysis":  "The `batchConfirmShifts` service method iterates through IDs and calls `updateShiftConfirm` individually within a single `@Transactional` block. While this is atomic at the database level (all succeed or all fail), the service logic skips items that fail validation (e.g., overlap, wrong store) using `continue`. This means a \"batch\" operation might partially succeed without explicit error reporting for skipped items, which could be confusing for the UI. However, since it\u0027s a \"best effort\" batch confirm, this is acceptable but should be documented. The unused MyBatis `batchConfirmShifts` update statement suggests a potential optimization opportunity or dead code."
+                     },
+                     {
+                         "finding_id":  "F-009",
+                         "audit_item":  "Data Integrity: Overlap Check Logic",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "`ShiftMapper.xml` (`existsOverlapShift`)",
+                         "analysis":  "The overlap check logic in `existsOverlapShift` uses `confirmed_start_at` if present, otherwise `requested_start_at`. This is correct for preventing overlaps between confirmed and requested shifts. However, it does not account for shifts that are `REJECTED` (correctly excluded) but also does not explicitly handle the case where a shift is being updated from `SUBMITTED` to `CONFIRMED` in a way that might bypass the lock if the lock is on `store_staff` but the check is on `shift_schedule`. Given the pessimistic lock on `store_staff`, this is safe because only one transaction can hold the lock for a specific staff member at a time."
+                     },
+                     {
+                         "finding_id":  "F-010",
+                         "audit_item":  "Security: Input Validation for Date Ranges",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`ShiftApiController.java` (Lines 45-47, 76-78)",
+                         "analysis":  "The controller validates that `start` is not after `end` for calendar and event queries. This prevents invalid date range queries that could lead to performance issues or unexpected results."
+                     },
+                     {
+                         "finding_id":  "F-011",
+                         "audit_item":  "Code Quality: Unused MyBatis Method",
+                         "severity":  "Info",
+                         "verdict":  "WARN",
+                         "evidence":  "`ShiftMapper.xml` (`batchConfirmShifts`), `ShiftService.java`",
+                         "analysis":  "The MyBatis mapper defines a `batchConfirmShifts` update statement, but the `ShiftService.batchConfirmShifts` method does not use it. Instead, it loops and calls `updateShiftConfirm` individually. This is redundant code. It is recommended to either remove the unused mapper method or refactor the service to use the batch update for better performance if the list of IDs is large."
+                     },
+                     {
+                         "finding_id":  "F-012",
+                         "audit_item":  "Security: Role-Based Access Control Consistency",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`ShiftApiController.java`",
+                         "analysis":  "The controller consistently checks for `ROLE_OWNER` or `ROLE_MANAGER` for manager-specific actions (confirm, reject, batch confirm, pending list, comparison). Staff-specific actions (my-events, request, delete) check for staff session validity. This separation of concerns is correctly implemented."
+                     }
+                 ]
+}

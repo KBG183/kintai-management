@@ -1,0 +1,7 @@
+{
+  "target_file": "C:/dev/kintai/tests/hermes_v2_golden/GT-01-MISSING-BUNDLE-BOUNDARY/bundle.txt",
+  "resolved_path": "C:/dev/kintai/tests/hermes_v2_golden/GT-01-MISSING-BUNDLE-BOUNDARY/bundle.txt",
+  "sha256": "18c6abf6f3032275ffeebeb9583cb59591bcebca2e6e562037aa215f7d6e3007",
+  "line_count": 1,
+  "git_head": "FIXTURE"
+}

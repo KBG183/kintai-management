@@ -1,0 +1,75 @@
+{
+  "catalog_version": "1.0.0",
+  "purpose": "Offline fixtures only. No case calls Hermes, Ollama, or Qwen.",
+  "base": {
+    "bundle_content": "Synthetic Hermes v2 golden-test bundle. This is not Kintai production code.",
+    "audit_run": {
+      "result_format": "HERMES_V2_JSON",
+      "result_schema_version": "2.0.0",
+      "run_id": "GT-RUN-0001",
+      "status": "SUCCESS",
+      "exit_code": 0,
+      "model_name": "fixture-model",
+      "model_digest": "fixture-digest",
+      "host_url": "http://fixture.invalid:11434",
+      "target_sha256": "__computed__"
+    },
+    "bundle_manifest": {
+      "target_file": "__computed__",
+      "resolved_path": "__computed__",
+      "sha256": "__computed__"
+    },
+    "result": {
+      "schema_version": "2.0.0",
+      "audit_metadata": {
+        "run_id": "GT-RUN-0001",
+        "timestamp_iso": "2026-11-12T00:00:00Z",
+        "model_name": "fixture-model",
+        "model_digest": "fixture-digest",
+        "endpoint": "http://fixture.invalid:11434",
+        "execution_metrics": {
+          "duration_seconds": 1,
+          "prompt_eval_count": 1,
+          "eval_count": 1,
+          "tokens_per_second": 1
+        }
+      },
+      "bundle_info": {
+        "bundle_path": "__computed__",
+        "bundle_sha256": "__computed__",
+        "target_files": ["__computed__"],
+        "known_dependencies": [],
+        "missing_dependencies": []
+      },
+      "verdict_summary": {
+        "overall_verdict": "PASS",
+        "total_findings": 1,
+        "counts_by_verdict": {"PASS": 1, "FAIL": 0, "WARN": 0, "N/A": 0, "NOT_VERIFIABLE": 0},
+        "counts_by_severity": {"P0": 0, "P1": 0, "P2": 0, "P3": 0, "INFO": 1}
+      },
+      "findings": [{
+        "finding_id": "F-001",
+        "category": "DATA_INTEGRITY_AND_VALIDATION",
+        "title": "Synthetic fixture baseline",
+        "severity": "INFO",
+        "verdict": "PASS",
+        "tracking_status": "OPEN",
+        "location": {"file_path": "__computed__", "class_name": "N/A", "method_name": "N/A", "line_start": 1, "line_end": 1},
+        "evidence": {"code_snippet_or_proof": "Synthetic fixture contains no production logic.", "expected_behavior": "Fixture is structurally valid.", "actual_behavior": "Fixture is structurally valid.", "reproduction_test_case": "N/A", "counterexample_data": "N/A"},
+        "analysis": {"risk_evaluation": "No production risk.", "applicable_laws": [], "recommendation": "Use only for deterministic verifier tests."}
+      }]
+    }
+  },
+  "cases": [
+    {"id": "GT-01-MISSING-BUNDLE-BOUNDARY", "mutation": "OUT_OF_SCOPE_FAIL", "expected_exit_code": 12, "assertion": "FAIL outside bundle is rejected"},
+    {"id": "GT-02-MISSING-DEPENDENCY-HANDLING", "mutation": "MISSING_DEPENDENCY_NOT_VERIFIABLE", "expected_exit_code": 0, "assertion": "Missing dependency is recorded as valid NOT_VERIFIABLE"},
+    {"id": "GT-03-NIGHT-OVERTIME-OVERLAP", "mutation": "NONE", "expected_exit_code": 0, "assertion": "Structurally valid labor-rule result is accepted"},
+    {"id": "GT-04-GROSS-NET-BREAK-BOUNDARY", "mutation": "NONE", "expected_exit_code": 0, "assertion": "Structurally valid boundary result is accepted"},
+    {"id": "GT-05-STATUTORY-ROUNDING-HALF-UP", "mutation": "NONE", "expected_exit_code": 0, "assertion": "Structurally valid rounding result is accepted"},
+    {"id": "GT-06-MYSQL-REPEATABLE-READ-DEFAULT", "mutation": "NONE", "expected_exit_code": 0, "assertion": "Structurally valid database result is accepted"},
+    {"id": "GT-07-IDOR-ENFORCEMENT-VERIFICATION", "mutation": "NONE", "expected_exit_code": 0, "assertion": "Structurally valid security result is accepted"},
+    {"id": "GT-08-VERDICT-CONSISTENCY-CHECK", "mutation": "SUMMARY_MISMATCH", "expected_exit_code": 13, "assertion": "Summary mismatch is rejected"},
+    {"id": "GT-09-DUPLICATE-FINDING-ID", "mutation": "DUPLICATE_ID", "expected_exit_code": 11, "assertion": "Duplicate finding ID is rejected"},
+    {"id": "GT-10-INVALID-ENUM-REJECTION", "mutation": "INVALID_ENUM", "expected_exit_code": 10, "assertion": "Invalid severity enum is rejected"}
+  ]
+}

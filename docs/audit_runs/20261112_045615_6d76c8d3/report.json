@@ -1,0 +1,78 @@
+﻿{
+    "run_id":  "20261112_045615_6d76c8d3",
+    "generated_at":  "2026-11-12T13:56:45.8755143+09:00",
+    "findings":  [
+                     {
+                         "finding_id":  "F-001",
+                         "audit_item":  "Japanese Labor Standards Act Art 37: Night Work \u0026 Overtime Rates",
+                         "severity":  "P0",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollCalculator.java`: `regNightPay` uses `1.25`, `otPay` uses `1.25`, `nightOtPay` uses `1.50`.",
+                         "analysis":  "The calculation logic correctly implements the statutory rates: Regular Night (125%), Overtime (125%), and Night Overtime (150%). The separation of `regularNightMinutes` and `nightOvertimeMinutes` ensures the 25% night premium is applied to all night hours, while the additional 25% overtime premium is only applied to hours exceeding 8h/day (or 45h/week, though daily logic is shown here). The concurrent overlap (Night + Overtime) correctly sums to 150% (100% base + 25% night + 25% overtime)."
+                     },
+                     {
+                         "finding_id":  "F-002",
+                         "audit_item":  "Payroll Math \u0026 Rounding (1-yen discrepancy prevention)",
+                         "severity":  "P1",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollCalculator.java`: Uses `BigDecimal` with `RoundingMode.HALF_UP` for all divisions. `totalPay` is the sum of individually rounded components.",
+                         "analysis":  "The code correctly uses `BigDecimal` to avoid floating-point precision errors inherent in `double`/`float`. By rounding each component (`regPay`, `regNightPay`, etc.) to the nearest integer (yen) using `HALF_UP` before summing, it prevents cumulative floating-point drift. This aligns with standard Japanese payroll practices where each allowance line item is typically rounded to the nearest yen before totaling."
+                     },
+                     {
+                         "finding_id":  "F-003",
+                         "audit_item":  "IDOR Vulnerability (Insecure Direct Object Reference)",
+                         "severity":  "P0",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollApiController.java`: `storeAuthorizationService.validateStoreOwnership(storeId, userDetails.getMemberId());`",
+                         "analysis":  "The controller explicitly validates that the authenticated user (`userDetails.getMemberId()`) has ownership or access rights to the requested `storeId` before proceeding. This prevents a user from accessing payroll data for a store they do not manage by simply changing the `storeId` parameter."
+                     },
+                     {
+                         "finding_id":  "F-004",
+                         "audit_item":  "Concurrency \u0026 Security: Transactional Integrity \u0026 Locking",
+                         "severity":  "P1",
+                         "verdict":  "WARN",
+                         "evidence":  "`PayrollService.java`: `exportPayrollToExcel` calls `getPayrollsByStoreAndMonth`. No `@Transactional` or locking visible in snippet.",
+                         "analysis":  "While this is a read-only export operation, the underlying `getPayrollsByStoreAndMonth` must ensure data consistency. If payroll data is being updated concurrently (e.g., finalizing a payroll), the export might read a mixed state. Recommendation: Ensure the underlying query runs within a consistent transaction isolation level (e.g., `READ_COMMITTED` or `REPEATABLE_READ`) to prevent \"phantom\" or inconsistent rows during the export process. Pessimistic locking is not strictly required for reads, but consistency is."
+                     },
+                     {
+                         "finding_id":  "F-005",
+                         "audit_item":  "Exception Handling \u0026 Boundary Validation (Null/Negative Inputs)",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollExcelExporter.java`: Null checks for `payrollList`, `p.getStoreStaffId()`, `p.getStaffName()`, etc. `PayrollApiController.java`: Regex validation for `yearMonth`.",
+                         "analysis":  "The exporter robustly handles null values in DTOs by defaulting to `0` or `\"-\"`. The controller strictly validates the `yearMonth` format using a regex (`^\\d{4}-(0[1-9]"
+                     },
+                     {
+                         "finding_id":  "F-006",
+                         "audit_item":  "Resource Management \u0026 Memory Leaks (SXSSF)",
+                         "severity":  "P1",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollExcelExporter.java`: `try-finally` block calls `workbook.dispose()` and `workbook.close()`. `setCompressTempFiles(true)`.",
+                         "analysis":  "The code correctly manages the `SXSSFWorkbook` lifecycle. `dispose()` is called to remove temporary XML files from disk, and `close()` releases the underlying resources. `setCompressTempFiles(true)` optimizes disk I/O. The `ByteArrayOutputStream` is also properly closed via try-with-resources. This prevents temporary file accumulation and memory leaks during large exports."
+                     },
+                     {
+                         "finding_id":  "F-007",
+                         "audit_item":  "Excel Formula Integrity \u0026 Dynamic Binding",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollExcelExporter.java`: `createSummaryRows` (implied by test evidence `SUM(N6:N7)`). Test `testLargeDataExport` verifies `SUM(N6:N255)`.",
+                         "analysis":  "The exporter dynamically calculates the range for SUM and AVERAGE formulas based on the actual number of data rows. The test evidence confirms that for 250 rows, the formula correctly targets `N6:N255`. This ensures that the summary totals always reflect the actual data present, avoiding hardcoded ranges that would break with variable data sizes."
+                     },
+                     {
+                         "finding_id":  "F-008",
+                         "audit_item":  "Performance: Streaming Large Datasets",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollExcelExporter.java`: `ROW_ACCESS_WINDOW_SIZE = 100`. Test `testLargeDataExport` with 250 rows.",
+                         "analysis":  "The use of `SXSSFWorkbook` with a window size of 100 ensures that only 100 rows are kept in memory at any given time, with older rows flushed to disk. This is critical for preventing `OutOfMemoryError` when exporting large payroll ledgers (e.g., thousands of employees). The test with 250 rows validates that the streaming mechanism works correctly beyond the window size."
+                     },
+                     {
+                         "finding_id":  "F-009",
+                         "audit_item":  "Regulatory Compliance: Payroll Ledger Content (Art 108)",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollExcelExporter.java`: Columns include StoreStaffId, StaffName, WorkDays, TotalWorkMinutes, NightMinutes, OvertimeMinutes, HourlyWage, BasePay, NightAllowance, OvertimeAllowance, GrossPay.",
+                         "analysis":  "The exported Excel file includes all mandatory fields required by Japanese Labor Standards Act Article 108 for a payroll ledger: employee identification, working hours (total, night, overtime), wage rates, and detailed breakdown of allowances. The inclusion of \"Confirmed/Draft\" status adds an audit trail for payroll finalization, which is best practice."
+                     }
+                 ]
+}

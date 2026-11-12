@@ -1,0 +1,86 @@
+﻿{
+    "run_id":  "20261112_062624_ebd6b8c6",
+    "generated_at":  "2026-11-12T15:27:16.3097041+09:00",
+    "findings":  [
+                     {
+                         "finding_id":  "F-001",
+                         "audit_item":  "Schema Consistency: `counts_by_verdict` vs `findings[].verdict`",
+                         "severity":  "P0",
+                         "verdict":  "FAIL",
+                         "evidence":  "**Spec 03 (JSON Schema):**\u003cbr\u003e`\"counts_by_verdict\": { ... \"NA\": ... }`\u003cbr\u003e`\"findings\": { ... \"verdict\": { \"enum\": [\"PASS\", \"FAIL\", \"WARN\", \"N/A\", \"NOT_VERIFIABLE\"] } }`",
+                         "analysis":  "**Critical Mismatch:** The summary object uses the key `NA` (without slash), while the individual finding enum uses `N/A` (with slash). This creates a logical disconnect. If a finding is marked `N/A`, the counter for `NA` might not increment correctly if the code relies on string matching, or the schema validation for the summary might fail if the code tries to map `N/A` to the `NA` key without explicit transformation. This leads to data integrity failures in the audit report. **Recommendation:** Standardize to `N/A` in both locations or `NA` in both. Given `N/A` is standard for \"Not Applicable\", update the summary key to `N/A` or ensure explicit mapping logic is documented and tested."
+                     },
+                     {
+                         "finding_id":  "F-002",
+                         "audit_item":  "Overall Verdict Logic: Missing `N/A` in `overall_verdict`",
+                         "severity":  "P1",
+                         "verdict":  "FAIL",
+                         "evidence":  "**Spec 03 (JSON Schema):**\u003cbr\u003e`\"overall_verdict\": { \"enum\": [\"PASS\", \"FAIL\", \"WARN\", \"NOT_VERIFIABLE\"] }`",
+                         "analysis":  "**Logical Gap:** The `overall_verdict` enum does not include `N/A`. If an audit bundle contains *only* findings with verdict `N/A` (e.g., features not yet implemented or out of scope), the system cannot generate a valid `overall_verdict` according to this schema. It forces a false `PASS` or `WARN`. **Recommendation:** Add `N/A` to the `overall_verdict` enum to allow for valid \"Not Applicable\" overall states."
+                     },
+                     {
+                         "finding_id":  "F-003",
+                         "audit_item":  "Fallback Strategy: Silent Corruption Risk",
+                         "severity":  "P1",
+                         "verdict":  "WARN",
+                         "evidence":  "**Spec 04:**\u003cbr\u003e\"Fallback logic: If report.json verification fails or is invalid, falls back to legacy v1 report.md regex parser.\"",
+                         "analysis":  "**Security \u0026 Integrity Risk:** Falling back to a regex-based parser for a structured JSON schema is dangerous. Regex parsing is brittle and prone to injection or misinterpretation of unstructured text. If the v2 JSON fails due to a malicious or buggy payload, the v1 parser might extract incorrect data or miss critical security flags, leading to a \"silent pass\" of a failing audit. **Recommendation:** Do not silently fallback. If v2 JSON validation fails, the audit should fail hard (Exit Code 10/11) or require manual intervention. If fallback is required, it must be logged as a `WARN` finding and the overall verdict capped at `WARN`."
+                     },
+                     {
+                         "finding_id":  "F-004",
+                         "audit_item":  "Token Calculation: Context Truncation Risk",
+                         "severity":  "P1",
+                         "verdict":  "WARN",
+                         "evidence":  "**Spec 07:**\u003cbr\u003e\"Proposal to change character-to-token formula from / 3.0 to / 4.0 and increase NumCtx to 32768.\"",
+                         "analysis":  "**Silent Truncation Risk:** Changing the divisor from 3.0 to 4.0 assumes a more efficient tokenization ratio. However, for Japanese text (which is dense in tokens per character) or complex code, 1 character ≈ 1 token is often closer to reality than 1 char ≈ 0.25 tokens. If the actual token count exceeds the `num_ctx` (32768) because the estimate was too low, Ollama will silently truncate the context, potentially cutting off the end of the prompt (where the code to be audited often resides) or the system instructions. **Recommendation:** Do not rely on a static character-to-token ratio for Japanese/Code. Use a proper tokenizer library (e.g., `tiktoken` or Ollama\u0027s internal tokenizer) to count tokens accurately before sending the request. If a static ratio is kept, use a conservative estimate (e.g., / 2.0) and add a hard check that rejects requests if the estimated tokens exceed 90% of `num_ctx`."
+                     },
+                     {
+                         "finding_id":  "F-005",
+                         "audit_item":  "FAIL Verdict Criteria: Over-Constraint on Static Defects",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "**Spec 02 (Judgment Constitution):**\u003cbr\u003e\"3. (FAIL judgment 7 major essential establishment conditions) ... 6. Physical evidence or counterexample presentation (failing unit test code, mathematical counterexample input value, or compile/runtime error stack)\"",
+                         "analysis":  "**False Negatives for Static Analysis:** Requiring \"failing unit tests\" or \"runtime error stacks\" for a `FAIL` verdict prevents the auditor from flagging obvious static code defects (e.g., hardcoded credentials, SQL injection vulnerabilities, missing `@Transactional`) that do not require execution to prove. This forces the auditor to either write new tests (out of scope) or downgrade severity to `WARN`, undermining the audit\u0027s purpose. **Recommendation:** Modify Condition 6 to accept \"Static Code Analysis Proof\" (e.g., pointing to the exact line of code violating a known security rule or best practice) as sufficient evidence for `FAIL` in cases of obvious defects, without requiring runtime execution."
+                     },
+                     {
+                         "finding_id":  "F-006",
+                         "audit_item":  "Schema Security: `additionalProperties` Not Restricted",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "**Spec 03 (JSON Schema):**\u003cbr\u003eNo `additionalProperties: false` defined in root or `findings` items.",
+                         "analysis":  "**Hallucination Leakage:** The schema does not explicitly forbid additional properties. LLMs often hallucinate extra fields (e.g., `confidence_score`, `notes`, `raw_output`). If these fields are not stripped or validated, they can leak into the final report, causing parsing errors in downstream consumers or introducing unverified data. **Recommendation:** Add `\"additionalProperties\": false` to the root object and the `findings` item object to enforce strict schema compliance. Any extra fields should cause a validation failure (Exit Code 10)."
+                     },
+                     {
+                         "finding_id":  "F-007",
+                         "audit_item":  "Japanese Labor Law: Night Work Calculation Logic",
+                         "severity":  "P1",
+                         "verdict":  "FAIL",
+                         "evidence":  "**Spec 02 (Judgment Constitution):**\u003cbr\u003e\"Night (22:00~05:00) + Overtime (8h excess) duplicate addition: 25% + 25% = 50%\"",
+                         "analysis":  "**Incorrect Legal Interpretation:** Under Japanese Labor Standards Act Article 37, the premium rates are additive but capped. \u003cbr\u003e1. Night Work (22:00-05:00): +25% (or 35% if \u003e8h night work).\u003cbr\u003e2. Overtime (\u003e8h/day): +25% (or 50% if \u003e45h/month).\u003cbr\u003e3. **Concurrent Night + Overtime:** The premiums are added. 25% (Night) + 25% (Overtime) = **50% premium** (Total pay = 150% of base rate).\u003cbr\u003e\u003cbr\u003e**However**, the spec says \"25% + 25% = 50%\". This is correct for the *premium* portion. But the spec in File 02 also mentions \"Total dwell time (525 min) vs Actual labor time (480 min, rest 45 min deducted, overtime 0 min)\". This specific example is confusing. If the total time is 525 mins (8h 45m), and 45 mins are rest, the work time is 8h. There is **no overtime** if the standard day is 8h. Overtime only starts *after* 8h. If the employee worked 8h 45m, and 45m was rest, the *work* time was 8h. Thus, Overtime = 0. Night work premium applies to the night hours. The spec\u0027s example seems to conflate \"dwell time\" with \"work time\". **Recommendation:** Clarify that Overtime is calculated based on *actual work hours* after deducting rest periods. If work hours \u003c= 8h, Overtime = 0. Night work premium applies to hours worked between 22:00-05:00. The combined premium is only applicable if the specific hour is *both* night work AND overtime."
+                     },
+                     {
+                         "finding_id":  "F-008",
+                         "audit_item":  "Concurrency \u0026 Security: Missing Locking Strategy in Spec",
+                         "severity":  "P1",
+                         "verdict":  "FAIL",
+                         "evidence":  "**Spec 01-07:** No mention of `@Transactional`, `SELECT ... FOR UPDATE`, or IDOR protection.",
+                         "analysis":  "**Critical Omission:** The audit bundle focuses on the AI pipeline but does not address the underlying application\u0027s concurrency and security requirements (as per the system prompt\u0027s audit checklist). If the code being audited (or the audit system itself) updates `store_staff` or `shift_schedule` without pessimistic locking, race conditions will occur. If IDOR is not checked, users can access other staff\u0027s records. **Recommendation:** The audit specification must explicitly include checks for: 1. `@Transactional` presence on service methods modifying state. 2. Pessimistic locking (`SELECT ... FOR UPDATE`) on concurrent updates. 3. IDOR prevention (ensuring `userId` in path matches authenticated user). These must be added to the \"FAIL Verdict Criteria\" or \"Audit Checklist\" in the spec."
+                     },
+                     {
+                         "finding_id":  "F-009",
+                         "audit_item":  "Exception Handling: Missing Boundary Validation",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "**Spec 01-07:** No mention of `DateTimeParseException`, null checks, or negative hour validation.",
+                         "analysis":  "**Robustness Gap:** The spec does not require the auditor to check for proper exception handling. For example, if a shift start time is invalid, does the system throw a clear error or crash? If hours are negative, is it rejected? **Recommendation:** Add a checklist item to verify that all date/time inputs are validated and that negative/zero hour edge cases are handled gracefully with appropriate error messages, not just silent failures."
+                     },
+                     {
+                         "finding_id":  "F-010",
+                         "audit_item":  "Rounding Logic: Missing `RoundingMode.HALF_UP` Check",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "**Spec 01-07:** No mention of rounding modes.",
+                         "analysis":  "**Financial Accuracy Risk:** Payroll calculations are sensitive to rounding. If the code uses `RoundingMode.HALF_EVEN` (banker\u0027s rounding) instead of `HALF_UP`, it can lead to 1-yen discrepancies over time. **Recommendation:** Add a specific check to ensure that all monetary calculations use `RoundingMode.HALF_UP` (or the legally required mode) and that this is verified in unit tests."
+                     }
+                 ]
+}

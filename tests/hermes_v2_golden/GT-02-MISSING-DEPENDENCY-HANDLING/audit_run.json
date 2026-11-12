@@ -1,0 +1,11 @@
+{
+  "result_format": "HERMES_V2_JSON",
+  "result_schema_version": "2.0.0",
+  "run_id": "20261112_080002_GT02",
+  "status": "SUCCESS",
+  "exit_code": 0,
+  "model_name": "fixture-model",
+  "model_digest": "fixture-digest",
+  "host_url": "http://fixture.invalid:11434",
+  "target_sha256": "60b8e1cb630a8bd4449e2bbd18d812a08f4182d87b7f001d049e3d7f836ffd21"
+}

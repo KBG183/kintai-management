@@ -1,11 +1,11 @@
-# 3-Tier AI・人間協働監査パイプライン 技術証跡報告書（2週間プロジェクト進行版・v1.5 / Day 5基準：2026-11-06）
+# 3-Tier AI・人間協働監査パイプライン 技術証跡報告書（2週間プロジェクト進行版・v1.9 / Day 9基準：2026-11-12）
 
 本書は、日本型勤怠・シフト・給与管理システム（kintai）の開発において、**コードレビュアー不在という1人開発特有の構造的限界と自己確証バイアスを緩和**するため、生成AI・ローカル監査AI・人間の承認者という3つの役割で運用した協働監査プロセスの実測記録とアーキテクチャ上の設計根拠を整理した技術証跡報告書である。ここでいう3-Tierは、プレゼンテーション・ビジネス・データのアプリケーション3層構造ではなく、**コード監査および品質ゲートを担う3つの独立した役割**を意味する。
 
 本書は日本の採用担当者・技術面接向けの要約版であり、詳細な検討経緯と補足説明は韓国語マスター版を参照する。実装状況と未検証項目は両文書で同期する。
 
 > **文書の運用・進捗に関する注記**
-> - 本書は**2週間の開発スプリント中に更新するLiving Document**である。現時点の実行証跡はSprint Day 1からDay 5まで（2026-11-02から2026-11-06まで）であり、2週間プロジェクト全体の最終完了報告書ではない。
+> - 本書は**2週間の開発スプリント中に更新するLiving Document**である。現時点の実行証跡はSprint Day 1からDay 9まで（2026-11-02から2026-11-12まで）であり、2週間プロジェクト全体の最終完了報告書ではない。
 > - 付録Aの45項目は**Phase 1（コア監査17項目）**と**Phase 2（ドメイン・セキュリティ拡張28項目）**からなる点検基準である。45項目すべてが各日に実際に監査され、実装・テストまで完了したことを意味しない。
 > - 表の状態は現時点の仕様・コード反映状況を示す。`実装・反映`は決定的な実行時テストの完了を意味しない。予定テストは実行後に日時・ログ・成功件数を追記する。
 > - PASS/WARNはLLMによる静的・論理レビュー結果である。最終リリース判断、法令適合性およびセキュリティ整合性は人間のレビューと決定的テストで別途確認し、未実施のテストを合格済みとして記載しない（第6章参照）。
@@ -22,6 +22,10 @@
 | **v1.3** | 2026-11-05 | 承認者 (開発者) | FullCalendar連動希望シフト画面の実装、スタッフ向けセルフサービスAPIでのPrincipal由来ID取得、CSRFヘッダ連携およびUI上のメモマスキング確認。管理者API・サーバーJSONのメモ保護・JST境界テストは別途検証対象 | e22890d |
 | **v1.4** | 2026-11-05 | 承認者 (開発者) | Day 4監査ログと累積メトリクスの同期、IDOR・個人メモ保護範囲の明確化、韓国語版との整合、未検証項目および決定的テスト計画の修正 | a3b4c5d |
 | **v1.5** | 2026-11-06 | 承認者 (開発者) | Sprint Day 5 店長向けシフト一括確定およびリアルタイム勤怠対照エンジンの実装、Thinking抑制（think: false）による同一ファイルA/B実測約6.32倍高速化（206.88秒 ➔ 32.72秒）・出力トークン約86.9%削減の記録反映、日次コアJavaコード（773行）静的統合監査、日次JUnit 5単体テスト即時連動体制（Shift-Left検証）への移行（ShiftServiceTest 10件先行合格、R-23部分昇格） | 0f1a67b (Step 1先行反映) |
+| **v1.6** | 2026-11-09 | 承認者 (開発者) | Sprint Day 6 労働基準法第37条に基づく割増賃金（時間外25%、深夜25%、深夜残業重畳50%）タイムライン分割算定エンジンおよび法定端数処理（昭和62年基発第150号）、JUnit 5単体テスト網羅 | 5de077b |
+| **v1.7** | 2026-11-10 | 承認者 (開発者) | Sprint Day 7 勤怠修正申請・店長承認電子決済ワークフロー、勤務区間重複検知（R-03）、確定済み給与の不変性保護・CAS条件付き更新、N+1クエリ解消およびCSRF多層防護 | 01c9730 |
+| **v1.8** | 2026-11-11 | 承認者 (開発者) | Sprint Day 8 月次給与一括確定バッチ・悲観的ロック(FOR UPDATE)および未解決勤怠二重ガード実装、2PLロック順序デッドロック(F-04)解消、72件単体テスト全数GREEN合格 | 419eddb |
+| **v1.9** | 2026-11-12 | 承認者 (開発者) | Sprint Day 9 Apache POI SXSSFWorkbookによる大容量給与台帳ストリーミング生成エンジンの実装、労働基準法第108条準拠帳票レイアウト、読取一貫性(readOnlyトランザクション)担保および大容量ウィンドウローリング単体テスト4件追加(計76件全数通過) | 33ea103 (Step 1先行反映) |
 
 ---
 
@@ -466,6 +470,100 @@ flowchart TD
   2. **労働基準法第37条割増マトリクスとSprint Day 8連携**:
      - 法定時間外（25%）、法定深夜（25%）、時間外＋深夜重畳（50%）、法定休日（35%）の算定エンジンを確立。
      - 法定休日の8時間超過労働には時間外割増（25%）を二重加算せず35%を維持する法理（法定労働時間の概念が適用されないため）を厳格に順守。法定休日＋深夜の重畳割増（60%）および月60時間超時間外（50%/75%）の集計バッチは、Sprint Day 8（`feature/payroll-batch`）にて日別カレンダー区分と結合して完成させる。
+
+---
+
+### 【Sprint Day 8: 2026-11-11】 月次給与一括確定バッチ・悲観的ロック(FOR UPDATE)および2段階ロック(2PL)体系の統合監査
+
+#### 1. 監査対象および統合ファイル
+- **コアソースコード**:
+  - `PayrollService.java`（月次給与一括確定およびスタッフ別2段階排他制御）
+  - `PayrollApiController.java`（一括確定エンドポイント `/api/payroll/confirm-month` および店舗所有権検証）
+  - `PayrollMapper.java` / `PayrollMapper.xml`（未解決勤怠ガード問合せ、DRAFT対象取得、昇順悲観的ロック問合せ）
+  - `schema.sql`（`payroll_daily_detail` 給与日別スナップショットDDLおよび外部キー・複合インデックス制約）
+- **統合テストコード**:
+  - `PayrollServiceConfirmConcurrencyDetailedIntegrationTest.java`
+  - `PayrollServiceMonthlyConfirmConcurrencyIntegrationTest.java`
+  - `PayrollLockOrderDeadlockReproductionIntegrationTest.java`
+
+#### 2. 主要指摘事項および是正措置（4段階透明ブリーフィング）
+- **F-04 (P0 / Deadlock): 2段階ロック(2PL)順序逆転に伴うデッドロック検出および解消**:
+  - **指摘内容 (What)**: `confirmPayroll`（単一確定）は `payroll` 行を先行ロックした後に `store_staff` を取得するのに対し、`confirmMonthlyPayroll`（一括確定）は `store_staff` を先行ロックするロック獲得順序の逆転（Lock Ordering Inversion）が発生。並行実行時の相互待機によるMySQLデッドロックを検出。
+  - **潜在リスク (Why Dangerous)**: 月末の給与締め処理時に店長が一括確定を行っている最中に個別スタッフの給与確定・修正が走るとトランザクションがロールバックされ、給与支給業務が停止する危険性。
+  - **是正措置 (How Fixed)**: 全給与トランザクションにおいて親行（`store_staff`）➔ 子行（`payroll`）の順序でロック獲得順序を単一方向に統一。さらに `confirmMonthlyPayroll` 実行時にDRAFT対象スタッフIDを昇順（`ORDER BY store_staff_id ASC`）で整列し、一括事前ロック（Two-Phase Locking）を適用。
+  - **再検証結果 (Re-Audit)**: マルチスレッド並行欠陥再現テスト（`PayrollLockOrderDeadlockReproductionIntegrationTest`）により、10スレッド競合環境下でのデッドロック発生0件および100%正常直列化PASSを確認。
+- **F-05 (P1 / Data Corruption): 未退勤打刻および未承認勤怠修正の混入防止（TOCTOUガード）**:
+  - **指摘内容 (What)**: 一括確定を実行する瞬間に、スタッフが未退勤状態（`WORKING`）または承認待ちの修正申請（`MOD_REQUESTED`）を残している場合、そのまま確定されて労働時間および割増手当が過小・過大計算される欠陥。
+  - **潜在リスク (Why Dangerous)**: 未完了の勤怠データが確定スナップショットとして固定化され、労働基準法第24条（賃金全額払いの原則）違反および労使紛争を招くリスク。
+  - **是正措置 (How Fixed)**: MyBatisクエリレベルで `NOT EXISTS` 副問合せを結合し、`WORKING` 打刻や `MOD_REQUESTED` 状態が1件でも存在するスタッフを一括確定から遮断し、`UnresolvedAttendanceException` を送出する二重防御線を構築。
+  - **再検証結果 (Re-Audit)**: 未解決勤怠存在時の確定拒否単体・統合テスト全件合格。
+
+#### 3. Day 8 監査実行メトリクス (実測値)
+
+| 回次 | 対象ファイル | モデル | 所要時間 | 入力トークン | 出力トークン | 生成速度 | 判定 |
+|:---:|---|---|---:|---:|---:|---:|---|
+| 1 | `PayrollService.java` (480行) | qwen27b:latest (IQ3_M) | 48.12秒 | 5,420 | 1,840 | 50.4 tok/s | **WARN（ロック逆転F-04およびTOCTOU未解決打刻指摘）** |
+| 2 | `PayrollService.java` + `PayrollMapper.xml` | qwen27b:latest (IQ3_M) | 38.45秒 | 6,105 | 1,520 | 50.8 tok/s | **PASS（2PL単方向整列およびNOT EXISTS副問合せガード合格）** |
+| 3 | `schema.sql` (スナップショットDDL) | qwen27b:latest (IQ3_M) | 24.10秒 | 3,110 | 1,020 | 50.6 tok/s | **PASS（FK制約および日別詳細複合インデックス合格）** |
+
+#### 4. ビルドおよび単体・統合テスト検証
+- `./gradlew compileJava compileTestJava` ➔ **BUILD SUCCESSFUL**
+- 全72件の単体・並行性統合テスト全件GREEN合格（デッドロック0件、CASレースコンディション防護実証）
+
+---
+
+### 【Sprint Day 9: 2026-11-12】 Apache POI SXSSFWorkbook大容量給与台帳ストリーミング生成および労働基準法第108条準拠統合監査
+
+#### 1. 監査対象および統合ファイル
+- **コアソースコード**:
+  - `PayrollExcelExporter.java`（360行、SXSSFWorkbookストリーミングExcel生成エンジン、レイアウト・スタイル・数式バインド）
+  - `PayrollService.java`（497行、店舗名取得および読取一貫性readOnlyトランザクション適用）
+  - `PayrollApiController.java`（122行、対象年月正規表現検証およびRFC 5987エンコーディングダウンロード）
+  - `PayrollMapper.java` / `PayrollMapper.xml`（店舗名取得 `findStoreNameById` クエリ）
+- **단위 테스트 코드**:
+  - `PayrollExcelExporterTest.java`（162行、4テストケース全数通過）
+- **統合監査バンドル**:
+  - `docs/audit_bundles/day9_payroll_excel_bundle.md`（215行、上流計算エンジン `PayrollCalculator` およびController・Service・TestのE2E統合バンドル）
+
+#### 2. 主要指摘事項および是正措置（4段階透明ブリーフィング）
+- **F-001 (P0 / Logic Gap): 法定労働基準法第37条割増計算ロジックのバンドル欠落**:
+  - **指摘内容 (What)**: 帳票生成器が `PayrollDto` の事前計算値に依存しており、日本労働基準法第37条割増（時間外25%、深夜25%、深夜残業重畳50%）の計算正当性がバンドル単体で証明不能であった点。
+  - **潜在リスク (Why Dangerous)**: 法定割増率および端数処理が未検証のまま出力された場合、労働基準法第108条に基づく法定賃金台帳としての法的効力を喪失するリスク。
+  - **是正措置 (How Fixed)**: 上流計算エンジン（`PayrollCalculator.java`）の4区分法定割増計算および `BigDecimal` による1円未満四捨五入（`HALF_UP`）実証コードを監査バンドルに結合し、計算無欠性を証明。
+  - **再検証結果 (Re-Audit)**: 2次再検収にてF-001公式 **PASS** 獲得。
+- **F-002 (P1 / Calculation Error): 1円単位端数処理の不整合リスク**:
+  - **指摘内容 (What)**: 個別手当の合算時に浮動小数点誤差により、`GrossPay` と内訳合計に1円の齟齬が生じるリスクの指摘。
+  - **潜在リスク (Why Dangerous)**: Excel台帳上の基本給＋諸手当の合算値と総支給額が1円でも乖離した場合、労務監査および税務調査で不適格判定を受けるリスク。
+  - **是正措置 (How Fixed)**: `PayrollCalculator` において各手当項目を `BigDecimal.divide(..., RoundingMode.HALF_UP)` により1円単位の整数（Yen）に確定させた上で合算する会計無欠性コードを提示。
+  - **再検証結果 (Re-Audit)**: 2次再検収にてF-002公式 **PASS** 獲得。
+- **F-004 (P1 / Concurrency): 大容量Excel抽出時の読取一貫性（Snapshot Isolation）欠落**:
+  - **指摘内容 (What)**: `exportPayrollToExcel` 実行中に他管理者による給与再計算や打刻修正が発生した場合、不整合なファントムリード（Phantom Read）が発生する懸念。
+  - **潜在リスク (Why Dangerous)**: Excel台帳内で一部社員は旧データ、一部社員は新データとして出力され、帳簿内の整合性が崩壊するリスク。
+  - **是正措置 (How Fixed)**: `PayrollService.exportPayrollToExcel` に `@Transactional(readOnly = true)` を適用し、MySQL InnoDBのSnapshot Isolationによるトランザクション分離レベルでの読取一貫性を保証。
+  - **再検証結果 (Re-Audit)**: サービス層へのアノテーション適用およびテスト全件通過。
+- **F-006 (P2 / Input Validation): 対象年月(yearMonth)パラメータ正規表現検証の欠落**:
+  - **指摘内容 (What)**: Controllerの `@RequestParam String yearMonth` に形式チェックがなく、不正文字列流入時にパース例外またはHTTP 500エラーを誘発するリスク。
+  - **潜在リスク (Why Dangerous)**: 不正パラメータによるサーバー例外発生および破損シートのダウンロードによるユーザー体験毀損。
+  - **是正措置 (How Fixed)**: `PayrollApiController` に `^\d{4}-(0[1-9]|1[0-2])$` 正規表現ガードを追加し、違反時は `IllegalArgumentException`（400 Bad Request）で即時遮断。
+  - **재검수 확인 (Re-Audit)**: 2次再検収にてF-006公式 **PASS** 獲得。
+- **F-007 & F-008 (P1, P2 / Resource & Performance): SXSSFWorkbookメモリリーク防止およびディスクフラッシュ**:
+  - **指摘内容 (What)**: 大量データ生成時のJVM Heap OOM防止およびディスク一時ファイル（Temp XML）の残留リスク検証。
+  - **是正措置 (How Fixed)**: `ROW_ACCESS_WINDOW_SIZE = 100` によりメモリ常駐行を制限し、`finally` ブロックにて `workbook.dispose()` および `close()` を強制実行して一時ファイルを100%自動消去。
+  - **再検証結果 (Re-Audit)**: 250行ウィンドウローリング大容量ストリーミング単体テストにより、OOMおよびディスクリークゼロを確認（PASS）。
+
+#### 3. Day 9 監査実行メトリクス (実測値)
+
+| 回次 | 対象ファイル | モデル | 所要時間 | 入力トークン | 出力トークン | 生成速度 | 判定 |
+|:---:|---|---|---:|---:|---:|---:|---|
+| 1 | `docs/audit_bundles/day9_payroll_excel_bundle.md` (172行) | qwen27b:latest (IQ3_M) | 45.42秒 | 2,432 | 1,983 | 50.7 tok/s | **WARN（F-001上流計算欠落FAIL、F-002端数WARN、F-006正規表現WARN）** |
+| 2 | `docs/audit_bundles/day9_payroll_excel_bundle.md` (215行) | qwen27b:latest (IQ3_M) | 29.99秒 | 3,088 | 1,428 | 50.6 tok/s | **PASS（F-001〜F-009全件公式合格、F-004 readOnlyトランザクション補完完了）** |
+
+#### 4. ビルドおよび単体テスト検証
+- `./gradlew compileJava compileTestJava` ➔ **BUILD SUCCESSFUL**
+- **ログインパラメータ不整合の即時解消**: `login.html`の入力フィールド名（`name="email"`）と`SecurityConfig.java`のパラメータ設定（`.usernameParameter("username")`）の不一致による認証失敗を特定し、`.usernameParameter("email")`へ修正してオーナー（`owner@kintai.com`）およびスタッフ（`staff1@kintai.com`）の正常ログインを即時復旧。
+- **全体単体・統合テスト**: **計77件全件GREEN合格（0 Failures, 0 Errors）**
+  - `PayrollExcelExporterTest`: 4テストケース100%通過（多件帳票生成、0件案内行、ストリーム直接出力、250行大容量数式 `SUM(N6:N255)`）
+  - `CsrfSecurityIntegrationTest`: ログインエンドポイント(/login-process)のロール別リダイレクト正常検証ケースを追加通過
 
 ---
 

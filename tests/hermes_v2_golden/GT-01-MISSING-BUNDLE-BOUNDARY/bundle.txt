@@ -1,0 +1,1 @@
+Synthetic PayrollExcelExporter-only bundle. No payroll calculation implementation is in scope.

@@ -1,0 +1,7 @@
+{
+  "target_file": "C:/dev/kintai/tests/hermes_v2_golden/GT-02-MISSING-DEPENDENCY-HANDLING/bundle.txt",
+  "resolved_path": "C:/dev/kintai/tests/hermes_v2_golden/GT-02-MISSING-DEPENDENCY-HANDLING/bundle.txt",
+  "sha256": "60b8e1cb630a8bd4449e2bbd18d812a08f4182d87b7f001d049e3d7f836ffd21",
+  "line_count": 1,
+  "git_head": "FIXTURE"
+}

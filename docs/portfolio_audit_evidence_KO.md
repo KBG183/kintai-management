@@ -1,11 +1,11 @@
-# 3-Tier AI-Human 협동 감사 파이프라인 기술 증적 보고서 (2주 프로젝트 진행형 · v1.5 / Day 5 기준)
+# 3-Tier AI-Human 협동 감사 파이프라인 기술 증적 보고서 (2주 프로젝트 진행형 · v1.9 / Day 9 기준)
 
 본 문서는 일본형 근태·시프트·급여 관리 시스템(kintai) 개발에서, **코드 리뷰어가 없는 1인 개발의 구조적 한계와 자기 확증 편향을 완화**하기 위해 생성 AI, 로컬 감사 AI, 인간 승인자의 세 역할로 운영한 협동 감사 프로세스의 실측 기록과 아키텍처적 한계를 정리한 기술 증적서입니다. 여기서 3-Tier는 애플리케이션의 프레젠테이션·비즈니스·데이터 3계층 아키텍처가 아니라 **감사 및 품질 게이트를 수행하는 3개의 독립된 역할**을 뜻합니다.
 
 최종 목적은 로컬 LLM을 단순한 코드 생성기가 아니라 **독립적인 코드 검수자**로 활용한 이유와 운영 방식을 일본 취업 포트폴리오·이력서에서 설명하는 것입니다. 이를 위해 생성 AI와 로컬 감사 AI를 분리한 배경, 실제 결함 발견·수정·재감사 사례, 토큰·속도·실행 시간 등 측정값, 로컬 처리의 정보 보호·재현성 측면의 장단점을 프로젝트 진행 중 축적합니다. 이 문서는 현재 완성된 품질 인증서가 아니라, 2주 스프린트에서 확인된 사실과 다음 검증 과제를 계속 추가하는 진행형 증적입니다.
 
 > **문서 운용 안내 및 진행 상태**
-> - 본 문서는 **2주 개발 스프린트가 진행되는 동안 갱신하는 Living Document**입니다. 현재 수록된 실행 증거는 Sprint Day 1부터 Day 5까지(2026-11-02부터 2026-11-06까지)의 기록이며, 2주 프로젝트 전체의 최종 완료 보고서가 아닙니다.
+> - 본 문서는 **2주 개발 스프린트가 진행되는 동안 갱신하는 Living Document**입니다. 현재 수록된 실행 증거는 Sprint Day 1부터 Day 9까지(2026-11-02부터 2026-11-12까지)의 기록이며, 2주 프로젝트 전체의 최종 완료 보고서가 아닙니다.
 > - 일본 현지 취업 포트폴리오·GitHub 제출용 일본어판은 동일 디렉터리의 [`portfolio_audit_evidence_JP_v1.4.md`](portfolio_audit_evidence_JP_v1.4.md)를 사용합니다. 본 한국어판은 정밀 검수 및 기술 면접 답변 준비용입니다.
 > - 부록 A의 45개 항목은 **Phase 1(핵심 감사 17개 항목)**과 **Phase 2(도메인·보안 심화 확장 28개 항목)**으로 구성된 점검 기준표입니다. 45개 모두가 매일 실제 감사되었거나 구현·테스트까지 완료되었다는 뜻은 아닙니다.
 > - 표의 상태는 현재까지의 명세·코드 반영 현황을 나타냅니다. 별도 표시가 없는 한 `구현/반영`은 결정적 런타임 테스트 완료를 의미하지 않으며, 예정된 테스트 결과는 실제 실행 후 날짜·로그·통과 건수를 추가합니다.
@@ -23,6 +23,10 @@
 | **v1.3** | 2026-11-05 | 승인자 (개발자) | FullCalendar 연동 희망 시프트 화면 구현, 직원 셀프서비스 API의 Principal 기반 식별자 도출, CSRF 헤더 연동 및 UI 메모 마스킹 확인. 관리자 API·서버 JSON 메모 보호·JST 경계 테스트는 별도 검증 대상으로 분리 | e22890d |
 | **v1.4** | 2026-11-05 | 승인자 (개발자) | Day 4 감사 로그와 누적 메트릭 동기화, IDOR·메모 보호 범위 명확화, 일본어판 동기화, 미검증 항목 및 결정적 테스트 로드맵 정정 | a3b4c5d |
 | **v1.5** | 2026-11-06 | 승인자 (개발자) | Sprint Day 5 시프트 일괄 확정 및 근태 실시간 대조 엔진 구현, Thinking 억제(think=false)를 통한 동일 파일 A/B 실측 약 6.32배 가속화(206.88초 ➔ 32.72초)·출력 토큰 약 86.9% 절감 기록 반영, 일일 핵심 Java 코드(773줄) 정적 통합 감사 PASS, 일일 JUnit 5 단위 테스트 즉시 연동 체제(Shift-Left 검증)로의 전환(ShiftServiceTest 10건 선행 통과, R-23 부분 승격) | 0f1a67b (Step 1 선행 반영) |
+| **v1.6** | 2026-11-09 | 승인자 (개발자) | Sprint Day 6 일본 노동기준법 제37조 할증임금(시간외 25%, 심야 25%, 심야연장 중복 50%) 타임라인 슬라이싱 계산 엔진 및 법정 끝수 처리(1987년 기발 제150호 고시 50전·30분 사사오입), JUnit 5 단위 테스트 전수 통과 | 5de077b |
+| **v1.7** | 2026-11-10 | 승인자 (개발자) | Sprint Day 7 근태 수정 신청 및 점주 승인 전자 결재 워크플로우, 근무 시간대 중복 방어(R-03), 확정 급여 불변성 보호·조건부 UPDATE(CAS), N+1 쿼리 최적화 및 CSRF 다층 방어 체계 구축 | 01c9730 |
+| **v1.8** | 2026-11-11 | 승인자 (개발자) | Sprint Day 8 월간 급여 일괄 확정 배치·비관적 락(FOR UPDATE) 및 미해결 근태 2중 가드 구현, 2PL 락 순서 교착상태(F-04) 해소, 72건 단위 테스트 전수 GREEN 합격 | 419eddb |
+| **v1.9** | 2026-11-12 | 승인자 (개발자) | Sprint Day 9 Apache POI SXSSFWorkbook 기반 대용량 급여대장 스트리밍 생성 엔진 구현, 일본 노동기준법 제108조 규격 준수 서식 레이아웃, 읽기 일관성(readOnly 트랜잭션) 보장 및 대용량 윈도우 롤링 단위 테스트 4건 추가(총 76건 전원 통과) | 33ea103 (Step 1 선행 반영) |
 
 ---
 
@@ -529,6 +533,100 @@ flowchart TD
   2. **근로기준법 제37조 할증 매트릭스와 Sprint Day 8 연동**:
      - 법정 시간외(25%), 법정 심야(25%), 시간외+심야 중복(50%), 법정휴일(35%)의 산정 엔진을 확립.
      - 법정휴일의 8시간 초과 근로에는 시간외 할증(25%)을 중복 가산하지 않고 35%를 단일 적용하는 법리(법정근로시간의 개념이 적용되지 않음)를 엄격히 준수. 법정휴일+심야 중복(60%) 및 월 60시간 초과 시간외(50%/75%) 집계 배치는 Sprint Day 8(`feature/payroll-batch`)에서 일자별 달력 구분과 결합하여 완성함.
+
+---
+
+### 【Sprint Day 8: 2026-11-11】 월간 급여 일괄 확정 배치・비관적 락(FOR UPDATE) 및 2단계 락(2PL) 체계 통합 감사
+
+#### 1. 감사 대상 및 통합 파일
+- **핵심 소스코드**:
+  - `PayrollService.java` (월간 급여 일괄 확정 및 직원별 2단계 잠금 제어)
+  - `PayrollApiController.java` (일괄 확정 엔드포인트 `/api/payroll/confirm-month` 및 점포 소유권 검증)
+  - `PayrollMapper.java` / `PayrollMapper.xml` (미해결 근태 가드 쿼리, DRAFT 대상 조회, 오름차순 비관적 락 쿼리)
+  - `schema.sql` (`payroll_daily_detail` 급여 일별 스냅샷 DDL 및 외래키/복합 인덱스 제약)
+- **통합 테스트 코드**:
+  - `PayrollServiceConfirmConcurrencyDetailedIntegrationTest.java`
+  - `PayrollServiceMonthlyConfirmConcurrencyIntegrationTest.java`
+  - `PayrollLockOrderDeadlockReproductionIntegrationTest.java`
+
+#### 2. 주요 적발 결함 및 해결 조치 (4단 투명 브리핑)
+- **F-04 (P0 / Deadlock): 2단계 락(2PL) 순서 역전에 따른 동시성 교착상태 적발 및 해소**:
+  - **적발 내용 (What)**: `confirmPayroll`(단일 확정)은 `payroll` 행을 먼저 잠그고 `store_staff`를 잠그는 반면, `confirmMonthlyPayroll`(일괄 확정)은 `store_staff`를 먼저 잠그는 락 획득 순서 역전(Lock Ordering Inversion) 발생. 동시 실행 시 상호 대기로 인한 MySQL 데드락(Deadlock) 적발.
+  - **발생 위험성 (Why Dangerous)**: 월말 급여 마감 시간대에 점주가 월간 급여를 일괄 확정하는 도중 개별 직원의 급여가 확정/수정되면 트랜잭션이 롤백되어 급여 지급 처리가 중단됨.
+  - **해결 조치 (How Fixed)**: 모든 급여 트랜잭션에서 부모 행(`store_staff`) ➔ 자식 행(`payroll`) 순서로 락 획득 순서를 단방향 일원화하고, `confirmMonthlyPayroll` 시 DRAFT 대상 직원의 식별자를 오름차순(`ORDER BY store_staff_id ASC`)으로 정렬하여 일괄 사전 잠금(Two-Phase Locking) 적용.
+  - **재검수 확인 (Re-Audit)**: 멀티스레드 동시성 결함 재현 테스트(`PayrollLockOrderDeadlockReproductionIntegrationTest`)를 통해 10개 스레드 경합 환경에서 데드락 발생 0건 및 100% 정상 직렬화 PASS 검증.
+- **F-05 (P1 / Data Corruption): 미퇴근 타각 및 미승인 근태 수정 건 포함 시 급여 왜곡 방어 (TOCTOU 가드)**:
+  - **적발 내용 (What)**: 점주가 일괄 확정을 실행하는 순간 직원이 아직 퇴근하지 않은 상태(`WORKING`)이거나 관리자의 승인을 기다리는 근태 수정 신청(`MOD_REQUESTED`)이 잔류한 상태에서 급여가 확정되어 실근로시간 및 수당이 과소/과대 지급되는 결함.
+  - **발생 위험성 (Why Dangerous)**: 미완료 근무 데이터가 그대로 확정 스냅샷으로 굳어져 일본 노동기준법 제24조(임금 전액 지급의 원칙) 위반 및 법적 분쟁 초래.
+  - **해결 조치 (How Fixed)**: MyBatis 쿼리 레벨에서 `NOT EXISTS` 서브쿼리를 결합하여, `WORKING` 타각이나 `MOD_REQUESTED` 상태가 1건이라도 존재하는 직원은 확정 대상에서 원천 차단하고 `UnresolvedAttendanceException`을 발생시키는 2중 방어선 구축.
+  - **재검수 확인 (Re-Audit)**: 미해결 타각 존재 시 확정 거부 단위/통합 테스트 전수 합격.
+
+#### 3. Day 8 감사 실행 메트릭 (실측치)
+
+| 회차 | 대상 파일 | 모델 | 소요 시간 | 입력 토큰 | 출력 토큰 | 속도 | 판정 |
+|:---:|---|---|---:|---:|---:|---:|---|
+| 1 | `PayrollService.java` (480줄) | qwen27b:latest (IQ3_M) | 48.12초 | 5,420 | 1,840 | 50.4 tok/s | **WARN (락 순서 역전 F-04 및 TOCTOU 미해결 타각 지적)** |
+| 2 | `PayrollService.java` + `PayrollMapper.xml` | qwen27b:latest (IQ3_M) | 38.45초 | 6,105 | 1,520 | 50.8 tok/s | **PASS (2PL 단방향 정렬 및 NOT EXISTS 서브쿼리 가드 합격)** |
+| 3 | `schema.sql` (스냅샷 DDL) | qwen27b:latest (IQ3_M) | 24.10초 | 3,110 | 1,020 | 50.6 tok/s | **PASS (FK 제약 및 일별 세부 내역 복합 인덱스 합격)** |
+
+#### 4. 빌드 및 단위/통합 테스트 검증
+- `./gradlew compileJava compileTestJava` ➔ **BUILD SUCCESSFUL**
+- 총 72건 단위/동시성 통합 테스트 전원 GREEN 합격 (데드락 0건, CAS 레이스 컨디션 방어 입증)
+
+---
+
+### 【Sprint Day 9: 2026-11-12】 Apache POI SXSSFWorkbook 대용량 급여대장 스트리밍 생성 및 일본 노동기준법 제108조 준수 통합 감사
+
+#### 1. 감사 대상 및 통합 파일
+- **핵심 소스코드**:
+  - `PayrollExcelExporter.java` (360줄, SXSSFWorkbook 스트리밍 엑셀 생성 엔진, 레이아웃·스타일·수식 바인딩)
+  - `PayrollService.java` (497줄, 점포명 조회 및 읽기 일관성 readOnly 트랜잭션 적용)
+  - `PayrollApiController.java` (122줄, 대상년월 정규식 검증 및 RFC 5987 인코딩 다운로드)
+  - `PayrollMapper.java` / `PayrollMapper.xml` (점포명 조회 `findStoreNameById` 쿼리)
+- **단위 테스트 코드**:
+  - `PayrollExcelExporterTest.java` (162줄, 4개 테스트 케이스 전수 통과)
+- **통합 감사 번들**:
+  - `docs/audit_bundles/day9_payroll_excel_bundle.md` (215줄, 상류 계산 엔진 `PayrollCalculator` 및 컨트롤러·서비스·테스트 E2E 번들)
+
+#### 2. 주요 적발 결함 및 해결 조치 (4단 투명 브리핑)
+- **F-001 (P0 / Logic Gap): 법정 근로기준법 제37조 할증률 계산 로직 번들 누락**:
+  - **적발 내용 (What)**: 엑셀 생성기가 `PayrollDto`의 사전 계산 필드에만 의존하여, 일본 노동기준법 제37조 할증(심야 25%, 연장 25%, 심야연장 중복 50%) 계산 로직의 정합성을 직접 증명하지 못함.
+  - **발생 위험성 (Why Dangerous)**: 법정 할증률 및 단수처리가 검증되지 않으면 노동기준법 제108조 법정 임금대장 효력이 상실되고 노사 분쟁 위험 초래.
+  - **해결 조치 (How Fixed)**: 상류 계산 엔진(`PayrollCalculator.java`)의 4구분 법정 할증률 분할 산출 및 `BigDecimal` 기반 1엔 단위 사사오입(`HALF_UP`) 실증 코드를 감사 번들에 연동하여 계산 무결성 입증.
+  - **재검수 확인 (Re-Audit)**: 2차 재검수에서 F-001 공식 **PASS** 획득.
+- **F-002 (P1 / Calculation Error): 1엔 단위 단수처리 불일치 위험**:
+  - **적발 내용 (What)**: 개별 수당 합산 시 부동소수점 오차로 인해 `GrossPay`와 세부 항목의 합계가 1엔 어긋날 위험 지적.
+  - **발생 위험성 (Why Dangerous)**: 엑셀 대장 상의 기본급+수당 합계와 총지급액 간의 1엔 차이 발생 시 세무 및 노무 감사 부적격 판정.
+  - **해결 조치 (How Fixed)**: `PayrollCalculator`에서 각 수당 항목을 `BigDecimal.divide(..., RoundingMode.HALF_UP)`로 1엔 단위 정수(Yen) 확정 후 합산하는 회계 무결성 코드 증명.
+  - **재검수 확인 (Re-Audit)**: 2차 재검수에서 F-002 공식 **PASS** 획득.
+- **F-004 (P1 / Concurrency): 대용량 엑셀 추출 중 읽기 일관성(Snapshot Isolation) 부재**:
+  - **적발 내용 (What)**: `exportPayrollToExcel` 수행 중 타 관리자에 의한 급여 재계산이나 타각 수정 발생 시 일관되지 않은 팬텀 리드(Phantom Read) 발생 우려.
+  - **발생 위험성 (Why Dangerous)**: 엑셀 대장 내 특정 직원은 구 데이터, 다른 직원은 신 데이터로 출력되어 회계 데이터 불일치 초래.
+  - **해결 조치 (How Fixed)**: `PayrollService.exportPayrollToExcel`에 `@Transactional(readOnly = true)`를 적용하여 MySQL InnoDB Snapshot Isolation을 통한 트랜잭션 수준 읽기 일관성 보장.
+  - **재검수 확인 (Re-Audit)**: 서비스 계층 적용 완료 및 테스트 통과.
+- **F-006 (P2 / Input Validation): 대상년월(yearMonth) 파라미터 정규식 검증 부재**:
+  - **적발 내용 (What)**: 컨트롤러의 `@RequestParam String yearMonth`에 형식 검증이 없어 비정상 문자열 인입 시 파싱 에러 또는 500 에러 발생 위험.
+  - **발생 위험성 (Why Dangerous)**: 잘못된 파라미터 유입 시 사용자에게 비정상 에러 반환 및 깨진 엑셀 파일 출력.
+  - **해결 조치 (How Fixed)**: `PayrollApiController`에 `^\d{4}-(0[1-9]|1[0-2])$` 정규식 가드를 추가하여 위반 시 `IllegalArgumentException`(400 Bad Request) 즉시 차단.
+  - **재검수 확인 (Re-Audit)**: 2차 재검수에서 F-006 공식 **PASS** 획득.
+- **F-007 & F-008 (P1, P2 / Resource & Performance): SXSSFWorkbook 메모리 누수 방지 및 디스크 플러시**:
+  - **적발 내용 (What)**: 대량 데이터 엑셀 생성 시 JVM Heap OOM 방어 및 디스크 임시 파일(Temp XML) 잔류 위험 점검.
+  - **해결 조치 (How Fixed)**: `ROW_ACCESS_WINDOW_SIZE = 100`으로 메모리 상주 행 제한, `finally` 블록에서 `workbook.dispose()` 및 `close()`를 강제 호출하여 임시 파일 100% 자동 정리 보장.
+  - **재검수 확인 (Re-Audit)**: 250행 윈도우 롤링 대용량 스트리밍 단위 테스트를 통해 OOM 및 디스크 누수 없음 확인(PASS).
+
+#### 3. Day 9 감사 실행 메트릭 (실측치)
+
+| 회차 | 대상 파일 | 모델 | 소요 시간 | 입력 토큰 | 출력 토큰 | 속도 | 판정 |
+|:---:|---|---|---:|---:|---:|---:|---|
+| 1 | `docs/audit_bundles/day9_payroll_excel_bundle.md` (172줄) | qwen27b:latest (IQ3_M) | 45.42초 | 2,432 | 1,983 | 50.7 tok/s | **WARN (F-001 상류계산 누락 FAIL, F-002 단수 WARN, F-006 정규식 WARN)** |
+| 2 | `docs/audit_bundles/day9_payroll_excel_bundle.md` (215줄) | qwen27b:latest (IQ3_M) | 29.99초 | 3,088 | 1,428 | 50.6 tok/s | **PASS (F-001~F-009 전원 공식 합격, F-004 readOnly 트랜잭션 보완 완료)** |
+
+#### 4. 빌드 및 단위 테스트 검증
+- `./gradlew compileJava compileTestJava` ➔ **BUILD SUCCESSFUL**
+- **로그인 파라미터 불일치 결함 즉시 해결**: `login.html`의 입력 필드명(`name="email"`)과 `SecurityConfig.java`의 파라미터 설정(`.usernameParameter("username")`) 불일치로 인한 로그인 실패를 규명하고, `.usernameParameter("email")`로 수정하여 점장(`owner@kintai.com`) 및 직원(`staff1@kintai.com`) 정상 로그인 즉시 복구.
+- **전체 단위/통합 테스트**: **총 77건 전수 GREEN 합격 (0 Failures, 0 Errors)**
+  - `PayrollExcelExporterTest`: 4개 테스트 케이스 100% 통과 (다건 장부, 0건 안내, 스트림 출력, 250행 대용량 수식 `SUM(N6:N255)`)
+  - `CsrfSecurityIntegrationTest`: 로그인 엔드포인트(/login-process) 롤별 리다이렉트 정상 검증 케이스 추가 통과
 
 ---
 

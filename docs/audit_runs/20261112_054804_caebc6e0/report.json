@@ -1,0 +1,126 @@
+﻿{
+    "run_id":  "20261112_054804_caebc6e0",
+    "generated_at":  "2026-11-12T14:48:37.8619179+09:00",
+    "findings":  [
+                     {
+                         "finding_id":  "F-001",
+                         "audit_item":  "Japanese Labor Standards Act Art 37: Night work \u0026 Overtime Pay Logic",
+                         "severity":  "N/A",
+                         "verdict":  "N/A",
+                         "evidence":  "N/A",
+                         "analysis":  "The provided code bundle contains only Security Configuration, User Details Service, Store Authorization Service, and Auth Controller. It does not contain the Payroll Calculation Engine or Timekeeping Logic required to verify Art 37 compliance (25%/50% premiums, night work deductions)."
+                     },
+                     {
+                         "finding_id":  "F-002",
+                         "audit_item":  "Payroll Math \u0026 Rounding (HALF_UP)",
+                         "severity":  "N/A",
+                         "verdict":  "N/A",
+                         "evidence":  "N/A",
+                         "analysis":  "No payroll calculation logic is present in this bundle. Rounding logic cannot be audited."
+                     },
+                     {
+                         "finding_id":  "F-003",
+                         "audit_item":  "Concurrency \u0026 Security: @Transactional Presence",
+                         "severity":  "P1",
+                         "verdict":  "WARN",
+                         "evidence":  "`CustomUserDetailsService.loadUserByUsername` has `@Transactional(readOnly = true)`. `StoreAuthorizationService` methods do **not** have `@Transactional`.",
+                         "analysis":  "While `StoreAuthorizationService` performs read-only checks, it relies on `StoreAuthMapper`. If these checks are part of a larger transactional flow (e.g., updating a shift), the lack of explicit transaction boundaries in the service layer might lead to stale reads if not managed by the caller. However, since it is a stateless check, this is low risk. **Recommendation:** Ensure that any service calling `StoreAuthorizationService` is within a proper `@Transactional` context if consistency with subsequent writes is required."
+                     },
+                     {
+                         "finding_id":  "F-004",
+                         "audit_item":  "Concurrency \u0026 Security: Pessimistic Locking",
+                         "severity":  "N/A",
+                         "verdict":  "N/A",
+                         "evidence":  "N/A",
+                         "analysis":  "No update/insert operations are present in this bundle. Pessimistic locking (`SELECT ... FOR UPDATE`) is not applicable to the read-only security checks shown."
+                     },
+                     {
+                         "finding_id":  "F-005",
+                         "audit_item":  "IDOR Vulnerabilities (Insecure Direct Object References)",
+                         "severity":  "P0",
+                         "verdict":  "PASS",
+                         "evidence":  "`StoreAuthorizationService` implements explicit ownership checks: `validateStoreOwnership`, `validatePayrollOwnership`, `validateStaffStoreOwnership`, `validateModRequestStoreOwnership`.",
+                         "analysis":  "The code explicitly validates that the `currentMemberId` matches the owner of the resource (Store, Payroll, Staff, ModRequest) before allowing access. It throws `AccessDeniedException` on mismatch. This effectively mitigates IDOR vulnerabilities for these specific resources. **Note:** This relies on the controllers/services actually calling these validation methods. The bundle does not show the controllers invoking them, but the service design is secure."
+                     },
+                     {
+                         "finding_id":  "F-006",
+                         "audit_item":  "Exception Handling \u0026 Boundary Validation",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "`CustomUserDetailsService.loadUserByUsername` throws `UsernameNotFoundException` with Japanese messages. `StoreAuthorizationService` throws `AccessDeniedException` with Japanese messages.",
+                         "analysis":  "1. **Language Consistency:** The system appears to be for Japanese users, so Japanese error messages are acceptable. However, for internationalization or debugging, consider using i18n keys. 2. **Null Safety:** `StoreAuthorizationService` correctly checks for `null` in `storeId`, `currentMemberId`, etc., before processing. 3. **DateTime Parsing:** Not applicable in this bundle."
+                     },
+                     {
+                         "finding_id":  "F-007",
+                         "audit_item":  "Spring Security Configuration: CSRF Protection",
+                         "severity":  "P1",
+                         "verdict":  "PASS",
+                         "evidence":  "`SecurityConfig` uses `CookieCsrfTokenRepository` and a custom `SpaCsrfTokenRequestHandler`.",
+                         "analysis":  "The CSRF configuration is robust for an SPA. It uses `CookieCsrfTokenRepository` (HttpOnly false) and a custom handler that supports both plain header tokens (for API/Fetch) and XOR tokens (for BREACH attack mitigation in forms). The `CsrfCookieFilter` ensures the token is resolved and available. This is a best-practice implementation for modern Spring Security 6 SPAs."
+                     },
+                     {
+                         "finding_id":  "F-008",
+                         "audit_item":  "Spring Security Configuration: Access Control",
+                         "severity":  "P1",
+                         "verdict":  "PASS",
+                         "evidence":  "`SecurityConfig.filterChain` defines role-based access: `OWNER` for payroll/mod-requests, `STAFF/OWNER/ADMIN` for attendance/shifts, `ADMIN` for members.",
+                         "analysis":  "The URL-based access control is correctly mapped to roles. `permitAll` is used for static resources and login. `anyRequest().authenticated()` ensures no unauthenticated access to protected areas. This aligns with standard security practices."
+                     },
+                     {
+                         "finding_id":  "F-009",
+                         "audit_item":  "Spring Security Configuration: Authentication Manager",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "`SecurityConfig.authenticationManager` uses `http.getSharedObject(AuthenticationManagerBuilder.class)`.",
+                         "analysis":  "Using `getSharedObject` is a legacy pattern in Spring Security 6. It is recommended to define `AuthenticationManager` as a separate `@Bean` using `AuthenticationConfiguration` or `AuthenticationManagerBuilder` directly to avoid potential issues with shared state and improve testability. **Recommendation:** Refactor to use `AuthenticationConfiguration.getAuthenticationManager()` or define a dedicated `AuthenticationManager` bean."
+                     },
+                     {
+                         "finding_id":  "F-010",
+                         "audit_item":  "CustomUserDetailsService: Role Handling",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "`CustomUserDetailsService.loadUserByUsername` returns `CustomUserDetails` with roles.",
+                         "analysis":  "The code checks `member.getRole()` to determine if it\u0027s `ROLE_STAFF` or `ROLE_OWNER` and fetches additional data (`storeStaffId`, `storeId`). This is good for context. However, ensure that `CustomUserDetails` correctly implements `UserDetails` and that the roles are properly formatted (e.g., `ROLE_STAFF` vs `STAFF`) to match the `hasRole` checks in `SecurityConfig`. If `hasRole(\"OWNER\")` is used, the authority must be `ROLE_OWNER`."
+                     },
+                     {
+                         "finding_id":  "F-011",
+                         "audit_item":  "AuthController: Login View Logic",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`AuthController.loginView` redirects authenticated users to their respective dashboards.",
+                         "analysis":  "The controller correctly handles the case where an already authenticated user accesses the login page, redirecting them based on their role. It also handles error/logout/denied messages. This is good UX and security practice."
+                     },
+                     {
+                         "finding_id":  "F-012",
+                         "audit_item":  "Security: Password Encoder",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`SecurityConfig.passwordEncoder` uses `BCryptPasswordEncoder`.",
+                         "analysis":  "BCrypt is a strong, salted hashing algorithm suitable for password storage. This is a best practice."
+                     },
+                     {
+                         "finding_id":  "F-013",
+                         "audit_item":  "Security: Logout Configuration",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`SecurityConfig.logout` invalidates the session and deletes cookies (`JSESSIONID`, `XSRF-TOKEN`).",
+                         "analysis":  "Properly invalidating the session and deleting cookies on logout prevents session fixation and ensures clean state. This is a best practice."
+                     },
+                     {
+                         "finding_id":  "F-014",
+                         "audit_item":  "Security: Exception Handling",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`SecurityConfig.exceptionHandling` sets `accessDeniedPage(\"/access-denied\")`.",
+                         "analysis":  "This ensures that unauthorized access attempts are handled gracefully with a dedicated page, rather than a generic 403 or stack trace. This is good for security and UX."
+                     },
+                     {
+                         "finding_id":  "F-015",
+                         "audit_item":  "Code Quality: Japanese Comments",
+                         "severity":  "Info",
+                         "verdict":  "PASS",
+                         "evidence":  "Comments and error messages are in Japanese.",
+                         "analysis":  "Given the context (Japanese Labor Law, Japanese business), Japanese comments and messages are appropriate and expected. No action required."
+                     }
+                 ]
+}

@@ -1,0 +1,76 @@
+{
+  "schema_version": "2.0.0",
+  "audit_metadata": {
+    "run_id": "20261112_080007_GT07",
+    "timestamp_iso": "2026-11-12T08:00:00Z",
+    "model_name": "fixture-model",
+    "model_digest": "fixture-digest",
+    "endpoint": "http://fixture.invalid:11434",
+    "execution_metrics": {
+      "duration_seconds": 1,
+      "prompt_eval_count": 1,
+      "eval_count": 1,
+      "tokens_per_second": 1
+    }
+  },
+  "bundle_info": {
+    "bundle_path": "C:/dev/kintai/tests/hermes_v2_golden/GT-07-IDOR-ENFORCEMENT-VERIFICATION/bundle.txt",
+    "bundle_sha256": "e4122f4d68c715fe1797e61cce3200304a66edd44f394a54e5cb5f3aa543869c",
+    "target_files": [
+      "C:/dev/kintai/tests/hermes_v2_golden/GT-07-IDOR-ENFORCEMENT-VERIFICATION/bundle.txt"
+    ],
+    "known_dependencies": [],
+    "missing_dependencies": []
+  },
+  "verdict_summary": {
+    "overall_verdict": "FAIL",
+    "total_findings": 1,
+    "counts_by_verdict": {
+      "PASS": 0,
+      "FAIL": 1,
+      "WARN": 0,
+      "N/A": 0,
+      "NOT_VERIFIABLE": 0
+    },
+    "counts_by_severity": {
+      "P0": 0,
+      "P1": 1,
+      "P2": 0,
+      "P3": 0,
+      "INFO": 0
+    }
+  },
+  "findings": [
+    {
+      "finding_id": "F-001",
+      "category": "SECURITY_AND_IDOR",
+      "title": "Structurally supported static-code FAIL is accepted",
+      "severity": "P1",
+      "verdict": "FAIL",
+      "tracking_status": "OPEN",
+      "location": {
+        "file_path": "C:/dev/kintai/tests/hermes_v2_golden/GT-07-IDOR-ENFORCEMENT-VERIFICATION/bundle.txt",
+        "class_name": "Fixture",
+        "method_name": "fixture",
+        "line_start": 1,
+        "line_end": 1
+      },
+      "evidence": {
+        "code_snippet_or_proof": "Synthetic fixture evidence for deterministic verification.",
+        "expected_behavior": "The fixture follows its declared contract.",
+        "actual_behavior": "The fixture records its declared deterministic condition.",
+        "proof_type": "STATIC_CODE_PROOF",
+        "source_file": "C:/dev/kintai/tests/hermes_v2_golden/GT-07-IDOR-ENFORCEMENT-VERIFICATION/bundle.txt",
+        "source_line_start": 1,
+        "source_line_end": 1,
+        "code_excerpt": "Synthetic source demonstrates the declared fixture condition.",
+        "defect_reason": "The fixture deliberately supplies a deterministic FAIL proof."
+      },
+      "analysis": {
+        "risk_evaluation": "Synthetic fixture only.",
+        "applicable_laws": [],
+        "recommendation": "Use only for offline verifier validation."
+      }
+    }
+  ]
+}

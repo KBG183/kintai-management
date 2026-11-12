@@ -1,0 +1,7 @@
+﻿"TestId","Category","ExpectedExit","ActualExit","Evidence","Status"
+"SM-12-CRASH","Ledger Crash Recovery","0","0","TmpCleaned=True, ValidLedger=True","PASS"
+"SM-13-CONCURRENCY","OS Mutex Lock Contention","P1:0, P2:0","P1:0, P2:0","PID1=12868, PID2=28356, LedgerIntact=True","PASS"
+"A-28-WHITELIST","Command Injection Defense","Cmd:61, Ps:0","Cmd:61, Ps:0","cmd.exe blocked (61), powershell.exe allowed (0)","PASS"
+"SM-19-PUSHED-MATCH","Remote Sync Transition","0","0","LocalSHA=7f3d8b33365034e4291bdd7f32b7a2838e4dc91f, RemoteSHA=7f3d8b33365034e4291bdd7f32b7a2838e4dc91f, State=PUSHED","PASS"
+"SM-20-PUSH-MISMATCH","Remote Mismatch Block","53","53","FakeSHA=9999999999999999999999999999999999999999 rejected with code 53","PASS"
+"SM-21-LOCAL-PRESERVED","Commit Preservation On Push","Intact","Intact","HEAD is still 7f3d8b33365034e4291bdd7f32b7a2838e4dc91f","PASS"

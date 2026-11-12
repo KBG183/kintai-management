@@ -1,0 +1,1 @@
+Structural fixture only. Gross 525, break 45, net 480 is semantic regression data.

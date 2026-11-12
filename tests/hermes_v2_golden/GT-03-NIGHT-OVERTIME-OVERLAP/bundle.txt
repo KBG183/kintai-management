@@ -1,0 +1,1 @@
+Structural fixture only. Semantic regression assertion belongs to Qwen and application tests.

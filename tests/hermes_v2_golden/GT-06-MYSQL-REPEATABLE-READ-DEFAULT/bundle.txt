@@ -1,0 +1,1 @@
+Structural fixture only. MySQL default-isolation fact check belongs to semantic regression tests.
