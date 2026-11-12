@@ -104,6 +104,11 @@ public class PayrollApiController {
             @RequestParam("yearMonth") String yearMonth,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) throws IOException {
+        // 対象年月フォーマットの厳格な検証 (F-006 対策: YYYY-MM 形式)
+        if (yearMonth == null || !yearMonth.matches("^\\d{4}-(0[1-9]|1[0-2])$")) {
+            throw new IllegalArgumentException("無効な対象年月フォーマットです (形式: YYYY-MM): " + yearMonth);
+        }
+
         storeAuthorizationService.validateStoreOwnership(storeId, userDetails.getMemberId());
         byte[] excelBytes = payrollService.exportPayrollToExcel(storeId, yearMonth);
 

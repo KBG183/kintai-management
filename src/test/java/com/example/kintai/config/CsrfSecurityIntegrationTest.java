@@ -55,6 +55,36 @@ class CsrfSecurityIntegrationTest {
     }
 
     @Test
+    @DisplayName("オーナーおよびスタッフのアカウントで正常にログインできること")
+    void testFormLoginSuccess() throws Exception {
+        // オーナー (owner@kintai.com) -> /attendance/mod-requests
+        mockMvc.perform(post("/login-process")
+                        .with(csrf())
+                        .param("email", "owner@kintai.com")
+                        .param("password", "1234"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(result -> {
+                    String url = result.getResponse().getRedirectedUrl();
+                    if (!"/attendance/mod-requests".equals(url)) {
+                        throw new AssertionError("オーナーログイン後のリダイレクト先が不正です: " + url);
+                    }
+                });
+
+        // スタッフ (staff1@kintai.com) -> /attendance
+        mockMvc.perform(post("/login-process")
+                        .with(csrf())
+                        .param("email", "staff1@kintai.com")
+                        .param("password", "1234"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(result -> {
+                    String url = result.getResponse().getRedirectedUrl();
+                    if (!"/attendance".equals(url)) {
+                        throw new AssertionError("スタッフログイン後のリダイレクト先が不正です: " + url);
+                    }
+                });
+    }
+
+    @Test
     @DisplayName("正常なCSRFトークンを付与したPOSTリクエストは403にならず正常に受け付けられること")
     @WithMockUser(username = "staff1", roles = {"STAFF"})
     void postWithValidCsrf_ShouldNotReturnForbidden() throws Exception {

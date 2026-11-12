@@ -487,10 +487,13 @@ public class PayrollService {
     }
 
     /**
-     * 給与台帳 Excel エクスポート
+     * 給与台帳 Excel エクスポート（労働基準法第108条準拠・SXSSFストリーミング）
+     * 読取一貫性(Snapshot Isolation)担保のため、readOnlyトランザクションを適用
      */
+    @Transactional(readOnly = true)
     public byte[] exportPayrollToExcel(Long storeId, String targetYearMonth) throws IOException {
         List<PayrollDto> payrolls = getPayrollsByStoreAndMonth(storeId, targetYearMonth);
-        return PayrollExcelExporter.exportToExcel(targetYearMonth, payrolls);
+        String storeName = payrollMapper.findStoreNameById(storeId);
+        return PayrollExcelExporter.exportToExcel(targetYearMonth, storeName, payrolls);
     }
 }
