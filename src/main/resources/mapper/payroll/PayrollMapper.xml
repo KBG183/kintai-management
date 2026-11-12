@@ -398,4 +398,10 @@
         ORDER BY store_staff_id ASC
     </select>
 
+    <select id="findStoreNameById" resultType="java.lang.String">
+        SELECT store_name
+        FROM store
+        WHERE store_id = #{storeId}
+    </select>
+
 </mapper>

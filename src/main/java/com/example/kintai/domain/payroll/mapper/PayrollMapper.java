@@ -97,4 +97,7 @@ public interface PayrollMapper {
             @Param("storeId") Long storeId,
             @Param("targetYearMonth") String targetYearMonth
     );
+
+    // 店舗名取得 (給与台帳エクスポート帳票ヘッダー用)
+    String findStoreNameById(@Param("storeId") Long storeId);
 }
