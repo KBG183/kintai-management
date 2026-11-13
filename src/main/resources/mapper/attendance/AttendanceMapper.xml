@@ -141,7 +141,7 @@
           AND payroll_status IN ('CONFIRMED', 'PAID')
     </select>
 
-    <select id="lockStoreStaffForUpdate">
+    <select id="lockStoreStaffForUpdate" resultType="java.lang.Long">
         SELECT store_staff_id
         FROM store_staff
         WHERE store_staff_id = #{storeStaffId}
