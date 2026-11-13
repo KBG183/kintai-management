@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Day 10: AttendanceService 동시 출퇴근 타각 검증" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-11-13T07:08:22.123Z" hostname="BK" time="0.307">
+  <properties/>
+  <testcase name="동시 CLOCK_IN 요청은 하나만 성공하고 중복 근무 행을 만들지 않는다" classname="com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest" time="0.055"/>
+  <testcase name="동시 CLOCK_OUT 요청은 하나만 성공하고 완료 상태를 보존한다" classname="com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest" time="0.16"/>
+  <system-out><![CDATA[2026-11-13T16:08:22.127+09:00  INFO 27236 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest]: AttendanceServiceConcurrencyIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-13T16:08:22.199+09:00  INFO 27236 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest
+2026-11-13T16:08:22.199+09:00  INFO 27236 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest]: AttendanceServiceConcurrencyIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-13T16:08:22.199+09:00  INFO 27236 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

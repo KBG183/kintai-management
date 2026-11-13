@@ -1,0 +1,66 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.8.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :compileJava
+> Task :processResources
+> Task :classes
+> Task :compileTestJava
+> Task :processTestResources NO-SOURCE
+> Task :testClasses
+Java HotSpot(TM) 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :test
+
+CSRF 多層防御セキュリティ統合テスト > オ?ナ?およびスタッフのアカウントで正常にログインできること FAILED
+    java.lang.AssertionError at CsrfSecurityIntegrationTest.java:69
+
+F-09: MySQL upsertPayroll useGeneratedKeys & LAST_INSERT_ID 세션 오염 분리 정밀 실측 > 중간에 다른 AUTO_INCREMENT 발생으로 LAST_INSERT_ID 오염 시에도 DTO B에 원래 대상 PK가 정확히 전달되는지 검증 FAILED
+    org.springframework.dao.DataIntegrityViolationException at PayrollMapperUpsertIntegrationTest.java:50
+        Caused by: java.sql.SQLIntegrityConstraintViolationException at PayrollMapperUpsertIntegrationTest.java:50
+
+F-04: 락 순서 역전에 따른 실제 MySQL InnoDB 데드락(1213 / 40001) 재현 및 검증 > 독립 JDBC 커넥션 2개에서 상호 역순 락 획득 시 MySQL 1213 데드락 감지 및 40001 SQLState 실측 FAILED
+    org.springframework.dao.DataIntegrityViolationException at PayrollLockOrderDeadlockReproductionIntegrationTest.java:58
+        Caused by: java.sql.SQLIntegrityConstraintViolationException at PayrollLockOrderDeadlockReproductionIntegrationTest.java:58
+
+F-04: 멀티 세션 비관적 락(SELECT ... FOR UPDATE) 동시성 경합 및 반복 타이밍 안정성 검증 > 트랜잭션 1이 store_staff 행 락을 점유 중일 때, 트랜잭션 2가 동일 행에 락을 요청하면 대기하며 커밋 후 정상 획득되는지 반복 실측 (3회 연속) > repetition 1 of 3 FAILED
+    org.opentest4j.AssertionFailedError at PayrollPessimisticLockConcurrencyIntegrationTest.java:96
+
+F-04: 멀티 세션 비관적 락(SELECT ... FOR UPDATE) 동시성 경합 및 반복 타이밍 안정성 검증 > 트랜잭션 1이 store_staff 행 락을 점유 중일 때, 트랜잭션 2가 동일 행에 락을 요청하면 대기하며 커밋 후 정상 획득되는지 반복 실측 (3회 연속) > repetition 2 of 3 FAILED
+    org.opentest4j.AssertionFailedError at PayrollPessimisticLockConcurrencyIntegrationTest.java:96
+
+F-04: 멀티 세션 비관적 락(SELECT ... FOR UPDATE) 동시성 경합 및 반복 타이밍 안정성 검증 > 트랜잭션 1이 store_staff 행 락을 점유 중일 때, 트랜잭션 2가 동일 행에 락을 요청하면 대기하며 커밋 후 정상 획득되는지 반복 실측 (3회 연속) > repetition 3 of 3 FAILED
+    org.opentest4j.AssertionFailedError at PayrollPessimisticLockConcurrencyIntegrationTest.java:96
+
+F-04: 실제 PayrollService 경로 동시 실행 시 락 순서 일치에 따른 데드락 소멸 및 직렬화 검증 > 동일 직원에 대해 calculatePayrollForStaff와 confirmPayroll 동시 실행 시 데드락 없이 순차 실행 완료 검증 FAILED
+    org.springframework.dao.DataIntegrityViolationException at PayrollServiceConcurrentExecutionIntegrationTest.java:64
+        Caused by: java.sql.SQLIntegrityConstraintViolationException at PayrollServiceConcurrentExecutionIntegrationTest.java:64
+
+F-04: confirmPayroll 동시성 정밀 경합 및 동시 중복 확정(CAS) 검증 > 동일 급여에 대한 2개 관리자 세션 동시 중복 확정 시도 시 정확히 1건만 성공하고 1건은 상태 차단 검증 FAILED
+    org.opentest4j.AssertionFailedError at PayrollServiceConfirmConcurrencyDetailedIntegrationTest.java:171
+
+F-08: PayrollService 내부 호출 시 실제 DB 변경 및 트랜잭션 전체 롤백 원자성 정밀 실측 > 내부 재계산(calculatePayrollForStaff)으로 금액/상세 변경 도중 예외 발생 시, 실제 DB가 초기 상태로 100% 롤백되는지 실측 FAILED
+    org.springframework.dao.DataIntegrityViolationException at PayrollServiceTransactionRollbackIntegrationTest.java:72
+        Caused by: java.sql.SQLIntegrityConstraintViolationException at PayrollServiceTransactionRollbackIntegrationTest.java:72
+
+F-04: performance_schema.data_locks 실측 검증 > 독립 커넥션에서 lockStorePayrollsForUpdate 실행 시 performance_schema.data_locks의 락 모드 및 인덱스 실측 FAILED
+    org.opentest4j.AssertionFailedError at PerformanceSchemaDataLocksIntegrationTest.java:73
+
+2026-11-13T15:47:38.442+09:00  INFO 27296 --- [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-11-13T15:47:38.450+09:00  INFO 27296 --- [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+
+> Task :test
+
+79 tests completed, 10 failed
+
+> Task :test FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':test'.
+> There were failing tests. See the report at: file:///C:/dev/kintai/build/reports/tests/test/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+
+BUILD FAILED in 32s
+4 actionable tasks: 4 executed

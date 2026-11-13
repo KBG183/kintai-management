@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="F-04: 멀티 세션 비관적 락(SELECT ... FOR UPDATE) 동시성 경합 및 반복 타이밍 안정성 검증" tests="3" skipped="0" failures="3" errors="0" timestamp="2026-11-13T06:57:58.440Z" hostname="BK" time="0.975">
+  <properties/>
+  <testcase name="repetition 1 of 3" classname="com.example.kintai.domain.payroll.service.PayrollPessimisticLockConcurrencyIntegrationTest" time="0.328">
+    <failure message="org.opentest4j.AssertionFailedError: [F-04 CONCURRENCY GUARD] Tx-1 점유 중 Tx-2 블로킹 대기 유지 확인 ==&gt; expected: &lt;false&gt; but was: &lt;true&gt;" type="org.opentest4j.AssertionFailedError">org.opentest4j.AssertionFailedError: [F-04 CONCURRENCY GUARD] Tx-1 점유 중 Tx-2 블로킹 대기 유지 확인 ==&gt; expected: &lt;false&gt; but was: &lt;true&gt;
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)
+	at org.junit.jupiter.api.AssertFalse.failNotFalse(AssertFalse.java:69)
+	at org.junit.jupiter.api.AssertFalse.assertFalse(AssertFalse.java:41)
+	at org.junit.jupiter.api.Assertions.assertFalse(Assertions.java:255)
+	at com.example.kintai.domain.payroll.service.PayrollPessimisticLockConcurrencyIntegrationTest.pessimisticLock_ConcurrentSessions_ShouldBlockUntilCommitted_Repeated(PayrollPessimisticLockConcurrencyIntegrationTest.java:96)
+</failure>
+  </testcase>
+  <testcase name="repetition 2 of 3" classname="com.example.kintai.domain.payroll.service.PayrollPessimisticLockConcurrencyIntegrationTest" time="0.317">
+    <failure message="org.opentest4j.AssertionFailedError: [F-04 CONCURRENCY GUARD] Tx-1 점유 중 Tx-2 블로킹 대기 유지 확인 ==&gt; expected: &lt;false&gt; but was: &lt;true&gt;" type="org.opentest4j.AssertionFailedError">org.opentest4j.AssertionFailedError: [F-04 CONCURRENCY GUARD] Tx-1 점유 중 Tx-2 블로킹 대기 유지 확인 ==&gt; expected: &lt;false&gt; but was: &lt;true&gt;
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)
+	at org.junit.jupiter.api.AssertFalse.failNotFalse(AssertFalse.java:69)
+	at org.junit.jupiter.api.AssertFalse.assertFalse(AssertFalse.java:41)
+	at org.junit.jupiter.api.Assertions.assertFalse(Assertions.java:255)
+	at com.example.kintai.domain.payroll.service.PayrollPessimisticLockConcurrencyIntegrationTest.pessimisticLock_ConcurrentSessions_ShouldBlockUntilCommitted_Repeated(PayrollPessimisticLockConcurrencyIntegrationTest.java:96)
+</failure>
+  </testcase>
+  <testcase name="repetition 3 of 3" classname="com.example.kintai.domain.payroll.service.PayrollPessimisticLockConcurrencyIntegrationTest" time="0.308">
+    <failure message="org.opentest4j.AssertionFailedError: [F-04 CONCURRENCY GUARD] Tx-1 점유 중 Tx-2 블로킹 대기 유지 확인 ==&gt; expected: &lt;false&gt; but was: &lt;true&gt;" type="org.opentest4j.AssertionFailedError">org.opentest4j.AssertionFailedError: [F-04 CONCURRENCY GUARD] Tx-1 점유 중 Tx-2 블로킹 대기 유지 확인 ==&gt; expected: &lt;false&gt; but was: &lt;true&gt;
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)
+	at org.junit.jupiter.api.AssertFalse.failNotFalse(AssertFalse.java:69)
+	at org.junit.jupiter.api.AssertFalse.assertFalse(AssertFalse.java:41)
+	at org.junit.jupiter.api.Assertions.assertFalse(Assertions.java:255)
+	at com.example.kintai.domain.payroll.service.PayrollPessimisticLockConcurrencyIntegrationTest.pessimisticLock_ConcurrentSessions_ShouldBlockUntilCommitted_Repeated(PayrollPessimisticLockConcurrencyIntegrationTest.java:96)
+</failure>
+  </testcase>
+  <system-out><![CDATA[2026-11-13T15:57:58.447+09:00  INFO 16056 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.PayrollPessimisticLockConcurrencyIntegrationTest]: PayrollPessimisticLockConcurrencyIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-13T15:57:58.449+09:00  INFO 16056 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.PayrollPessimisticLockConcurrencyIntegrationTest
+2026-11-13T15:57:58.449+09:00  INFO 16056 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.PayrollPessimisticLockConcurrencyIntegrationTest]: PayrollPessimisticLockConcurrencyIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-13T15:57:58.451+09:00  INFO 16056 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.PayrollPessimisticLockConcurrencyIntegrationTest
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

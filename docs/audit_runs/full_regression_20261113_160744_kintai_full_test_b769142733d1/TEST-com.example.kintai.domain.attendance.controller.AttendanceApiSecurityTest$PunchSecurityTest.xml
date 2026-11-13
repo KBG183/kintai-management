@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="リアルタイム打刻（POST /api/attendance/punch）の店舗ID強制バインドおよびIDOR防御" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-13T07:08:20.412Z" hostname="BK" time="1.028">
+  <properties/>
+  <testcase name="スタッフが打刻時に他人IDと他店IDを偽造しても、セッションの本人情報に強制バインドされること" classname="com.example.kintai.domain.attendance.controller.AttendanceApiSecurityTest$PunchSecurityTest" time="0.89"/>
+  <testcase name="オーナーが自己店舗スタッフの打刻時に誤ったstoreIdを指定しても、サーバー側で正規店舗IDに強制バインドされること" classname="com.example.kintai.domain.attendance.controller.AttendanceApiSecurityTest$PunchSecurityTest" time="0.074"/>
+  <testcase name="オーナーが他店舗スタッフの打刻を試みた場合は HTTP 403 Forbidden で遮断されること" classname="com.example.kintai.domain.attendance.controller.AttendanceApiSecurityTest$PunchSecurityTest" time="0.056"/>
+  <system-out><![CDATA[2026-11-13T16:08:20.824+09:00  INFO 27236 --- [    Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-11-13T16:08:20.824+09:00  INFO 27236 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-13T16:08:20.826+09:00  INFO 27236 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-11-13T16:08:21.342+09:00  INFO 27236 --- [    Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-11-13T16:08:21.342+09:00  INFO 27236 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-13T16:08:21.343+09:00  INFO 27236 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-11-13T16:08:21.406+09:00  INFO 27236 --- [    Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-11-13T16:08:21.406+09:00  INFO 27236 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-13T16:08:21.407+09:00  INFO 27236 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-11-13T16:08:21.432+09:00  WARN 27236 --- [    Test worker] c.e.k.g.e.GlobalExceptionHandler         : アクセス拒絶 (AccessDenied): ?象スタッフに?する管理?限がありません。
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="勤怠修正申請一覧取得（バッチ取得・N+1解消）の検証" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-11-13T07:08:22.050Z" hostname="BK" time="0.041">
+  <properties/>
+  <testcase name="バッチ取得: 全申請の休憩スナップショットが一括取得され、N+1クエリが発生しないこと" classname="com.example.kintai.domain.attendance.service.AttendanceModWorkflowTest$GetModRequestsTest" time="0.041"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

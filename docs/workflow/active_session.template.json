@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "status": "READY",
+  "operator": "Antigravity|Codex|User",
+  "project": "kintai",
+  "day": "Day-XX",
+  "task_id": "TASK-XXXX",
+  "started_at_utc": "",
+  "ended_at_utc": "",
+  "scope": {
+    "requirements": [],
+    "rtm_items": [],
+    "files": []
+  },
+  "execution": {
+    "commands": [],
+    "logs": [],
+    "junit_xml": [],
+    "environment": ""
+  },
+  "result": {
+    "status": "IMPLEMENTED|REVIEWED|VERIFIED|PARTIALLY_VERIFIED|BLOCKED|FAILED",
+    "evidence_paths": [],
+    "unverified_items": [],
+    "blocking_reason": ""
+  },
+  "notes": ""
+}

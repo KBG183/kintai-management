@@ -1,0 +1,19 @@
+{
+    "request_id":  "codex_test_remote_ok",
+    "status":  "SUCCESS",
+    "endpoint":  "http://100.111.193.94:11434",
+    "model":  "qwen27b:latest",
+    "created_by":  "Codex",
+    "started_at_local":  "2026-11-13T10:23:43.9624947+09:00",
+    "finished_at_local":  "2026-11-13T10:23:45.0147506+09:00",
+    "elapsed_seconds":  0.964,
+    "prompt_eval_count":  58,
+    "eval_count":  27,
+    "response_sha256":  "802201a2a9ab3ef5d98f033e10ced795e968831ed4fd687ddf3d0769ded61994",
+    "files":  {
+                  "request":  "request.json",
+                  "raw_response":  "raw_response.json",
+                  "result":  "result.md",
+                  "sha256":  "response_sha256.txt"
+              }
+}

@@ -1,11 +1,13 @@
-# 3-Tier AI・人間協働監査パイプライン 技術証跡報告書（2週間プロジェクト進行版・v1.9 / Day 9基準：2026-11-12）
+# 3-Tier AI・人間協働監査パイプライン 技術証跡報告書（2週間プロジェクト進行版・v1.10 / Day 10基準：2026-11-13）
 
 本書は、日本型勤怠・シフト・給与管理システム（kintai）の開発において、**コードレビュアー不在という1人開発特有の構造的限界と自己確証バイアスを緩和**するため、生成AI・ローカル監査AI・人間の承認者という3つの役割で運用した協働監査プロセスの実測記録とアーキテクチャ上の設計根拠を整理した技術証跡報告書である。ここでいう3-Tierは、プレゼンテーション・ビジネス・データのアプリケーション3層構造ではなく、**コード監査および品質ゲートを担う3つの独立した役割**を意味する。
 
 本書は日本の採用担当者・技術面接向けの要約版であり、詳細な検討経緯と補足説明は韓国語マスター版を参照する。実装状況と未検証項目は両文書で同期する。
 
 > **文書の運用・進捗に関する注記**
-> - 本書は**2週間の開発スプリント中に更新するLiving Document**である。現時点の実行証跡はSprint Day 1からDay 9まで（2026-11-02から2026-11-12まで）であり、2週間プロジェクト全体の最終完了報告書ではない。
+> - **通達の出典照合に関する注意（2026-11-13）:** 端数処理に関する `基発第150号` について、愛知労働局資料は1988年3月14日、厚生労働省Q&Aは1987年3月14日と表記している。以下の改訂履歴および本文の年号は、出典の相違が解消されるまで確定しない。前者は[労働局資料](https://jsite.mhlw.go.jp/aichi-roudoukyoku/var/rev0/0119/6636/hasuutoriatukai.pdf)、後者は[厚生労働省Q&A](https://www.check-roudou.mhlw.go.jp/qa/roudousya/chingin/q3.html)を参照。1988年の一般解釈例規通達の存在は[厚生労働省の改正通達](https://www.mhlw.go.jp/web/t_doc?dataId=00tb3991&dataType=1&pageNo=1)で確認できるが、それのみをもってQ&Aの1987年表記を誤記と断定しない。
+> - 追加照合: [島根労働局の端数処理案内](https://jsite.mhlw.go.jp/shimane-roudoukyoku/content/contents/001308250.pdf)も1988年と表記している。1988年表記を裏付けるものの、Q&Aの1987年表記との差異の原因までは確認できていない。この資料照合だけでプロジェクトの計算実装全体の法的適合性を判定しない。
+> - 本書は**2週間の開発スプリント中に更新するLiving Document**である。現時点の実行証跡はSprint Day 1からDay 10まで（2026-11-02から2026-11-13まで）であり、2週間プロジェクト全体の最終完了報告書ではない。
 > - 付録Aの45項目は**Phase 1（コア監査17項目）**と**Phase 2（ドメイン・セキュリティ拡張28項目）**からなる点検基準である。45項目すべてが各日に実際に監査され、実装・テストまで完了したことを意味しない。
 > - 表の状態は現時点の仕様・コード反映状況を示す。`実装・反映`は決定的な実行時テストの完了を意味しない。予定テストは実行後に日時・ログ・成功件数を追記する。
 > - PASS/WARNはLLMによる静的・論理レビュー結果である。最終リリース判断、法令適合性およびセキュリティ整合性は人間のレビューと決定的テストで別途確認し、未実施のテストを合格済みとして記載しない（第6章参照）。
@@ -16,16 +18,17 @@
 
 | 版 (Ver.) | 改訂日 | 改訂者 | 主な改訂内容・反映事項 | Git コミットハッシュ |
 |:---:|:---:|:---:|---|:---:|
-| **v1.0** | 2026-11-02 | 承認者 (開発者) | 3-Tier AI協働監査パイプライン技術証跡書の初版策定（Phase 1 監査項目17件定義） | 9b1a4f0 |
-| **v1.1** | 2026-11-03 | 承認者 (開発者) | ドメイン法規・DB排他制御・セキュリティ拡張監査項目（Phase 2 計45項目基準）の追加・体系化 | 3c2e1f |
-| **v1.2** | 2026-11-04 | 承認者 (開発者) | 悲観的ロック(`SELECT ... FOR UPDATE`)打刻トランザクション、RTX 5070 Ti実測ベンチマーク、昭和62年(1987年)通達および端数処理基準是正、`uq_att_open_per_staff`スキーマ補強 | 8bb51a |
-| **v1.3** | 2026-11-05 | 承認者 (開発者) | FullCalendar連動希望シフト画面の実装、スタッフ向けセルフサービスAPIでのPrincipal由来ID取得、CSRFヘッダ連携およびUI上のメモマスキング確認。管理者API・サーバーJSONのメモ保護・JST境界テストは別途検証対象 | e22890d |
-| **v1.4** | 2026-11-05 | 承認者 (開発者) | Day 4監査ログと累積メトリクスの同期、IDOR・個人メモ保護範囲の明確化、韓国語版との整合、未検証項目および決定的テスト計画の修正 | a3b4c5d |
-| **v1.5** | 2026-11-06 | 承認者 (開発者) | Sprint Day 5 店長向けシフト一括確定およびリアルタイム勤怠対照エンジンの実装、Thinking抑制（think: false）による同一ファイルA/B実測約6.32倍高速化（206.88秒 ➔ 32.72秒）・出力トークン約86.9%削減の記録反映、日次コアJavaコード（773行）静的統合監査、日次JUnit 5単体テスト即時連動体制（Shift-Left検証）への移行（ShiftServiceTest 10件先行合格、R-23部分昇格） | 0f1a67b (Step 1先行反映) |
-| **v1.6** | 2026-11-09 | 承認者 (開発者) | Sprint Day 6 労働基準法第37条に基づく割増賃金（時間外25%、深夜25%、深夜残業重畳50%）タイムライン分割算定エンジンおよび法定端数処理（昭和62年基発第150号）、JUnit 5単体テスト網羅 | 5de077b |
-| **v1.7** | 2026-11-10 | 承認者 (開発者) | Sprint Day 7 勤怠修正申請・店長承認電子決済ワークフロー、勤務区間重複検知（R-03）、確定済み給与の不変性保護・CAS条件付き更新、N+1クエリ解消およびCSRF多層防護 | 01c9730 |
-| **v1.8** | 2026-11-11 | 承認者 (開発者) | Sprint Day 8 月次給与一括確定バッチ・悲観的ロック(FOR UPDATE)および未解決勤怠二重ガード実装、2PLロック順序デッドロック(F-04)解消、72件単体テスト全数GREEN合格 | 419eddb |
-| **v1.9** | 2026-11-12 | 承認者 (開発者) | Sprint Day 9 Apache POI SXSSFWorkbookによる大容量給与台帳ストリーミング生成エンジンの実装、労働基準法第108条準拠帳票レイアウト、読取一貫性(readOnlyトランザクション)担保および大容量ウィンドウローリング単体テスト4件追加(計76件全数通過) | 33ea103 (Step 1先行反映) |
+| **v1.00** | 2026-11-02 | 承認者 (開発者) | 3-Tier AI協働監査パイプライン技術証跡書の初版策定（Phase 1 監査項目17件定義） | 9b1a4f0 |
+| **v1.01** | 2026-11-03 | 承認者 (開発者) | ドメイン法規・DB排他制御・セキュリティ拡張監査項目（Phase 2 計45項目基準）の追加・体系化 | 3c2e1f |
+| **v1.02** | 2026-11-04 | 承認者 (開発者) | 悲観的ロック(`SELECT ... FOR UPDATE`)打刻トランザクション、RTX 5070 Ti実測ベンチマーク、昭和62年(1987年)通達および端数処理基準是正、`uq_att_open_per_staff`スキーマ補強 | 8bb51a |
+| **v1.03** | 2026-11-05 | 承認者 (開発者) | FullCalendar連動希望シフト画面の実装、スタッフ向けセルフサービスAPIでのPrincipal由来ID取得、CSRFヘッダ連携およびUI上のメモマスキング確認。管理者API・サーバーJSONのメモ保護・JST境界テストは別途検証対象 | e22890d |
+| **v1.04** | 2026-11-05 | 承認者 (開発者) | Day 4監査ログと累積メトリクスの同期、IDOR・個人メモ保護範囲の明確化、韓国語版との整合、未検証項目および決定的テスト計画の修正 | a3b4c5d |
+| **v1.05** | 2026-11-06 | 承認者 (開発者) | Sprint Day 5 店長向けシフト一括確定およびリアルタイム勤怠対照エンジンの実装、Thinking抑制（think: false）による同一ファイルA/B実測約6.32倍高速化（206.88秒 ➔ 32.72秒）・出力トークン約86.9%削減の記録反映、日次コアJavaコード（773行）静的統合監査、日次JUnit 5単体テスト即時連動体制（Shift-Left検証）への移行（ShiftServiceTest 10件先行合格、R-23部分昇格） | 0f1a67b (Step 1先行反映) |
+| **v1.06** | 2026-11-09 | 承認者 (開発者) | Sprint Day 6 労働基準法第37条に基づく割増賃金（時間外25%、深夜25%、深夜残業重畳50%）タイムライン分割算定エンジンおよび法定端数処理（昭和62年基発第150号）、JUnit 5単体テスト網羅 | 5de077b |
+| **v1.07** | 2026-11-10 | 承認者 (開発者) | Sprint Day 7 勤怠修正申請・店長承認電子決済ワークフロー、勤務区間重複検知（R-03）、確定済み給与の不変性保護・CAS条件付き更新、N+1クエリ解消およびCSRF多層防護 | 01c9730 |
+| **v1.08** | 2026-11-11 | 承認者 (開発者) | Sprint Day 8 月次給与一括確定バッチ・悲観的ロック(FOR UPDATE)および未解決勤怠二重ガード実装、2PLロック順序デッドロック(F-04)解消、72件単体テスト全数GREEN合格 | 419eddb |
+| **v1.09** | 2026-11-12 | 承認者 (開発者) | Sprint Day 9 Apache POI SXSSFWorkbookによる大容量給与台帳ストリーミング生成エンジンの実装、労働基準法第108条準拠帳票レイアウト、読取一貫性(readOnlyトランザクション)担保および大容量ウィンドウローリング単体テスト4件追加(計76件全数通過) | 33ea103 |
+| **v1.10** | 2026-11-13 | 承認者 (開発者) | Sprint Day 10 出退勤(CLOCK_IN / CLOCK_OUT)同時打刻競合防止および悲観的ロック(store_staff)整合性実測統合テスト実装、MyBatisマッパー戻り値型補正(4c711f4)、3回連続実行安定性検証(Exit Code 0)、Qwen 3.8 27B独立監査公式PASS、RTM(R-08, R-09, R-10)連動 | 4c711f4 (Step 1反映) |
 
 ---
 
@@ -782,3 +785,158 @@ Day 4以降の記録を追加する際は、既存の数値を上書きせず、
 | **MySQLサポート** | [MySQL 8.0 Release Notes](https://dev.mysql.com/doc/relnotes/mysql/8.0/en/) / [MySQL 8.4 LTS Release Model](https://dev.mysql.com/doc/refman/8.4/en/mysql-releases.html) | MySQL 8.0 Extended Support終了時期の確認および8.4 LTS採用根拠 |
 | **InnoDBロック** | [MySQL 8.4 Reference Manual: InnoDB Locking](https://dev.mysql.com/doc/refman/8.4/en/innodb-locking.html) | `SELECT ... FOR UPDATE`実行時のRecord Lock / Gap Lock / Next-Key Lock動作原理 |
 | **Ollama API** | [Ollama GitHub Docs: Thinking & API Usage](https://github.com/ollama/ollama/tree/main/docs) | `think=false`制御および`eval_count`、`eval_duration`に基づく生成速度算出 |
+## Day 10 事前点検記録: ランタイムスキーマとテスト基準
+
+### 確認事実
+
+- プロジェクト基準パスは `C:\dev\kintai` であり、今回の点検はこのローカルプロジェクトフォルダ全体を基準に実施した。
+- `src/main/resources/schema.sql` と `src/main/resources/db/schema.sql` はファイルサイズと SHA-256 が異なり、テーブル定義・制約・カラムも一致しない。
+- Java ソースおよび MyBatis 設定から、いずれかのスキーマファイルを直接参照するコードは確認されなかった。
+- `application.yaml` には `spring.sql.init.*`、`ddl-auto`、Flyway、Liquibase の設定がない。そのため、現状のアプリケーション実行は外部 MySQL データベースの事前状態に依存している。
+- `build.gradle` に Testcontainers の依存関係はなく、テストコードにも Testcontainers の使用は確認されなかった。
+- 既存の `initial_db_schema.md` と要件定義書は初期化基準として `src/main/resources/db/schema.sql` を指定している。これは `db/schema.sql` を本来の初期化正本とみなす根拠になるが、アプリケーションに自動初期化設定がないため、最終確定前の検証が必要である。
+- 今回の実行環境では MySQL クライアントと Docker クライアントを利用できず、`127.0.0.1:3306` も開いていないため、実データベースのテーブル構造を直接照合できなかった。
+
+### 判定
+
+- スキーマ基準は `UNRESOLVED` のまま維持する。二つのファイルのいずれかを根拠なく正本へ昇格させない。
+- Day 10 の Testcontainers 検証は未着手であり、既存の JUnit 成功結果を Testcontainers による再現検証とはみなさない。
+- 次の段階では、実際のテスト用 MySQL とスキーマ適用経路を確認したうえで、基準スキーマとコンテナテストの範囲を確定する。
+
+### 完了基準
+
+1. ランタイムテストが使用する MySQL インスタンスと適用スキーマを確認する。
+2. 二つのスキーマを正本・履歴資料・廃止候補に分類し、その根拠を記録する。
+3. Testcontainers の導入範囲と再現可能な初期化スクリプトを確定する。
+4. 上記の結果を韓国語・日本語の証跡文書と監査台帳へ同一内容で反映する。
+
+### Day 10 進行記録
+
+- Testcontainers による MySQL 8.4 検証は Docker 未インストールのため保留する。
+- Docker 専用の依存関係とテストは削除し、実行できない未完成テストを残さない。
+- 現在の Day 10 検証基準は、実際のローカル MySQL 26.7.0 環境にある既存の統合テストへ切り替える。
+- MySQL 8.4 の再現性は `R-05` の残存リスクとして維持し、PASS-VERIFIED とは表記しない。
+
+### Windows 実環境での Testcontainers 実行結果
+
+- `compileJava`: PASS
+- `compileTestJava`: PASS
+- テスト初期化: FAIL
+- 原文原因: `Could not find a valid Docker environment. Please see logs and check configuration`
+- 判定: プロジェクトコードのエラーではなく、Docker 未インストールによる環境ブロックである。関連ログは `docs/logs/day10_mysql84_test_run.log`、JUnit XML は `build/test-results/test/TEST-com.example.kintai.database.Day10MySqlSchemaContainerIntegrationTest.xml` に保存する。
+
+### Day 10 出退勤同時打刻（CLOCK_IN / CLOCK_OUT）実測検証および RTM 反映記録
+
+- **対象テスト**: `com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest`
+- **検証環境**: ローカル MySQL 26.7.0 環境 (Windows 11)
+- **1次実行結果**:
+  - `lockStoreStaffForUpdate` 呼出時に `org.apache.ibatis.executor.ExecutorException: No constructor found in void matching [java.lang.Long]` 例外発生（2件失敗）。
+  - 原因: `AttendanceMapper.xml` の `<select id="lockStoreStaffForUpdate">` に `resultType="java.lang.Long"` の記述が欠落していたため。
+  - 措置: `AttendanceMapper.xml` に `resultType="java.lang.Long"` を追記反映。
+- **修正後再実行結果**:
+  - `concurrentClockIn_ExactlyOneSucceeds`: 合格（2スレッド同時 CLOCK_IN のうち厳密に1件成功、1件 `IllegalStateException` 拒絶、アクティブ勤怠が1件のみ生成されることを確認）
+  - `concurrentClockOut_ExactlyOneSucceeds`: 合格（2スレッド同時 CLOCK_OUT のうち厳密に1件成功、1件 `IllegalStateException` 拒絶、最終ステータス `COMPLETED` の不変性を確認）
+  - 実行コマンド: `./gradlew test --tests com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest --rerun-tasks` (3回連続成功確認、終了コード 0)
+- **全体回帰テスト**: `./gradlew test` -> BUILD SUCCESSFUL in 29s (終了コード 0)
+- **独立監査 (Qwen 3.8 27B)**:
+  - バンドル: `docs/audit_bundles/day10_attendance_concurrency_bundle.md`
+  - 監査レポート: `audit_reports/day10_attendance_concurrency_audit.md` (Run ID: `20261113_030041_19b587c7`、所要時間 33.29s、生成速度 50.5 tokens/s)
+  - 判定: P0 欠陥 0件、悲観的ロック(A-03) PASS、トランザクション分離(A-04) PASS、テスト決定論(A-07) PASS。WARN 指摘の IDOR(A-05) はコントローラ層のセッション強制バインドおよび `AttendanceApiSecurityTest` 通過により安全性を立証完了。
+- **RTM 元帳反映**: R-08（同時 CLOCK_IN）VERIFIED、R-09（同時 CLOCK_OUT）VERIFIED、R-10（独立監査）VERIFIED。（R-05 MySQL 8.4 は BLOCKED を維持）
+- **証跡アーティファクトハッシュ (SHA-256)**:
+  - `src/main/resources/mapper/attendance/AttendanceMapper.xml`: `FAD8EB0FCA597DAB3C6498F2963D2DF6300BF7A533CBD9E7FECE0B40EF1F3BAB`
+  - `src/test/java/com/example/kintai/domain/attendance/service/AttendanceServiceConcurrencyIntegrationTest.java`: `4EC2AC7D43B766123380C0771A7CA199D610ABC24B9B01F26687A383BAE41B3E`
+  - `build/test-results/test/TEST-com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest.xml`: `423E6439FFA35447D656956985B5407FFE66EA348F1D5983CE24D372610327B1`
+
+### 運用方針と監査入力検証の補強 (2026-11-13)
+
+- 利用者の承認に基づき、機能・セキュリティ・給与・同時実行の変更は独立監査を維持し、低リスクの文書変更は範囲に応じて確認する方針を `AGENTS.md` と `docs/workflow/operating_policy_v2.md` に反映した。
+- `scripts/validate_qwen_audit_input.ps1` における空の要件・RTM・テスト一覧と SHA-256 の欠落を許容する問題を補強した。試験用入力では、正常ハッシュで `INPUT_READY`・終了コード 0、不一致で `INPUT_INCOMPLETE`・終了コード 2 を確認した。空のテンプレートは終了コード 2 であった。
+- 確認範囲は単独スクリプトに限る。Hermes 呼出経路全体、実際の監査入力の意味的な完全性および遠隔 Qwen 呼出は今回未検証である。事前検証はマニフェスト指定時のみ実行される。
+- 追加確認: Hermes スクリプトに空のマニフェストを指定すると `QWEN_INPUT_BLOCKED` 例外となり、指定した出力ファイルは生成されなかった。正常入力による遠隔呼出は実施していない。
+- 運用文書の整理: 旧最上位文書を `docs/workflow/AGENTS_legacy_20261113.md` に保存し SHA-256 の一致を確認した後、`AGENTS.md` を簡潔化した。基準文書と移行表を参照し、旧キュー文書を履歴として明示した。モデルの接続先と設定ファイル間の差異は未解決である。
+- 呼出経路の追跡: Day 10 実行 `20261113_030041_19b587c7` のスクリプト SHA-256 は `C:\Users\klad3\.gemini\scripts\audit_with_hermes.ps1` の実測値と一致した。記録されたモデルは `qwen27b:latest` であり、プロジェクト内の同名スクリプトは既定設定が異なる別ファイルである。この確認は当該過去実行に限り、現在の全呼出経路を証明しない。
+- `scripts/audit_hermes_preflight.ps1` を選択的な実行入口として追加した。空のマニフェストで `QWEN_INPUT_BLOCKED` を確認し、遠隔呼出は行っていない。既存の直接呼出には自動適用されず、正常入力による遠隔 E2E 実行は未検証である。
+- 追加対応: 選択的入口における接続先・モデルの既定値の重複を除去し、明示指定がなければ既存 Hermes の既定値を使用するよう変更した。2 本の PowerShell スクリプトの構文エラー 0 件と空入力の遮断を再確認した。正常入力による実呼出と Antigravity への自動接続は未検証である。
+- 呼出経路の追加調査: 過去の Antigravity 実行記録に、ユーザー領域の Hermes スクリプトを直接実行したコマンドを確認した。現在の全呼出経路とプロジェクト内で直接呼出を一括制御する箇所は未確認である。Codex 実行環境からの遠隔 `/api/tags` 取得はソケットのアクセス権限エラーで失敗したため、現在のモデル応答および遠隔 E2E 確認はブロック状態である。
+- 後続の原本照合: Antigravity の作業ログ `C:\Users\klad3\.gemini\antigravity\brain\dec02083-3d4e-4385-804d-989feec77d36\.system_generated\tasks\task-332.log` にて、`INPUT_READY`、モデル `qwen27b:latest`、実行 ID `20261113_060136_2facb695` および完了メッセージを確認した。当時の入力と結果は `docs/test_scratch/` に保存されたが、同ディレクトリが削除されたためバンドルと応答のハッシュは再計算できなかった。運用方針にラッパー使用と直接呼出による迂回可能性を明記した。
+- 追加補強: 実行単位で入力・マニフェストのコピー、事前検証結果およびハッシュを保存するようラッパーを変更した。空の証跡、不正な JUnit、失敗・エラー、全件スキップを拒否する検査を追加した。`scripts/test_qwen_preflight_validation.ps1` で正常 1 件と異常 6 件が期待する終了コードとなった。不完全入力の証跡を `docs/audit_runs/preflight_2827e2736064400a93cdae3851d19190/` に保存し、記録されたハッシュと実ファイルを照合した。変更後の正常な遠隔監査経路および監査品質ベンチマークは未実施であり、Docker コマンド不在により MySQL 8.4 の再検証は待機中である。
+- 模擬実行検証: `scripts/test_qwen_wrapper_mock.ps1` により、試験用実行器への入力コピーの受渡し、模擬結果の保存およびハッシュ一致を確認した。実行器の例外と終了コード 7 も失敗として伝播した。遠隔 Qwen 実行ではない。旧最上位規則の主要な詳細項目は `docs/workflow/AGENTS_migration_map.md` に照合し、未確定項目を残した。
+- 文書規格の確認: 韓国語・日本語証跡書の現在の版はともに `v1.10` であり、同一日付の `v1.03`、`v1.04` が履歴に存在する。Day と版を自動的に同一視せず、二桁表記と両言語の履歴同期を維持する方針を記録した。Day 10 監査原文の Finding ID・項目・重要度・判定・根拠・分析の表を確認した。
+- 運用点検の再実施: 模擬ラッパーの正常な受渡し・ハッシュ照合・例外・異常終了コード、および事前検証の正常 1 件と異常 6 件が期待どおり処理された。Codex 環境からの Qwen 接続はソケット権限エラーで失敗し、Docker コマンドは検出されなかった。模擬試験は実モデル監査または MySQL 8.4 テストではない。
+- Day 10 証跡の再照合: 監査実行記録のバンドル SHA-256 `19b587c7392d924af23aacd09cc6c898c373e7ee1d36e7f4d9e82ab1863a4425` と現在のバンドル `6f0b80bb7e7a842839dde56bf31c1c6addfa67c406f64b1ca15b0960558d5ba6` は一致しない。既存証跡の JUnit SHA-256 `423e6439ffa35447d656956985b5407ffe66ea348f1d5983ce24d372610327b1` と現在の XML `3d30805e4f07b5e237ecf6daacd600866c5b4c492c31242913b18fe7a7d7c2af` も一致しない。原因と当時のファイルの復元可否は未確認。現在の XML は 2 件・失敗 0 件だが、過去 3 回それぞれの実行ログは今回確認できなかった。Qwen 原文の A-05、A-06 は WARN であり、全項目 PASS を意味しない。
+- 後続照合: 現在のバンドルの変更されたパス表記のみを旧形式に戻し、別途保存した `docs/audit_runs/20261113_030041_19b587c7/reconstructed_input_bundle.md` の実測 SHA-256 は当時の入力記録 `19b587c7392d924af23aacd09cc6c898c373e7ee1d36e7f4d9e82ab1863a4425` と一致した。再構成結果と当時保存された原本は区別する。現在のマッパーとテストソースの SHA-256 も既存証跡と一致したが、当時の JUnit 原本と 3 回分それぞれのログは未発見である。
+- 追加の失敗履歴: Antigravity の作業ログ `task-46.log` に同時実行テスト 2 件の `AssertionFailedError`、`task-106.log` に誤ったセキュリティテストのパッケージ指定によるテスト未検出が記録されていた。両ログは `C:\Users\klad3\.gemini\antigravity\brain\dec02083-3d4e-4385-804d-989feec77d36\.system_generated\tasks\` にある。後続実行の成否とは別の失敗履歴である。テストは固定スタッフ ID 2 の進行中勤怠を事前削除するため、隔離 DB の確認前に既存 DB では再実行していない。Codex からローカル MySQL への接続はソケット権限エラーで失敗した。
+- セキュリティテストの再確認試行: 現在の JUnit XML を `docs/audit_runs/day10_security_recheck_20261113/preexisting_concurrency_junit.xml` に複写し、ハッシュを確認した。正しいクラス `com.example.kintai.domain.attendance.controller.AttendanceApiSecurityTest` の実行は Gradle wrapper のロックファイルへのアクセス拒否により開始できなかった。別の Gradle ユーザーディレクトリとオフライン実行も Gradle デーモンへの接続失敗によりテスト未実施となった。テストの合否とは判定しない。
+- A-05/A-06 の静的照合: スタッフのセッション ID の強制適用、オーナー所有権の確認および関連モックテストのソースは存在する。ただし当該テストの再実行は未完了であり、`/punch` で認証情報が存在しない場合はコントローラ自体の遮断ではなくセキュリティフィルター設定に依存する。`AttendancePunchDto` の入力境界に関する A-06 の検証も残る。R-10 の指摘事項全体の解消は `PARTIALLY_VERIFIED` として RTM の後続注記に記録した。
+- **2026-11-13 Day 10 改善・反復検証追加記録**: 既存証跡書の構造は維持し、今回確認した事実だけを追記する。分離DB準備スクリプトを、旧 `src/main/resources/schema.sql` ではなく現在のMapperと一致する `src/main/resources/db/schema.sql` rev.3を使用するよう補正した。初回失敗で確認された `break_id` と `attendance_break_id` のスキーマ不一致、およびWindows JDBC URLの `&` 伝達問題は失敗・補正履歴として保存した。その後、新規分離DB 3個で `AttendanceServiceConcurrencyIntegrationTest` を `--rerun-tasks` により強制実行し、計6件成功、失敗0件、エラー0件、Gradle終了コード0を確認した。詳細原本は `docs/audit_runs/day10_isolated_regression_20261113_154029/summary.json` と各回のJUnit・ログに保存する。Docker/Testcontainersと今回のQwen再監査は実施しておらず、既存の `BLOCKED` または未実施状態を維持する。
+- **全体回帰診断追加記録（2026-11-13）**: Day 10最小fixture分離DBでGradle全体テストを実行した結果、79件中65件成功、14件失敗、終了コード1だった。失敗は給与fixture不足による外部キー違反、ロック・performance_schema前提条件不一致、CSRF Cookie・ログインフロー失敗に分類し、この結果をDay 10同時性機能の14件の欠陥とは断定しない。Day 10専用テストは別rev.3 DB 3回、計6件成功を維持する。詳細は `docs/audit_runs/day10_isolated_20261113_155735_kintai_day10_test_c7bd2380a226/full_regression_triage_JP.md` に記録する。
+
+### 全体Gradle回帰テスト精密再検証 (rev.3スキーマおよび全体Fixture隔離DB、2026-11-13)
+
+- **検証目的**: Day 10最小fixture DB実行で発生した14件の失敗の原因を究明するため、本番DB(kintai_db)には一切接触せず、最新の src/main/resources/db/schema.sql (rev.3) に基づく新規隔離DBに全体テスト用正規Fixture(member 3名、store 1件、store_staff 2名、store_staff_contract_history 2件)を投入した上で全体回帰テストを再実行。
+- **実行DB名**: kintai_full_test_b769142733d1 (ローカルMySQL 26.7.0、本番DB kintai_db 非接触・完全隔離)
+- **適用スキーマファイル**: src/main/resources/db/schema.sql (rev.3 正本)
+  - SHA-256: E856528C2D56D1833DF07FA44EDFB7746112857595088E8786A7E069CAE735EE
+- **適用フィクスチャファイル**: scripts/full_test_fixtures.sql
+- **実行コマンド**: .\gradlew.bat test --rerun-tasks --no-daemon --console plain
+- **再検証実測集計**:
+  - 総テスト数: **79件**
+  - 成功(PASS): **78件** (旧65件から13件正常回復・合格)
+  - 失敗(FAILURE): **1件**
+  - エラー(ERROR): **0件**
+  - スキップ(SKIPPED): **0件**
+  - Gradle終了コード: **1**
+  - 収集JUnit XML数: **33個** (100% 保存完了)
+- **失敗14件の精密原因究明および分類**:
+  1. **Fixture不足による外部キー(FK)違反 (10件) ➔ 正規Fixture投入後 全件PASS回復**:
+     - PayrollMapperUpsertIntegrationTest: PASS
+     - PayrollLockOrderDeadlockReproductionIntegrationTest: PASS
+     - PayrollServiceConcurrentExecutionIntegrationTest: PASS
+     - PayrollServiceTransactionRollbackIntegrationTest: PASS
+     - PayrollServiceConfirmConcurrencyDetailedIntegrationTest: PASS
+     - PayrollPessimisticLockConcurrencyIntegrationTest (3回連続): PASS
+     - その他給与・勤怠外部キー連動テスト: PASS
+  2. **認証アカウントシードデータ不在によるログインフロー失敗 (2件) ➔ 正規member Fixture投入後 全件PASS回復**:
+     - CsrfCookieHeaderLifecycleIntegrationTest: PASS (GET /login および XSRF-TOKEN クッキー発行正常通過)
+     - CsrfSecurityIntegrationTest: PASS (owner@kintai.com, staff1@kintai.com 正規認証後リダイレクト正常通過)
+  3. **環境/実装不一致による残余失敗 (単1件)**:
+     - 対象: PerformanceSchemaDataLocksIntegrationTest (独立コネクションでの lockStorePayrollsForUpdate 実行時 performance_schema.data_locks のロックモードおよびインデックス実測)
+     - 原因: テストコード内46行目に WHERE OBJECT_SCHEMA = 'kintai_db' と本番DB名がハードコードされており、隔離DB(kintai_full_test_b769142733d1)で獲得されたロックが検出されないため (テストコード修正禁止条件を遵守し現状保存)。
+- **証跡保存パス**:
+  - 実行ディレクトリ: docs/audit_runs/full_regression_20261113_160744_kintai_full_test_b769142733d1/
+  - コンソール原本ログ: docs/audit_runs/full_regression_20261113_160744_kintai_full_test_b769142733d1/gradle_console.log
+  - 全体JUnit XML: docs/audit_runs/full_regression_20261113_160744_kintai_full_test_b769142733d1/TEST-*.xml (33個)
+- **判定**:
+  - 既存14件失敗のうち**13件はビジネスロジックの欠陥ではなく「最小Fixture欠落」による環境的失敗であったことが物理的に立証完了**。
+  - 残余1件は隔離環境ハードコードDB名不一致課題であり、機能・テストコードは修正せず現状のまま正確に記録保存。
+- **PerformanceSchemaDataLocksテスト補正（2026-11-13）**: 分離DBで`OBJECT_SCHEMA = 'kintai_db'`を固定していたテスト環境依存を除去した。テスト開始時に`SELECT DATABASE()`で現在の接続DBを取得し、`PreparedStatement`のパラメータとして使用するようテストコードだけを修正した。機能コードは変更しておらず、全体回帰再実行前の状態は`REVALIDATION_PENDING`である。
+
+### PerformanceSchemaDataLocks 動的スキーマ補正後 全体Gradle回帰再検証 (79/79 PASS全件合格、2026-11-13)
+
+- **検証目的**: PerformanceSchemaDataLocksIntegrationTest の WHERE OBJECT_SCHEMA = 'kintai_db' ハードコードを動的スキーマ(SELECT DATABASE())照会に補正後、新規隔離DBにて全体Gradle回帰テストを再実行し、全件合格を物理的に立証。
+- **実行DB名**: kintai_full_test_a65c3d18271f (ローカルMySQL 26.7.0、本番DB kintai_db 非接触・完全隔離)
+- **適用スキーマ**: src/main/resources/db/schema.sql (rev.3 正本、SHA-256: E856528C2D56D1833DF07FA44EDFB7746112857595088E8786A7E069CAE735EE)
+- **補正後テストファイル**: src/test/java/com/example/kintai/domain/payroll/service/PerformanceSchemaDataLocksIntegrationTest.java
+  - SHA-256: 80BB317C7D9F3775B10DD6A41716CBF344E9DC0518656EB8B70BAD40D9811DBA
+- **適用Fixture**: scripts/full_test_fixtures.sql (member 3, store 1, staff 2, contract 2)
+- **実行コマンド**: .\gradlew.bat test --rerun-tasks --no-daemon --console plain
+- **再検証最終実測集計**:
+  - 総テスト数: **79件**
+  - 成功(PASS): **79件 (100% 全件合格達成)**
+  - 失敗(FAILURE): **0件**
+  - エラー(ERROR): **0件**
+  - スキップ(SKIPPED): **0件**
+  - Gradle終了コード: **0 (BUILD SUCCESSFUL)**
+  - 収集JUnit XML数: **33個** (100% 保存完了)
+- **主要合格検証**:
+  - PerformanceSchemaDataLocksIntegrationTest: **PASS** (Table: payroll | Mode: IX | Status: GRANTED 正常実測検出)
+  - AttendanceServiceConcurrencyIntegrationTest (CLOCK_IN, CLOCK_OUT): **PASS**
+  - 給与・勤怠・セキュリティ全79件テスト: **全件PASS**
+- **証跡保存パス**:
+  - 実行ディレクトリ: docs/audit_runs/full_regression_20261113_161616_kintai_full_test_a65c3d18271f/
+  - コンソール原本ログ: docs/audit_runs/full_regression_20261113_161616_kintai_full_test_a65c3d18271f/gradle_console.log
+  - 全体JUnit XML: docs/audit_runs/full_regression_20261113_161616_kintai_full_test_a65c3d18271f/TEST-*.xml (33個)
+- **最終判定**:
+  - 全体Gradle回帰テスト: **VERIFIED** (79件全件合格実測およびExit Code 0立証)
+  - MySQL 8.4 Testcontainers: Docker環境未確保のため **BLOCKED** 状態厳格維持

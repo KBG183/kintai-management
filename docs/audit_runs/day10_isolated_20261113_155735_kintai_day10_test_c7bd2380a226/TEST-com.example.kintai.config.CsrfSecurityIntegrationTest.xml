@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="CSRF 多層防御セキュリティ統合テスト" tests="4" skipped="0" failures="1" errors="0" timestamp="2026-11-13T06:57:52.730Z" hostname="BK" time="5.489">
+  <properties/>
+  <testcase name="CSRFトークンなしのPOSTリクエストは403 Forbiddenで拒否されること" classname="com.example.kintai.config.CsrfSecurityIntegrationTest" time="0.763"/>
+  <testcase name="不正なCSRFトークンを含むPOSTリクエストは403 Forbiddenで拒否されること" classname="com.example.kintai.config.CsrfSecurityIntegrationTest" time="0.007"/>
+  <testcase name="オーナーおよびスタッフのアカウントで正常にログインできること" classname="com.example.kintai.config.CsrfSecurityIntegrationTest" time="0.202">
+    <failure message="java.lang.AssertionError: オーナーログイン後のリダイレクト先が不正です: /login?error=true" type="java.lang.AssertionError">java.lang.AssertionError: オーナーログイン後のリダイレクト先が不正です: /login?error=true
+	at com.example.kintai.config.CsrfSecurityIntegrationTest.lambda$testFormLoginSuccess$0(CsrfSecurityIntegrationTest.java:69)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:212)
+	at com.example.kintai.config.CsrfSecurityIntegrationTest.testFormLoginSuccess(CsrfSecurityIntegrationTest.java:66)
+</failure>
+  </testcase>
+  <testcase name="正常なCSRFトークンを付与したPOSTリクエストは403にならず正常に受け付けられること" classname="com.example.kintai.config.CsrfSecurityIntegrationTest" time="0.152"/>
+  <system-out><![CDATA[15:57:52.916 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.kintai.config.CsrfSecurityIntegrationTest]: CsrfSecurityIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+15:57:53.057 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.config.CsrfSecurityIntegrationTest
+15:57:53.137 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.kintai.config.CsrfSecurityIntegrationTest]: CsrfSecurityIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+15:57:53.137 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.config.CsrfSecurityIntegrationTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-11-13T15:57:53.532+09:00  INFO 16056 --- [    Test worker] c.e.k.c.CsrfSecurityIntegrationTest      : Starting CsrfSecurityIntegrationTest using Java 17.0.12 with PID 16056 (started by klad3 in C:\dev\kintai)
+2026-11-13T15:57:53.532+09:00  INFO 16056 --- [    Test worker] c.e.k.c.CsrfSecurityIntegrationTest      : No active profile set, falling back to 1 default profile: "default"
+2026-11-13T15:57:54.856+09:00  INFO 16056 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-11-13T15:57:55.199+09:00  INFO 16056 --- [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@7a1ddbf1
+2026-11-13T15:57:55.201+09:00  INFO 16056 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-11-13T15:57:56.078+09:00  INFO 16056 --- [    Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-11-13T15:57:57.054+09:00  INFO 16056 --- [    Test worker] c.e.k.c.CsrfSecurityIntegrationTest      : Started CsrfSecurityIntegrationTest in 3.832 seconds (process running for 5.396)
+2026-11-13T15:57:57.809+09:00  INFO 16056 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-13T15:57:57.809+09:00  INFO 16056 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-13T15:57:57.809+09:00  INFO 16056 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-11-13T15:57:57.854+09:00  INFO 16056 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-13T15:57:57.854+09:00  INFO 16056 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-13T15:57:57.854+09:00  INFO 16056 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-11-13T15:57:57.854+09:00  INFO 16056 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-13T15:57:57.854+09:00  INFO 16056 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-13T15:57:57.866+09:00  INFO 16056 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 12 ms
+2026-11-13T15:57:58.066+09:00  INFO 16056 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-13T15:57:58.066+09:00  INFO 16056 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-13T15:57:58.066+09:00  INFO 16056 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,9 @@
+{
+  "request_id": "codex_day10_pre_audit",
+  "model": "qwen27b:latest",
+  "endpoint": "http://100.111.193.94:11434",
+  "prompt_file": "docs/day10_traceability_working.md",
+  "prompt": "Perform an independent blind pre-audit of the Day 10 traceability design. Compare the stated SRS and RTM mapping, identify duplicate coverage, missing concurrency and security cases, unsafe test cleanup, nondeterministic assertions, and any mismatch between implementation claims and evidence. Return an English Markdown table with Audit Item, Verdict (PASS/WARN/FAIL), and Detailed Finding & Recommendation. Do not declare the work complete unless the evidence supports it.",
+  "created_by": "Codex",
+  "status": "PENDING"
+}

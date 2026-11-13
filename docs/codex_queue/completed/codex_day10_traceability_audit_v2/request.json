@@ -1,0 +1,9 @@
+{
+  "request_id": "codex_day10_traceability_audit_v2",
+  "model": "qwen27b:latest",
+  "endpoint": "http://100.111.193.94:11434",
+  "prompt_file": "docs/audit_bundles/codex_day10_traceability_audit_bundle.md",
+  "prompt": "Perform an independent blind audit of the complete bundle above. Do not assume any completion claim is true. Return a concise table with Audit Item, Verdict, Finding, Required Evidence or Fix, followed by an overall verdict. Use only the supplied bundle.",
+  "created_by": "Codex",
+  "status": "PENDING"
+}

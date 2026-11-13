@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "target_day": "Day-XX",
+  "bundle_path": "",
+  "bundle_sha256": "",
+  "requirements": [],
+  "rtm_items": [],
+  "test_ids": [],
+  "execution_logs": [],
+  "junit_xml": [],
+  "environment": "",
+  "known_constraints": [],
+  "unverified_items": []
+}

@@ -1,0 +1,9 @@
+﻿Call-HermesApi : Ollama Hermes API call failed: "0"개의 인수가 있는 "GetRequestStream"을(를) 호출하는 동안 예외가 발생했습니다. "원격 서버에 연결할 수 없
+습니다."
+위치 C:\dev\kintai\scripts\audit_with_hermes.ps1:250 문자:15
++ ...   $resObj = Call-HermesApi -ContentToAudit $rawText -HeaderTitle $Tar ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException
+    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,Call-HermesApi
+ 
+

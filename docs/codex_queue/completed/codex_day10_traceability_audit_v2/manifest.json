@@ -1,0 +1,19 @@
+{
+    "request_id":  "codex_day10_traceability_audit_v2",
+    "status":  "SUCCESS",
+    "endpoint":  "http://100.111.193.94:11434",
+    "model":  "qwen27b:latest",
+    "created_by":  "Codex",
+    "started_at_local":  "2026-11-13T11:51:28.5327896+09:00",
+    "finished_at_local":  "2026-11-13T11:51:42.1765372+09:00",
+    "elapsed_seconds":  13.637,
+    "prompt_eval_count":  102,
+    "eval_count":  671,
+    "response_sha256":  "d2521f736171f15d6dac84290070b3b274fa96eebe39a387008dfe0e2dccfd5d",
+    "files":  {
+                  "request":  "request.json",
+                  "raw_response":  "raw_response.json",
+                  "result":  "result.md",
+                  "sha256":  "response_sha256.txt"
+              }
+}

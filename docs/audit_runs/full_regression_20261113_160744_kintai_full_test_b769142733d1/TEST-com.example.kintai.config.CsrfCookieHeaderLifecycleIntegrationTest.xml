@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="CSRF 実Cookie・Header往復およびライフサイクル統合テスト" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-11-13T07:08:10.976Z" hostname="BK" time="7.269">
+  <properties/>
+  <testcase name="2. モック(.with(csrf()))を一切使わず、GETで発行された実CookieをHeader(X-XSRF-TOKEN)に完全一致させてPOSTした場合、CSRFを突破して403にならないこと" classname="com.example.kintai.config.CsrfCookieHeaderLifecycleIntegrationTest" time="1.311"/>
+  <testcase name="3. 実CookieがあってもHeader(X-XSRF-TOKEN)の値が不一致または改ざんされている場合は403 Forbiddenで確実に拒否されること" classname="com.example.kintai.config.CsrfCookieHeaderLifecycleIntegrationTest" time="0.018"/>
+  <testcase name="1. 未認証GETリクエストにより実レスポンスCookie 'XSRF-TOKEN' が確実に発行されること" classname="com.example.kintai.config.CsrfCookieHeaderLifecycleIntegrationTest" time="0.015"/>
+  <testcase name="4. ログアウト実行時にセッションが無効化され、安全にリダイレクトされること" classname="com.example.kintai.config.CsrfCookieHeaderLifecycleIntegrationTest" time="0.026"/>
+  <system-out><![CDATA[16:08:11.263 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.kintai.config.CsrfCookieHeaderLifecycleIntegrationTest]: CsrfCookieHeaderLifecycleIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+16:08:11.444 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.config.CsrfCookieHeaderLifecycleIntegrationTest
+16:08:11.557 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.kintai.config.CsrfCookieHeaderLifecycleIntegrationTest]: CsrfCookieHeaderLifecycleIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+16:08:11.559 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.config.CsrfCookieHeaderLifecycleIntegrationTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-11-13T16:08:12.107+09:00  INFO 27236 --- [    Test worker] CsrfCookieHeaderLifecycleIntegrationTest : Starting CsrfCookieHeaderLifecycleIntegrationTest using Java 17.0.12 with PID 27236 (started by klad3 in C:\dev\kintai)
+2026-11-13T16:08:12.110+09:00  INFO 27236 --- [    Test worker] CsrfCookieHeaderLifecycleIntegrationTest : No active profile set, falling back to 1 default profile: "default"
+2026-11-13T16:08:13.887+09:00  INFO 27236 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-11-13T16:08:14.430+09:00  INFO 27236 --- [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@7a1ddbf1
+2026-11-13T16:08:14.433+09:00  INFO 27236 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-11-13T16:08:15.572+09:00  INFO 27236 --- [    Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-11-13T16:08:16.814+09:00  INFO 27236 --- [    Test worker] CsrfCookieHeaderLifecycleIntegrationTest : Started CsrfCookieHeaderLifecycleIntegrationTest in 5.146 seconds (process running for 7.193)
+2026-11-13T16:08:17.788+09:00  INFO 27236 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-13T16:08:17.789+09:00  INFO 27236 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-13T16:08:17.790+09:00  INFO 27236 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-11-13T16:08:18.186+09:00  INFO 27236 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-13T16:08:18.186+09:00  INFO 27236 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-13T16:08:18.188+09:00  INFO 27236 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-11-13T16:08:18.206+09:00  INFO 27236 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-13T16:08:18.206+09:00  INFO 27236 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-13T16:08:18.207+09:00  INFO 27236 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-11-13T16:08:18.221+09:00  INFO 27236 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-13T16:08:18.221+09:00  INFO 27236 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-13T16:08:18.221+09:00  INFO 27236 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

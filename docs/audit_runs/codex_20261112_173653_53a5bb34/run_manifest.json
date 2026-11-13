@@ -1,0 +1,13 @@
+﻿{
+    "run_id":  "codex_20261112_173653_53a5bb34",
+    "operator":  "Codex",
+    "target_file":  "C:\\dev\\kintai\\docs\\codex_hermes_connection_test_input.md",
+    "target_sha256":  "53a5bb3453c863d6446f5f0c41d92acf4244d7d295f73cda99cc3e3674f0dbaf",
+    "model":  "qwen27b:latest",
+    "host_url":  "http://100.111.193.94:11434",
+    "started_at_local":  "2026-11-12T17:36:53.0322944+09:00",
+    "status":  "STARTED",
+    "source_script":  "C:\\dev\\kintai\\scripts\\audit_with_hermes.ps1",
+    "config_file":  "C:\\dev\\kintai\\scripts\\audit_config.json",
+    "output_dir":  "C:\\dev\\kintai\\docs\\audit_runs\\codex_20261112_173653_53a5bb34"
+}

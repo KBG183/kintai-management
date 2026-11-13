@@ -1,0 +1,11 @@
+﻿{
+    "request_id":  "codex_test_remote_ok",
+    "status":  "FAILED",
+    "endpoint":  "http://100.111.193.94:11434",
+    "model":  "qwen27b:latest",
+    "created_by":  "Codex",
+    "started_at_local":  "2026-11-13T10:10:24.5340679+09:00",
+    "finished_at_local":  "2026-11-13T10:10:30.5013255+09:00",
+    "elapsed_seconds":  5.861,
+    "error_file":  "error.txt"
+}

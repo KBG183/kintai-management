@@ -1,0 +1,1 @@
+System.Management.Automation.RuntimeException: SECURITY_VIOLATION: Endpoint 'http://127.0.0.1:11434' is not in the allowed Tailscale whitelist.

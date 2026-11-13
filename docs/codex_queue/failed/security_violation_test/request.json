@@ -1,0 +1,8 @@
+{
+  "request_id": "security_violation_test",
+  "model": "qwen2.5:7b",
+  "endpoint": "http://127.0.0.1:11434",
+  "prompt": "Reply with TEST",
+  "created_by": "Attacker",
+  "status": "PENDING"
+}

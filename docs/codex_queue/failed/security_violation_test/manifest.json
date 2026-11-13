@@ -1,0 +1,15 @@
+{
+    "request_id":  "security_violation_test",
+    "status":  "FAILED",
+    "endpoint":  "http://127.0.0.1:11434",
+    "model":  "qwen2.5:7b",
+    "created_by":  "Attacker",
+    "started_at_local":  "2026-11-13T10:23:43.9440520+09:00",
+    "finished_at_local":  "2026-11-13T10:23:43.9590628+09:00",
+    "elapsed_seconds":  0.011,
+    "error_message":  "SECURITY_VIOLATION: Endpoint \u0027http://127.0.0.1:11434\u0027 is not in the allowed Tailscale whitelist.",
+    "files":  {
+                  "request":  "request.json",
+                  "error":  "error.txt"
+              }
+}

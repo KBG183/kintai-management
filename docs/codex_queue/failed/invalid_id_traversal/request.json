@@ -1,0 +1,8 @@
+{
+  "request_id": "../../evil_escape_attempt",
+  "model": "qwen27b:latest",
+  "endpoint": "http://100.111.193.94:11434",
+  "prompt": "Reply with TEST",
+  "created_by": "Attacker",
+  "status": "PENDING"
+}

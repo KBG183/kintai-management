@@ -1,0 +1,8 @@
+﻿{
+    "database":  "kintai_day10_test_934cea2c347d",
+    "jdbc_url_host":  "127.0.0.1:3306",
+    "test_class":  "com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest",
+    "run_id":  "20261113_154118",
+    "output_dir":  "C:\\dev\\kintai\\docs\\audit_runs\\day10_isolated_20261113_154118_kintai_day10_test_934cea2c347d",
+    "qwen_audit":  "BLOCKED_IN_CODEX_ENVIRONMENT"
+}

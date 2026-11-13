@@ -1,0 +1,36 @@
+{
+  "status": "INPUT_INCOMPLETE",
+  "bundle_path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_f211b2e50f914e73812bdd34cbeedd9b\\input_bundle",
+  "manifest_path": "C:\\dev\\kintai\\scripts\\..\\docs\\audit_runs\\preflight_f211b2e50f914e73812bdd34cbeedd9b\\input_manifest.json",
+  "bundle_sha256": "0fb32983c98b565c9ea9b2d62c4f0ad682153f0d0089dad90d61895602b08a55",
+  "failures": [
+    {
+      "code": "METADATA_MISSING",
+      "message": "Required manifest field is missing: environment"
+    },
+    {
+      "code": "METADATA_EMPTY",
+      "message": "Required manifest field is empty: requirements"
+    },
+    {
+      "code": "METADATA_EMPTY",
+      "message": "Required manifest field is empty: rtm_items"
+    },
+    {
+      "code": "METADATA_EMPTY",
+      "message": "Required manifest field is empty: test_ids"
+    },
+    {
+      "code": "HASH_MISSING_OR_INVALID",
+      "message": "A valid SHA-256 bundle hash is required."
+    },
+    {
+      "code": "EVIDENCE_PATH_MISSING",
+      "message": "No paths supplied for execution_logs"
+    },
+    {
+      "code": "EVIDENCE_PATH_MISSING",
+      "message": "No paths supplied for junit_xml"
+    }
+  ]
+}

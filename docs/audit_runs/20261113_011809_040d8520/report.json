@@ -1,0 +1,86 @@
+﻿{
+    "run_id":  "20261113_011809_040d8520",
+    "generated_at":  "2026-11-13T10:18:41.7819509+09:00",
+    "findings":  [
+                     {
+                         "finding_id":  "AUDIT-001",
+                         "audit_item":  "Japanese Labor Standards Act Art 37 Compliance",
+                         "severity":  "N/A",
+                         "verdict":  "N/A",
+                         "evidence":  "N/A",
+                         "analysis":  "The provided code is a PowerShell script for an AI queue processor (`process_codex_queue.ps1`) and a JSON manifest. It does not contain payroll calculation logic, shift scheduling, or labor law enforcement mechanisms. Therefore, specific checks for night work premiums, overtime calculations, or break time deductions are not applicable to this codebase."
+                     },
+                     {
+                         "finding_id":  "AUDIT-002",
+                         "audit_item":  "Payroll Math \u0026 Rounding Logic",
+                         "severity":  "N/A",
+                         "verdict":  "N/A",
+                         "evidence":  "N/A",
+                         "analysis":  "No financial calculations, currency handling, or `RoundingMode` logic is present in the target code. The script handles file I/O, JSON parsing, and HTTP requests. No 1-yen discrepancy risks exist in this context."
+                     },
+                     {
+                         "finding_id":  "AUDIT-003",
+                         "audit_item":  "Concurrency \u0026 Security: Transactional Integrity",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "`Acquire-QueueLock` function; `Remove-Item -LiteralPath $RequestFile.FullName -Force`",
+                         "analysis":  "The script uses a file-based lock (`Acquire-QueueLock`) to prevent concurrent processing of the queue. However, the lock is released *after* the file is moved/processed. There is a potential race condition if the script crashes between acquiring the lock and releasing it, leaving the lock file behind (though `Test-Path` check on start helps). More critically, the script deletes the source request file (`Remove-Item`) *after* writing outputs. If the process crashes during the write phase, the request file remains, but partial outputs might exist. The lock mechanism is basic and relies on file existence, which is not atomic across all filesystems."
+                     },
+                     {
+                         "finding_id":  "AUDIT-004",
+                         "audit_item":  "Concurrency \u0026 Security: IDOR / Access Control",
+                         "severity":  "P1",
+                         "verdict":  "FAIL",
+                         "evidence":  "`Process-SingleRequest` function; `Invoke-WebRequest`",
+                         "analysis":  "The script allows specifying an arbitrary `endpoint` and `model` via the request JSON. While it blocks `localhost` and `127.0.0.1`, it does not validate the destination IP/hostname against a trusted list (e.g., Tailscale private IPs). An attacker with write access to the `pending` directory could craft a request to exfiltrate data to an external server or perform SSRF (Server-Side Request Forgery) against internal network resources if the script runs on a host with broader network access. The `SECURITY_VIOLATION` check is insufficient for robust security."
+                     },
+                     {
+                         "finding_id":  "AUDIT-005",
+                         "audit_item":  "Exception Handling \u0026 Boundary Validation",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "`try { $req = $rawContent \\",
+                         "analysis":  "ConvertFrom-Json } catch { ... }`"
+                     },
+                     {
+                         "finding_id":  "AUDIT-006",
+                         "audit_item":  "Data Integrity \u0026 Hashing",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "`$actualFileHash = (Get-FileHash -LiteralPath $rawPath -Algorithm SHA256).Hash.ToLowerInvariant()`",
+                         "analysis":  "The script calculates the SHA256 hash of the `raw_response.json` file *after* writing it. This is good for integrity. However, the hash is stored in a separate file (`response_sha256.txt`). There is no cryptographic signature or HMAC to prevent tampering with the hash file itself. If an attacker can modify both the response file and the hash file, they can forge a successful audit trail. For high-security contexts, a digital signature or HMAC with a secret key should be used."
+                     },
+                     {
+                         "finding_id":  "AUDIT-007",
+                         "audit_item":  "Input Validation: Path Traversal",
+                         "severity":  "P1",
+                         "verdict":  "FAIL",
+                         "evidence":  "`if (-not [System.IO.Path]::IsPathRooted($pf)) { $pf = Join-Path $projectRoot $pf }`",
+                         "analysis":  "The script allows specifying a `prompt_file` path. If the path is relative, it is joined with `$projectRoot`. However, it does not sanitize the path to prevent directory traversal (e.g., `../../etc/passwd`). An attacker could potentially read files outside the intended project directory if they have write access to the queue. The `Test-Path` check does not prevent this."
+                     },
+                     {
+                         "finding_id":  "AUDIT-008",
+                         "audit_item":  "Resource Management",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "`Release-QueueLock` function",
+                         "analysis":  "The lock file is deleted using `Remove-Item`. If the file is locked by another process or if the deletion fails due to permissions, the `catch` block silently ignores the error (`-ErrorAction SilentlyContinue`). This could lead to stale lock files that prevent future runs. A more robust approach would be to check the lock file\u0027s age and delete it if it is older than a certain threshold."
+                     },
+                     {
+                         "finding_id":  "AUDIT-009",
+                         "audit_item":  "Logging \u0026 Audit Trail",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "`manifest.json` generation",
+                         "analysis":  "The script generates a `manifest.json` for each request, which is good for auditing. However, it does not log the user identity or the source IP of the request (if applicable). The `created_by` field is set to \"Codex\" by default, which is not a unique identifier. For better auditability, the script should include a unique request ID, timestamp, and potentially a hash of the request content to ensure non-repudiation."
+                     },
+                     {
+                         "finding_id":  "AUDIT-010",
+                         "audit_item":  "Error Handling: Silent Failures",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "`catch { }` in `Release-QueueLock`",
+                         "analysis":  "The `Release-QueueLock` function has a `catch { }` block that silently swallows all exceptions. This can hide critical errors, such as permission issues when deleting the lock file. It is recommended to log these errors to a dedicated log file for troubleshooting."
+                     }
+                 ]
+}

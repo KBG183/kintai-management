@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="F-04: 락 순서 역전에 따른 실제 MySQL InnoDB 데드락(1213 / 40001) 재현 및 검증" tests="1" skipped="0" failures="1" errors="0" timestamp="2026-11-13T06:57:58.389Z" hostname="BK" time="0.05">
+  <properties/>
+  <testcase name="독립 JDBC 커넥션 2개에서 상호 역순 락 획득 시 MySQL 1213 데드락 감지 및 40001 SQLState 실측" classname="com.example.kintai.domain.payroll.service.PayrollLockOrderDeadlockReproductionIntegrationTest" time="0.009">
+    <failure message="org.springframework.dao.DataIntegrityViolationException: &#13;&#10;### Error updating database.  Cause: java.sql.SQLIntegrityConstraintViolationException: Cannot add or update a child row: a foreign key constraint fails (`kintai_day10_test_c7bd2380a226`.`payroll`, CONSTRAINT `fk_payroll_staff_store` FOREIGN KEY (`store_staff_id`, `store_id`) REFERENCES `store_staff` (`store_staff_id`, `store_id`))&#13;&#10;### The error may exist in file [C:\dev\kintai\build\resources\main\mapper\payroll\PayrollMapper.xml]&#13;&#10;### The error may involve defaultParameterMap&#13;&#10;### The error occurred while setting parameters&#13;&#10;### SQL: INSERT INTO payroll (             store_id,             store_staff_id,             target_year_month,             range_start_date,             range_end_date,             work_days_count,             total_work_minutes,             total_night_minutes,             total_overtime_minutes,             applied_hourly_wage,             applied_transport_limit,             base_pay,             night_allowance,             overtime_allowance,             transport_allowance,             gross_pay,             payroll_status         ) VALUES (             ?,             ?,             ?,             ?,             ?,             ?,             ?,             ?,             ?,             ?,             ?,             ?,             ?,             ?,             ?,             ?,             ?         )         ON DUPLICATE KEY UPDATE             work_days_count = VALUES(work_days_count),             total_work_minutes = VALUES(total_work_minutes),             total_night_minutes = VALUES(total_night_minutes),             total_overtime_minutes = VALUES(total_overtime_minutes),             applied_hourly_wage = VALUES(applied_hourly_wage),             applied_transport_limit = VALUES(applied_transport_limit),             base_pay = VALUES(base_pay),             night_allowance = VALUES(night_allowance),             overtime_allowance = VALUES(overtime_allowance),             transport_allowance = VALUES(transport_allowance),             gross_pay = VALUES(gross_pay),             updated_at = CURRENT_TIMESTAMP&#13;&#10;### Cause: java.sql.SQLIntegrityConstraintViolationException: Cannot add or update a child row: a foreign key constraint fails (`kintai_day10_test_c7bd2380a226`.`payroll`, CONSTRAINT `fk_payroll_staff_store` FOREIGN KEY (`store_staff_id`, `store_id`) REFERENCES `store_staff` (`store_staff_id`, `store_id`))&#10;; Cannot add or update a child row: a foreign key constraint fails (`kintai_day10_test_c7bd2380a226`.`payroll`, CONSTRAINT `fk_payroll_staff_store` FOREIGN KEY (`store_staff_id`, `store_id`) REFERENCES `store_staff` (`store_staff_id`, `store_id`))" type="org.springframework.dao.DataIntegrityViolationException">org.springframework.dao.DataIntegrityViolationException: 
+### Error updating database.  Cause: java.sql.SQLIntegrityConstraintViolationException: Cannot add or update a child row: a foreign key constraint fails (`kintai_day10_test_c7bd2380a226`.`payroll`, CONSTRAINT `fk_payroll_staff_store` FOREIGN KEY (`store_staff_id`, `store_id`) REFERENCES `store_staff` (`store_staff_id`, `store_id`))
+### The error may exist in file [C:\dev\kintai\build\resources\main\mapper\payroll\PayrollMapper.xml]
+### The error may involve defaultParameterMap
+### The error occurred while setting parameters
+### SQL: INSERT INTO payroll (             store_id,             store_staff_id,             target_year_month,             range_start_date,             range_end_date,             work_days_count,             total_work_minutes,             total_night_minutes,             total_overtime_minutes,             applied_hourly_wage,             applied_transport_limit,             base_pay,             night_allowance,             overtime_allowance,             transport_allowance,             gross_pay,             payroll_status         ) VALUES (             ?,             ?,             ?,             ?,             ?,             ?,             ?,             ?,             ?,             ?,             ?,             ?,             ?,             ?,             ?,             ?,             ?         )         ON DUPLICATE KEY UPDATE             work_days_count = VALUES(work_days_count),             total_work_minutes = VALUES(total_work_minutes),             total_night_minutes = VALUES(total_night_minutes),             total_overtime_minutes = VALUES(total_overtime_minutes),             applied_hourly_wage = VALUES(applied_hourly_wage),             applied_transport_limit = VALUES(applied_transport_limit),             base_pay = VALUES(base_pay),             night_allowance = VALUES(night_allowance),             overtime_allowance = VALUES(overtime_allowance),             transport_allowance = VALUES(transport_allowance),             gross_pay = VALUES(gross_pay),             updated_at = CURRENT_TIMESTAMP
+### Cause: java.sql.SQLIntegrityConstraintViolationException: Cannot add or update a child row: a foreign key constraint fails (`kintai_day10_test_c7bd2380a226`.`payroll`, CONSTRAINT `fk_payroll_staff_store` FOREIGN KEY (`store_staff_id`, `store_id`) REFERENCES `store_staff` (`store_staff_id`, `store_id`))
+; Cannot add or update a child row: a foreign key constraint fails (`kintai_day10_test_c7bd2380a226`.`payroll`, CONSTRAINT `fk_payroll_staff_store` FOREIGN KEY (`store_staff_id`, `store_id`) REFERENCES `store_staff` (`store_staff_id`, `store_id`))
+	at org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator.doTranslate(SQLErrorCodeSQLExceptionTranslator.java:256)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:102)
+	at org.mybatis.spring.MyBatisExceptionTranslator.translateExceptionIfPossible(MyBatisExceptionTranslator.java:95)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:362)
+	at jdk.proxy3/jdk.proxy3.$Proxy103.insert(Unknown Source)
+	at org.mybatis.spring.SqlSessionTemplate.insert(SqlSessionTemplate.java:239)
+	at org.apache.ibatis.binding.MapperMethod.execute(MapperMethod.java:62)
+	at org.apache.ibatis.binding.MapperProxy$PlainMethodInvoker.invoke(MapperProxy.java:141)
+	at org.apache.ibatis.binding.MapperProxy.invoke(MapperProxy.java:86)
+	at jdk.proxy3/jdk.proxy3.$Proxy111.upsertPayroll(Unknown Source)
+	at com.example.kintai.domain.payroll.service.PayrollLockOrderDeadlockReproductionIntegrationTest.setUp(PayrollLockOrderDeadlockReproductionIntegrationTest.java:58)
+Caused by: java.sql.SQLIntegrityConstraintViolationException: Cannot add or update a child row: a foreign key constraint fails (`kintai_day10_test_c7bd2380a226`.`payroll`, CONSTRAINT `fk_payroll_staff_store` FOREIGN KEY (`store_staff_id`, `store_id`) REFERENCES `store_staff` (`store_staff_id`, `store_id`))
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:109)
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:114)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeInternal(ClientPreparedStatement.java:988)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.execute(ClientPreparedStatement.java:383)
+	at com.zaxxer.hikari.pool.ProxyPreparedStatement.execute(ProxyPreparedStatement.java:44)
+	at com.zaxxer.hikari.pool.HikariProxyPreparedStatement.execute(HikariProxyPreparedStatement.java)
+	at org.apache.ibatis.executor.statement.PreparedStatementHandler.update(PreparedStatementHandler.java:48)
+	at org.apache.ibatis.executor.statement.RoutingStatementHandler.update(RoutingStatementHandler.java:75)
+	at org.apache.ibatis.executor.SimpleExecutor.doUpdate(SimpleExecutor.java:50)
+	at org.apache.ibatis.executor.BaseExecutor.update(BaseExecutor.java:117)
+	at org.apache.ibatis.executor.CachingExecutor.update(CachingExecutor.java:76)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.update(DefaultSqlSession.java:197)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.insert(DefaultSqlSession.java:184)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:348)
+	... 7 more
+</failure>
+  </testcase>
+  <system-out><![CDATA[2026-11-13T15:57:58.397+09:00  INFO 16056 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.PayrollLockOrderDeadlockReproductionIntegrationTest]: PayrollLockOrderDeadlockReproductionIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-13T15:57:58.425+09:00  INFO 16056 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.PayrollLockOrderDeadlockReproductionIntegrationTest
+2026-11-13T15:57:58.425+09:00  INFO 16056 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.PayrollLockOrderDeadlockReproductionIntegrationTest]: PayrollLockOrderDeadlockReproductionIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-13T15:57:58.425+09:00  INFO 16056 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.PayrollLockOrderDeadlockReproductionIntegrationTest
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

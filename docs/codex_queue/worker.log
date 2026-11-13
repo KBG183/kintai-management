@@ -1,0 +1,5 @@
+경고: [Queue] Failed to parse existing lock file. Removing corrupt lock.
+경고: [Queue] Error removing lock file (C:\dev\kintai\docs\codex_queue\.qwen_remote.lock): 
+C:\dev\kintai\docs\codex_queue\.qwen_remote.lock 항목을 제거할 수 없습니다. 'C:\dev\kintai\docs\codex_queue\.qwen_remote.lock' 파일은
+ 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.
+[Queue] Lock released.

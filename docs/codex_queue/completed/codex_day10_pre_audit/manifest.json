@@ -1,0 +1,19 @@
+{
+    "request_id":  "codex_day10_pre_audit",
+    "status":  "SUCCESS",
+    "endpoint":  "http://100.111.193.94:11434",
+    "model":  "qwen27b:latest",
+    "created_by":  "Codex",
+    "started_at_local":  "2026-11-13T11:46:30.9700953+09:00",
+    "finished_at_local":  "2026-11-13T11:47:43.6364565+09:00",
+    "elapsed_seconds":  72.538,
+    "prompt_eval_count":  143,
+    "eval_count":  3505,
+    "response_sha256":  "8b8ad91d200a4ba5393ea656e67264caebd8676d689c61466f31d839a8a8eb5f",
+    "files":  {
+                  "request":  "request.json",
+                  "raw_response":  "raw_response.json",
+                  "result":  "result.md",
+                  "sha256":  "response_sha256.txt"
+              }
+}

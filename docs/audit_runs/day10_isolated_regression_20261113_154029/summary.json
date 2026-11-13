@@ -1,0 +1,44 @@
+﻿[
+    {
+        "iteration":  1,
+        "database":  "kintai_day10_test_858b35511a0d",
+        "status":  "SUCCESS",
+        "exit_code":  0,
+        "tests":  2,
+        "failures":  0,
+        "errors":  0,
+        "prepare_log":  "C:\\dev\\kintai\\docs\\audit_runs\\day10_isolated_regression_20261113_154029\\iteration_01\\prepare.log",
+        "runner_log":  "C:\\dev\\kintai\\docs\\audit_runs\\day10_isolated_regression_20261113_154029\\iteration_01\\runner.log",
+        "junit_xml":  "C:\\dev\\kintai\\docs\\audit_runs\\day10_isolated_regression_20261113_154029\\iteration_01\\TEST-AttendanceServiceConcurrencyIntegrationTest.xml",
+        "runner_log_sha256":  "cb69a27ec94667e04347190ee0fc28809e4e90d21522d68a3f76c28446339789",
+        "junit_sha256":  "ed9848e9b84c1bc0ff740cf92121d39928da74cc844ce6d800b5c48e5aac5dda"
+    },
+    {
+        "iteration":  2,
+        "database":  "kintai_day10_test_e6c1a49494b7",
+        "status":  "SUCCESS",
+        "exit_code":  0,
+        "tests":  2,
+        "failures":  0,
+        "errors":  0,
+        "prepare_log":  "C:\\dev\\kintai\\docs\\audit_runs\\day10_isolated_regression_20261113_154029\\iteration_02\\prepare.log",
+        "runner_log":  "C:\\dev\\kintai\\docs\\audit_runs\\day10_isolated_regression_20261113_154029\\iteration_02\\runner.log",
+        "junit_xml":  "C:\\dev\\kintai\\docs\\audit_runs\\day10_isolated_regression_20261113_154029\\iteration_02\\TEST-AttendanceServiceConcurrencyIntegrationTest.xml",
+        "runner_log_sha256":  "9239039f2a78f89ff0a30b9f6abdf5f0ea0e814985c0b49d91455ea86467104e",
+        "junit_sha256":  "6874e4a0db9e86a81ac47af2257fea567fec8ff770aae336d9cd4952ff914205"
+    },
+    {
+        "iteration":  3,
+        "database":  "kintai_day10_test_934cea2c347d",
+        "status":  "SUCCESS",
+        "exit_code":  0,
+        "tests":  2,
+        "failures":  0,
+        "errors":  0,
+        "prepare_log":  "C:\\dev\\kintai\\docs\\audit_runs\\day10_isolated_regression_20261113_154029\\iteration_03\\prepare.log",
+        "runner_log":  "C:\\dev\\kintai\\docs\\audit_runs\\day10_isolated_regression_20261113_154029\\iteration_03\\runner.log",
+        "junit_xml":  "C:\\dev\\kintai\\docs\\audit_runs\\day10_isolated_regression_20261113_154029\\iteration_03\\TEST-AttendanceServiceConcurrencyIntegrationTest.xml",
+        "runner_log_sha256":  "04577319fa9c7050d06178cfc1d8469403d354eeb8cdc8af527d4526116c3bdc",
+        "junit_sha256":  "b550c5bd1a5a57b70d5f739364865ebdabb5c83a0615aaaa7eda58b451f24c33"
+    }
+]

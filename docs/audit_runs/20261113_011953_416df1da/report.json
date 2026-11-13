@@ -1,0 +1,78 @@
+﻿{
+    "run_id":  "20261113_011953_416df1da",
+    "generated_at":  "2026-11-13T10:20:29.7751685+09:00",
+    "findings":  [
+                     {
+                         "finding_id":  "AUDIT-001",
+                         "audit_item":  "Japanese Labor Standards Act Art 37 Compliance",
+                         "severity":  "N/A",
+                         "verdict":  "N/A",
+                         "evidence":  "N/A",
+                         "analysis":  "The provided code is a PowerShell script for an AI queue processor. It does not contain payroll logic, shift scheduling, or labor law calculations. Therefore, compliance with Japanese Labor Standards Act Art 37 (night work/overtime pay) is not applicable to this specific artifact."
+                     },
+                     {
+                         "finding_id":  "AUDIT-002",
+                         "audit_item":  "Payroll Math \u0026 Rounding Logic",
+                         "severity":  "N/A",
+                         "verdict":  "N/A",
+                         "evidence":  "N/A",
+                         "analysis":  "No financial calculations or currency rounding logic (e.g., `RoundingMode.HALF_UP`) are present in this script. The script handles text processing and file I/O."
+                     },
+                     {
+                         "finding_id":  "AUDIT-003",
+                         "audit_item":  "Concurrency \u0026 Security: Locking Mechanism",
+                         "severity":  "P1",
+                         "verdict":  "WARN",
+                         "evidence":  "`Acquire-QueueLock` function; `Release-QueueLock` function",
+                         "analysis":  "**Analysis:** The script uses a file-based lock (`$lockFile`) to prevent concurrent processing. \u003cbr\u003e1. **Race Condition:** The check `if (Test-Path -LiteralPath $LockPath)` followed by `[System.IO.File]::Open(..., CreateNew)` is not atomic in a multi-process environment if the `Test-Path` check passes but another process creates the file before `Open` is called. However, `FileMode::CreateNew` will throw an exception if the file exists, which is caught and handled. This is acceptable for a single-node PowerShell script. \u003cbr\u003e2. **Stale Lock Handling:** The script checks for stale locks (age \u003e 10 mins or dead PID). This is a good practice. \u003cbr\u003e3. **Hermes Lock:** It checks for a separate Hermes lock, preventing conflict with other audit processes. \u003cbr\u003e**Recommendation:** Ensure that the `Remove-Item` in `Release-QueueLock` is wrapped in a `try/catch` to handle cases where the file was already deleted by a stale-lock cleanup from another instance (though unlikely in single-node). The current code does this. Verdict is WARN only because file-based locking is inherently less robust than database-level pessimistic locking (`SELECT ... FOR UPDATE`) if this were part of a distributed system, but for a local script, it is acceptable."
+                     },
+                     {
+                         "finding_id":  "AUDIT-004",
+                         "audit_item":  "Security: SSRF \u0026 Endpoint Whitelisting",
+                         "severity":  "P0",
+                         "verdict":  "PASS",
+                         "evidence":  "`Validate-Endpoint` function; `$AllowedEndpoints` array",
+                         "analysis":  "**Analysis:** The script strictly validates the endpoint against a hardcoded whitelist (`http://100.111.193.94:11434`). It prevents requests to arbitrary URLs, mitigating Server-Side Request Forgery (SSRF) risks. The check `if (-not $matchFound) { throw ... }` ensures only whitelisted endpoints are used. This is a strong security control."
+                     },
+                     {
+                         "finding_id":  "AUDIT-005",
+                         "audit_item":  "Security: Path Traversal Prevention",
+                         "severity":  "P0",
+                         "verdict":  "PASS",
+                         "evidence":  "`Validate-PromptFilePath` function",
+                         "analysis":  "**Analysis:** The function resolves the full path and checks if it starts with the normalized root directory (`$projectRoot`). It uses `[System.IO.Path]::GetFullPath` to resolve `..` and `.` sequences. The check `if (-not $fullPath.StartsWith($normalizedRoot, ...))` prevents access to files outside the project root. This effectively mitigates path traversal attacks."
+                     },
+                     {
+                         "finding_id":  "AUDIT-006",
+                         "audit_item":  "Security: IDOR / Unauthorized Access",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "`Process-SingleRequest` function",
+                         "analysis":  "**Analysis:** The script processes files from a `pending` directory. It does not have a concept of \"user\" or \"owner\" for the request files. Any process that can write to the `pending` directory can trigger a request. Since this is a local script, the primary security boundary is the file system permissions on the `pending` directory. If the `pending` directory is writable by untrusted users, they could inject malicious prompts or read results. \u003cbr\u003e**Recommendation:** Ensure strict file system permissions on `docs/codex_queue/pending/` and `docs/codex_queue/completed/` to restrict access to authorized users/processes only. Consider adding a signature or hash verification for request files if multi-user access is a concern."
+                     },
+                     {
+                         "finding_id":  "AUDIT-008",
+                         "audit_item":  "Data Integrity: SHA-256 Verification",
+                         "severity":  "P1",
+                         "verdict":  "PASS",
+                         "evidence":  "`Process-SingleRequest` function",
+                         "analysis":  "**Analysis:** The script calculates the SHA-256 hash of the `raw_response.json` file and saves it to `response_sha256.txt`. It also includes the hash in the `manifest.json`. This ensures that the response can be verified for integrity later. The use of `Get-FileHash` is a standard and reliable method."
+                     },
+                     {
+                         "finding_id":  "AUDIT-009",
+                         "audit_item":  "Resource Management: File Streams",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`Acquire-QueueLock` function",
+                         "analysis":  "**Analysis:** The lock file stream is opened with `[System.IO.File]::Open` and is explicitly closed and disposed in `Release-QueueLock`. This prevents file handle leaks. The use of `try/catch` around the close/dispose operations ensures that errors during cleanup do not crash the script."
+                     },
+                     {
+                         "finding_id":  "AUDIT-010",
+                         "audit_item":  "Code Quality: Encoding Consistency",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "Script-wide",
+                         "analysis":  "**Analysis:** The script consistently uses UTF-8 encoding without BOM (`$utf8NoBom`) for all file I/O operations. This prevents encoding issues that could arise from mixing BOM and non-BOM UTF-8 files. The console output encoding is also set to UTF-8."
+                     }
+                 ]
+}

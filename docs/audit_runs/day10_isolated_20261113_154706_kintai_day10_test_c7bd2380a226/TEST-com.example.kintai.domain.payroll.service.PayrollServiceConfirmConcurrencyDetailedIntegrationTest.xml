@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="F-04: confirmPayroll 동시성 정밀 경합 및 동시 중복 확정(CAS) 검증" tests="1" skipped="0" failures="1" errors="0" timestamp="2026-11-13T06:47:36.286Z" hostname="BK" time="0.088">
+  <properties/>
+  <testcase name="동일 급여에 대한 2개 관리자 세션 동시 중복 확정 시도 시 정확히 1건만 성공하고 1건은 상태 차단 검증" classname="com.example.kintai.domain.payroll.service.PayrollServiceConfirmConcurrencyDetailedIntegrationTest" time="0.079">
+    <failure message="org.opentest4j.AssertionFailedError: 예상치 못한 기타 예외가 없어야 함: 勤務日 (2026-10-20) に有効な契約時給データが存在しません。 ==&gt; expected: &lt;null&gt; but was: &lt;java.lang.IllegalStateException: 勤務日 (2026-10-20) に有効な契約時給データが存在しません。&gt;" type="org.opentest4j.AssertionFailedError">org.opentest4j.AssertionFailedError: 예상치 못한 기타 예외가 없어야 함: 勤務日 (2026-10-20) に有効な契約時給データが存在しません。 ==&gt; expected: &lt;null&gt; but was: &lt;java.lang.IllegalStateException: 勤務日 (2026-10-20) に有効な契約時給データが存在しません。&gt;
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)
+	at org.junit.jupiter.api.AssertNull.failNotNull(AssertNull.java:56)
+	at org.junit.jupiter.api.AssertNull.assertNull(AssertNull.java:40)
+	at org.junit.jupiter.api.Assertions.assertNull(Assertions.java:306)
+	at com.example.kintai.domain.payroll.service.PayrollServiceConfirmConcurrencyDetailedIntegrationTest.concurrentDuplicateConfirm_ExactlyOneSucceeds(PayrollServiceConfirmConcurrencyDetailedIntegrationTest.java:171)
+</failure>
+  </testcase>
+  <system-out><![CDATA[2026-11-13T15:47:36.295+09:00  INFO 27296 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.PayrollServiceConfirmConcurrencyDetailedIntegrationTest]: PayrollServiceConfirmConcurrencyDetailedIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-13T15:47:36.295+09:00  INFO 27296 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.PayrollServiceConfirmConcurrencyDetailedIntegrationTest
+2026-11-13T15:47:36.295+09:00  INFO 27296 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.PayrollServiceConfirmConcurrencyDetailedIntegrationTest]: PayrollServiceConfirmConcurrencyDetailedIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-13T15:47:36.295+09:00  INFO 27296 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.PayrollServiceConfirmConcurrencyDetailedIntegrationTest
+[pool-7-thread-2] ConnectionID=192 확정 시도 시작 at 1794552456318
+[pool-7-thread-1] ConnectionID=193 확정 시도 시작 at 1794552456318
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

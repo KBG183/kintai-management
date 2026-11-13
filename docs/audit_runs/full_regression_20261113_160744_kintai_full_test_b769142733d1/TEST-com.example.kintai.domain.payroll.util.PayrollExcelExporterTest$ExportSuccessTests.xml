@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="給与データ出力正常系テスト" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-13T07:08:22.819Z" hostname="BK" time="2.22">
+  <properties/>
+  <testcase name="複数件の給与データおよびヘッダー・要約数式行が正しく生成されること" classname="com.example.kintai.domain.payroll.util.PayrollExcelExporterTest$ExportSuccessTests" time="2.012"/>
+  <testcase name="ストリーム直接出力 (exportToStream) が正常に動作すること" classname="com.example.kintai.domain.payroll.util.PayrollExcelExporterTest$ExportSuccessTests" time="0.113"/>
+  <testcase name="データ件数0件の時も例外なく安全に案内行が出力されること" classname="com.example.kintai.domain.payroll.util.PayrollExcelExporterTest$ExportSuccessTests" time="0.094"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,86 @@
+﻿{
+    "run_id":  "20261113_012440_f9b52cad",
+    "generated_at":  "2026-11-13T10:25:15.4213255+09:00",
+    "findings":  [
+                     {
+                         "finding_id":  "AUDIT-001",
+                         "audit_item":  "Japanese Labor Standards Act Art 37 Compliance",
+                         "severity":  "N/A",
+                         "verdict":  "N/A",
+                         "evidence":  "N/A",
+                         "analysis":  "The provided code is a PowerShell script for an AI queue processor. It does not contain payroll logic, shift scheduling, or labor law calculations. Therefore, Art 37 compliance checks are not applicable to this specific code artifact."
+                     },
+                     {
+                         "finding_id":  "AUDIT-002",
+                         "audit_item":  "Payroll Math \u0026 Rounding Logic",
+                         "severity":  "N/A",
+                         "verdict":  "N/A",
+                         "evidence":  "N/A",
+                         "analysis":  "No financial calculations or currency rounding logic (`RoundingMode.HALF_UP`) are present in this script. The script handles text processing and file I/O."
+                     },
+                     {
+                         "finding_id":  "AUDIT-003",
+                         "audit_item":  "Concurrency \u0026 Security: Locking Mechanism",
+                         "severity":  "P1",
+                         "verdict":  "WARN",
+                         "evidence":  "`Acquire-QueueLock` function; `Release-QueueLock` function",
+                         "analysis":  "The script uses a file-based lock (`[System.IO.File]::Open` with `FileMode::CreateNew`) to prevent concurrent processing. \u003cbr\u003e\u003cbr\u003e**Risk:** While `CreateNew` ensures atomic creation, the lock file is removed in `Release-QueueLock`. If the process crashes between acquiring the lock and writing the file, or if the lock file is deleted by an external process while the stream is open, race conditions may occur. More critically, the lock is released by closing the stream and deleting the file. If the script is killed (e.g., `Ctrl+C` or power loss), the lock file may persist. The script handles stale locks by checking PID and age, which is good, but the reliance on `Get-Process` to verify PID existence can be unreliable if the PID is reused by another process before the stale check runs. \u003cbr\u003e\u003cbr\u003e**Recommendation:** Consider using a more robust distributed locking mechanism if this scales beyond a single machine, or ensure the stale lock cleanup logic is thoroughly tested against PID reuse scenarios."
+                     },
+                     {
+                         "finding_id":  "AUDIT-004",
+                         "audit_item":  "Concurrency \u0026 Security: SSRF \u0026 Endpoint Validation",
+                         "severity":  "P0",
+                         "verdict":  "PASS",
+                         "evidence":  "`Validate-Endpoint` function; `$AllowedEndpoints` array",
+                         "analysis":  "The script strictly validates the endpoint against a hardcoded whitelist (`$AllowedEndpoints`). It trims the URL and compares it against allowed Tailscale IPs. This effectively prevents Server-Side Request Forgery (SSRF) attacks where an attacker might inject a malicious internal IP. The check is case-sensitive and exact match after trimming, which is secure."
+                     },
+                     {
+                         "finding_id":  "AUDIT-005",
+                         "audit_item":  "Concurrency \u0026 Security: Path Traversal Prevention",
+                         "severity":  "P0",
+                         "verdict":  "PASS",
+                         "evidence":  "`Validate-PromptFilePath` function",
+                         "analysis":  "The function resolves the full path and checks if it starts with the normalized root directory. It uses `[System.IO.Path]::GetFullPath` to resolve `..` and `.` sequences. The check `StartsWith($normalizedRoot, ...)` ensures the file remains within the project root. This effectively mitigates path traversal attacks."
+                     },
+                     {
+                         "finding_id":  "AUDIT-006",
+                         "audit_item":  "Concurrency \u0026 Security: IDOR / Unauthorized Access",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "`Process-SingleRequest` function",
+                         "analysis":  "The script processes files from a `pending` directory. It does not appear to have user-level authentication or authorization checks (e.g., checking who created the request vs. who is processing it). Since this is a local script likely running under a single service account, IDOR is less of a risk in a traditional web sense. However, if the `pending` directory is writable by multiple untrusted users, they could inject malicious prompts or overwrite results. The `request_id` is sanitized, but the content is not signed. \u003cbr\u003e\u003cbr\u003e**Recommendation:** If multi-user access to the queue is possible, consider adding a signature or HMAC to the request JSON to verify integrity and origin."
+                     },
+                     {
+                         "finding_id":  "AUDIT-007",
+                         "audit_item":  "Exception Handling \u0026 Boundary Validation",
+                         "severity":  "P1",
+                         "verdict":  "WARN",
+                         "evidence":  "`Process-SingleRequest` catch block; `Validate-RequestId`",
+                         "analysis":  "\u003cbr\u003e1. **JSON Parsing:** The script catches `ConvertFrom-Json` errors and throws a custom exception. This is good. \u003cbr\u003e2. **Null/Negative Hours:** Not applicable as no time-based labor logic exists. \u003cbr\u003e3. **File I/O Errors:** The script catches general exceptions in `Process-SingleRequest`. However, if `Remove-Item -LiteralPath $RequestFile.FullName -Force` fails in the success path (e.g., file locked by another process), the script will throw an exception, move the request to `failed`, but the original file might still exist in `pending` if the move/delete logic is not atomic. This could lead to duplicate processing if the script is restarted. \u003cbr\u003e4. **Regex Validation:** `Validate-RequestId` uses `^[a-zA-Z0-9_-]+$`, which is strict and safe. \u003cbr\u003e\u003cbr\u003e**Recommendation:** Ensure that the deletion of the pending file is atomic or that the script checks for file existence before processing to prevent race conditions with other queue processors."
+                     },
+                     {
+                         "finding_id":  "AUDIT-008",
+                         "audit_item":  "Data Integrity \u0026 Hashing",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`Get-FileHash` usage; `manifest.json`",
+                         "analysis":  "The script calculates the SHA-256 hash of the raw response and stores it in `response_sha256.txt` and `manifest.json`. This provides a mechanism to verify the integrity of the AI response. The hash is calculated after writing the file, which is correct."
+                     },
+                     {
+                         "finding_id":  "AUDIT-009",
+                         "audit_item":  "Resource Management",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "`Acquire-QueueLock` / `Release-QueueLock`",
+                         "analysis":  "The lock stream is opened with `FileShare::None`, which prevents other processes from reading or writing the lock file while it is held. This is good for mutual exclusion. However, if the script crashes, the lock file remains. The stale lock detection relies on `Get-Process` and age. If the PID is reused, the stale lock might not be detected immediately. \u003cbr\u003e\u003cbr\u003e**Recommendation:** Consider writing a unique token in the lock file and verifying it before assuming the lock is stale, or use a timeout-based lock release."
+                     },
+                     {
+                         "finding_id":  "AUDIT-010",
+                         "audit_item":  "Logging \u0026 Audit Trail",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`Write-Host` and `Write-Warning`",
+                         "analysis":  "The script logs key events (start, success, failure) to the console. It also writes a `manifest.json` with detailed metadata (timestamps, model, hash) for each request. This provides a good audit trail. However, console logs are not persistent. \u003cbr\u003e\u003cbr\u003e**Recommendation:** Consider writing logs to a file or centralized logging system for long-term auditability."
+                     }
+                 ]
+}

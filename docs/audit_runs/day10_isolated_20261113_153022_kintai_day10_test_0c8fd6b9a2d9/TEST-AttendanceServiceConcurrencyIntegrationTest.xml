@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Day 10: AttendanceService 동시 출퇴근 타각 검증" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-11-13T03:03:44.345Z" hostname="BK" time="5.595">
+  <properties/>
+  <testcase name="동시 CLOCK_IN 요청은 하나만 성공하고 중복 근무 행을 만들지 않는다" classname="com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest" time="0.841"/>
+  <testcase name="동시 CLOCK_OUT 요청은 하나만 성공하고 완료 상태를 보존한다" classname="com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest" time="0.042"/>
+  <system-out><![CDATA[12:03:44.555 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest]: AttendanceServiceConcurrencyIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+12:03:44.720 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest
+12:03:44.814 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest]: AttendanceServiceConcurrencyIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+12:03:44.816 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-11-13T12:03:45.255+09:00  INFO 22556 --- [    Test worker] endanceServiceConcurrencyIntegrationTest : Starting AttendanceServiceConcurrencyIntegrationTest using Java 17.0.12 with PID 22556 (started by klad3 in C:\dev\kintai)
+2026-11-13T12:03:45.257+09:00  INFO 22556 --- [    Test worker] endanceServiceConcurrencyIntegrationTest : No active profile set, falling back to 1 default profile: "default"
+2026-11-13T12:03:46.604+09:00  INFO 22556 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-11-13T12:03:46.929+09:00  INFO 22556 --- [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@247bbfba
+2026-11-13T12:03:46.931+09:00  INFO 22556 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-11-13T12:03:47.857+09:00  INFO 22556 --- [    Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-11-13T12:03:49.001+09:00  INFO 22556 --- [    Test worker] endanceServiceConcurrencyIntegrationTest : Started AttendanceServiceConcurrencyIntegrationTest in 4.097 seconds (process running for 5.72)
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

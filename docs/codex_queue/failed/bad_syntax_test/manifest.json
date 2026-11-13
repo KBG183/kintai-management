@@ -1,0 +1,15 @@
+{
+    "request_id":  "bad_syntax_test",
+    "status":  "FAILED",
+    "endpoint":  "http://100.111.193.94:11434",
+    "model":  "qwen27b:latest",
+    "created_by":  "Codex",
+    "started_at_local":  "2026-11-13T10:23:43.9277967+09:00",
+    "finished_at_local":  "2026-11-13T10:23:43.9404315+09:00",
+    "elapsed_seconds":  0.007,
+    "error_message":  "JSON_PARSE_ERROR: Failed to parse request JSON content: Invalid JSON primitive: NO_CLOSING_BRACE.",
+    "files":  {
+                  "request":  "request.json",
+                  "error":  "error.txt"
+              }
+}

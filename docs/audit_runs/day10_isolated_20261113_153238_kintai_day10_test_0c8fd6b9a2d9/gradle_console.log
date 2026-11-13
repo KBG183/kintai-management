@@ -1,0 +1,33 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.8.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :compileJava
+> Task :processResources
+> Task :classes
+> Task :compileTestJava
+> Task :processTestResources NO-SOURCE
+> Task :testClasses
+Java HotSpot(TM) 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :test
+
+Day 10: AttendanceService 동시 출퇴근 타각 검증 > 동시 CLOCK_IN 요청은 하나만 성공하고 중복 근무 행을 만들지 않는다 FAILED
+    java.sql.SQLSyntaxErrorException at AttendanceServiceConcurrencyIntegrationTest.java:180
+
+Day 10: AttendanceService 동시 출퇴근 타각 검증 > 동시 CLOCK_OUT 요청은 하나만 성공하고 완료 상태를 보존한다 FAILED
+    java.sql.SQLSyntaxErrorException at AttendanceServiceConcurrencyIntegrationTest.java:180
+
+2 tests completed, 2 failed
+
+> Task :test FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':test'.
+> There were failing tests. See the report at: file:///C:/dev/kintai/build/reports/tests/test/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+
+BUILD FAILED in 24s
+4 actionable tasks: 4 executed

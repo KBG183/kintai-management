@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Day 10: AttendanceService 동시 출퇴근 타각 검증" tests="2" skipped="0" failures="1" errors="0" timestamp="2026-11-13T06:34:25.789Z" hostname="BK" time="5.301">
+  <properties/>
+  <testcase name="동시 CLOCK_IN 요청은 하나만 성공하고 중복 근무 행을 만들지 않는다" classname="com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest" time="0.763"/>
+  <testcase name="동시 CLOCK_OUT 요청은 하나만 성공하고 완료 상태를 보존한다" classname="com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest" time="0.148">
+    <failure message="org.opentest4j.AssertionFailedError: 예상하지 않은 예외가 발생하면 안 됩니다 ==&gt; expected: &lt;null&gt; but was: &lt;org.springframework.jdbc.BadSqlGrammarException: &#13;&#10;### Error querying database.  Cause: java.sql.SQLSyntaxErrorException: Unknown column 'attendance_break_id' in 'field list'&#13;&#10;### The error may exist in file [C:\dev\kintai\build\resources\main\mapper\attendance\AttendanceMapper.xml]&#13;&#10;### The error may involve defaultParameterMap&#13;&#10;### The error occurred while setting parameters&#13;&#10;### SQL: SELECT             attendance_break_id,             attendance_id,             break_start_at,             break_end_at,             duration_minutes         FROM attendance_break         WHERE attendance_id = ?         ORDER BY break_start_at ASC&#13;&#10;### Cause: java.sql.SQLSyntaxErrorException: Unknown column 'attendance_break_id' in 'field list'&#10;; bad SQL grammar []&gt;" type="org.opentest4j.AssertionFailedError">org.opentest4j.AssertionFailedError: 예상하지 않은 예외가 발생하면 안 됩니다 ==&gt; expected: &lt;null&gt; but was: &lt;org.springframework.jdbc.BadSqlGrammarException: 
+### Error querying database.  Cause: java.sql.SQLSyntaxErrorException: Unknown column 'attendance_break_id' in 'field list'
+### The error may exist in file [C:\dev\kintai\build\resources\main\mapper\attendance\AttendanceMapper.xml]
+### The error may involve defaultParameterMap
+### The error occurred while setting parameters
+### SQL: SELECT             attendance_break_id,             attendance_id,             break_start_at,             break_end_at,             duration_minutes         FROM attendance_break         WHERE attendance_id = ?         ORDER BY break_start_at ASC
+### Cause: java.sql.SQLSyntaxErrorException: Unknown column 'attendance_break_id' in 'field list'
+; bad SQL grammar []&gt;
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:158)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:139)
+	at org.junit.jupiter.api.AssertNull.failNotNull(AssertNull.java:56)
+	at org.junit.jupiter.api.AssertNull.assertNull(AssertNull.java:40)
+	at org.junit.jupiter.api.Assertions.assertNull(Assertions.java:306)
+	at com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest.concurrentClockOut_ExactlyOneSucceeds(AttendanceServiceConcurrencyIntegrationTest.java:145)
+</failure>
+  </testcase>
+  <system-out><![CDATA[15:34:25.977 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest]: AttendanceServiceConcurrencyIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+15:34:26.125 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest
+15:34:26.211 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest]: AttendanceServiceConcurrencyIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+15:34:26.213 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-11-13T15:34:26.606+09:00  INFO 21252 --- [    Test worker] endanceServiceConcurrencyIntegrationTest : Starting AttendanceServiceConcurrencyIntegrationTest using Java 17.0.12 with PID 21252 (started by klad3 in C:\dev\kintai)
+2026-11-13T15:34:26.607+09:00  INFO 21252 --- [    Test worker] endanceServiceConcurrencyIntegrationTest : No active profile set, falling back to 1 default profile: "default"
+2026-11-13T15:34:27.833+09:00  INFO 21252 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-11-13T15:34:28.202+09:00  INFO 21252 --- [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@1008df1e
+2026-11-13T15:34:28.204+09:00  INFO 21252 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-11-13T15:34:29.081+09:00  INFO 21252 --- [    Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-11-13T15:34:30.141+09:00  INFO 21252 --- [    Test worker] endanceServiceConcurrencyIntegrationTest : Started AttendanceServiceConcurrencyIntegrationTest in 3.852 seconds (process running for 5.282)
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

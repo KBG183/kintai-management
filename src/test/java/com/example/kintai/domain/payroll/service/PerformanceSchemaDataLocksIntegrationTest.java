@@ -9,6 +9,7 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.concurrent.*;
 
@@ -24,6 +25,7 @@ class PerformanceSchemaDataLocksIntegrationTest {
     @Test
     @DisplayName("독립 커넥션에서 lockStorePayrollsForUpdate 실행 시 performance_schema.data_locks의 락 모드 및 인덱스 실측")
     void observeDataLocks() throws Exception {
+        String targetSchema = currentDatabaseName();
         CountDownLatch lockAcquired = new CountDownLatch(1);
         CountDownLatch releaseLock = new CountDownLatch(1);
 
@@ -53,8 +55,12 @@ class PerformanceSchemaDataLocksIntegrationTest {
             try {
                 lockAcquired.await(5, TimeUnit.SECONDS);
                 try (Connection c2 = dataSource.getConnection();
-                     Statement st = c2.createStatement();
-                     ResultSet rs = st.executeQuery("SELECT ENGINE, ENGINE_TRANSACTION_ID, OBJECT_NAME, INDEX_NAME, LOCK_TYPE, LOCK_MODE, LOCK_STATUS, LOCK_DATA FROM performance_schema.data_locks WHERE OBJECT_SCHEMA = 'kintai_db'")) {
+                     PreparedStatement st = c2.prepareStatement(
+                             "SELECT ENGINE, ENGINE_TRANSACTION_ID, OBJECT_NAME, INDEX_NAME, " +
+                                     "LOCK_TYPE, LOCK_MODE, LOCK_STATUS, LOCK_DATA " +
+                                     "FROM performance_schema.data_locks WHERE OBJECT_SCHEMA = ?")) {
+                    st.setString(1, targetSchema);
+                    try (ResultSet rs = st.executeQuery()) {
 
                     System.out.println("==================== [performance_schema.data_locks 실측] ====================");
                     int count = 0;
@@ -71,6 +77,7 @@ class PerformanceSchemaDataLocksIntegrationTest {
                     }
                     System.out.println("===============================================================================");
                     assertTrue(count > 0, "실제 활성 데이터 락이 performance_schema에 감지되어야 함");
+                    }
                 } finally {
                     releaseLock.countDown();
                 }
@@ -82,5 +89,16 @@ class PerformanceSchemaDataLocksIntegrationTest {
         f1.get(10, TimeUnit.SECONDS);
         f2.get(10, TimeUnit.SECONDS);
         executor.shutdown();
+    }
+
+    private String currentDatabaseName() throws SQLException {
+        try (Connection connection = dataSource.getConnection();
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery("SELECT DATABASE()")) {
+            if (!resultSet.next() || resultSet.getString(1) == null) {
+                throw new SQLException("The test datasource has no selected database.");
+            }
+            return resultSet.getString(1);
+        }
     }
 }

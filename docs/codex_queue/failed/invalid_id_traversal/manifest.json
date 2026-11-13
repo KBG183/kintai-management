@@ -1,0 +1,15 @@
+{
+    "request_id":  "invalid_id_traversal",
+    "status":  "FAILED",
+    "endpoint":  "http://100.111.193.94:11434",
+    "model":  "qwen27b:latest",
+    "created_by":  "Codex",
+    "started_at_local":  "2026-11-13T10:23:43.8118818+09:00",
+    "finished_at_local":  "2026-11-13T10:23:43.9110833+09:00",
+    "elapsed_seconds":  0.047,
+    "error_message":  "SECURITY_VIOLATION: Invalid request_id format \u0027../../evil_escape_attempt\u0027. Only alphanumeric, underscore, and hyphen characters are allowed.",
+    "files":  {
+                  "request":  "request.json",
+                  "error":  "error.txt"
+              }
+}
