@@ -396,9 +396,12 @@
 
     <!-- 勤務日時点の契約時給取得 -->
     <select id="findHourlyWageForStaffOnDate" resultType="java.lang.Integer">
-        SELECT ss.hourly_wage
-        FROM store_staff ss
-        WHERE ss.store_staff_id = #{storeStaffId}
+        SELECT hourly_wage
+        FROM store_staff_contract_history
+        WHERE store_staff_id = #{storeStaffId}
+          AND effective_from &lt;= #{workDate}
+          AND (effective_to IS NULL OR effective_to &gt; #{workDate})
+        ORDER BY effective_from DESC
         LIMIT 1
     </select>
 
