@@ -1,0 +1,28 @@
+{
+  "target_day": "Day 11 annual payroll E2E",
+  "requirements": [
+    "R-11",
+    "R-12",
+    "R-13",
+    "R-14"
+  ],
+  "rtm_items": [
+    "R-11",
+    "R-12",
+    "R-13",
+    "R-14"
+  ],
+  "test_ids": [
+    "AnnualPayrollScenarioIntegrationTest.calculatesEveryMonthAndAnnualTotalAgainstIndependentOracle",
+    "AnnualPayrollScenarioIntegrationTest.contractHistoryUsesInclusiveStartAndExclusiveEndDates"
+  ],
+  "execution_logs": [
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261113_203209_kintai_full_test_cf0fbbd96042\\gradle_console.log",
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261113_203209_kintai_full_test_cf0fbbd96042\\exit_summary.json"
+  ],
+  "junit_xml": [
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261113_203209_kintai_full_test_cf0fbbd96042\\TEST-com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest.xml"
+  ],
+  "environment": "Local MySQL 127.0.0.1:3306; Gradle wrapper; isolated database kintai_full_test_cf0fbbd96042; Docker not used",
+  "bundle_sha256": "a39493e57c6c503b01baf939dfbcdc730ba356f381545f5af69499a0f0cdc335"
+}

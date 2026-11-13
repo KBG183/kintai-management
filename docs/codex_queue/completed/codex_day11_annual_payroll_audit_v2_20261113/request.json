@@ -1,0 +1,9 @@
+{
+  "request_id": "codex_day11_annual_payroll_audit_v2_20261113",
+  "model": "qwen27b:latest",
+  "endpoint": "http://100.111.193.94:11434",
+  "prompt_file": "docs/audit_bundles/day11_annual_payroll_qwen_audit.md",
+  "prompt": "Return only the requested concise audit table and overall verdict. Maximum 700 words. Do not provide analysis transcript.",
+  "created_by": "Codex",
+  "status": "PENDING"
+}

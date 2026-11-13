@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="PayrollService 法定端数処理連携および給与不変性保護単体テスト" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-11-13T11:32:37.170Z" hostname="BK" time="0.076">
+  <properties/>
+  <testcase name="確定済み給与(CONFIRMED/PAID)の再計算はIllegalStateExceptionで遮断され不変性が保護されること" classname="com.example.kintai.domain.payroll.service.PayrollServiceTest" time="0.063"/>
+  <testcase name="行政通達 昭和62年3月14日付 基発第150号準拠の月間3大端数処理連携検証" classname="com.example.kintai.domain.payroll.service.PayrollServiceTest" time="0.001"/>
+  <testcase name="単一給与確定時、既に確定済み(CONFIRMED)の場合は悲観的ロック照会後にIllegalStateExceptionを投げること" classname="com.example.kintai.domain.payroll.service.PayrollServiceTest" time="0.003"/>
+  <testcase name="単一給与確定時、締め期間終了前(早期確定)はIllegalStateExceptionで遮断されること" classname="com.example.kintai.domain.payroll.service.PayrollServiceTest" time="0.003"/>
+  <testcase name="店舗全体の月次給与一括確定時、未処理勤怠が存在するスタッフがいる場合は一括確定を遮断すること" classname="com.example.kintai.domain.payroll.service.PayrollServiceTest" time="0.002"/>
+  <testcase name="店舗全体の月次給与一括確定が正常に実行され全件確定されること" classname="com.example.kintai.domain.payroll.service.PayrollServiceTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

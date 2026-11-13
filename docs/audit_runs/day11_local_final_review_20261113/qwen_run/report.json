@@ -1,0 +1,86 @@
+﻿{
+  "run_id": "20261113_113749_a39493e5",
+  "generated_at": "2026-11-13T20:38:45.4840669+09:00",
+  "findings": [
+    {
+      "finding_id": "F-01",
+      "audit_item": "Japanese Labor Standards Act Art 37: Night Work Calculation",
+      "severity": "P0",
+      "verdict": "PASS",
+      "evidence": "`AnnualPayrollScenarioIntegrationTest.java` (Line 142: `expectedNightAllowance = shift.wage() * shift.nightMinutes() / 240`); `schema.sql` (Line 158: `night_allowance INT ... COMMENT '深夜割増手当 (25% 加算分)'`)",
+      "analysis": "The test correctly calculates the night allowance as 25% of the base rate for night minutes. For a 1300 JPY wage, 360 minutes of night work results in `1300 * 360 / 240 = 1950` JPY, which is exactly 25% of the base pay for those hours (`1300 * 6 = 7800`; `7800 * 0.25 = 1950`). The logic aligns with the statutory requirement for night work premiums."
+    },
+    {
+      "finding_id": "F-02",
+      "audit_item": "Japanese Labor Standards Act Art 37: Overtime Calculation",
+      "severity": "P0",
+      "verdict": "PASS",
+      "evidence": "`AnnualPayrollScenarioIntegrationTest.java` (Line 143: `expectedOvertimeAllowance = shift.wage() * shift.overtimeMinutes() / 240`); `schema.sql` (Line 159: `overtime_allowance INT ... COMMENT '時間外割増手当 (25% 加算分)'`)",
+      "analysis": "The test correctly calculates the overtime allowance as 25% of the base rate for overtime minutes. For a 1300 JPY wage, 60 minutes of overtime results in `1300 * 60 / 240 = 325` JPY, which is exactly 25% of the base pay for those hours (`1300 * 1 = 1300`; `1300 * 0.25 = 325`). This complies with the standard overtime premium requirement."
+    },
+    {
+      "finding_id": "F-03",
+      "audit_item": "Payroll Math & Rounding: Integer Division Truncation",
+      "severity": "P1",
+      "verdict": "WARN",
+      "evidence": "`AnnualPayrollScenarioIntegrationTest.java` (Lines 141-143: `int expectedBase = shift.wage() * shift.netMinutes() / 60;`); `schema.sql` (Line 157: `base_pay INT`)",
+      "analysis": "The calculation uses integer division (`wage * minutes / 60`). While the test cases are designed to result in whole numbers (e.g., `1300 * 480 / 60 = 10400`), real-world scenarios with non-divisible minutes (e.g., 10 minutes) will truncate the result (e.g., `1300 * 10 / 60 = 216` instead of `216.66`). This leads to a systematic underpayment of fractions of a yen. Recommendation: Use `BigDecimal` with `RoundingMode.HALF_UP` for precise currency calculations to prevent cumulative rounding errors and ensure fair compensation."
+    },
+    {
+      "finding_id": "F-04",
+      "audit_item": "Concurrency & Security: Pessimistic Locking",
+      "severity": "P1",
+      "verdict": "PASS",
+      "evidence": "`AttendanceMapper.xml` (Line 108: `SELECT store_staff_id ... FOR UPDATE`); `AnnualPayrollScenarioIntegrationTest.java` (Implicit via service call)",
+      "analysis": "The `AttendanceMapper` includes a `lockStoreStaffForUpdate` query using `SELECT ... FOR UPDATE`. Although the specific `PayrollService` implementation is not fully visible, the presence of this mapper method indicates that the architecture supports pessimistic locking to prevent race conditions during concurrent payroll calculations or attendance updates. The integration test passes, suggesting the locking mechanism does not cause deadlocks in the tested scenario."
+    },
+    {
+      "finding_id": "F-05",
+      "audit_item": "Exception Handling & Boundary Validation: Contract Date Boundaries",
+      "severity": "P2",
+      "verdict": "PASS",
+      "evidence": "`AnnualPayrollScenarioIntegrationTest.java` (Lines 178-181: `contractHistoryUsesInclusiveStartAndExclusiveEndDates`); `AttendanceMapper.xml` (Line 196: `effective_from <= #{workDate} AND (effective_to IS NULL OR effective_to > #{workDate})`)",
+      "analysis": "The test explicitly verifies the boundary conditions for contract history: `2026-06-30` uses the old wage (1300) and `2026-07-01` uses the new wage (1400). The SQL query in `AttendanceMapper` correctly implements the \"inclusive start, exclusive end\" logic (`effective_to > workDate`), ensuring that the wage change on `2026-07-01` is applied correctly without off-by-one errors."
+    },
+    {
+      "finding_id": "F-06",
+      "audit_item": "Fixture/Cleanup Safety: Data Isolation",
+      "severity": "P2",
+      "verdict": "PASS",
+      "evidence": "`AnnualPayrollScenarioIntegrationTest.java` (Lines 68-85: `cleanAnnualScenario`); `schema.sql` (Line 12: `member_id BIGINT AUTO_INCREMENT PRIMARY KEY`)",
+      "analysis": "The test uses `@BeforeEach` to seed unique data with UUIDs and `@AfterEach` to clean up all related records (payroll, attendance, breaks, staff, store, members). The cleanup logic deletes from child tables before parent tables, respecting foreign key constraints. This ensures that the test does not pollute the database state for other tests, maintaining isolation."
+    },
+    {
+      "finding_id": "F-07",
+      "audit_item": "Integration Coverage: End-to-End Scenario",
+      "severity": "P1",
+      "verdict": "PASS",
+      "evidence": "`AnnualPayrollScenarioIntegrationTest.java` (Lines 118-176: `calculatesEveryMonthAndAnnualTotalAgainstIndependentOracle`); `exit_summary.json` (`\"result\": \"PASS\"`)",
+      "analysis": "The test covers a full 12-month scenario, verifying attendance calculation, contract wage application, payroll aggregation, and annual totals against an independent oracle. It validates the entire flow from clock-in data to final gross pay, including night and overtime premiums. The execution evidence confirms that all 81 tests, including this integration test, passed successfully."
+    },
+    {
+      "finding_id": "F-08",
+      "audit_item": "Schema Column Constraints: Data Types",
+      "severity": "P2",
+      "verdict": "PASS",
+      "evidence": "`schema.sql` (Lines 157-163: `base_pay INT`, `night_allowance INT`, `overtime_allowance INT`, `gross_pay INT`)",
+      "analysis": "The payroll table uses `INT` for monetary values, which is appropriate for storing yen amounts (no decimals). The constraints ensure non-negative values where applicable. The schema design supports the precision required for the test cases and general payroll calculations in JPY."
+    },
+    {
+      "finding_id": "F-09",
+      "audit_item": "IDOR Vulnerability Check",
+      "severity": "P2",
+      "verdict": "N/A",
+      "evidence": "`AnnualPayrollScenarioIntegrationTest.java` (Uses direct service calls with specific IDs)",
+      "analysis": "The provided code snippet does not include the REST controller layer or security filter configuration, so a direct IDOR vulnerability assessment is not possible from the given input. However, the service layer methods (`calculatePayrollForStaff`) take explicit `storeId` and `staffId` parameters, which should be validated against the authenticated user's permissions in the controller layer. Recommendation: Ensure that the controller layer enforces authorization checks to prevent users from accessing payroll data for other stores or staff members."
+    },
+    {
+      "finding_id": "F-10",
+      "audit_item": "Execution Evidence Consistency",
+      "severity": "Info",
+      "verdict": "PASS",
+      "evidence": "`exit_summary.json` (`\"gradle_exit_code\": 0`, `\"failures\": 0`); `TEST-...AnnualPayrollScenarioIntegrationTest.xml` (`failures=\"0\"`, `errors=\"0\"`)",
+      "analysis": "The execution summary and JUnit XML report are consistent, showing that the build succeeded with no test failures or errors. The specific integration test for the annual payroll scenario passed, confirming that the code changes are stable and do not introduce regressions."
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "request_id": "codex_day11_annual_payroll_audit_20261113",
+  "model": "qwen27b:latest",
+  "endpoint": "http://100.111.193.94:11434",
+  "prompt_file": "docs/audit_bundles/day11_annual_payroll_qwen_audit.md",
+  "prompt": "Perform an independent blind audit of the complete supplied bundle. Use only the bundle. Return a concise table with Audit Item, Verdict, Finding, Required Evidence or Fix, then overall verdict. Explicitly state execution blockers; do not claim tests ran.",
+  "created_by": "Codex",
+  "status": "PENDING"
+}

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="F-04: confirmPayroll 동시성 정밀 경합 및 동시 중복 확정(CAS) 검증" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-11-13T11:32:37.045Z" hostname="BK" time="0.052">
+  <properties/>
+  <testcase name="동일 급여에 대한 2개 관리자 세션 동시 중복 확정 시도 시 정확히 1건만 성공하고 1건은 상태 차단 검증" classname="com.example.kintai.domain.payroll.service.PayrollServiceConfirmConcurrencyDetailedIntegrationTest" time="0.042"/>
+  <system-out><![CDATA[2026-11-13T20:32:37.045+09:00  INFO 20960 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.PayrollServiceConfirmConcurrencyDetailedIntegrationTest]: PayrollServiceConfirmConcurrencyDetailedIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-13T20:32:37.048+09:00  INFO 20960 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.PayrollServiceConfirmConcurrencyDetailedIntegrationTest
+2026-11-13T20:32:37.049+09:00  INFO 20960 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.PayrollServiceConfirmConcurrencyDetailedIntegrationTest]: PayrollServiceConfirmConcurrencyDetailedIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-13T20:32:37.053+09:00  INFO 20960 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.PayrollServiceConfirmConcurrencyDetailedIntegrationTest
+[pool-9-thread-1] ConnectionID=31 확정 시도 시작 at 1794569557064
+[pool-9-thread-2] ConnectionID=32 확정 시도 시작 at 1794569557064
+[pool-9-thread-1] 2중 확정 안전 차단 포착: ?に確定?みの給?デ?タです。(現在の?態: CONFIRMED)
+[pool-9-thread-2] 확정 성공 완료 at 1794569557087
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

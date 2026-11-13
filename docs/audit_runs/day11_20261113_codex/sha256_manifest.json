@@ -1,0 +1,73 @@
+{
+  "schema_version": "1.0",
+  "generated_at_utc": "2026-11-13T11:17:11.5918442Z",
+  "algorithm": "SHA-256",
+  "status": "IMPLEMENTED_BLOCKED_UNVERIFIED",
+  "files": [
+    {
+      "path": "src\\test\\java\\com\\example\\kintai\\domain\\payroll\\service\\AnnualPayrollScenarioIntegrationTest.java",
+      "bytes": 13068,
+      "sha256": "49ad6b85d4fd7ce5d214c59a081d5b0f777f2007bb44ac7c264efecdb8ab295e"
+    },
+    {
+      "path": "src\\main\\resources\\mapper\\attendance\\AttendanceMapper.xml",
+      "bytes": 15853,
+      "sha256": "1d9e43fd38f93f6bb03dc0497ddb7ded4855d3b3e64c13ba6f50aca783ee49e0"
+    },
+    {
+      "path": "scripts\\prepare_day11_isolated_db.ps1",
+      "bytes": 2683,
+      "sha256": "0a7ade2cc0c9cb8ff7005c1cb77ec3b092269f6968f40fe846afb9b543f213ad"
+    },
+    {
+      "path": "scripts\\run_isolated_regression.ps1",
+      "bytes": 7495,
+      "sha256": "101f9f74132a14721d56c24b01e93ff1db97d2dd041b7f55baa89a73193d29b4"
+    },
+    {
+      "path": "docs\\working\\day11_task.md",
+      "bytes": 14601,
+      "sha256": "39748f5b8609e91ba45bf4d9dc34d4299467d624e8cfc7c2fe4ff15a871221d2"
+    },
+    {
+      "path": "docs\\rtm_ledger.md",
+      "bytes": 11562,
+      "sha256": "1a36307912710c213bdf6ed12bb4e4ff41290c73d71156bfb8d551acf7781e01"
+    },
+    {
+      "path": "docs\\portfolio_audit_evidence_KO.md",
+      "bytes": 160313,
+      "sha256": "ea8a6ca71c3c5d6116d3af682025e3f5db1e2c8271a3e11dc9a41d69cf80facc"
+    },
+    {
+      "path": "docs\\portfolio_audit_evidence.md",
+      "bytes": 144087,
+      "sha256": "e97e474d22b45b6a95ee98c7e9fa464ffefaeee0bde30b3a5c05b5b684c7b3c8"
+    },
+    {
+      "path": "docs\\handoff\\20261113_1955_codex_day11_handoff.md",
+      "bytes": 5450,
+      "sha256": "81fb561a8773e11ca110333bddd615030744a96f51682d3b15c1167f8a950ca2"
+    },
+    {
+      "path": "docs\\audit_bundles\\day11_annual_payroll_qwen_audit.md",
+      "bytes": 13625,
+      "sha256": "25b424422780205bdac68f2d631099cce791ab5d69a8eb5d638d7307adf01230"
+    },
+    {
+      "path": "docs\\audit_runs\\day11_20261113_codex\\execution_blockers.md",
+      "bytes": 6200,
+      "sha256": "ac81e3628c7004a042c08b1a6be02c16f64276f413e192fa869e8e66c26152fe"
+    },
+    {
+      "path": "docs\\codex_queue\\completed\\codex_day11_annual_payroll_audit_v3_20261113\\raw_response.json",
+      "bytes": 25016,
+      "sha256": "8df2c3bc5b10d5b56aa6ffae3cc53d3e94c33b341f5a04503bb6d7030ba1a3b5"
+    },
+    {
+      "path": "docs\\codex_queue\\completed\\codex_day11_annual_payroll_audit_v3_20261113\\result.md",
+      "bytes": 4560,
+      "sha256": "a6f0e32feee52097a21e5d5d7c1058cb7ce12812946f4f440abd22aad1495e0f"
+    }
+  ]
+}

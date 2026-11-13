@@ -1,0 +1,8 @@
+﻿{
+    "database":  "kintai_day11_test_769aa826e376",
+    "scope":  "Day11",
+    "test_class":  "com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest",
+    "run_id":  "20261113_202210",
+    "output_dir":  "C:\\dev\\kintai\\docs\\audit_runs\\isolated_day11_20261113_202210_kintai_day11_test_769aa826e376",
+    "jdbc_url_host":  "127.0.0.1:3306"
+}

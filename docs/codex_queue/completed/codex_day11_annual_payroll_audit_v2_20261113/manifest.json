@@ -1,0 +1,19 @@
+{
+    "request_id":  "codex_day11_annual_payroll_audit_v2_20261113",
+    "status":  "SUCCESS",
+    "endpoint":  "http://100.111.193.94:11434",
+    "model":  "qwen27b:latest",
+    "created_by":  "Codex",
+    "started_at_local":  "2026-11-13T19:59:24.7678085+09:00",
+    "finished_at_local":  "2026-11-13T20:01:16.6045758+09:00",
+    "elapsed_seconds":  111.837,
+    "prompt_eval_count":  3762,
+    "eval_count":  4430,
+    "response_sha256":  "5a306a2b6ebec880398d63452c83346ff1379767f011dd0c98205b157861e61f",
+    "files":  {
+                  "request":  "request.json",
+                  "raw_response":  "raw_response.json",
+                  "result":  "result.md",
+                  "sha256":  "response_sha256.txt"
+              }
+}
