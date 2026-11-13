@@ -664,7 +664,7 @@ flowchart TD
 
 ### 5-3. 감사 인프라의 단계적 진화와 도입 경위 (7B → 9B Q8 → Qwen3.8 27B IQ3_M)
 
-본 로컬 감사 파이프라인은 **동료 엔지니어의 로컬 LLM 정적 코드 감사 제안과 모델 추천**을 계기로, 개발자가 Spring Boot 프로젝트의 개발·감사 흐름에 통합한 진행 중인 결과물입니다. Tailscale을 통한 Ollama API 연동, 커스텀 Modelfile 기반 양자화 모델 빌드·등록, 45개 도메인 점검 기준 수립, 일부 감사 지적의 코드 반영 및 컴파일 검증을 진행했습니다. 이 문서는 2주 스프린트 중간 기록이므로, 아직 완료하지 않은 코드 구현·테스트·배포 작업은 향후 실측 로그와 함께 추가합니다. *(※ 각 단계는 하드웨어·입력 길이·옵션 조건이 다르므로 단순 속도 벤치마크가 아닌 인프라 구축 기록임)*
+본 로컬 감사 파이프라인은 **동료 엔지니어의 로컬 LLM 정적 코드 감사 제안과 모델 추천**을 계기로, 개발자가 Spring Boot 프로젝트의 개발·감사 흐름에 통합한 진행 중인 결과물입니다. Tailscale을 통한 Ollama API 연동, 커스텀 Modelfile 기반 양자화 모델 빌드·등록, 45개 도메인 점검 기준 수립, 일부 감사 지적의 코드 반영 및 컴파일 검증을 진행했습니다. 이 문서는 2주 스프린트 중간 기록이므로, 아직 완료하지 않은 코드 구현·테스트는 향후 실측 로그와 함께 추가합니다. Docker Compose·Redis·AWS/클라우드 배포는 2026-11-13 일정 결정에 따라 이력서 제출 범위에서 제외했으며, 2027년 1월에서 2월 사이 AWS 학습 시 후속 구현할 예정입니다. *(※ 각 단계는 하드웨어·입력 길이·옵션 조건이 다르므로 단순 속도 벤치마크가 아닌 인프라 구축 기록임)*
 
 1. **Phase 1 (Day 1~2, 학원 노트북 `RTX 3060 Laptop 6GB` + `Qwen 2.5 7B`)**:
    - 기본적인 어노테이션 누락이나 1차 스크리닝은 가능했으나, 6GB VRAM 제약으로 인해 긴 코드 컨텍스트 투입이 제한되었고 복합 도메인 규칙을 깊게 교차 검증하는 데 한계가 있었음.
@@ -1027,3 +1027,61 @@ Day 4 이후 기록을 추가할 때는 기존 수치를 덮어쓰지 않고 날
 - **최종 상태 판정**:
   - 전체 Gradle 회귀 테스트: **VERIFIED** (79건 전수 통과 실측 및 Exit Code 0 입증)
   - MySQL 8.4 Testcontainers: Docker 부재로 인한 **BLOCKED** 상태 엄격 유지
+- **스키마 정본 통합(2026-11-13)**: 실제 실행 참조가 없는 구형 `src/main/resources/schema.sql`을 삭제하지 않고 `docs/legacy_audit_reports/schema.sql_legacy_20261113.sql`로 이동했다. 현재 정본은 `src/main/resources/db/schema.sql` rev.3이며, 애플리케이션·테스트용으로 DB 생성·선택 구문을 제거했다. 구형 파일 SHA-256은 `9B890EF89861DA789238A47D89E626A969934E1782489C7BD1412EFB31F9154F`로 보존했다.
+
+### 스키마 정본 통합 후 전체 Gradle 회귀 재검증 (79/79 PASS, 2026-11-13)
+
+- **검증 목적**: 스키마 정본 통합(`src/main/resources/db/schema.sql` rev.3 단일화 및 구형 스키마 격리) 후, 신규 격리 DB에서 전체 Gradle 회귀 테스트를 재실행하여 79건 전체의 빌드 및 테스트 무결성을 최종 검증함.
+- **실행 DB명**: `kintai_full_test_d90b040155e0` (로컬 MySQL 26.7.0, 운영 DB `kintai_db` 미접촉 완전 격리 보장)
+- **적용 정본 스키마**: `src/main/resources/db/schema.sql` (rev.3 정식 스키마, SHA-256: `0BF603AFC859265D70370737A825F4838EB3D34BF277E6DE60501A4469C53240`)
+- **적용 Fixture**: `scripts/full_test_fixtures.sql` (SHA-256: `CD14A4E339B5F88F66B9D679B33BDD6F54929C6348780626918FC85A29ED500C`)
+- **실행 명령**: `.\gradlew.bat test --rerun-tasks --no-daemon --console plain`
+- **재검증 최종 실측 집계**:
+  - 총 테스트 수: **79건**
+  - 성공(PASS): **79건 (100% 전수 통과 달성)**
+  - 실패(FAILURE): **0건**
+  - 오류(ERROR): **0건**
+  - 스킵(SKIPPED): **0건**
+  - Gradle 종료 코드: **0 (BUILD SUCCESSFUL in 32s)**
+  - 수집된 JUnit XML 수: **33개** (100% 보존 완료)
+- **핵심 테스트 검증 확인**:
+  - `PerformanceSchemaDataLocksIntegrationTest`: **PASS** (동적 스키마 바인딩 정상 작동, TABLE IX 및 RECORD X 락 실측 완료)
+  - `AttendanceServiceConcurrencyIntegrationTest` (CLOCK_IN, CLOCK_OUT): **PASS**
+  - 급여·근태·보안 전체 통합 테스트 79건: **전원 PASS**
+- **증적 보존 경로**:
+  - 실행 디렉터리: `docs/audit_runs/full_regression_20261113_162950_kintai_full_test_d90b040155e0/`
+  - 콘솔 원본 로그: `docs/audit_runs/full_regression_20261113_162950_kintai_full_test_d90b040155e0/gradle_console.log` (SHA-256: `FEFD9EA5335F3ADB28170F0051EE2CEFCECEA435329E3E3FF13913F99E74F96B`)
+  - 전체 JUnit XML: `docs/audit_runs/full_regression_20261113_162950_kintai_full_test_d90b040155e0/TEST-*.xml` (33개)
+- **운영 DB 격리 실측**:
+  - 테스트 전후 `kintai_db` 테이블 수 11개 유지, 변경 미접촉 확인 완료.
+- **최종 상태 판정**:
+  - 스키마 정본 통합 후 전체 Gradle 회귀 테스트: **VERIFIED** (79건 전수 합격 및 종료 코드 0 확인으로 `SCHEMA_REVALIDATION_PENDING` 해소)
+  - MySQL 8.4 Testcontainers: Docker 부재로 인한 **BLOCKED** 상태 유지
+- 2026-11-13 운영 안정화 개선: `scripts/run_isolated_regression.ps1` 공용 격리 테스트 실행기와 `scripts/cleanup_isolated_databases.ps1` 조회 우선 정리기를 추가했다. 실행기 정적 반영은 완료했으며, 현재 Codex 실행 환경에서는 MySQL 127.0.0.1:3306 접근이 차단되어 실측 재실행은 `BLOCKED`로 기록한다. 기존 전체 회귀 실측 79/79 PASS 증적은 유지한다. 새 실행기는 `KINTAI_DB_PASSWORD`를 우선 사용하고 기존 설정을 호환용으로 읽는다. `application.yaml` 평문 비밀번호 제거는 로컬 환경 전환이 필요한 별도 후속 작업으로 남긴다.
+- 2026-11-13 공용 실행기 산출물 사후 확인: `isolated_all_20261113_164156_kintai_full_test_52bbea674f8d`의 기존 실행 로그는 Gradle 종료 코드 0 및 `BUILD SUCCESSFUL`을 보이며, 보존된 JUnit XML 33개를 사후 집계해 79건 PASS, 실패·오류·스킵 0건을 확인했다. 이 실행은 상세 JUnit 집계와 SHA-256 자동 생성 변경 전의 실행이므로, 새 기능을 포함한 실행기의 종단 간 재실행 검증으로 간주하지 않는다. 이번 세션에서 기존 콘솔 로그와 JUnit XML의 SHA-256 매니페스트를 사후 생성하고 해시 일치를 확인했다. 콘솔 로그 SHA-256은 `7EE458FEDA4EC5915565FB18DF6C3B46C9E7DAB20AFF18D41BD7EE2CB62F1996`이다. 새 실행기의 전체 실행 검증은 로컬 MySQL 접근이 가능한 환경에서 남아 있다.
+
+## Day 11 진행 기록 (2026-11-13)
+
+- **상태: BLOCKED, 실행 검증 전.** 2026년 12개월 급여 E2E 테스트와 계약 이력 유효기간 조회 수정을 준비했다. 7월 시급 변경, 심야·초과·복수휴게, 월 교통비 한도, 월별 급여 및 독립 연간 합계를 포함한다.
+- 로컬 격리 MySQL 접속이 `127.0.0.1:3306` 오류 10013으로 거부되어 DB 생성과 E2E 실행이 시작되지 않았다. Gradle Wrapper 잠금 파일 접근 거부와 직접 Gradle 데몬 통신 제한 때문에 컴파일도 완료하지 못했다. 운영 DB에 우회 접속하지 않았다.
+- JUnit 결과물은 아직 없다. 구현은 완료 처리하지 않았으며, Day 11 최종 VERIFIED 판정도 보류한다.
+- 실행 시도 및 미해결 항목: `docs/audit_runs/day11_20261113_codex/execution_blockers.md`. Qwen 독립 검토 요청 ID: `codex_day11_annual_payroll_audit_v3_20261113`.
+
+### Day 11 실행 및 로컬 Qwen 최종 검수 정정 기록 (2026-11-13)
+
+- 신규 격리 DB `kintai_full_test_cf0fbbd96042`에서 전체 회귀 81건을 실행해 실패 0, 오류 0, 스킵 0, Gradle 종료 코드 0을 확인했다. JUnit에 포함된 `AnnualPayrollScenarioIntegrationTest` 2건도 통과했다. 증적: `docs/audit_runs/isolated_all_20261113_203209_kintai_full_test_cf0fbbd96042/`.
+- 로컬 Qwen 27B 검수는 `qwen27b:latest` (Ollama 0.40.16, IQ3_M, 27.3B), Run ID `20261113_113749_a39493e5`로 완료했다. 입력 SHA-256: `a39493e57c6c503b01baf939dfbcdc730ba356f381545f5af69499a0f0cdc335`.
+- 모델의 정수 나눗셈 절삭 F-03 경고는 실제 `PayrollCalculator`가 `BigDecimal` 및 `RoundingMode.HALF_UP`을 사용하는 점과 불일치해 오탐으로 판정했다.
+- 모델은 테스트가 타각에서 시작하는 E2E라고 PASS 판정했으나, fixture는 근태·휴게 행을 DB에 직접 입력한다. 따라서 이 테스트는 12개월 상세 근무·급여 계산 통합 흐름을 검증하며 타각 API/서비스 경로는 검증하지 않는다.
+- 잠금 PASS는 잠금 코드의 존재·호출을 확인하지만 이 시나리오 실행만으로 동시성 안전성을 입증하지 않는다. 오라클과 지적별 대조: `docs/audit_runs/day11_local_final_review_20261113/review_reconciliation_KO.md`.
+- 초기 실행 BLOCKED 기록은 당시 실행환경의 정확한 이력으로 보존한다. 후속 격리 실행 결과로 현재 상태를 갱신한다. MySQL 8.4 Testcontainers는 Day 11 완료를 막지 않으며 **2027년 1월 재검토 예정(DEFERRED)** 이다. 아직 실행하지 않았으므로 미검증으로 유지하고 로컬 MySQL 결과와 혼합하지 않는다.
+
+### Day 11 최종 상태와 검수 범위 (2026-11-13)
+
+- **전체 판정: PARTIALLY_VERIFIED.** 최초 BLOCKED는 당시 실행환경 이력으로 보존하며, 현재 실행 판정과 혼합하지 않는다.
+- 대상 격리 실행에서 `AnnualPayrollScenarioIntegrationTest` 2건 PASS. 전체 회귀는 격리 DB `kintai_full_test_cf0fbbd96042`, 로컬 MySQL 26.7에서 81건 PASS, 실패·오류·스킵 0건, Gradle 종료 코드 0이다. JUnit·로그·요약·SHA-256 증적은 `docs/audit_runs/isolated_all_20261113_203209_kintai_full_test_cf0fbbd96042/`에 보존했다.
+- 검증은 DB에 직접 입력한 근태에서 노동 계산·급여 서비스까지의 통합 경로다. 타각 API/컨트롤러/화면 경로는 검증하지 않았으며, 월 1건 근무 자료이므로 실제 월별 근무 분포를 재현하지 않는다.
+- 자정 통과 야간, 다회 휴게, 계약 변경 경계(6월 30일/7월 1일)는 포함한다. 동일일 분할 근무 누적 8시간, 월마감 경계, 반올림 경계는 이 시나리오에서 입증하지 않았다. 테스트 클래스 자체의 DB명 fail-closed 검사도 없어, 격리 실행기 밖에서 단독 실행할 때의 datasource 보호는 후속 보완 대상이다.
+- Qwen 검수 Run ID `20261113_113749_a39493e5`와 지적 대조표를 보존했다. 단, 최종 소스에 추가된 일부 계약 경계·통근비 상한 단언이 해당 리뷰 입력 이후 반영되어 최종 소스 전체에 대한 독립 재검수는 부분 상태다.
+- RTM: R-11 **PARTIALLY_VERIFIED**, R-12 **PARTIALLY_VERIFIED**, R-13 **VERIFIED (로컬 MySQL 26.7 한정)**, R-14 **PARTIALLY_VERIFIED**. 상세 매핑은 `docs/rtm_ledger.md`를 따른다.
+- MySQL 8.4 Testcontainers는 사용자 결정에 따라 **2027년 1월 재검토(DEFERRED)** 이며 미검증이다. 달력 및 현실적인 브라우저 데모 데이터 확인은 이 Day 11 서비스 통합 결과에 포함하지 않는다.

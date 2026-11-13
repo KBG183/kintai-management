@@ -599,7 +599,7 @@ flowchart TD
 
 ### 5-3. 監査インフラの段階的進化と導入経緯 (7B → 9B Q8 → Qwen3.8 27B IQ3_M)
 
-本ローカル監査パイプラインは、**同僚エンジニアによるローカルLLM静的コード監査の提案とモデル推薦**を契機に、開発者がSpring Bootプロジェクトの開発・監査フローへ統合した進行中の成果物である。Tailscale経由のOllama API連携、カスタムModelfileによる量子化モデルのビルド・登録、45項目のドメイン点検基準の策定、一部の監査指摘に対するコード反映およびコンパイル検証を進めている。本書は2週間スプリントの中間記録であり、未完了の実装・テスト・デプロイ作業は、今後の実測ログとともに追記する。（*※各段階はハードウェア・入力長・設定条件が異なるため、単純な速度ベンチマーク比較ではなくインフラ構築の推移記録である*）
+本ローカル監査パイプラインは、**同僚エンジニアによるローカルLLM静的コード監査の提案とモデル推薦**を契機に、開発者がSpring Bootプロジェクトの開発・監査フローへ統合した進行中の成果物である。Tailscale経由のOllama API連携、カスタムModelfileによる量子化モデルのビルド・登録、45項目のドメイン点検基準の策定、一部の監査指摘に対するコード反映およびコンパイル検証を進めている。本書は2週間スプリントの中間記録であり、未完了の実装・テストは今後の実測ログとともに追記する。Docker Compose・Redis・AWS/クラウドデプロイは2026-11-13のスケジュール決定により履歴書提出範囲から除外し、2027年1月から2月のAWS学習時に後続実装する予定である。（*※各段階はハードウェア・入力長・設定条件が異なるため、単純な速度ベンチマーク比較ではなくインフラ構築の推移記録である*）
 
 1. **Phase 1（Day 1〜2、学内ノートPC `RTX 3060 Laptop 6GB` ＋ `Qwen 2.5 7B`）**:
    - 基本的なアノテーション漏れ等の一次スクリーニングは可能であったが、6GB VRAMの制約により長大なコードコンテキストの投入が難しく、複合的な業務規則を深くクロス検証するには限界があった。
@@ -940,3 +940,61 @@ Day 4以降の記録を追加する際は、既存の数値を上書きせず、
 - **最終判定**:
   - 全体Gradle回帰テスト: **VERIFIED** (79件全件合格実測およびExit Code 0立証)
   - MySQL 8.4 Testcontainers: Docker環境未確保のため **BLOCKED** 状態厳格維持
+- **スキーマ正本統合（2026-11-13）**: 実行参照のない旧 `src/main/resources/schema.sql` を削除せず `docs/legacy_audit_reports/schema.sql_legacy_20261113.sql` へ移動した。現在の正本は `src/main/resources/db/schema.sql` rev.3であり、アプリケーション・テスト用にDB作成・選択行を除外した。旧ファイルのSHA-256は `9B890EF89861DA789238A47D89E626A969934E1782489C7BD1412EFB31F9154F` として保存した。
+
+### スキーマ正本統合後の全体Gradle回帰再検証（79/79 PASS, 2026-11-13）
+
+- **検証目的**: スキーマ正本統合（`src/main/resources/db/schema.sql` rev.3 への一本化および旧スキーマの隔離）後、新規分離DBにて全体Gradle回帰テストを再実行し、79件全件のビルドおよびテスト無欠性を最終検証する。
+- **実行DB名**: `kintai_full_test_d90b040155e0`（ローカルMySQL 26.7.0、本番DB `kintai_db` 非接触・完全分離保証）
+- **適用正本スキーマ**: `src/main/resources/db/schema.sql`（rev.3 正本スキーマ、SHA-256: `0BF603AFC859265D70370737A825F4838EB3D34BF277E6DE60501A4469C53240`）
+- **適用Fixture**: `scripts/full_test_fixtures.sql`（SHA-256: `CD14A4E339B5F88F66B9D679B33BDD6F54929C6348780626918FC85A29ED500C`）
+- **実行コマンド**: `.\gradlew.bat test --rerun-tasks --no-daemon --console plain`
+- **再検証最終実測集計**:
+  - 総テスト数: **79件**
+  - 成功(PASS): **79件（100%全件合格達成）**
+  - 失敗(FAILURE): **0件**
+  - エラー(ERROR): **0件**
+  - スキップ(SKIPPED): **0件**
+  - Gradle終了コード: **0 (BUILD SUCCESSFUL in 32s)**
+  - 収集JUnit XML数: **33個**（100%保存完了）
+- **主要テスト検証確認**:
+  - `PerformanceSchemaDataLocksIntegrationTest`: **PASS**（動的スキーマバインド正常動作、TABLE IX および RECORD X ロック実測完了）
+  - `AttendanceServiceConcurrencyIntegrationTest` (CLOCK_IN, CLOCK_OUT): **PASS**
+  - 給与・勤怠・セキュリティ全体統合テスト79件: **全件PASS**
+- **証跡保存パス**:
+  - 実行ディレクトリ: `docs/audit_runs/full_regression_20261113_162950_kintai_full_test_d90b040155e0/`
+  - コンソール原本ログ: `docs/audit_runs/full_regression_20261113_162950_kintai_full_test_d90b040155e0/gradle_console.log`（SHA-256: `FEFD9EA5335F3ADB28170F0051EE2CEFCECEA435329E3E3FF13913F99E74F96B`）
+  - 全体JUnit XML: `docs/audit_runs/full_regression_20261113_162950_kintai_full_test_d90b040155e0/TEST-*.xml`（33個）
+- **本番DB分離実測**:
+  - テスト前後における `kintai_db` のテーブル数11個維持、変更非接触を確認完了。
+- **最終状態判定**:
+  - スキーマ正本統合後の全体Gradle回帰テスト: **VERIFIED**（79件全件合格および終了コード0確認により `SCHEMA_REVALIDATION_PENDING` 解消）
+  - MySQL 8.4 Testcontainers: Docker不在による **BLOCKED** 状態維持
+- 2026-11-13 運用安定化改善: `scripts/run_isolated_regression.ps1` 共通隔離テスト実行器と `scripts/cleanup_isolated_databases.ps1` 照会優先クリーンアップを追加した。実行器の静的反映は完了したが、現在のCodex実行環境ではMySQL 127.0.0.1:3306への接続が遮断されているため、実測再実行は `BLOCKED` と記録する。既存の全回帰実測79/79 PASS証跡は維持する。新実行器は `KINTAI_DB_PASSWORD` を優先し、既存設定を互換用に読み込む。`application.yaml` の平文パスワード削除はローカル環境移行を伴う別途作業として保留する。
+- 2026-11-13 共通実行器の成果物を事後確認: `isolated_all_20261113_164156_kintai_full_test_52bbea674f8d` の既存ログにはGradle終了コード0および `BUILD SUCCESSFUL` が記録されている。保存済みJUnit XML 33件を事後集計し、79件PASS、失敗・エラー・スキップ各0件を確認した。この実行は詳細JUnit集計とSHA-256自動生成の変更前であるため、新機能を含む実行器のE2E再実行検証とはみなさない。今回のセッションで既存コンソールログとJUnit XMLのSHA-256マニフェストを事後生成し、ハッシュ一致を確認した。コンソールログSHA-256は `7EE458FEDA4EC5915565FB18DF6C3B46C9E7DAB20AFF18D41BD7EE2CB62F1996`。新実行器の全実行検証はローカルMySQLへ接続できる環境で行う必要がある。
+
+## Day 11 進捗記録 (2026-11-13)
+
+- **状態: BLOCKED、実行検証前。** 2026年の12か月給与E2Eテストと、契約履歴の有効期間を参照する時給取得処理を準備した。7月の時給変更、深夜・時間外・複数休憩、月間交通費上限、月別給与と独立した年間合計を含む。
+- ローカルの隔離MySQLへの接続が `127.0.0.1:3306` エラー10013で拒否され、DB作成とE2E実行を開始できなかった。Gradle Wrapperのロックファイル権限拒否、および直接起動したGradleのデーモン通信制限により、コンパイルも完了していない。本番DBへの迂回接続は行っていない。
+- JUnit成果物はまだない。実装を完了扱いにせず、Day 11の最終VERIFIED判定も保留する。
+- 実行記録と未解決項目: `docs/audit_runs/day11_20261113_codex/execution_blockers.md`。Qwen独立レビュー要求ID: `codex_day11_annual_payroll_audit_v3_20261113`。
+
+### Day 11 実行およびローカルQwen最終レビューの訂正記録 (2026-11-13)
+
+- 新規分離DB `kintai_full_test_cf0fbbd96042` で全回帰81件を実行し、失敗0、エラー0、スキップ0、Gradle終了コード0を確認した。JUnitに含まれる `AnnualPayrollScenarioIntegrationTest` 2件も合格した。証跡: `docs/audit_runs/isolated_all_20261113_203209_kintai_full_test_cf0fbbd96042/`。
+- ローカルQwen 27Bレビューは `qwen27b:latest` (Ollama 0.40.16、IQ3_M、27.3B)、Run ID `20261113_113749_a39493e5` で完了した。入力SHA-256: `a39493e57c6c503b01baf939dfbcdc730ba356f381545f5af69499a0f0cdc335`。
+- 整数除算による切捨てというモデルのF-03警告は、実際の `PayrollCalculator` が `BigDecimal` と `RoundingMode.HALF_UP` を使用しているため誤検出と判定した。
+- モデルは打刻から始まるE2EとしてPASSとしたが、fixtureは勤怠・休憩行をDBへ直接INSERTしている。このテストは12か月の詳細勤務・給与計算の統合フローを検証し、打刻API/サービス経路は検証していない。
+- ロックのPASSはロックコードの存在と呼出しを確認するが、このシナリオ実行だけで並行性安全性を証明しない。指摘別対照: `docs/audit_runs/day11_local_final_review_20261113/review_reconciliation_KO.md`。
+- 初回実行BLOCKED記録は当時の実行環境の履歴として保持する。後続の分離実行結果に基づき現在状態を更新する。MySQL 8.4 TestcontainersはDay 11完了を妨げず、**2027年1月に再検討予定(DEFERRED)** とする。未実行のため未検証を維持し、ローカルMySQL結果と混同しない。
+
+### Day 11 最終状態とレビュー範囲 (2026-11-13)
+
+- **全体判定: PARTIALLY_VERIFIED。** 初回BLOCKEDは当時の実行環境の記録として保持し、現在の実行判定とは分ける。
+- 分離実行で `AnnualPayrollScenarioIntegrationTest` 2件がPASS。全体回帰は分離DB `kintai_full_test_cf0fbbd96042`、ローカルMySQL 26.7で81件PASS、失敗・エラー・スキップ0件、Gradle終了コード0。JUnit・ログ・要約・SHA-256は `docs/audit_runs/isolated_all_20261113_203209_kintai_full_test_cf0fbbd96042/` に保存した。
+- 検証範囲は、DBへ直接投入した勤怠から労働計算・給与サービスまでの統合経路である。打刻API/コントローラー/画面は検証していない。各月1件の勤怠であり、実運用の月間勤務分布も再現していない。
+- 日跨ぎ深夜、複数休憩、契約変更境界（6月30日/7月1日）は含む。同一日の分割勤務による8時間累積、月締め境界、丸め境界は本シナリオで立証していない。テストクラス自身にDB名のfail-closed検査がなく、分離ランナー外で単独実行する場合の接続先保護は後続課題である。
+- QwenレビューRun ID `20261113_113749_a39493e5` と指摘対照を保存した。ただし、最終ソースに追加された一部の契約境界・通勤手当上限assertionはレビュー入力後に反映されたため、最終ソース全体の独立再レビューは部分状態である。
+- RTM: R-11 **PARTIALLY_VERIFIED**、R-12 **PARTIALLY_VERIFIED**、R-13 **VERIFIED (ローカルMySQL 26.7に限定)**、R-14 **PARTIALLY_VERIFIED**。詳細は `docs/rtm_ledger.md` を参照。
+- MySQL 8.4 Testcontainersはユーザー判断により **2027年1月に再検討(DEFERRED)** とし、未検証を維持する。カレンダーおよび現実的なブラウザ用デモデータ確認は、このDay 11サービス統合結果には含まれない。
