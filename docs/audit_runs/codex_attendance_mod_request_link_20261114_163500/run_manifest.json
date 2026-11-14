@@ -1,0 +1,29 @@
+{
+  "run_id": "codex_attendance_mod_request_link_20261114_163500",
+  "operator": "Codex",
+  "target_file": "C:\\dev\\kintai\\src\\main\\java\\com\\example\\kintai\\domain\\attendance\\service\\AttendanceService.java",
+  "target_sha256": "41680232c8f85c26bc0cb850b62898e0fe4c91c40851d08ccc86d9e23106a500",
+  "model": "qwen27b:latest",
+  "host_url": "http://100.111.193.94:11434",
+  "options": {
+    "seed": 42,
+    "temperature": 0.1,
+    "think": false,
+    "num_ctx": 24576
+  },
+  "started_at_local": "2026-11-14T16:33:39.6382962+09:00",
+  "status": "SUCCESS",
+  "source_script": "C:\\dev\\kintai\\scripts\\audit_with_hermes.ps1",
+  "source_script_sha256": "b055c1e01285e56684abd13b23644082b2208c8d50fdfae7a119d739d216987b",
+  "config_file": "C:\\dev\\kintai\\scripts\\audit_config.json",
+  "config_sha256": "1ebaf50e6e54e97e87acc79fbf002d6a20d38743ac79961760e264742e4999db",
+  "custom_prompt_sha256": "a669cd042b16afc31d1898a823eed4e8ce977e9240ac46b0a4d2c07c066552e5",
+  "system_prompt_override_sha256": "DEFAULT_IN_RUNNER",
+  "transport_requested": "Http",
+  "ollama_path": "C:\\Users\\klad3\\AppData\\Local\\Programs\\Ollama\\ollama.exe",
+  "output_dir": ".\\docs\\audit_runs\\codex_attendance_mod_request_link_20261114_163500",
+  "transport_used": "Http",
+  "finished_at_local": "2026-11-14T16:34:01.4476357+09:00",
+  "report_sha256": "00019bc6bd6e15b4186cfe980adf26db39b3f52029ad26b4d30888a54a8519e6",
+  "report_file": ".\\docs\\audit_runs\\codex_attendance_mod_request_link_20261114_163500\\hermes_report.md"
+}

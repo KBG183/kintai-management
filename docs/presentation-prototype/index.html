@@ -1,0 +1,195 @@
+﻿<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="KINTAIプロジェクトの業務設計と検証規律を紹介する20枚のカード型プレゼンテーション資料">
+<title>KINTAI | アルバイト勤怠・シフト・給与管理SaaS プレゼンテーション</title>
+<style>
+:root{--ink:#172d29;--muted:#64746d;--green:#286b58;--green2:#9ebc9e;--lime:#dfebce;--paper:#fbfaf3;--line:#dce3d8;--dark:#173d34;--gold:#e8c98c;--red:#a44d3b}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100vh;max-height:100vh;overflow:hidden;background:#e7ebe3;color:var(--ink);font-family:"Malgun Gothic","Apple SD Gothic Neo",sans-serif}
+.shell{max-width:1500px;height:100vh;max-height:100vh;margin:auto;padding:clamp(10px,1.5vh,18px) clamp(18px,3vw,40px) clamp(8px,1.2vh,14px);display:flex;flex-direction:column;justify-content:space-between;box-sizing:border-box;overflow:hidden}
+header,footer{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:14px}
+header{font-size:clamp(11px,1.3vh,13px);letter-spacing:.15em;font-weight:800;color:#52665c}
+header .logo{font-size:clamp(19px,2.4vh,24px);letter-spacing:.2em;color:var(--ink)}
+.tag{border:1px solid #b9cbbd;border-radius:99px;padding:6px 14px;font-size:clamp(11px,1.25vh,12px)}
+main{flex:1 1 auto;min-height:0;display:flex;align-items:stretch;padding:clamp(8px,1.2vh,14px) 0;overflow:hidden}
+.slide{display:none;position:relative;width:100%;height:100%;max-height:100%;box-sizing:border-box;padding:clamp(22px,3.2vh,42px) clamp(28px,3.8vw,56px);border:1px solid #d2ddd1;border-radius:24px;background:var(--paper);box-shadow:0 14px 44px #294b3b14;overflow:hidden}
+.slide.active{display:flex;flex-direction:column;justify-content:center;gap:clamp(12px,2vh,24px);animation:appear .2s ease-out}
+.slide:before{content:"";position:absolute;width:420px;height:420px;right:-180px;top:-210px;border-radius:50%;background:var(--lime);opacity:.6}
+.slide>*{position:relative;z-index:1}
+@keyframes appear{from{opacity:.65;transform:translateY(4px)}to{opacity:1;transform:none}}
+.eyebrow{margin:0 0 clamp(4px,0.8vh,8px);color:var(--green);font-size:clamp(12px,1.4vh,14px);letter-spacing:.2em;font-weight:900}
+.title{max-width:1150px;margin:0 0 clamp(6px,1vh,12px);font-size:clamp(28px,4vh,46px);line-height:1.24;letter-spacing:-.05em}
+.title em{color:var(--green);font-style:normal}
+.lead{max-width:1050px;margin:0;color:#596b62;font-size:clamp(15px,1.9vh,19px);line-height:1.6}
+.note{margin:0;color:#718077;font-size:clamp(11.5px,1.35vh,13.5px);line-height:1.5}
+.evidence{margin:0;color:#65766d;font-size:clamp(11.5px,1.35vh,13.5px);line-height:1.5}
+.evidence a{color:#286b58;text-decoration:underline;text-underline-offset:2px;font-weight:700}
+.hero{display:grid;grid-template-columns:1.15fr .85fr;align-items:center;gap:clamp(24px,3.2vw,48px);height:100%}
+.hero .title{font-size:clamp(36px,5.4vh,62px);line-height:1.18;margin:0 0 clamp(10px,1.6vh,18px)}
+.hero .lead{font-size:clamp(17px,2.2vh,22px);line-height:1.65;margin:0 0 clamp(12px,1.8vh,22px)}
+.hero .note{font-size:clamp(12px,1.5vh,14px);line-height:1.55}
+.hero-art{min-height:clamp(300px,44vh,440px);padding:clamp(24px,3.5vh,40px);border-radius:22px;background:var(--dark);color:#f1f6e9;display:flex;flex-direction:column;justify-content:space-between}
+.hero-art small{letter-spacing:.2em;color:#b9d0bd;font-size:clamp(11px,1.3vh,13px)}
+.hero-art strong{font-size:clamp(28px,4vh,44px);line-height:1.28}
+.flow{display:flex;flex-wrap:wrap;gap:8px}
+.pill{padding:7px 14px;border:1px solid #ffffff4a;border-radius:30px;font-size:clamp(12px,1.35vh,14px)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(10px,1.3vw,18px);margin:0}
+.grid.two{grid-template-columns:repeat(2,1fr)}
+.card{min-height:clamp(120px,16vh,180px);padding:clamp(14px,1.9vh,22px);border:1px solid var(--line);border-radius:16px;background:white;display:flex;flex-direction:column;justify-content:flex-start}
+.card .num{color:#729680;font-size:clamp(10px,1.2vh,12px);font-weight:900;letter-spacing:.14em}
+.card h3{margin:clamp(6px,0.8vh,10px) 0 clamp(4px,0.6vh,8px);font-size:clamp(16px,2.1vh,21px);line-height:1.35}
+.card p{margin:0;color:var(--muted);font-size:clamp(12.5px,1.5vh,15px);line-height:1.6}
+.card .metric{display:block;margin:4px 0 8px;color:var(--green);font-size:clamp(24px,3.2vh,38px);font-weight:900;letter-spacing:-.04em}
+.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:clamp(8px,1vw,12px);margin:0}
+.step{min-height:clamp(110px,15vh,160px);padding:clamp(12px,1.6vh,18px);border:1px solid var(--line);border-radius:14px;background:white;display:flex;flex-direction:column;justify-content:flex-start}
+.step b{color:#739783;font-size:clamp(10.5px,1.25vh,12.5px)}
+.step strong{display:block;margin:clamp(5px,0.8vh,9px) 0 clamp(3px,0.5vh,5px);font-size:clamp(14px,1.8vh,17px)}
+.step span{color:var(--muted);font-size:clamp(11.5px,1.4vh,13.5px);line-height:1.5}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:clamp(10px,1.3vw,18px);margin:0}
+.track{padding:clamp(14px,1.9vh,22px);border:1px solid var(--line);border-radius:16px;background:white}
+.track h3{margin:clamp(5px,0.8vh,9px) 0;font-size:clamp(16px,2.1vh,21px)}
+.track p{color:var(--muted);font-size:clamp(12.5px,1.5vh,15px);line-height:1.6;margin:0}
+.track .label{color:var(--green);font-size:clamp(10px,1.2vh,12px);letter-spacing:.14em;font-weight:900}
+.flowline{margin:0;padding:clamp(8px,1vh,12px) 14px;border-radius:10px;background:#f0f4eb;color:#345b49;font-size:clamp(11.5px,1.35vh,13.5px);font-weight:700;line-height:1.6}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(10px,1.2vw,16px);margin:0}
+.stat{padding:clamp(14px,1.9vh,22px);border:1px solid var(--line);border-radius:16px;background:white}
+.stat strong{display:block;color:var(--green);font-size:clamp(24px,3.2vh,40px);letter-spacing:-.04em}
+.stat span{display:block;margin-top:5px;color:var(--muted);font-size:clamp(12px,1.45vh,14px);line-height:1.5}
+.case{display:grid;grid-template-columns:.22fr 1fr;gap:clamp(12px,1.4vw,18px);margin:0;padding:clamp(12px,1.6vh,18px);border:1px solid var(--line);border-radius:16px;background:white}
+.case .case-no{color:var(--green);font-size:clamp(11px,1.3vh,13px);letter-spacing:.12em;font-weight:900}
+.case h3{margin:0 0 6px;font-size:clamp(16px,2vh,19px)}
+.case p{margin:0;color:var(--muted);font-size:clamp(12.5px,1.5vh,15px);line-height:1.6}
+.case small{display:block;margin-top:6px;color:#526a5d;font-size:clamp(11px,1.3vh,13px);line-height:1.5}
+.video{display:grid;place-items:center;min-height:clamp(200px,28vh,280px);margin:0;border-radius:18px;background:#183d34;color:#e9f1e8;text-align:center}
+.video .play{display:grid;place-items:center;width:52px;height:52px;margin:0 auto 12px;border:1px solid #ffffff80;border-radius:50%;font-size:20px}
+.video p{max-width:680px;margin:6px auto;color:#bed0c2;font-size:clamp(12.5px,1.45vh,14px);line-height:1.6}
+.video strong{font-size:clamp(18px,2.4vh,22px)}
+.badge{display:inline-block;padding:6px 12px;border-radius:30px;background:#f5ead3;color:#7d5d2d;font-size:clamp(11px,1.25vh,12.5px);font-weight:800}
+.quote{max-width:1100px;margin:0;padding:clamp(10px,1.3vh,16px) clamp(16px,1.8vw,24px);border-left:5px solid var(--green);background:#f1f4ec;font-size:clamp(15px,2vh,21px);line-height:1.5;font-weight:800}
+.proof{display:grid;grid-template-columns:1fr 1fr;gap:clamp(8px,1vw,12px);margin:0}
+.proof div{padding:clamp(10px,1.3vh,15px) clamp(13px,1.5vw,18px);border:1px solid var(--line);border-radius:12px;background:white}
+.proof b{display:block;margin-bottom:4px;color:var(--green);font-size:clamp(11.5px,1.35vh,13px)}
+.proof span{color:var(--muted);font-size:clamp(12px,1.45vh,14px);line-height:1.5}
+.proof p.evidence{margin:6px 0 0}
+.dark{background:var(--dark);color:#eff5eb;border-color:var(--dark)}
+.dark .title em,.dark .eyebrow{color:#c8dfa9}
+.dark .lead{color:#cfddd1}
+.dark:before{background:#476958;opacity:.35}
+.dark .card{background:#204b40;border-color:#4a6c5c}
+.dark .card h3,.dark .card p{color:#eff5eb}
+.dark .card p{color:#c4d4c8}
+.dark .quote{background:#204b40;border-color:#c8dfa9}
+.dark .quote{color:#eff5eb}
+footer{color:#64766c;font-size:clamp(11px,1.3vh,13px)}
+.controls{display:flex;align-items:center;gap:8px}
+.controls button:not(.dot){flex:0 0 36px;width:36px;height:36px;border:1px solid #c7d4c6;border-radius:50%;background:#fffef8;color:var(--ink);font-size:16px;cursor:pointer}
+.controls button:disabled{opacity:.35;cursor:default}
+.dots{display:flex;flex:0 0 auto;align-items:center;gap:5px}
+.controls .dot{flex:0 0 6px;width:6px;height:6px;min-width:6px;padding:0;border:0;border-radius:10px;background:#bac8bb;cursor:pointer}
+.controls .dot.active{flex-basis:20px;width:20px;min-width:20px;background:var(--green)}
+.progress{height:3px;margin-top:6px;background:#d0dbce}
+.progress span{display:block;width:0;height:100%;background:var(--green);transition:width .2s}
+.hint{color:#819087;font-size:clamp(10.5px,1.2vh,12px)}
+@media(max-width:850px){
+.shell{padding:8px}
+.hero,.split{grid-template-columns:1fr}
+.hero-art{min-height:180px}
+.grid,.stats{grid-template-columns:1fr}
+.steps{grid-template-columns:1fr 1fr}
+.card,.step{min-height:0}
+.case{grid-template-columns:1fr;gap:6px}
+.proof{grid-template-columns:1fr}
+.hint{display:none}
+}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body><div class="shell">
+<header><span class="logo">KINTAI<span style="color:#75a689">.</span></span><span class="tag">KINTAI PROJECT · DETAILED CASE</span></header>
+<main>
+<section class="slide active" aria-label="表紙"><div class="hero"><div><div class="eyebrow">01 / PROJECT PRESENTATION</div><h1 class="title">KINTAI、アルバイト<br><em>勤怠・シフト・給与管理システム。</em></h1><p class="lead">飲食・小売現場の複雑なシフト編成と労働基準法第37条に基づく給与計算を自動化し、<br>並行性・デッドロック課題の解決およびAIハイブリッド検証によって完遂したWeb SaaS</p><p class="note">Java 17 · Spring Boot 3 · MyBatis · MySQL · Spring Security · Apache POI</p></div><div class="hero-art"><small>KINTAI · FULL-STACK WEB SAAS</small><strong>現場重視の業務設計<br>堅牢なバックエンド<br>実行証跡による検証</strong><div class="flow"><span class="pill">シフト・勤怠・給与 E2E</span><span class="pill">InnoDB 並行性制御</span><span class="pill">94 PASS 隔離回帰検証</span></div></div></div></section>
+<section class="slide" aria-label="企画背景と現場の課題"><div class="eyebrow">02 / PROBLEM & BACKGROUND</div><h2 class="title">店長とアルバイト双方が直面する<br><em>アナログ手作業による勤怠・給与管理の限界。</em></h2><p class="lead">飲食店やコンビニなどのシフト勤務現場では、口頭やSNSによるシフト調整とExcel手計算に依存しており、度重なる連絡ミスや集計漏れが発生していました。</p><div class="grid"><div class="card"><span class="num">PAIN 01 · SHIFT</span><h3>シフト編成の混乱</h3><p>スタッフ毎の希望勤務日を手作業で集計するため、人員の過不足や二重割り当て、転記漏れが発生</p></div><div class="card"><span class="num">PAIN 02 · PUNCH</span><h3>打刻漏れと不正打刻</h3><p>紙のタイムカードやSNS報告では遅刻・退勤時刻の改ざんリスクがあり、打刻漏れ時の客観的立証が困難</p></div><div class="card"><span class="num">PAIN 03 · PAYROLL</span><h3>複雑な割増賃金計算</h3><p>深夜(22時~5時)、1日8時間超の残業、休日勤務の重複割増を手計算するため、計算ミスや未払いリスクが常態化</p></div></div><div class="quote">店舗オーナーには正確な締め処理と人件費管理を、スタッフには透明な勤務実績と適正な給与を保障します。</div><p class="note">ターゲット: シフト変動が大きく法定割増計算が不可欠な中小規模の店舗・飲食チェーン</p></section>
+<section class="slide" aria-label="全体業務プロセス"><div class="eyebrow">03 / E2E WORKFLOW</div><h2 class="title">シフト提出から月末の給与台帳出力まで<br><em>一貫したデータ連携を実現する5ステップ。</em></h2><p class="lead">スタッフと店長（オーナー）の権限責任を明確に分離し、打刻から月次決算までデータが途切れることなく流れるよう設計しました。</p><div class="steps"><div class="step"><b>01 · REQUEST</b><strong>希望シフト提出</strong><span>スタッフがカレンダー上で勤務可能な日時を申請</span></div><div class="step"><b>02 · SCHEDULE</b><strong>店長シフト編成</strong><span>店長が必要人員を確認し週次・月次シフトを確定・公開</span></div><div class="step"><b>03 · ATTENDANCE</b><strong>リアルタイム打刻</strong><span>スタッフがWeb画面からワンクリックで出退勤・休憩を記録</span></div><div class="step"><b>04 · CORRECTION</b><strong>打刻修正申請・承認</strong><span>打刻漏れや修正が必要な際、理由を添えて申請し店長が承認</span></div><div class="step"><b>05 · SETTLEMENT</b><strong>給与計算 & Excel</strong><span>分単位の法定割増を自動集計し、Excel給与台帳を出力</span></div></div><div class="flowline">シフト確定 → 実打刻照合 → 管理者承認 → 分単位給与締め → POI Excel台帳ダウンロード</div><p class="note">全工程においてロールベースアクセス制御（RBAC: ROLE_STAFF vs ROLE_OWNER）を厳格に適用</p></section>
+<section class="slide" aria-label="スタッフ向け機能"><div class="eyebrow">04 / STAFF CAPABILITIES</div><h2 class="title">スタッフ画面:<br><em>モバイル対応打刻と透明性の高い勤務確認。</em></h2><p class="lead">アルバイトスタッフがいつでも自身のシフトを確認し、スマートフォンから正確に打刻できる直感的なUIを提供します。</p><div class="grid"><div class="card"><span class="num">CLOCK IN / OUT</span><h3>ワンクリック打刻</h3><p>現在時刻に基づく出勤・退勤・休憩開始・休憩終了の4状態遷移ボタンおよびリアルタイム勤務状態バッジ</p></div><div class="card"><span class="num">MY SHIFT & STATS</span><h3>シフト・勤務実績照会</h3><p>今週の確定シフトカレンダー、当月の累積実働時間、概算見込み給与をリアルタイムに確認</p></div><div class="card"><span class="num">CORRECTION REQUEST</span><h3>打刻修正申請</h3><p>打刻忘れや早退時、実際の勤務時間と修正理由を入力し、店長へ透明性をもって承認申請を送信</p></div></div><div class="quote">スタッフは自身の権利と給与実績を即時確認でき、不当な記録改ざんを防ぎながら適正な修正を申請できます。</div><p class="note">Thymeleaf + Bootstrap 5.3によるモバイルファーストのレスポンシブWebデザインを実装</p></section>
+<section class="slide" aria-label="店長・オーナー向け機能"><div class="eyebrow">05 / OWNER CAPABILITIES</div><h2 class="title">店長画面:<br><em>店舗運営・勤怠承認・給与締め処理の一元化。</em></h2><p class="lead">店長が全スタッフの出勤状況をリアルタイムで把握し、シフト編成から給与締めまでを完結できる統合管理コンソールです。</p><div class="grid"><div class="card"><span class="num">STAFF MANAGEMENT</span><h3>スタッフ・時給管理</h3><p>スタッフ毎の基本時給、契約開始日、口座情報の登録および有効/無効状態管理（店舗単位マルチテナンシー）</p></div><div class="card"><span class="num">SHIFT SCHEDULING</span><h3>シフトカレンダー編成</h3><p>希望シフトを元に日別・時間帯別の人員配置をドラッグ＆クリックで調整し、ワンクリックで確定公開</p></div><div class="card"><span class="num">REVIEW & APPROVAL</span><h3>勤怠修正申請の承認</h3><p>スタッフから上がった修正申請を過去実績と照合して承認/却下（承認即時に正規勤怠原票へ反映）</p></div></div><div class="quote">紙の出勤簿や手計算Excelを排除し、店舗運営に必要なすべての労務管理をひとつのシステムで完結します。</div><p class="note">未承認の修正申請が残っている状態での給与計算実行を安全にブロック（Fail-Closed原則）</p></section>
+<section class="slide" aria-label="実演デモ動画"><div class="eyebrow">06 / LIVE PRODUCT WALKTHROUGH</div><h2 class="title">一連の店舗業務フローを通じて<br><em>実際に動作するKINTAIの実機動作を実証。</em></h2><div class="video" style="padding:0;background:#000;overflow:hidden;min-height:clamp(220px,32vh,340px);height:clamp(220px,32vh,340px);display:flex;justify-content:center;align-items:center;"><iframe src="https://www.youtube.com/embed/LepOoQU8LgI" title="KINTAI E2E Demo Walkthrough" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="width:100%;height:100%;border-radius:16px;border:none;"></iframe></div><p class="note">ブラウザUIの操作だけでなく、バックエンドトランザクション、DB反映、Apache POIによるExcel出力まで全経路を検証 · <a href="https://youtu.be/LepOoQU8LgI" target="_blank" rel="noopener noreferrer" style="color:var(--green);font-weight:700;text-decoration:underline;">YouTubeで直接視聴 ↗</a></p></section>
+<section class="slide" aria-label="並行性制御"><div class="eyebrow">07 / BACKEND · CONCURRENCY</div><h2 class="title">同一スタッフによる連続打刻リクエストを<br><em>DB悲観的ロックにより二重登録を完全防止。</em></h2><p class="lead">ネットワーク遅延や連打によって出勤(CLOCK_IN)リクエストがミリ秒単位で多重到達した際に生じるレースコンディションを根本から防止しました。</p><div class="split"><div class="track"><span class="label">RACE CONDITION RISK</span><h3>同時到達時の二重生成リスク</h3><div class="flowline">リクエストA・Bが同時到達 → 双方とも既存出勤なしと判定 → 出勤行が2件INSERT!</div><p>勤務状態の不整合が生じ、当日の勤務時間が二重計上される重大なデータ破損が発生</p></div><div class="track"><span class="label">PESSIMISTIC LOCK FIX</span><h3>親行(store_staff)の悲観的排他ロック</h3><div class="flowline">SELECT ... FOR UPDATE → トランザクションを直列化 → 先行1件成功・後続1件は重複拒否</div><p>後続リクエストは先行処理完了後に最新状態(WORKING)を検知し、409 Conflictで安全に遮断</p></div></div><div class="proof"><div><b>検証方式</b><span>新規隔離DB 3箇所にて同一スタッフのCLOCK_IN・CLOCK_OUT競合スレッド反復テスト</span></div><div><b>実行結果</b><span>並行性結合テスト 計6/6 PASS（二重レコード生成 0件）を実証</span></div></div><p class="evidence"><span class="badge" style="background:#e3ede2; color:#286b58; font-weight:800; margin-right:8px; padding:3px 8px; border-radius:6px;">検証実測値</span>同一スタッフ出退勤同時リクエスト 6/6 全件において1件成功・1件拒否の正常直列化を確認</p></section>
+<section class="slide" aria-label="IDORセキュリティ防御"><div class="eyebrow">08 / BACKEND · SECURITY</div><h2 class="title">クライアント送信の職員IDは信頼せず、<br><em>サーバーセッションのPrincipalでのみ身元を認証。</em></h2><p class="lead">APIリクエスト本文(JSON)のstoreStaffIdを他人のIDに書き換えて他者の勤怠を代理打刻・不正閲覧するIDOR（安全でない直接オブジェクト参照）攻撃を防御しました。</p><div class="split"><div class="track"><span class="label">IDOR VULNERABILITY</span><h3>リクエスト本文パラメータ依存の脆弱性</h3><div class="flowline">ログインスタッフA → 本文にスタッフBのIDを改ざん送信 → Bの勤怠が改ざんされるリスク</div><p>認証済みアカウントと実際の処理対象エンティティの所有権検証が乖離するセキュリティ事故</p></div><div class="track"><span class="label">PRINCIPAL DEFENSE</span><h3>Spring Security セッションバインド</h3><div class="flowline">SecurityContextからPrincipalを抽出 → DB上の所有権を照合 → 不一致時は即時403遮断</div><p>クライアントが送信した本文IDは破棄し、サーバーセッションで認証済みの職員識別子のみを使用</p></div></div><div class="stats"><div class="stat"><strong>0 IDOR</strong><span>他者勤怠の改ざん可能性を完全排除</span></div><div class="stat"><strong>403 FORBIDDEN</strong><span>不正パラメータ改ざん時の即時アクセス遮断</span></div><div class="stat"><strong>RBAC 分離</strong><span>店長・スタッフのアクセス境界を厳格隔離</span></div></div><p class="evidence"><span class="badge" style="background:#e3ede2; color:#286b58; font-weight:800; margin-right:8px; padding:3px 8px; border-radius:6px;">検証実測値</span>悪意あるstoreStaffId改ざん打刻に対する結合セキュリティテスト全件403遮断PASSを確認</p></section>
+<section class="slide" aria-label="InnoDB デッドロック解決"><div class="eyebrow">09 / BACKEND · DEADLOCK</div><h2 class="title">給与一括確定と個人再計算の競合、<br><em>ロック取得順序を統一しError 1213を解消。</em></h2><p class="lead">月末に店長が全スタッフの給与を一括確定(Batch Confirm)する処理と、個別スタッフの給与再計算が同時に実行されたことで発生したMySQL InnoDBデッドロックを解決しました。</p><div class="split"><div class="track"><span class="label">DEADLOCK OCCURRENCE</span><h3>逆順ロックによる相互待機</h3><div class="flowline">トランザクションA: payroll_id 13ロック保持 → store_staff_id 1ロック待ち<br>トランザクションB: store_staff_id 1ロック保持 → payroll_id 13ロック待ち</div><p>MySQLエンジンがデッドロックを検知し、Error 1213と共にトランザクションBを強制ロールバック</p></div><div class="track"><span class="label">2-PHASE ORDERED LOCK</span><h3>親行からID昇順ロック</h3><div class="flowline">第1段階: 確定対象のstore_staffをID昇順で先行してFOR UPDATE<br>第2段階: 親ロック完了後にpayroll子行を順次処理</div><p>すべてのトランザクションのロック獲得方向を単一方向に揃え、デッドロックの発生条件そのものを根絶</p></div></div><div class="quote">ロック獲得順序を親行から一方向に統一した結果、高負荷デッドロック再現テストにおいて1213エラーが100%解消されました。</div><p class="evidence"><span class="badge" style="background:#fcedea; color:#a44d3b; font-weight:800; margin-right:8px; padding:3px 8px; border-radius:6px;">実測ログ証跡</span>MySQL InnoDB Deadlock (Error 1213) 原文解析および2段階整列ロック適用後の競合解消を確認</p></section>
+<section class="slide" aria-label="労働基準法37条 給与エンジン"><div class="eyebrow">10 / BACKEND · PAYROLL ENGINE</div><h2 class="title">中抜け勤務と深夜・残業重複割増を<br><em>労働基準法第37条に準拠し分単位で正確に算定。</em></h2><p class="lead">ランチ帯(11~14時)とディナー帯(17~23時)に分かれて勤務する「中抜け（スプリット）シフト」や法定割増の重複条件を精密に実装しました。</p><div class="split"><div class="track"><span class="label">SPLIT SHIFT CALCULATION</span><h3>1日複数回勤務の合算集計</h3><div class="flowline">1次 11:00~14:00 (3h) + 2次 17:00~23:00 (6h)<br>当日合計9時間実働 → 1日8時間超の60分に残業25%割増を適用</div><p>1日に複数回出退勤しても日累計実働時間を正確に合算し、時間外労働を的確に抽出</p></div><div class="track"><span class="label">NIGHT × OVERTIME OVERLAP</span><h3>深夜＋残業重複 50%割増</h3><div class="flowline">深夜帯(22:00~23:00)の60分が1日8時間超の時間外と完全重複<br>基本100% + 深夜25% + 残業25% = 時給の150%を支給</div><p>日本の労働法制に準拠して割増率を重畳し、HALF_UP（四捨五入）端数処理規則を厳格適用</p></div></div><div class="proof"><div><b>境界値検証</b><span>契約時給改定の境界(6/30・7/1跨ぎ)、日跨ぎ深夜勤務、法定休憩未達控除</span></div><div><b>エンジン検証結果</b><span>12ヶ月通年シナリオおよび法定境界結合テスト 6/6 全件PASS</span></div></div><p class="evidence"><span class="badge" style="background:#e3ede2; color:#286b58; font-weight:800; margin-right:8px; padding:3px 8px; border-radius:6px;">検証実測値</span>労働基準法第37条に基づく分単位割増集計および12ヶ月通年給与計算 6/6 PASSを実証</p></section>
+<section class="slide" aria-label="Excel 給与台帳出力"><div class="eyebrow">11 / BACKEND · EXCEL EXPORT</div><h2 class="title">税務・労務提出に適合した給与台帳を<br><em>Apache POIにより帳票レイアウト化しワンクリック出力。</em></h2><p class="lead">単なるCSVプレーンテキストではなく、日本の税務・労務慣行に合わせたフォント、罫線、背景色、合計数式を埋め込んだ正式なExcel(.xlsx)帳票をサーバー側で動的生成します。</p><div class="grid"><div class="card"><span class="num">AUTO FORMATTING</span><h3>正規帳票レイアウト</h3><p>店舗名、対象年月、スタッフ別基本給、深夜・時間外手当、控除額、差引支給額が整然と整理された表レイアウト</p></div><div class="card"><span class="num">MEMORY OPTIMIZATION</span><h3>ストリーミング出力最適化</h3><p>多人数・大量データ出力時のサーバーOOM(メモリ枯渇)を回避するSXSSFWorkbookストリーミング設計</p></div><div class="card"><span class="num">ONE-CLICK DOWNLOAD</span><h3>HTTPレスポンス送出</h3><p>店長画面からワンクリックで『給与台帳_YYYY-MM.xlsx』ファイルとしてブラウザへ安全にダウンロード</p></div></div><div class="quote">Web画面上に表示された集計値と、ダウンロードされたExcelの各セル数値が1円の差異もなく100%一致します。</div><p class="note">JUnit単体テストを通じてセル書式、数式計算値、控除合計額のデータ整合性を網羅的に検証</p></section>
+<section class="slide" aria-label="データベース設計"><div class="eyebrow">12 / BACKEND · DATABASE DESIGN</div><h2 class="title">店舗・スタッフ・シフト・勤怠・給与を結ぶ<br><em>正規化されたRDBMS設計とトランザクション分離。</em></h2><p class="lead">データの重複を排除し、状態遷移を監査証跡として正確に追跡できるよう5大ドメインテーブルを体系的にリレーショナル設計しました。</p><div class="steps"><div class="step"><b>STORE & STAFF</b><strong>店舗・スタッフ</strong><span>店舗メタデータ、契約時給、権限ロール(ROLE)、所属関係</span></div><div class="step"><b>SHIFT</b><strong>シフトスケジュール</strong><span>希望申請(HOPE)と店長確定(CONFIRMED)のステータス管理</span></div><div class="step"><b>ATTENDANCE</b><strong>実打刻・休憩</strong><span>打刻生時刻、分単位認定時間、勤務状態(WORKING/COMPLETED)</span></div><div class="step"><b>MOD REQUEST</b><strong>修正申請原簿</strong><span>申請事由、修正前後時刻、店長承認(APPROVED)監査ログ</span></div><div class="step"><b>PAYROLL</b><strong>月次給与集計</strong><span>月別基本給、各種割増額、確定(CONFIRMED)状態の永続化</span></div></div><div class="flowline">MySQL InnoDBエンジン · UTF-8文字コード · 外部キー制約および検索頻出列への複合インデックス最適化</div><p class="note">給与締めトランザクションはRead Committed分離レベルと悲観的ロックによりダーティリード・ロストアップデートを防止</p></section>
+<section class="slide" aria-label="AIコーディングのリスク"><div class="eyebrow">13 / VERIFICATION · THE REAL RISK</div><h2 class="title">AIが作成したソースコードを<br><em>AI自身に自己点検させてはならない理由。</em></h2><p class="lead">LLMは流暢でありながら誤ったコードを出力することがあり、対話コンテキストが長引くほど最初の誤謬を前提として盲信する構造的限界を抱えています。</p><div class="grid"><div class="card"><span class="num">RISK 01 · HALLUCINATION</span><h3>幻覚 (Hallucination)</h3><p>実在しないAPI構文や誤った労働法規の計算式をあたかも正解であるかのように精緻に出力</p></div><div class="card"><span class="num">RISK 02 · CONTAMINATION</span><h3>コンテキスト汚染</h3><p>直前の対話における誤った前提や見落としを、後続の実装や自己レビューでもそのまま踏襲</p></div><div class="card"><span class="num">RISK 03 · SELF-REVIEW BIAS</span><h3>自己検証の限界</h3><p>コードを生成した同一モデル・同一コンテキストでは、自分自身の論理的欠陥を再発見できない</p></div></div><div class="quote">だからこそ、コードを実装するAIと、欠陥を炙り出す監査AIを物理的に完全隔離しました。</div><p class="note">AIの支援を受けつつも、最終的な合否判定は物理的な実行結果（テストコード・ログ）のみで行う原則を確立</p></section>
+<section class="slide" aria-label="ハイブリッド検証アーキテクチャ"><div class="eyebrow">14 / VERIFICATION · HYBRID ARCHITECTURE</div><h2 class="title">実装と監査を物理的に切り離した<br><em>AIハイブリッド検証パイプライン。</em></h2><p class="lead">コード実装には高速な商用AIを活用し、独立監査は別ハードウェア上のローカル27Bモデルに委ねることで、相互牽制が機能する体制を構築しました。</p><div class="split"><div class="track"><span class="label">COMMERCIAL AI · BUILD</span><h3>実装・リファクタリング支援</h3><p>要件定義に基づく迅速なビジネスロジック作成およびテストコード生成（正解とは見なさない）</p><div class="flowline">Spring Boot Controller, Service, Mapper 初案作成</div></div><div class="track"><span class="label">LOCAL AI · INDEPENDENT AUDIT</span><h3>リモート ローカル27B独立監査</h3><p>自室RTX 5070 Ti加速 Qwen 27Bモデルへソース＋DDL＋テスト束を送信し無文脈厳格監査</p><div class="flowline">IDOR、並行性、エッジケース漏れを検知しFinding IDを発行</div></div></div><div class="quote">2つのAIは対話履歴を一切共有せず、監査モデルは純粋なソースコードとDDLバンドルのみを見て客観判定します。</div><p class="note">Tailscale低遅延P2Pネットワークを通じてリモートローカル27Bエンドポイントと自動連携</p></section>
+<section class="slide" aria-label="E2E検証ループ"><div class="eyebrow">15 / VERIFICATION · REVIEW LOOP</div><h2 class="title">欠陥発見から修正、再監査まで<br><em>妥協なく循環する5段階の品質保証サイクル。</em></h2><p class="lead">監査モデルのPASS所見のみでコードを合格とせず、指摘された欠陥はテストコードによる再現と改修によって完全に解消します。</p><div class="steps"><div class="step"><b>01 · SPEC</b><strong>要件の固定</strong><span>ドメイン規約とセキュリティ境界をテスト条件として厳密定義</span></div><div class="step"><b>02 · BUILD</b><strong>実装とバンドル化</strong><span>コード作成後、ソース＋DDL＋テストを束ねSHA-256ハッシュ生成</span></div><div class="step"><b>03 · AUDIT</b><strong>ローカルAI独立監査</strong><span>ローカル27B監査官が脆弱性・論理欠陥を標準レポートとして指摘</span></div><div class="step"><b>04 · FIX & TEST</b><strong>改修とDB検証</strong><span>指摘箇所の修正後、隔離DB環境にて単体・結合テストの合格を実証</span></div><div class="step"><b>05 · RE-AUDIT</b><strong>再監査と判定</strong><span>修正版を再度監査官に投入し、最終的なOVERALL PASSを確認</span></div></div><div class="proof"><div><b>証拠ベース判定憲法</b><span>エージェントの口頭説明による欠陥解消は不可、物理テストの合格証拠提出を義務化</span></div><div><b>Fail-Closed原則</b><span>挙動が疑わしいコードや証拠不十分な修正は無条件で不合格（Fail）判定</span></div></div><p class="note">すべての監査回次の入力ハッシュ値および判定レポートはオリジナルファイルとして永続保存</p></section>
+<section class="slide" aria-label="監査ツールの信頼性確保"><div class="eyebrow">16 / CASE · AUDIT RELIABILITY</div><h2 class="title">監査ツールの応答欠落バグを発見・改修し、<br><em>検証基盤自体の信頼性を担保。</em></h2><p class="lead">KINTAI本体のコードだけでなく、監査実行スクリプト(Runner)が空のレスポンスを誤って成功と見なしていた基盤側の欠陥を自ら修正しました。</p><div class="case"><div class="case-no">OBSERVED BUG</div><div><h3>ローカルAIの応答本文が空であるにもかかわらず検証スクリプトが異常終了</h3><p>Ollamaリクエストでthinkオプションが欠落し本文が空となっていたが、検証器が空文字例外を起こし失敗を成功と誤認するリスクが判明</p><small>監査ツール自体の欠陥は、以降のすべてのPASS/FAIL判定の正当性を揺るがす重大インシデント</small></div></div><div class="split"><div class="track"><span class="label">FIX 01 · RUNNER SCRIPT</span><h3>API通信規約の正常化</h3><p>think:falseオプションを明示的に付与し、空文字レスポンスを安全にハンドリング</p></div><div class="track"><span class="label">FIX 02 · FAIL-CLOSED GUARD</span><h3>厳格な応答契約検証</h3><p>完了チャンク、本文、判定テーブルが1つでも欠けていればexit 1で即座に失敗判定</p></div></div><p class="evidence"><span class="badge" style="background:#e3ede2; color:#286b58; font-weight:800; margin-right:8px; padding:3px 8px; border-radius:6px;">検証実測値</span>スクリプト検証テスト4種全件PASSおよびリモート27B独立再監査 Overall PASSを確認</p></section>
+<section class="slide" aria-label="Ollama推論最適化実測"><div class="eyebrow">17 / EXPERIMENT · MEASURED A/B</div><h2 class="title">ローカルAI推論オプション最適化:<br><em>think:falseにより監査時間を6.3倍高速化。</em></h2><p class="lead">日々の開発監査サイクルを現実的な速度で回すため、同一ソースファイル(ShiftService.java、469行)を対象にthinkオプションのON/OFF実測比較実験を行いました。</p><div class="split"><div class="track"><span class="label">THINK ON (DEFAULT)</span><h3>思考プロセス出力を生成</h3><div class="flowline">出力トークン: 9,803 tokens<br>所要時間: 206.88秒 (約3分27秒)</div><p>回答本文の前に長大な思考過程が生成され、CI/CDや反復監査において待機時間が肥大化</p></div><div class="track"><span class="label">THINK OFF (OPTIMIZED)</span><h3>必須レポートのみ即時出力</h3><div class="flowline">出力トークン: 1,287 tokens (86.9%削減)<br>所要時間: 32.72秒 (6.32倍高速化)</div><p>必須の指摘項目やコード分析精度を完全に維持したまま、生成速度と処理効率を最大化</p></div></div><div class="quote">推測や机上の空論ではなく、同一入力条件で計測した実測データに基づいて開発パイプラインを最適化しました。</div><p class="evidence"><span class="badge" style="background:#e3ede2; color:#286b58; font-weight:800; margin-right:8px; padding:3px 8px; border-radius:6px;">A/B 実測値</span>同一ファイル対象 think:false適用時 出力トークン86.9%削減および所要時間6.32倍短縮を立証</p></section>
+<section class="slide" aria-label="隔離DB全体回帰検証"><div class="eyebrow">18 / PROOF · 94 PASS MEANS</div><h2 class="title">本番DBから完全隔離された新規DB上で<br><em>38個のJUnit XML 94テスト全件PASSを達成。</em></h2><p class="lead">過去のテスト残余データによる「偽りの成功」を排除するため、回帰テスト実行毎にランダムな新規隔離DBを作成し、全件クリーン実行を行いました。</p><div class="stats"><div class="stat"><strong>94 PASS</strong><span>テスト全件成功 · JUnit XML 38件</span></div><div class="stat"><strong>0 / 0 / 0</strong><span>失敗(Fail) / エラー(Error) / スキップ(Skip)</span></div><div class="stat"><strong>ISOLATED DB</strong><span>都度新規作成・検証されたMySQL環境</span></div></div><div class="grid"><div class="card"><span class="num">SECURITY</span><h3>認証・認可・入力境界</h3><p>打刻APIのIDOR防御、セッション権限境界、CSRFトークン、パラメータ正当性検証</p></div><div class="card"><span class="num">CONCURRENCY</span><h3>並行性・トランザクション</h3><p>出退勤同時打刻の排他制御、給与確定デッドロック防止およびロールバック検証</p></div><div class="card"><span class="num">PAYROLL ENGINE</span><h3>労働法給与 & Excel</h3><p>中抜け合算、深夜・時間外重複50%割増、端数処理、POI Excel帳票出力検証</p></div></div><p class="evidence"><span class="badge" style="background:#e3ede2; color:#286b58; font-weight:800; margin-right:8px; padding:3px 8px; border-radius:6px;">実行環境証跡</span>新規隔離DB(kintai_full_test_8a75679f5b1e)環境にて 94 PASS / 0 FAIL 達成</p></section>
+<section class="slide" aria-label="証拠追跡体系"><div class="eyebrow">19 / FOLLOW THE EVIDENCE</div><h2 class="title">発表におけるすべての主張は、<br><em>実際に実行された一次証跡と1対1で直結しています。</em></h2><p class="lead">要約本でプロジェクトの全体像を把握し、技術証跡書で詳細な改修履歴を確認した上で、生ログやJUnit XMLへ直接ドリルダウンできます。</p><div class="proof"><div><b>要約本 · 最初に読む</b><span>KINTAIの業務範囲、核心的課題の解決、成果と限界を簡潔にまとめた資料</span><p class="evidence"><a href="../final-portfolio/portfolio_summary_JA.md">要約本を開く</a></p></div><div><b>技術証跡書 · 詳細の確認</b><span>実装・監査・改修・再検証の回次別実測値と判定履歴を網羅した公式技術文書</span><p class="evidence"><a href="../legacy_audit_reports/portfolio_audit_evidence_JA_cumulative_20261114.md">証跡書を開く</a></p></div></div><div class="grid"><div class="card"><span class="num">01 · DEADLOCK EVIDENCE</span><h3>InnoDB デッドロック生ログ</h3><p>MySQLエンジンが出力したError 1213およびトランザクション毎の保持・待機ロック記録</p><p class="evidence"><a href="../f04_evidence/show_engine_innodb_status_deadlock.txt">デッドロックログを開く</a></p></div><div class="card"><span class="num">02 · REGRESSION RESULTS</span><h3>新規隔離回帰 94件集計結果</h3><p>38個のJUnit XMLおよびexit_summary.jsonにおける94 PASS / 0 FAIL実行記録</p><p class="evidence"><a href="../audit_runs/isolated_all_20261114_114819_kintai_full_test_8a75679f5b1e/exit_summary.json">94件実行結果を開く</a></p></div><div class="card"><span class="num">03 · AI AUDIT REPORT</span><h3>ローカル27B監査レポート原文</h3><p>入力ハッシュ、モデル情報、検出欠陥の分析および最終Overall PASS判定ログ</p><p class="evidence"><a href="../audit_runs/codex_20261114_112428_v10/hermes_report.md">監査報告書を開く</a></p></div></div><div class="flowline">現場課題の定義 → バックエンド実装 → 独立AI監査 → 隔離DB 94 PASS回帰 → 一次証跡の検証</div><p class="note">物理的な検証ファイルが存在する主張のみをスライドに掲載し、未検証の項目は厳格に除外しています。</p></section>
+<section class="slide dark" aria-label="結び"><div class="eyebrow">20 / CLOSING</div><h2 class="title">KINTAIは単なる機能実装にとどまらず、<br><em>課題解決と検証規律までを確立したプロジェクトです。</em></h2><p class="lead">日本のアルバイト現場が抱える複雑な勤怠・シフト・給与システムを構築する中で、実運用で起こり得る並行性・デッドロック課題を解決し、AI時代の確かなエンジニアリング規律を確立しました。</p><div class="grid"><div class="card"><span class="num">01 · DOMAIN & PRODUCT</span><h3>現場重視の業務SaaS</h3><p>シフト希望提出からリアルタイム打刻、修正承認ワークフロー、労働基準法第37条に基づく分単位給与計算、Excel台帳出力までを完全網羅</p></div><div class="card"><span class="num">02 · HARD ENGINEERING</span><h3>根本原因からの技術的解決</h3><p>MySQL InnoDBデッドロックのロック順序整列、打刻悲観的ロックによる並行性制御、セッションベースIDOR攻撃の完全遮断</p></div><div class="card"><span class="num">03 · MODERN VERIFICATION</span><h3>妥協なき品質検証規律</h3><p>実装と独立監査の厳格な分離、Fail-Closed原則、都度新規隔離DBにおける94 PASS全件回帰検証</p></div></div><div class="quote">本プロジェクトは、複雑な業務システムを最後まで作り込み実証し抜いた記録であり、<br>信頼できるソフトウェアを構築できるエンジニアであることの証明です。</div><p class="note">業務企画 → バックエンド設計 → 並行性・デッドロック解決 → 独立AI監査 → 隔離DB回帰実証<br>KINTAIの成果は、完成度の高いWebサービスと揺るぎない検証規律を遺した点にあります。</p></section>
+</main>
+<footer><span id="counter">01 / 20</span><span class="hint">← → 移動 · Home / End 最初·最後</span><div class="controls"><div class="dots" id="dots" aria-label="スライド選択"></div><button id="prev" aria-label="前のスライド">‹</button><button id="next" aria-label="次のスライド">›</button></div></footer><div class="progress"><span id="bar"></span></div>
+</div><script>
+const slides=[...document.querySelectorAll('.slide')],dots=document.querySelector('#dots'),prev=document.querySelector('#prev'),next=document.querySelector('#next'),counter=document.querySelector('#counter'),bar=document.querySelector('#bar');
+const evidenceGuides={
+  '../final-portfolio/portfolio_summary_JA.md':{title:'KINTAI プロジェクト要約本',purpose:'プロジェクトの業務範囲、中核課題の解決、成果と限界を最初に確認する資料です。',look:'KINTAIが何を解決し、94/94 PASSの範囲と限界がどこにあるかを俯瞰します。'},
+  '../legacy_audit_reports/portfolio_audit_evidence_JA_cumulative_20261114.md':{title:'日本語公式技術証跡書',purpose:'KINTAIの実装・監査・改修・再検証の回次別履歴を網羅した公式技術文書です。',look:'問題の原因、改修内容、テスト・監査判定、未検証・DEFERRED範囲を確認します。'},
+  '../f04_evidence/show_engine_innodb_status_deadlock.txt':{title:'MySQL InnoDB デッドロックログ原文',purpose:'給与一括確定と個別再計算が相互の行ロックを待機した実際のDBログです。',look:'Error 1213と2つのトランザクションが保持・待機していたロック情報を確認します。'},
+  '../audit_runs/isolated_all_20261114_114819_kintai_full_test_8a75679f5b1e/exit_summary.json':{title:'隔離環境 全体回帰集計結果',purpose:'新規隔離DBで実行した全テストの集計生データです。',look:'総テスト数94、失敗・エラー・スキップ数が0であることを確認します。'},
+  '../audit_runs/codex_20261114_112428_v10/hermes_report.md':{title:'ローカルAI再監査レポート原文',purpose:'Runner改修後にローカル27Bモデルが実際に点検した監査報告書です。',look:'監査対象、判定テーブル、指摘範囲および最終OVERALL PASS条件を確認します。'}
+};
+let index=0;
+slides.forEach((s,i)=>{
+  const e=s.querySelector('.eyebrow');
+  if(e)e.textContent=e.textContent.replace(/^\d+\s*\//,String(i+1).padStart(2,'0')+' /');
+  const b=document.createElement('button');
+  b.className='dot';
+  b.setAttribute('aria-label',(i+1)+'枚目の画面: '+s.getAttribute('aria-label'));
+  b.addEventListener('click',()=>show(i));
+  dots.appendChild(b)
+});
+function show(n){
+  index=Math.max(0,Math.min(slides.length-1,n));
+  localStorage.setItem('kintai-presentation-slide-ja',String(index));
+  slides.forEach((s,i)=>{
+    s.classList.toggle('active',i===index);
+    s.setAttribute('aria-hidden',i!==index)
+  });
+  [...dots.children].forEach((d,i)=>d.classList.toggle('active',i===index));
+  counter.textContent=String(index+1).padStart(2,'0')+' / '+String(slides.length).padStart(2,'0');
+  prev.disabled=index===0;
+  next.disabled=index===slides.length-1;
+  bar.style.width=((index+1)/slides.length*100)+'%';
+  if(location.hash!=='#slide='+(index+1))history.replaceState(null,'','#slide='+(index+1))
+}
+const hash=Number((location.hash.match(/^#slide=(\d+)$/)||[])[1]||0),saved=Number(localStorage.getItem('kintai-presentation-slide-ja')||0);
+prev.onclick=()=>show(index-1);
+next.onclick=()=>show(index+1);
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight')show(index+1);
+  if(e.key==='ArrowLeft')show(index-1);
+  if(e.key==='Home')show(0);
+  if(e.key==='End')show(slides.length-1)
+});
+document.querySelectorAll('a[href]').forEach(a=>{
+  const guide=evidenceGuides[a.getAttribute('href')];
+  if(!guide)return;
+  a.classList.add('evidence-link');
+  a.setAttribute('target','_self');
+  a.title=guide.title+' — '+guide.look;
+  a.addEventListener('click',e=>{
+    e.preventDefault();
+    localStorage.setItem('kintai-presentation-slide-ja',String(index));
+    const u=new URL('evidence.html',location.href);
+    u.searchParams.set('src',a.getAttribute('href'));
+    u.searchParams.set('title',guide.title);
+    u.searchParams.set('purpose',guide.purpose);
+    u.searchParams.set('look',guide.look);
+    u.searchParams.set('slide',String(index+1));
+    location.href=u.href
+  })
+});
+show(hash?hash-1:(saved||0));
+</script></body></html>

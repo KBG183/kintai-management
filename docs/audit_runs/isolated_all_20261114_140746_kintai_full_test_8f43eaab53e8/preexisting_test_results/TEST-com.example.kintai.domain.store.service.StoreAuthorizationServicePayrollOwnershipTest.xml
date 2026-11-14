@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.kintai.domain.store.service.StoreAuthorizationServicePayrollOwnershipTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-11-14T02:48:52.619Z" hostname="BK" time="0.062">
+  <properties/>
+  <testcase name="payrollOwnedByAnotherStoreMustBeDenied()" classname="com.example.kintai.domain.store.service.StoreAuthorizationServicePayrollOwnershipTest" time="0.058"/>
+  <testcase name="payrollOwnedByCurrentMemberMustBeAllowed()" classname="com.example.kintai.domain.store.service.StoreAuthorizationServicePayrollOwnershipTest" time="0.004"/>
+  <system-out><![CDATA[2026-11-14T11:48:52.677+09:00  WARN 8152 --- [    Test worker] c.e.k.d.s.s.StoreAuthorizationService    : IDOR?知: 給?デ?タ所有?不一致 payrollId=900, currentMemberId=17, actualOwnerId=42
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

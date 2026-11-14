@@ -1,0 +1,29 @@
+{
+  "run_id": "codex_video_demo_seed_20261114_170000",
+  "operator": "Codex",
+  "target_file": "C:\\dev\\kintai\\scripts\\local_video_demo_seed.sql",
+  "target_sha256": "35f9652c869350df90c774c46ee533fc344bd785ddec3b90caee1d82eed82ff9",
+  "model": "qwen27b:latest",
+  "host_url": "http://100.111.193.94:11434",
+  "options": {
+    "temperature": 0.1,
+    "think": false,
+    "seed": 42,
+    "num_ctx": 24576
+  },
+  "started_at_local": "2026-11-14T14:47:07.5472488+09:00",
+  "status": "SUCCESS",
+  "source_script": "C:\\dev\\kintai\\scripts\\audit_with_hermes.ps1",
+  "source_script_sha256": "b055c1e01285e56684abd13b23644082b2208c8d50fdfae7a119d739d216987b",
+  "config_file": "C:\\dev\\kintai\\scripts\\audit_config.json",
+  "config_sha256": "1ebaf50e6e54e97e87acc79fbf002d6a20d38743ac79961760e264742e4999db",
+  "custom_prompt_sha256": "ced120b7182e4ec5590a6421af9197d1693fc51ddf5bf6bed9935fffad878cf4",
+  "system_prompt_override_sha256": "acf479acfc545765217a7d361ba8d63cd257f169c07521f6fb31d726029c2b5e",
+  "transport_requested": "Http",
+  "ollama_path": "C:\\Users\\klad3\\AppData\\Local\\Programs\\Ollama\\ollama.exe",
+  "output_dir": "docs\\audit_runs\\codex_video_demo_seed_20261114_170000",
+  "transport_used": "Http",
+  "finished_at_local": "2026-11-14T14:47:14.1704040+09:00",
+  "report_sha256": "71b7972820c9217b36171850569ee946e01004f79c1814c0e03a741c5b41ba86",
+  "report_file": "docs\\audit_runs\\codex_video_demo_seed_20261114_170000\\hermes_report.md"
+}

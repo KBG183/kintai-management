@@ -54,14 +54,6 @@
             background-color: #1d4ed8;
             border-color: #1d4ed8;
         }
-        .demo-box {
-            background-color: #f8fafc;
-            border: 1px dashed #cbd5e1;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-top: 1.5rem;
-            font-size: 0.85rem;
-        }
     </style>
 </head>
 <body>
@@ -90,6 +82,8 @@
 
         <!-- ログインフォーム -->
         <form th:action="@{/login-process}" method="post">
+            <input th:if="${_csrf != null}" type="hidden"
+                   th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
             <div class="mb-3">
                 <label for="email" class="form-label small fw-semibold text-secondary">メールアドレス</label>
                 <div class="input-group">
@@ -111,29 +105,8 @@
             </button>
         </form>
 
-        <!-- デモアカウント案内エリア -->
-        <div class="demo-box">
-            <div class="fw-bold text-dark mb-2 d-flex align-items-center">
-                <i class="bi bi-info-circle-fill text-primary me-1"></i> テスト用デモアカウント
-            </div>
-            <div class="d-flex justify-content-between align-items-center mb-1">
-                <span><strong>管理者（オーナー）:</strong> owner@kintai.com / 1234</span>
-                <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" onclick="setCredentials('owner@kintai.com', '1234')">入力</button>
-            </div>
-            <div class="d-flex justify-content-between align-items-center">
-                <span><strong>従業員（スタッフ）:</strong> staff1@kintai.com / 1234</span>
-                <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" onclick="setCredentials('staff1@kintai.com', '1234')">入力</button>
-            </div>
-        </div>
     </div>
 </div>
-
-<script>
-    function setCredentials(email, password) {
-        document.getElementById('email').value = email;
-        document.getElementById('password').value = password;
-    }
-</script>
 
 </body>
 </html>

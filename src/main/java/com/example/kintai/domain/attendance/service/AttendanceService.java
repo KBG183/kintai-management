@@ -209,6 +209,15 @@ public class AttendanceService {
             throw new IllegalStateException("指定された勤務日 (" + workDate + ") は既に給与が確定されているため、修正申請できません。");
         }
 
+        // 화면은 직원과 근무일만 전송할 수 있으므로, 기존 완료 근태를 자동으로 수정 대상으로 연결한다.
+        // attendanceId가 없으면 신규 사후 근태로 처리되기 전에 기존 행을 먼저 찾는다.
+        if (requestDto.getAttendanceId() == null) {
+            AttendanceDto existingForDate = attendanceMapper.findCompletedAttendanceByStaffAndDate(storeStaffId, workDate);
+            if (existingForDate != null) {
+                requestDto.setAttendanceId(existingForDate.getAttendanceId());
+            }
+        }
+
         // 出勤日と勤務基準日の一致検証
         if (!requestDto.getRequestedClockInAt().toLocalDate().equals(workDate)) {
             throw new IllegalArgumentException("出勤時刻の日付は勤務基準日と一致している必要があります。");
@@ -274,6 +283,15 @@ public class AttendanceService {
                 throw new IllegalStateException("所属店舗情報が存在しないため修正申請できません。(storeStaffId: " + storeStaffId + ")");
             }
             requestDto.setStoreId(storeId);
+        }
+
+        // The schema requires the original break total to be non-null.
+        // Preserve the current attendance value for an existing record and use zero
+        // for a post-hoc request that creates a new attendance record.
+        if (requestDto.getBeforeBreakMinutes() == null) {
+            requestDto.setBeforeBreakMinutes(original != null && original.getTotalBreakMinutes() != null
+                    ? original.getTotalBreakMinutes()
+                    : 0);
         }
 
         // 申請合計休憩時間の計算

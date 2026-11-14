@@ -1,0 +1,28 @@
+{
+  "run_id": "codex_index_restructure_20261114_164100",
+  "operator": "Codex",
+  "target_file": "C:\\dev\\kintai\\docs\\presentation-prototype\\index.html",
+  "target_sha256": "0e6555fd76c7e08dfbe4007f96ee5dca3a3fcd7982a1c25cd0265f04d19365f3",
+  "model": "qwen27b:latest",
+  "host_url": "http://100.111.193.94:11434",
+  "options": {
+    "seed": 42,
+    "num_ctx": 24576,
+    "think": false,
+    "temperature": 0.1
+  },
+  "started_at_local": "2026-11-14T14:35:11.7286401+09:00",
+  "status": "FAILED",
+  "source_script": "C:\\dev\\kintai\\scripts\\audit_with_hermes.ps1",
+  "source_script_sha256": "b055c1e01285e56684abd13b23644082b2208c8d50fdfae7a119d739d216987b",
+  "config_file": "C:\\dev\\kintai\\scripts\\audit_config.json",
+  "config_sha256": "1ebaf50e6e54e97e87acc79fbf002d6a20d38743ac79961760e264742e4999db",
+  "custom_prompt_sha256": "900f54c090a07a461b698f6e4be89a3a232256c8b06c1c3a5fd2d131e0bc7ff8",
+  "system_prompt_override_sha256": "6eb33af0923110f374df4a0c87f5dca31c55c42e14a0a4dfd211f66accb73b7c",
+  "transport_requested": "Http",
+  "ollama_path": "C:\\Users\\klad3\\AppData\\Local\\Programs\\Ollama\\ollama.exe",
+  "output_dir": "docs\\audit_runs\\codex_index_restructure_20261114_164100",
+  "transport_used": "Http",
+  "finished_at_local": "2026-11-14T14:35:29.6312785+09:00",
+  "error_file": "docs\\audit_runs\\codex_index_restructure_20261114_164100\\error.txt"
+}

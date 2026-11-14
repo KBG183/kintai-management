@@ -1,0 +1,166 @@
+﻿{
+    "run_id":  "20261114_034824_134f5952",
+    "generated_at":  "2026-11-14T12:49:23.2181952+09:00",
+    "findings":  [
+                     {
+                         "finding_id":  "F-001",
+                         "audit_item":  "IDOR Vulnerability: Member Access Control",
+                         "severity":  "P0",
+                         "verdict":  "FAIL",
+                         "evidence":  "`MemberController.java` (Line 58-63): `@PreAuthorize(\"hasRole(\u0027ADMIN\u0027) or #id == authentication.principal.memberId\")`",
+                         "analysis":  "**Critical Logic Flaw**: The SpEL expression `#id == authentication.principal.memberId` is flawed. `authentication.principal` in Spring Security is typically the `UserDetails` object (here `CustomUserDetails`). However, `#id` is a `Long` (primitive/boxed) and `memberId` is a `Long`. While type matching works, the bigger issue is that `CustomUserDetails` does not expose `memberId` as a standard property accessible via SpEL if the principal is wrapped or if the context is not set correctly. More critically, if `authentication` is null or the principal is an `AnonymousUser`, this may throw an exception or behave unexpectedly. Furthermore, relying on `#id` matching the principal\u0027s ID is a common pattern, but it fails if the `CustomUserDetails` object does not correctly expose `getMemberId()` or if the SpEL context cannot resolve `memberId` directly from the principal object without a getter. In `CustomUserDetails`, `getMemberId()` exists, so `authentication.principal.memberId` should work. **However**, the real risk is that `#id` is a path variable. If an attacker sends a request where `#id` matches their own `memberId`, they pass. But if the `MemberService.getMemberById` returns data for *any* member, and the check is only on the ID, it is safe. **Wait**, the actual vulnerability is that `authentication.principal` might not be the `CustomUserDetails` object in all contexts (e.g., if session is restored differently). A safer approach is to inject the `Authentication` object or use `@AuthenticationPrincipal CustomUserDetails user` and compare `user.getMemberId()`. The current SpEL is fragile."
+                     },
+                     {
+                         "finding_id":  "F-002",
+                         "audit_item":  "IDOR Vulnerability: Store/Staff Ownership Validation",
+                         "severity":  "P1",
+                         "verdict":  "WARN",
+                         "evidence":  "`StoreAuthorizationService.java` (Lines 33-45, 52-64, 71-83, 90-102)",
+                         "analysis":  "**Design is Good, Implementation Risk**: The `StoreAuthorizationService` correctly implements ownership checks by querying the DB for the owner ID and comparing it to the current user. This prevents IDOR for Store, Payroll, Staff, and ModRequest resources. **However**, this service must be explicitly called in every controller/service method that accesses these resources. If any endpoint (e.g., `GET /api/staff/{id}`) forgets to call `storeAuthorizationService.validateStaffStoreOwnership(...)`, an IDOR vulnerability exists. The code provided does not show the controllers calling this service for every single resource access, only the service definition. **Recommendation**: Ensure AOP or explicit calls in all relevant controllers."
+                     },
+                     {
+                         "finding_id":  "F-003",
+                         "audit_item":  "Security: CSRF Token Handling for SPA",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "`SecurityConfig.java` (Lines 108-125)",
+                         "analysis":  "**Complexity Risk**: The `SpaCsrfTokenRequestHandler` attempts to support both plain header tokens (for SPA/Fetch) and XOR tokens (for BREACH defense). The logic `if (StringUtils.hasText(headerValue))` uses the plain handler, otherwise XOR. This is a valid hybrid approach. However, `CookieCsrfTokenRepository.withHttpOnlyFalse()` exposes the token to JavaScript, which is necessary for SPA but increases XSS risk. Ensure strict CSP (Content Security Policy) headers are set to mitigate XSS."
+                     },
+                     {
+                         "finding_id":  "F-004",
+                         "audit_item":  "Security: Password Storage \u0026 Hashing",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`SecurityConfig.java` (Line 88): `new BCryptPasswordEncoder()`",
+                         "analysis":  "**PASS**: BCrypt is used for password hashing, which is industry standard. Ensure the strength parameter is set appropriately (default is 10, which is acceptable)."
+                     },
+                     {
+                         "finding_id":  "F-005",
+                         "audit_item":  "Security: Session Management \u0026 Logout",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`SecurityConfig.java` (Lines 78-83)",
+                         "analysis":  "**PASS**: Logout invalidates the HTTP session and deletes cookies (`JSESSIONID`, `XSRF-TOKEN`). This is correct."
+                     },
+                     {
+                         "finding_id":  "F-006",
+                         "audit_item":  "Exception Handling: Information Leakage",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "`GlobalExceptionHandler.java` (Lines 48-58)",
+                         "analysis":  "**Risk**: The `handleGeneralException` method logs the full exception stack trace (`log.error(..., ex)`) but returns a generic message to the client. This is good for security. However, for `IllegalArgumentException` and `IllegalStateException`, it returns `ex.getMessage()` directly to the client (Line 33). If these exceptions contain sensitive internal details (e.g., SQL errors, file paths), they will be leaked. **Recommendation**: Sanitize or map these to generic user-friendly messages."
+                     },
+                     {
+                         "finding_id":  "F-007",
+                         "audit_item":  "Concurrency \u0026 Security: Pessimistic Locking",
+                         "severity":  "P1",
+                         "verdict":  "N/A",
+                         "evidence":  "`MemberMapper.xml`, `StoreAuthMapper.java`",
+                         "analysis":  "**N/A for this bundle**: The provided code does not show any `UPDATE` or `DELETE` operations on `store_staff` or `shift_schedule` that would require pessimistic locking (`SELECT ... FOR UPDATE`). The `MemberMapper` and `StoreAuthMapper` are read-only (`SELECT`). If other bundles contain update logic, they must implement pessimistic locking to prevent race conditions in payroll/attendance updates."
+                     },
+                     {
+                         "finding_id":  "F-008",
+                         "audit_item":  "Japanese Labor Law: Night Work \u0026 Overtime",
+                         "severity":  "P0",
+                         "verdict":  "N/A",
+                         "evidence":  "N/A",
+                         "analysis":  "**N/A for this bundle**: This bundle focuses on Authentication, Authorization, and Member/Store Security. It does not contain the payroll calculation logic, shift scheduling, or time-tracking calculations required to audit Japanese Labor Standards Act Art 37 compliance (night work premiums, overtime rates, rounding)."
+                     },
+                     {
+                         "finding_id":  "F-009",
+                         "audit_item":  "Input Validation: Null/Negative Edge Cases",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "`StoreAuthorizationService.java` (Lines 33-35, 52-54, etc.)",
+                         "analysis":  "**Good Practice**: The service explicitly checks for `null` in `storeId`, `currentMemberId`, etc., and throws `AccessDeniedException`. This prevents `NullPointerException` and ensures security checks are not bypassed by null inputs. However, ensure that `Long` parameters from controllers are not `null` before reaching this service, or handle them gracefully."
+                     },
+                     {
+                         "finding_id":  "F-010",
+                         "audit_item":  "Security: Role-Based Access Control (RBAC)",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`SecurityConfig.java` (Lines 48-70)",
+                         "analysis":  "**PASS**: Roles (`OWNER`, `STAFF`, `ADMIN`) are correctly mapped to URL patterns. `OWNER` has access to payroll/mod-requests. `STAFF`/`OWNER`/`ADMIN` have access to attendance/shifts. `ADMIN` has access to member samples. This aligns with typical business requirements."
+                     },
+                     {
+                         "finding_id":  "F-011",
+                         "audit_item":  "Security: Custom Authentication Success Handler",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`CustomAuthenticationSuccessHandler.java` (Lines 20-30)",
+                         "analysis":  "**PASS**: Redirects based on role (`OWNER` vs others). This is a standard pattern. Ensure that the target URLs (`/attendance/mod-requests`, `/attendance`) are protected by the same role checks to prevent unauthorized access if the redirect is manipulated."
+                     },
+                     {
+                         "finding_id":  "F-012",
+                         "audit_item":  "Data Integrity: Member Active Status",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`CustomUserDetailsService.java` (Lines 38-40)",
+                         "analysis":  "**PASS**: Inactive members (`is_active = false`) are prevented from logging in by throwing `UsernameNotFoundException`. This is correct."
+                     },
+                     {
+                         "finding_id":  "F-013",
+                         "audit_item":  "Security: CSRF Cookie Filter",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`SecurityConfig.java` (Lines 127-138)",
+                         "analysis":  "**PASS**: The `CsrfCookieFilter` ensures the CSRF token is available in the request attribute, triggering cookie issuance. This is necessary for the SPA to read the token from the cookie."
+                     },
+                     {
+                         "finding_id":  "F-014",
+                         "audit_item":  "Security: IDOR in Member API",
+                         "severity":  "P1",
+                         "verdict":  "WARN",
+                         "evidence":  "`MemberController.java` (Line 58)",
+                         "analysis":  "**Risk**: As noted in F-001, the SpEL check `#id == authentication.principal.memberId` is fragile. A more robust approach is to use `@AuthenticationPrincipal CustomUserDetails user` and check `user.getMemberId().equals(id)`. This avoids SpEL context issues and makes the intent clearer."
+                     },
+                     {
+                         "finding_id":  "F-015",
+                         "audit_item":  "Security: Store Ownership Validation in Controllers",
+                         "severity":  "P1",
+                         "verdict":  "WARN",
+                         "evidence":  "`StoreAuthorizationService.java`",
+                         "analysis":  "**Risk**: The service is defined, but its usage in controllers is not shown in this bundle. If any controller endpoint (e.g., `GET /api/stores/{id}/staff`) does not call `storeAuthorizationService.validateStoreOwnership(...)`, it will be vulnerable to IDOR. **Recommendation**: Verify that all endpoints accessing store-specific data call the appropriate validation method."
+                     },
+                     {
+                         "finding_id":  "F-016",
+                         "audit_item":  "Security: Password Encoder Bean",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`SecurityConfig.java` (Line 88)",
+                         "analysis":  "**PASS**: The `PasswordEncoder` bean is correctly defined and used in `AuthenticationManager`."
+                     },
+                     {
+                         "finding_id":  "F-017",
+                         "audit_item":  "Security: Authentication Manager Configuration",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`SecurityConfig.java` (Lines 90-95)",
+                         "analysis":  "**PASS**: The `AuthenticationManager` is correctly configured with `UserDetailsService` and `PasswordEncoder`."
+                     },
+                     {
+                         "finding_id":  "F-018",
+                         "audit_item":  "Security: CSRF Token Repository",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`SecurityConfig.java` (Line 48)",
+                         "analysis":  "**PASS**: `CookieCsrfTokenRepository.withHttpOnlyFalse()` is used, which is necessary for SPA access to the token."
+                     },
+                     {
+                         "finding_id":  "F-019",
+                         "audit_item":  "Security: Access Denied Page",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`SecurityConfig.java` (Line 85)",
+                         "analysis":  "**PASS**: `accessDeniedPage(\"/access-denied\")` is configured. Ensure this page exists and is accessible."
+                     },
+                     {
+                         "finding_id":  "F-020",
+                         "audit_item":  "Security: Logout Success URL",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`SecurityConfig.java` (Line 82)",
+                         "analysis":  "**PASS**: `logoutSuccessUrl(\"/login?logout=true\")` is configured. This is standard."
+                     }
+                 ]
+}

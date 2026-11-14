@@ -1,0 +1,86 @@
+﻿{
+    "run_id":  "20261114_035032_b0819cae",
+    "generated_at":  "2026-11-14T12:51:16.6050207+09:00",
+    "findings":  [
+                     {
+                         "finding_id":  "F-01",
+                         "audit_item":  "Japanese Labor Standards Act Art 37: Night Work Premium (22:00-05:00)",
+                         "severity":  "P0",
+                         "verdict":  "PASS",
+                         "evidence":  "`portfolio_summary_KO.md` (Case 3), `rtm_ledger.md` (R-12), `LaborCalculationEngineTest.java`",
+                         "analysis":  "The documentation confirms the implementation of a \"minute-level timeline slicing engine\" to handle the 22:00-05:00 window. Test `R-12` verifies that night work hours are correctly identified and that break times within this window are deducted specifically from night work hours before premium calculation. The logic aligns with Art 37 requirements."
+                     },
+                     {
+                         "finding_id":  "F-02",
+                         "audit_item":  "Japanese Labor Standards Act Art 37: Daily Overtime Premium (\u003e8h/day)",
+                         "severity":  "P0",
+                         "verdict":  "PASS",
+                         "evidence":  "`portfolio_summary_KO.md` (Case 3), `rtm_ledger.md` (R-12), `SplitShiftOvertimeDefectTest.java`",
+                         "analysis":  "The system correctly calculates overtime for hours exceeding 8 hours per day. Crucially, `SplitShiftOvertimeDefectTest` validates \"split shift\" scenarios (e.g., 4h + 5h), ensuring that the cumulative 8-hour threshold is applied across multiple attendance records on the same day, preventing underpayment."
+                     },
+                     {
+                         "finding_id":  "F-03",
+                         "audit_item":  "Japanese Labor Standards Act Art 37: Night + Overtime Concurrent Overlap (50% Premium)",
+                         "severity":  "P0",
+                         "verdict":  "PASS",
+                         "evidence":  "`portfolio_summary_KO.md` (Case 3), `rtm_ledger.md` (R-12), `AnnualPayrollScenarioIntegrationTest.java`",
+                         "analysis":  "The audit confirms the implementation of a 50% combined premium for hours that are both night work (22:00-05:00) and overtime (\u003e8h). Test `R-12` explicitly verifies a scenario with 420 minutes of night work, of which 60 minutes overlap with overtime, asserting the correct 50% premium application (Base + 25% Night + 25% Overtime)."
+                     },
+                     {
+                         "finding_id":  "F-04",
+                         "audit_item":  "Payroll Math \u0026 Rounding: BigDecimal HALF_UP",
+                         "severity":  "P1",
+                         "verdict":  "PASS",
+                         "evidence":  "`portfolio_summary_KO.md` (Case 3), `rtm_ledger.md` (R-12), `PayrollCalculatorStatutoryRoundingTest.java`",
+                         "analysis":  "The codebase utilizes `BigDecimal` with `RoundingMode.HALF_UP` for all monetary calculations to prevent floating-point errors and 1-yen discrepancies. `PayrollCalculatorStatutoryRoundingTest` provides specific boundary tests to ensure statutory rounding rules are strictly adhered to."
+                     },
+                     {
+                         "finding_id":  "F-05",
+                         "audit_item":  "Concurrency: Pessimistic Locking \u0026 Deadlock Prevention",
+                         "severity":  "P0",
+                         "verdict":  "PASS",
+                         "evidence":  "`portfolio_summary_KO.md` (Case 1), `rtm_ledger.md` (R-01, R-04, R-08, R-09), `AttendanceServiceConcurrencyIntegrationTest.java`",
+                         "analysis":  "The system implements `SELECT ... FOR UPDATE` on parent `store_staff` rows to prevent duplicate clock-ins/outs. For monthly payroll confirmation, it uses a 2-Phase Locking (2PL) strategy with staff IDs in ascending order to prevent deadlocks. This was physically verified by reproducing a deadlock (`Trx 4266/4267`) and then proving the fix via `R-01` through `R-04` and `R-08`/`R-09` concurrency tests."
+                     },
+                     {
+                         "finding_id":  "F-06",
+                         "audit_item":  "Security: IDOR Vulnerability Prevention",
+                         "severity":  "P0",
+                         "verdict":  "PASS",
+                         "evidence":  "`portfolio_summary_KO.md` (Case 2), `rtm_ledger.md` (R-10), `AttendancePunchApiIntegrationTest.java`",
+                         "analysis":  "The application enforces IDOR protection by deriving `memberId` and `storeStaffId` from the Spring Security Session `Principal` rather than trusting request body parameters. `R-10` and `R-11` confirm that spoofed IDs in API requests are rejected, and ownership checks are enforced at the service layer."
+                     },
+                     {
+                         "finding_id":  "F-07",
+                         "audit_item":  "Exception Handling \u0026 Boundary Validation: Input Sanitization",
+                         "severity":  "P1",
+                         "verdict":  "PASS",
+                         "evidence":  "`portfolio_summary_KO.md` (Case 4), `rtm_ledger.md` (R-15, R-16, R-17, R-18, R-19), `PayrollApiValidationAndSerializationIntegrationTest.java`",
+                         "analysis":  "Input validation is robust. `YYYY-MM` format validation is applied to all payroll endpoints (`/list`, `/calculate`, `/confirm-month`, `/excel`) to reject invalid dates (e.g., `2026-13`). `DateTimeParseException` and null/negative hour edge cases are handled via the timeline slicing engine and specific boundary tests (`R-12`). Sensitive data (bank accounts, My Number) is verified to be excluded from JSON responses."
+                     },
+                     {
+                         "finding_id":  "F-08",
+                         "audit_item":  "Transactional Integrity: @Transactional \u0026 Isolation",
+                         "severity":  "P1",
+                         "verdict":  "PASS",
+                         "evidence":  "`portfolio_summary_KO.md` (Section 2-1), `rtm_ledger.md` (R-01), `PayrollService.java`",
+                         "analysis":  "The `PayrollService` methods are annotated with `@Transactional`. `R-01` verifies that the entire `confirmMonthlyPayroll` process (selection, locking, re-query, validation, update) executes within a single active transaction and database connection, ensuring ACID properties and preventing partial updates."
+                     },
+                     {
+                         "finding_id":  "F-09",
+                         "audit_item":  "Data Consistency: Fail-Fast on Race Conditions",
+                         "severity":  "P1",
+                         "verdict":  "PASS",
+                         "evidence":  "`portfolio_summary_KO.md` (Case 1), `rtm_ledger.md` (R-02), `PayrollMonthlyConfirmPostQueryRaceConditionIntegrationTest.java`",
+                         "analysis":  "The system implements a \"fail-fast\" rollback mechanism if new `DRAFT` payroll records are detected after the initial query but before final confirmation. This prevents data inconsistency where a user might confirm a payroll state that has changed concurrently. Verified by `R-02`."
+                     },
+                     {
+                         "finding_id":  "F-10",
+                         "audit_item":  "Documentation \u0026 Traceability: RTM \u0026 Audit Evidence",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`rtm_ledger.md`, `portfolio_summary_KO.md`, `portfolio_summary_JA.md`",
+                         "analysis":  "The Requirements Traceability Matrix (RTM) is comprehensive, linking every requirement (R-01 to R-19) to specific code, tests, and audit evidence (SHA-256 hashes, JUnit XMLs). The documentation clearly distinguishes between verified states and deferred items (e.g., MySQL 8.4 LTS), providing a transparent and auditable trail."
+                     }
+                 ]
+}

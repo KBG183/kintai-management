@@ -18,6 +18,12 @@ public interface AttendanceMapper {
 
     AttendanceDto findById(@Param("attendanceId") Long attendanceId);
 
+    /** 지정 직원·근무일의 수정 대상 완료 근태를 조회한다. */
+    AttendanceDto findCompletedAttendanceByStaffAndDate(
+            @Param("storeStaffId") Long storeStaffId,
+            @Param("workDate") LocalDate workDate
+    );
+
     int insertAttendance(AttendanceDto attendance);
 
     int updateAttendance(AttendanceDto attendance);

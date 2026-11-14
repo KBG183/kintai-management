@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.kintai.KintaiApplicationTests" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-11-14T05:08:28.352Z" hostname="BK" time="6.511">
+  <properties/>
+  <testcase name="contextLoads()" classname="com.example.kintai.KintaiApplicationTests" time="0.962"/>
+  <system-out><![CDATA[14:08:28.602 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.kintai.KintaiApplicationTests]: KintaiApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+14:08:28.737 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.KintaiApplicationTests
+14:08:28.837 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.kintai.KintaiApplicationTests]: KintaiApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+14:08:28.839 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.KintaiApplicationTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-11-14T14:08:29.296+09:00  INFO 29788 --- [    Test worker] c.example.kintai.KintaiApplicationTests  : Starting KintaiApplicationTests using Java 17.0.12 with PID 29788 (started by klad3 in C:\dev\kintai)
+2026-11-14T14:08:29.298+09:00  INFO 29788 --- [    Test worker] c.example.kintai.KintaiApplicationTests  : No active profile set, falling back to 1 default profile: "default"
+2026-11-14T14:08:32.118+09:00  INFO 29788 --- [    Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-11-14T14:08:33.860+09:00  INFO 29788 --- [    Test worker] c.example.kintai.KintaiApplicationTests  : Started KintaiApplicationTests in 4.928 seconds (process running for 7.035)
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,8 @@
+Write-Error: C:\dev\kintai\scripts\audit_with_hermes.ps1:366
+Line |
+ 366 |  …   $resObj = Call-HermesApi -ContentToAudit $rawText -HeaderTitle $Tar …
+     |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | Ollama Hermes API call failed: HERMES_FAILED: response did not contain a
+     | verdict table with at least one recognized verdict.
+
+

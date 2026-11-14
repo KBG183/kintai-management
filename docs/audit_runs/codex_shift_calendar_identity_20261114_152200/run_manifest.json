@@ -1,0 +1,29 @@
+{
+  "run_id": "codex_shift_calendar_identity_20261114_152200",
+  "operator": "Codex",
+  "target_file": "C:\\dev\\kintai\\src\\main\\resources\\templates\\shift\\calendar.html",
+  "target_sha256": "f8d49d7f64dfd2a545f1002d36dd809b263345c4d3955b9cc972e4edb056fa96",
+  "model": "qwen27b:latest",
+  "host_url": "http://100.111.193.94:11434",
+  "options": {
+    "seed": 42,
+    "num_ctx": 24576,
+    "temperature": 0.1,
+    "think": false
+  },
+  "started_at_local": "2026-11-14T15:20:53.3597901+09:00",
+  "status": "SUCCESS",
+  "source_script": "C:\\dev\\kintai\\scripts\\audit_with_hermes.ps1",
+  "source_script_sha256": "b055c1e01285e56684abd13b23644082b2208c8d50fdfae7a119d739d216987b",
+  "config_file": "C:\\dev\\kintai\\scripts\\audit_config.json",
+  "config_sha256": "1ebaf50e6e54e97e87acc79fbf002d6a20d38743ac79961760e264742e4999db",
+  "custom_prompt_sha256": "3dba32a41fe82a14a3a456abd29458ae64ab327e04989e4bf0a3b2ba8399474f",
+  "system_prompt_override_sha256": "DEFAULT_IN_RUNNER",
+  "transport_requested": "Http",
+  "ollama_path": "C:\\Users\\klad3\\AppData\\Local\\Programs\\Ollama\\ollama.exe",
+  "output_dir": ".\\docs\\audit_runs\\codex_shift_calendar_identity_20261114_152200",
+  "transport_used": "Http",
+  "finished_at_local": "2026-11-14T15:21:14.6363266+09:00",
+  "report_sha256": "a24892288fad0fb0c6842401c7d512e63443ea4a47f0409db6d017bf0c8244fc",
+  "report_file": ".\\docs\\audit_runs\\codex_shift_calendar_identity_20261114_152200\\hermes_report.md"
+}

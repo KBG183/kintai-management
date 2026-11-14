@@ -49,6 +49,31 @@
         WHERE attendance_id = #{attendanceId}
     </select>
 
+    <select id="findCompletedAttendanceByStaffAndDate" resultType="com.example.kintai.domain.attendance.dto.AttendanceDto">
+        SELECT
+            attendance_id,
+            store_id,
+            store_staff_id,
+            shift_id,
+            work_date,
+            clock_in_at,
+            clock_out_at,
+            break_start_at,
+            break_end_at,
+            total_break_minutes,
+            net_work_minutes,
+            night_work_minutes,
+            overtime_minutes,
+            clock_in_method,
+            attendance_status
+        FROM attendance
+        WHERE store_staff_id = #{storeStaffId}
+          AND work_date = #{workDate}
+          AND attendance_status = 'COMPLETED'
+        ORDER BY attendance_id DESC
+        LIMIT 1
+    </select>
+
     <insert id="insertAttendance" useGeneratedKeys="true" keyProperty="attendanceId">
         INSERT INTO attendance (
             store_id,
@@ -327,8 +352,7 @@
         SET approval_status = #{status},
             reviewer_id = #{reviewerId},
             reject_reason = #{rejectReason},
-            reviewed_at = #{reviewedAt},
-            updated_at = CURRENT_TIMESTAMP
+            reviewed_at = #{reviewedAt}
         WHERE mod_request_id = #{modRequestId}
           AND approval_status = 'PENDING'
     </update>
@@ -356,8 +380,7 @@
     <!-- 事後新規登録された勤怠IDを修正申請レコードに紐付け -->
     <update id="updateModRequestAttendanceId">
         UPDATE attendance_mod_request
-        SET attendance_id = #{attendanceId},
-            updated_at = CURRENT_TIMESTAMP
+        SET attendance_id = #{attendanceId}
         WHERE mod_request_id = #{modRequestId}
     </update>
 

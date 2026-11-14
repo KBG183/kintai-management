@@ -1,0 +1,126 @@
+﻿{
+    "run_id":  "20261114_035254_093c6bed",
+    "generated_at":  "2026-11-14T12:53:51.3024878+09:00",
+    "findings":  [
+                     {
+                         "finding_id":  "F-01",
+                         "audit_item":  "Japanese Labor Standards Act Art 37: Night Work Premium Calculation",
+                         "severity":  "P0",
+                         "verdict":  "FAIL",
+                         "evidence":  "`PayrollService.java` (Line ~180-190): `PayrollCalculator.calculateDailyPay` is called with `nightWorkMinutes` and `overtimeMinutes` separately. The service sums `totalNightAllowance` and `totalOvertimeAllowance` independently.",
+                         "analysis":  "**Critical Logic Flaw**: The code calculates Night Allowance and Overtime Allowance as separate additive components. However, under JLSA Art 37, if work occurs during night hours (22:00-05:00) AND is also overtime (\u003e8h/day), the premium must be **combined** (Base + 25% Night + 25% Overtime = 150% of base, or effectively +50% extra). The current logic likely adds `Base * 0.25` for night and `Base * 0.25` for overtime separately, which is mathematically correct for the *sum*, BUT the statutory rounding logic (`applyStatutoryMonthlyRounding`) treats them as independent buckets. More critically, the `PayrollCalculator` implementation is not visible, but the service layer does not explicitly handle the \"Night + Overtime\" overlap deduction from the night bucket before applying the 25% night premium, which is a common source of error. If `nightWorkMinutes` includes the overtime portion, and `overtimeMinutes` also includes it, the base pay might be double-counted or the premium logic might be misapplied depending on the hidden `PayrollCalculator` logic. Given the strict requirement for \"Night + Overtime concurrent overlap: +50% combined extra pay\", the separation of concerns in the DTOs (`nightWorkMinutes` vs `overtimeMinutes`) without a clear \"overlap\" field suggests a high risk of miscalculation."
+                     },
+                     {
+                         "finding_id":  "F-02",
+                         "audit_item":  "Japanese Labor Standards Act Art 37: Break Time Deduction from Night Work",
+                         "severity":  "P1",
+                         "verdict":  "WARN",
+                         "evidence":  "`PayrollService.java` (Line ~160): `att.getNightWorkMinutes()` is passed directly to the calculator.",
+                         "analysis":  "**Missing Deduction Logic**: The audit checklist explicitly states: \"Break time between 22:00~05:00 must be deducted specifically from night work hours.\" The code retrieves `att.getNetWorkMinutes()` and `att.getNightWorkMinutes()`. It does not appear to explicitly deduct night-time breaks from the night work minutes before calculating the premium. If `getNightWorkMinutes()` returns gross night hours including breaks, the premium will be overpaid. The code assumes the `AttendanceDto` provides pre-calculated net night minutes, but there is no validation or explicit deduction logic in the payroll service to ensure compliance if the attendance module provides gross data."
+                     },
+                     {
+                         "finding_id":  "F-03",
+                         "audit_item":  "Payroll Math \u0026 Rounding: Statutory Monthly Rounding",
+                         "severity":  "P1",
+                         "verdict":  "WARN",
+                         "evidence":  "`PayrollService.java` (Line ~260-300): `applyStatutoryMonthlyRounding` method.",
+                         "analysis":  "**Rounding Logic Complexity**: The code implements the \"30-minute boundary\" rounding for hours and \"50-sen\" rounding for rates/totals. However, the logic `PayrollCalculator.StatutoryRounding.roundMonthlyHours` is not visible. The standard JLSA rounding rule is: \u003c 30 mins = 0, \u003e= 30 mins and \u003c 60 mins = 0.5 hours, \u003e= 60 mins = 1 hour (for the purpose of calculating the premium base). The code uses `roundMonthlyHours` which likely handles this. However, the calculation of `overtimeHourlyPremium` uses `BigDecimal.valueOf(hourlyWage).multiply(0.25)`. If `hourlyWage` is an integer, this is fine. But the final `roundedOvertimeAllowance` is calculated as `premium * roundedHours`. The statutory rule requires rounding the *total* allowance, not just the rate. The code does `roundHourlyRate` first, then multiplies, then `roundMonthlyAllowanceTotal`. This double rounding (rate then total) may deviate from the strict statutory interpretation which often rounds the final total amount. Verification against specific Ministry of Health, Labour and Welfare guidelines is required."
+                     },
+                     {
+                         "finding_id":  "F-04",
+                         "audit_item":  "Concurrency \u0026 Security: Pessimistic Locking Strategy",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollService.java` (Line ~100, ~220): `payrollMapper.lockStoreStaffForUpdate(staffId)` and `payrollMapper.findByIdForUpdate(payrollId)`.",
+                         "analysis":  "**Correct Lock Hierarchy**: The code correctly implements a two-level locking strategy to prevent deadlocks. It first locks the parent `store_staff` row, then the child `payroll` row. This is a robust pattern for concurrent updates. The `confirmMonthlyPayroll` method also locks staff IDs in ascending order, preventing deadlocks during batch operations."
+                     },
+                     {
+                         "finding_id":  "F-05",
+                         "audit_item":  "Concurrency \u0026 Security: IDOR Vulnerability Prevention",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollApiController.java` (Line ~40, ~55, ~70): `storeAuthorizationService.validateStoreOwnership` and `validatePayrollOwnership`.",
+                         "analysis":  "**Proper Authorization Checks**: Every endpoint that accesses specific data validates ownership. `getPayrollList` checks store ownership. `confirmPayroll` and `getPayrollDetail` check specific payroll ownership via `validatePayrollOwnership`. This prevents users from accessing or modifying payroll records for other stores or staff members they do not own/manage."
+                     },
+                     {
+                         "finding_id":  "F-06",
+                         "audit_item":  "Exception Handling \u0026 Boundary Validation: Negative Hours",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollService.java` (Line ~155): `if (att.getNetWorkMinutes() \u003c 0 ...)`",
+                         "analysis":  "**Robust Input Validation**: The code explicitly checks for negative values in `netWorkMinutes`, `nightWorkMinutes`, `overtimeMinutes`, and `totalBreakMinutes` before processing. It throws an `IllegalStateException` if invalid data is found, preventing negative payroll calculations."
+                     },
+                     {
+                         "finding_id":  "F-07",
+                         "audit_item":  "Exception Handling \u0026 Boundary Validation: Minimum Wage Check",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollService.java` (Line ~165): `if (hourlyWage \u003c 1280)`",
+                         "analysis":  "**Compliance Check**: The code enforces the Tokyo minimum wage (1,280 JPY) as a hard boundary. If the contracted wage is below this, it throws an exception. This is a good defensive programming practice, although hardcoding the wage value (1280) is a maintenance risk if the minimum wage changes. It should ideally be fetched from a configuration table."
+                     },
+                     {
+                         "finding_id":  "F-08",
+                         "audit_item":  "Transactional Integrity: Read-Only vs Write Transactions",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollService.java` (Line ~30): `@Transactional(readOnly = true)` on class, overridden by `@Transactional` on write methods.",
+                         "analysis":  "**Correct Transaction Scope**: The class-level annotation sets a default read-only transaction for performance. Specific methods that modify data (`calculateMonthlyPayroll`, `confirmPayroll`, etc.) override this with `@Transactional` (which defaults to read-write). This ensures that read operations do not acquire unnecessary write locks, while write operations are properly isolated."
+                     },
+                     {
+                         "finding_id":  "F-09",
+                         "audit_item":  "Data Consistency: TOCTOU Prevention in Confirm",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollService.java` (Line ~230-240): Double-checked locking pattern.",
+                         "analysis":  "**Race Condition Mitigation**: The `confirmPayroll` method performs an initial non-locking read, then acquires locks, then re-reads the data to verify that the `storeStaffId` and `storeId` have not changed between the initial read and the locked read. This effectively prevents Time-of-Check to Time-of-Use (TOCTOU) vulnerabilities where a record might be reassigned to a different store/staff during the transaction."
+                     },
+                     {
+                         "finding_id":  "F-10",
+                         "audit_item":  "Business Logic: Unresolved Attendance Check",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollService.java` (Line ~115, ~250): `payrollMapper.countUnresolvedAttendance`",
+                         "analysis":  "**Data Integrity Guard**: Before calculating or confirming payroll, the service checks for any unresolved attendance records (e.g., pending corrections, incomplete clock-ins). If any exist, it throws an exception. This ensures that payroll is only calculated on finalized attendance data, preventing discrepancies."
+                     },
+                     {
+                         "finding_id":  "F-11",
+                         "audit_item":  "Code Quality: Hardcoded Minimum Wage",
+                         "severity":  "P3",
+                         "verdict":  "WARN",
+                         "evidence":  "`PayrollService.java` (Line ~165): `if (hourlyWage \u003c 1280)`",
+                         "analysis":  "**Maintenance Risk**: The minimum wage value `1280` is hardcoded. While this matches the 2026 Tokyo minimum wage mentioned in the comment, it will become incorrect if the government updates the minimum wage. This value should be retrieved from a database configuration table or a properties file to allow for dynamic updates without code changes."
+                     },
+                     {
+                         "finding_id":  "F-12",
+                         "audit_item":  "Code Quality: Hardcoded Transport Limit Default",
+                         "severity":  "P3",
+                         "verdict":  "WARN",
+                         "evidence":  "`PayrollService.java` (Line ~145): `int transportLimit = (transportLimitVal != null) ? transportLimitVal : 15000;`",
+                         "analysis":  "**Maintenance Risk**: The default transport limit of `15000` JPY is hardcoded. Similar to the minimum wage, this should be configurable. If the company policy changes the default transport allowance cap, a code deployment is required."
+                     },
+                     {
+                         "finding_id":  "F-13",
+                         "audit_item":  "API Design: Excel Export Filename Encoding",
+                         "severity":  "P3",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollApiController.java` (Line ~95): `URLEncoder.encode(...).replace(\"+\", \"%20\")`",
+                         "analysis":  "**Correct Encoding**: The code correctly encodes the filename for the `Content-Disposition` header, handling UTF-8 characters and replacing `+` with `%20` to ensure spaces are handled correctly in the filename. This prevents issues with non-ASCII characters in the downloaded file name."
+                     },
+                     {
+                         "finding_id":  "F-14",
+                         "audit_item":  "Security: Input Validation for Year-Month Format",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollApiController.java` (Line ~30): `validateYearMonth` method.",
+                         "analysis":  "**Strict Input Validation**: The `yearMonth` parameter is validated against a strict regex pattern `^\\d{4}-(0[1-9]"
+                     },
+                     {
+                         "finding_id":  "F-15",
+                         "audit_item":  "Concurrency: Batch Confirm Lock Ordering",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollService.java` (Line ~280): `for (Long staffId : draftStaffIds) { payrollMapper.lockStoreStaffForUpdate(staffId); }`",
+                         "analysis":  "**Deadlock Prevention in Batch**: The `confirmMonthlyPayroll` method locks staff rows in ascending ID order (implied by `findDraftStaffIdsByStoreAndMonth` returning a sorted list, or the loop iterating in a consistent order). This consistent lock ordering prevents deadlocks when multiple batch jobs run concurrently."
+                     }
+                 ]
+}

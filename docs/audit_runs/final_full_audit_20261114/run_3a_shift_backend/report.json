@@ -1,0 +1,86 @@
+﻿{
+    "run_id":  "20261114_035143_cb7f5ba5",
+    "generated_at":  "2026-11-14T12:52:18.8875193+09:00",
+    "findings":  [
+                     {
+                         "finding_id":  "F-01",
+                         "audit_item":  "Japanese Labor Standards Act Art 37: Night Work \u0026 Overtime Pay Logic",
+                         "severity":  "P0",
+                         "verdict":  "N/A",
+                         "evidence":  "`ShiftService.java` (No payroll calculation logic found)",
+                         "analysis":  "The provided code bundle focuses exclusively on shift scheduling, request management, and attendance comparison. It does not contain the payroll calculation engine responsible for determining overtime rates (25%/50%) or night work premiums. Therefore, this specific legal compliance check is not applicable to this code segment. The logic resides in a separate Payroll/Attendance calculation module."
+                     },
+                     {
+                         "finding_id":  "F-02",
+                         "audit_item":  "Payroll Math \u0026 Rounding: RoundingMode.HALF_UP",
+                         "severity":  "P1",
+                         "verdict":  "N/A",
+                         "evidence":  "`ShiftService.java` (No monetary calculation found)",
+                         "analysis":  "Similar to F-01, there is no monetary calculation or rounding logic in this bundle. The `ShiftComparisonDto` calculates minute differences (`long`), but no currency conversion or rounding occurs here. This check is not applicable to the current scope."
+                     },
+                     {
+                         "finding_id":  "F-03",
+                         "audit_item":  "Concurrency \u0026 Security: @Transactional Presence",
+                         "severity":  "P1",
+                         "verdict":  "PASS",
+                         "evidence":  "`ShiftService.java`: `@Transactional` on `requestShift`, `deleteShiftRequest`, `confirmShift`, `rejectShift`, `batchConfirmShifts`.",
+                         "analysis":  "All state-modifying methods in `ShiftService` are correctly annotated with `@Transactional`. The class-level annotation `@Transactional(readOnly = true)` ensures read operations are optimized, while write operations override this with default isolation levels. This is a correct implementation pattern."
+                     },
+                     {
+                         "finding_id":  "F-04",
+                         "audit_item":  "Concurrency \u0026 Security: Pessimistic Locking (SELECT ... FOR UPDATE)",
+                         "severity":  "P1",
+                         "verdict":  "PASS",
+                         "evidence":  "`ShiftMapper.xml`: `lockStoreStaffForUpdate` uses `FOR UPDATE`. `ShiftService.java`: Called in `requestShift`, `deleteShiftRequest`, `confirmShift`.",
+                         "analysis":  "The code correctly implements pessimistic locking on the `store_staff` table to prevent race conditions during shift creation and modification. By locking the staff record, it serializes concurrent requests for the same staff member, preventing duplicate shift overlaps or state corruption. This is a robust approach for this domain."
+                     },
+                     {
+                         "finding_id":  "F-05",
+                         "audit_item":  "Concurrency \u0026 Security: IDOR Vulnerabilities (Cross-Store/Staff Access)",
+                         "severity":  "P0",
+                         "verdict":  "PASS",
+                         "evidence":  "`ShiftApiController.java`: `getEvents`, `getMyEvents`, `requestShift`, `deleteShift`, `confirmShift`. `ShiftService.java`: `deleteShiftRequest`, `confirmShift`.",
+                         "analysis":  "The code effectively prevents Insecure Direct Object References (IDOR). \u003cbr\u003e1. **Staff Scope**: `getMyEvents` and `requestShift` force the `storeStaffId` from the authenticated session (`userDetails`), ignoring client input. \u003cbr\u003e2. **Store Scope**: `confirmShift` and `rejectShift` verify that the `storeId` in the request matches the `storeId` of the authenticated manager. \u003cbr\u003e3. **Ownership Check**: `deleteShiftRequest` verifies `existing.getStoreStaffId().equals(storeStaffId)` before deletion. \u003cbr\u003e4. **Manager Validation**: `getEvents` validates store ownership for managers via `storeAuthorizationService`. \u003cbr\u003eThis multi-layered defense ensures users cannot access or modify data outside their authorized scope."
+                     },
+                     {
+                         "finding_id":  "F-06",
+                         "audit_item":  "Exception Handling \u0026 Boundary Validation: DateTime Parsing",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`ShiftService.java`: `requestShift`, `confirmShift` catch `DateTimeParseException`.",
+                         "analysis":  "The code explicitly catches `DateTimeParseException` when parsing `LocalTime` from strings and re-throws it as an `IllegalArgumentException` with a clear message. This prevents raw stack traces from leaking to the client and handles invalid time formats (e.g., \"25:00\") gracefully."
+                     },
+                     {
+                         "finding_id":  "F-07",
+                         "audit_item":  "Exception Handling \u0026 Boundary Validation: Null/Negative Hour Edge Cases",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`ShiftService.java`: `requestShift`, `confirmShift`.",
+                         "analysis":  "The code validates that `endAt` is after `startAt` and that the duration does not exceed 16 hours. It also checks for null values in critical DTO fields. The `calculateRecommendedBreakMinutes` method handles boundary conditions for break times correctly based on Japanese Labor Standards Act Article 34 (6h/8h thresholds)."
+                     },
+                     {
+                         "finding_id":  "F-08",
+                         "audit_item":  "Concurrency \u0026 Security: Batch Operation Consistency",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "`ShiftService.java`: `batchConfirmShifts`. `ShiftMapper.xml`: `batchConfirmShifts`.",
+                         "analysis":  "**Issue**: The `batchConfirmShifts` method in `ShiftService` iterates through IDs and calls `shiftMapper.updateShiftConfirm` individually within a single transaction. However, the `ShiftMapper.xml` also defines a bulk `batchConfirmShifts` update statement which is **not used** by the service method. \u003cbr\u003e**Risk**: While the current implementation is safe due to the loop and individual locks, it is less efficient than a bulk update. More importantly, the unused XML mapper method `batchConfirmShifts` could lead to confusion or future bugs if accidentally used, as it lacks the per-row overlap checks and lock acquisition performed in the Java loop. \u003cbr\u003e**Recommendation**: Remove the unused `batchConfirmShifts` from `ShiftMapper.xml` or refactor the service to use it if performance becomes an issue (ensuring overlap checks are handled via SQL constraints or pre-validation)."
+                     },
+                     {
+                         "finding_id":  "F-09",
+                         "audit_item":  "Security: Input Validation on Date Ranges",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`ShiftApiController.java`: `getEvents`, `getMyEvents`.",
+                         "analysis":  "The controller validates that `start` is not after `end` and throws an `IllegalArgumentException` if invalid. This prevents potential performance issues or logic errors from inverted date ranges."
+                     },
+                     {
+                         "finding_id":  "F-10",
+                         "audit_item":  "Data Integrity: Shift Overlap Prevention",
+                         "severity":  "P1",
+                         "verdict":  "PASS",
+                         "evidence":  "`ShiftService.java`: `requestShift`, `confirmShift`. `ShiftMapper.xml`: `existsOverlapShift`.",
+                         "analysis":  "The code checks for overlapping shifts before insertion or confirmation. The `existsOverlapShift` query correctly handles both `requested` and `confirmed` times, ensuring that a new shift does not conflict with existing ones for the same staff member on the same date. The exclusion of the current `shiftId` during updates prevents false positives."
+                     }
+                 ]
+}

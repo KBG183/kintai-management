@@ -1,0 +1,15 @@
+﻿### [Hermes Audit Execution Metrics]
+| Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed |
+|---|---|---|---|---|---|
+| C:\dev\kintai\src\main\resources\templates\auth\login.html (113 lines) | qwen27b:latest | 13.88s | 1813 tokens | 611 tokens | 47.5 tokens/s |
+
+| Audit Item | Verdict (PASS / WARN / FAIL) | Detailed Finding & Recommendation (English) |
+|---|---|---|
+| 1. The login form contains a server-rendered CSRF hidden input | PASS | The template includes `<input th:if="${_csrf != null}" type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">`. This correctly renders the CSRF token provided by Spring Security's `CsrfFilter` when available, ensuring the hidden input is present for standard form submissions. |
+| 2. The CSRF input is paired with the existing email and password fields | PASS | The CSRF hidden input is located inside the `<form>` tag, immediately preceding the `email` and `password` input fields. All three fields (`_csrf`, `email`, `password`) are siblings within the same form element, ensuring they are submitted together in the POST request body. |
+| 3. The change does not expose demo credentials or weaken authentication | PASS | The template contains no hardcoded credentials, default passwords, or bypass logic. The `placeholder` attributes (`example@kintai.com`, `••••••••`) are purely visual and do not affect security. The form relies on standard server-side validation via the login processing URL. |
+| 4. The form action and method remain compatible with the configured Spring Security login processing URL | PASS | The form uses `th:action="@{/login-process}"` and `method="post"`. This is the standard convention for Spring Security login forms. As long as the `SecurityConfig` defines `loginProcessingUrl("/login-process")`, this form will correctly trigger the authentication filter. The use of Thymeleaf's `@{...}` ensures correct context path resolution. |
+| 5. The template change is sufficient for a normal browser form submission to establish the session needed by protected Excel download | PASS | The form is a standard HTML5 form with `method="post"`. Upon successful authentication, Spring Security will establish an `HttpSession` (or equivalent security context) and redirect the user. Subsequent requests, including the Excel download, will carry the `JSESSIONID` cookie (or equivalent session token), allowing the `SecurityContext` to be resolved and access to protected resources to be granted. No JavaScript is required for this basic flow. |
+| 6. No unrelated UI behavior is changed by this patch | PASS | The provided HTML structure, CSS classes (Bootstrap 5.3), and Thymeleaf conditional logic (`th:if`) are standard and do not introduce side effects. The `th:if="${_csrf != null}"` guard ensures the input is only rendered if the CSRF token is present in the model, preventing errors in non-secure contexts without altering the visual layout or other form behaviors. The rest of the template remains static and standard. |
+
+OVERALL: AUDIT_PASSED

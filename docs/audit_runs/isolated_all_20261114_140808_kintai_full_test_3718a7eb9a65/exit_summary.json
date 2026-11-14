@@ -1,0 +1,12 @@
+﻿{
+    "gradle_exit_code":  0,
+    "junit_xml_count":  38,
+    "tests":  94,
+    "failures":  0,
+    "errors":  0,
+    "skipped":  0,
+    "junit_parse_errors":  [
+
+                           ],
+    "result":  "PASS"
+}

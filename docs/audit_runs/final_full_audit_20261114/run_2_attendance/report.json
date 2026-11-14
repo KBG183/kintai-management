@@ -1,0 +1,102 @@
+﻿{
+    "run_id":  "20261114_034923_6ed45136",
+    "generated_at":  "2026-11-14T12:50:30.5918343+09:00",
+    "findings":  [
+                     {
+                         "finding_id":  "AUD-001",
+                         "audit_item":  "Japanese Labor Standards Act Art 37: Night Work \u0026 Overtime Calculation Logic",
+                         "severity":  "P0",
+                         "verdict":  "FAIL",
+                         "evidence":  "`AttendanceService.java` (lines 108-115, 236-243), `AttendanceMapper.xml` (`sumPriorNetWorkSecondsOnDate`), `LaborCalculationService.java`",
+                         "analysis":  "**Critical Logic Flaw in Overtime Accumulation**: The code attempts to handle \"split shifts\" (multiple attendance records per day) by summing prior net work seconds (`sumPriorNetWorkSecondsOnDate`) and passing it to `AttendanceTimeCalculator.calculate`. However, the SQL query `sumPriorNetWorkSecondsOnDate` calculates net time as `TIMESTAMPDIFF(SECOND, clock_in_at, clock_out_at) - (total_break_minutes * 60)`. This calculation is **incorrect** for determining overtime eligibility under Japanese Labor Law Article 37. Overtime is determined by the *total* hours worked in a day exceeding 8 hours. The current logic subtracts breaks from the raw duration, which is correct for *net work time*, but the critical failure is that `AttendanceTimeCalculator` (not fully visible but inferred from usage) likely treats the `priorWorkSeconds` as a simple offset. If the calculator does not correctly aggregate the *total* daily hours across multiple sessions to determine the 8-hour threshold before applying the 25% premium, the overtime calculation will be wrong. Furthermore, the SQL `TIMESTAMPDIFF` returns seconds, but `total_break_minutes` is in minutes. The subtraction `seconds - (minutes * 60)` is mathematically sound for net seconds, BUT if `total_break_minutes` in the DB is rounded or stored differently than the precise break intervals, discrepancies arise. More critically, the `AttendanceTimeCalculator` must be verified to ensure it adds `priorWorkSeconds` to the current session\u0027s net time *before* checking the 8-hour threshold. If it checks the threshold per-session, it will fail to trigger overtime for split shifts that individually are \u003c8h but collectively \u003e8h."
+                     },
+                     {
+                         "finding_id":  "AUD-002",
+                         "audit_item":  "Japanese Labor Standards Act Art 37: Night Work (22:00-05:00) Deduction of Breaks",
+                         "severity":  "P1",
+                         "verdict":  "WARN",
+                         "evidence":  "`AttendanceService.java` (`handleClockOut`), `AttendanceMapper.xml` (`sumPriorNetWorkSecondsOnDate`)",
+                         "analysis":  "**Night Work Break Deduction Ambiguity**: The requirement states \"Break time between 22:00~05:00 must be deducted specifically from night work hours.\" The code passes `breakIntervals` to `AttendanceTimeCalculator.calculate`. It is assumed the calculator correctly subtracts break time from the night work window. However, the `sumPriorNetWorkSecondsOnDate` query only sums *net* work seconds. It does not provide the *night work* seconds of prior sessions. If a staff member works a split shift where the first session ends at 23:00 and the second starts at 23:30, the `priorWorkSeconds` passed to the calculator for the second session will include the night work hours from the first session. The calculator must correctly attribute these prior seconds to the \"Night Work\" bucket if they fall within 22:00-05:00. The current data structure (`priorWorkSeconds` is a single long) loses the temporal distribution of those prior hours. The calculator cannot know if the prior 4 hours were worked during the day or at night. **Recommendation**: Pass prior *night work seconds* and prior *overtime seconds* separately, or pass the full list of prior attendance intervals to the calculator for accurate bucketing."
+                     },
+                     {
+                         "finding_id":  "AUD-003",
+                         "audit_item":  "Payroll Math \u0026 Rounding: 1-Yen Discrepancy Prevention",
+                         "severity":  "P1",
+                         "verdict":  "WARN",
+                         "evidence":  "`LaborCalculationService.java` (`mapToDto`), `PayrollCalculator` (inferred)",
+                         "analysis":  "**Rounding Logic Not Visible/Verified**: The code delegates to `PayrollCalculator.calculateDetailedDailyPay`. The audit checklist requires checking `RoundingMode.HALF_UP`. Since `PayrollCalculator` is not provided in the bundle, we cannot verify if `BigDecimal` is used with `RoundingMode.HALF_UP` for the final yen amounts. The `hourlyWage` is an `int`. If the calculation involves fractions of a minute (e.g., 1 second of overtime), the rounding mode is critical. **Recommendation**: Ensure `PayrollCalculator` uses `BigDecimal` for all intermediate calculations and applies `RoundingMode.HALF_UP` only at the final step for each pay component (Regular, Night, Overtime, Night Overtime) to prevent cumulative rounding errors."
+                     },
+                     {
+                         "finding_id":  "AUD-004",
+                         "audit_item":  "Concurrency \u0026 Security: Pessimistic Locking Scope",
+                         "severity":  "P1",
+                         "verdict":  "WARN",
+                         "evidence":  "`AttendanceService.java` (`punch`, `requestModification`, `reviewModification`), `AttendanceMapper.xml` (`lockStoreStaffForUpdate`)",
+                         "analysis":  "**Lock Scope Mismatch**: The code uses `attendanceMapper.lockStoreStaffForUpdate(storeStaffId)` to acquire a pessimistic lock on the `store_staff` table. This prevents two transactions from modifying the *same staff\u0027s* attendance simultaneously. However, in `reviewModification`, the lock is acquired on `req.getStoreStaffId()`. This is correct for preventing concurrent modifications to the same staff\u0027s attendance. However, the `updateModRequestReview` uses a CAS (Compare-And-Swap) pattern (`WHERE approval_status = \u0027PENDING\u0027`). This is good. But the lock on `store_staff` is released when the transaction commits. If the transaction is long-running, it holds the lock. More importantly, does `lockStoreStaffForUpdate` prevent *other* staff from punching in? No, it only locks the specific staff row. This is correct behavior. However, there is a potential race condition in `punch`: `findActiveAttendance` is called *after* the lock. This is correct. But what if two requests for the *same* staff arrive simultaneously? The first acquires the lock, the second waits. The first inserts/updates, commits, releases lock. The second acquires lock, reads new state. This is correct. **Verdict**: PASS for basic concurrency, but verify that `store_staff` table has an index on `store_staff_id` to ensure the lock is efficient and doesn\u0027t escalate to a table lock."
+                     },
+                     {
+                         "finding_id":  "AUD-005",
+                         "audit_item":  "Concurrency \u0026 Security: IDOR Vulnerability in `getDetailedLabor`",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`LaborCalculationApiController.java` (`getDetailedLabor`)",
+                         "analysis":  "**IDOR Protection**: The code checks `userDetails.getRole()`. For `ROLE_STAFF`, it verifies `userDetails.getStoreStaffId().equals(attendance.getStoreStaffId())`. For `ROLE_OWNER`, it calls `storeAuthorizationService.validateStoreOwnership`. This effectively prevents a staff member from viewing another staff member\u0027s labor details by guessing the `attendanceId`. **Verdict**: PASS."
+                     },
+                     {
+                         "finding_id":  "AUD-006",
+                         "audit_item":  "Exception Handling \u0026 Boundary Validation: Null/Negative Hours",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "`AttendanceService.java` (`handleBreakEnd`), `AttendanceMapper.xml`",
+                         "analysis":  "**Negative Break Duration**: In `handleBreakEnd`, `breakDuration` is calculated as `Duration.between(breakStart, now).toMinutes()`. If `now` is before `breakStart` (due to clock skew or manual adjustment), this could be negative. The code does not explicitly check for `breakDuration \u003c 0`. It inserts this negative value into `attendance_break`. Later, `totalBreakMinutes` is incremented by this negative value. This could lead to negative net work time. **Recommendation**: Add a check `if (breakDuration \u003c 0) throw new IllegalStateException(\"Break end time cannot be before start time.\");`."
+                     },
+                     {
+                         "finding_id":  "AUD-007",
+                         "audit_item":  "Exception Handling \u0026 Boundary Validation: `DateTimeParseException`",
+                         "severity":  "P2",
+                         "verdict":  "N/A",
+                         "evidence":  "`AttendanceApiController.java`, `AttendanceService.java`",
+                         "analysis":  "**No Direct Parsing**: The code uses `LocalDateTime` objects passed via DTOs. Spring Boot automatically deserializes JSON strings to `LocalDateTime`. If the format is invalid, Spring throws a `MethodArgumentTypeMismatchException` or similar, which is typically handled by a global exception handler. The code does not manually parse strings, so `DateTimeParseException` is not a direct risk in this layer. **Verdict**: N/A (Handled by framework)."
+                     },
+                     {
+                         "finding_id":  "AUD-008",
+                         "audit_item":  "Concurrency \u0026 Security: Transaction Isolation Level",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "`AttendanceService.java`",
+                         "analysis":  "**Default Isolation Level**: The `@Transactional` annotation does not specify an isolation level. The default is usually `READ_COMMITTED` or `REPEATABLE_READ` depending on the database (MySQL default is `REPEATABLE_READ`). For the pessimistic lock to work correctly, the transaction must hold the lock until commit. This is standard. However, if the database is set to `READ_UNCOMMITTED`, the lock might not behave as expected. **Recommendation**: Explicitly set `isolation = Isolation.READ_COMMITTED` or `REPEATABLE_READ` in `@Transactional` for clarity and consistency across environments."
+                     },
+                     {
+                         "finding_id":  "AUD-009",
+                         "audit_item":  "Japanese Labor Standards Act Art 37: Overtime Threshold (8h)",
+                         "severity":  "P1",
+                         "verdict":  "WARN",
+                         "evidence":  "`AttendanceService.java` (`handleClockOut`), `AttendanceMapper.xml`",
+                         "analysis":  "**Overtime Calculation Basis**: The code calculates `overtimeMinutes` in `AttendanceTimeCalculator`. The input is `priorWorkSeconds`. The calculator must determine if `priorWorkSeconds + currentNetSeconds \u003e 8 * 3600`. If so, the excess is overtime. The code does not explicitly show this logic, but it is implied. The risk is if `priorWorkSeconds` includes breaks incorrectly. As noted in AUD-002, the SQL `sumPriorNetWorkSecondsOnDate` subtracts `total_break_minutes * 60`. If `total_break_minutes` is rounded to the nearest minute in the DB, but the actual break was 30 seconds, the net seconds will be off by 30 seconds. Over many sessions, this could drift. **Recommendation**: Store `net_work_seconds` in the `attendance` table instead of calculating it from `clock_in/out` and `break_minutes` in SQL. This ensures precision."
+                     },
+                     {
+                         "finding_id":  "AUD-010",
+                         "audit_item":  "Concurrency \u0026 Security: `updateModRequestReview` CAS Failure Handling",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`AttendanceService.java` (`reviewModification`)",
+                         "analysis":  "**CAS Handling**: The code checks `if (affected != 1) throw new IllegalStateException(...)`. This correctly handles the case where another admin processed the request concurrently. **Verdict**: PASS."
+                     },
+                     {
+                         "finding_id":  "AUD-011",
+                         "audit_item":  "Exception Handling \u0026 Boundary Validation: `storeStaffId` Null Check",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`AttendanceApiController.java` (`punch`)",
+                         "analysis":  "**Null Check**: The code checks `if (userDetails.getStoreStaffId() != null)`. If it is null, it assumes the user is an Owner/Manager and validates via `storeAuthorizationService`. This is correct."
+                     },
+                     {
+                         "finding_id":  "AUD-012",
+                         "audit_item":  "Japanese Labor Standards Act Art 37: Night + Overtime Concurrent Overlap",
+                         "severity":  "P1",
+                         "verdict":  "WARN",
+                         "evidence":  "`LaborCalculationService.java`",
+                         "analysis":  "**Overlap Calculation**: The code relies on `AttendanceTimeCalculator` to calculate `nightOvertimeWorkMinutes`. This requires the calculator to identify the intersection of the \"Night Window\" (22:00-05:00) and the \"Overtime Window\" (hours \u003e 8). The input to the calculator is `clockInAt`, `clockOutAt`, `breakIntervals`, and `priorWorkSeconds`. The calculator must correctly reconstruct the timeline including prior sessions to find the overlap. If the prior sessions are not passed as intervals, only as a total seconds count, the calculator cannot determine *when* the prior work happened, and thus cannot determine if it overlapped with the night window. **Critical**: As per AUD-002, passing only `priorWorkSeconds` is insufficient for accurate night/overtime overlap calculation in split shifts. **Recommendation**: Pass a list of prior attendance intervals (start/end times) to the calculator."
+                     }
+                 ]
+}

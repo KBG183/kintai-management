@@ -1,0 +1,15 @@
+﻿### [Hermes Audit Execution Metrics]
+| Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed |
+|---|---|---|---|---|---|
+| C:\dev\kintai\src\main\resources\templates\shift\calendar.html (474 lines) | qwen27b:latest | 20.08s | 5988 tokens | 725 tokens | 43.9 tokens/s |
+
+| Audit Item | Verdict (PASS / WARN / FAIL) | Detailed Finding & Recommendation (English) |
+|---|---|---|
+| 1) authenticated staff identity is shown | PASS | The template explicitly displays the logged-in user's name and role context. Line 38 uses `th:text="${#authentication?.principal?.name ?: '未ログイン'}"` to show the username. Line 39 uses `th:authorization` to display a specific message for Owners/Managers versus regular staff, clearly distinguishing the authenticated identity's scope. |
+| 2) owner versus staff scope is explained without claiming owner is a staff member | PASS | Line 39 contains the logic: `hasAnyRole(''OWNER'', ''MANAGER'') ? '（店舗全体を表示。オーナー自身はスタッフではありません）' : '（自分の所属店舗を表示）'`. The Japanese text explicitly states "The owner themselves is not a staff member" (`オーナー自身はスタッフではありません`), correctly distinguishing the administrative role from the operational staff role without conflating them. |
+| 3) month-wide calendar and staff-name mapping are visible | PASS | The calendar is initialized with `initialView: 'dayGridMonth'` (Line 148), ensuring a month-wide view. The staff-name mapping is handled in the `events` callback (Lines 163-172), where it extracts `staffName` from `extendedProps` and populates the `staffLegend` div (Line 168) with badges showing the name and highlighting the currently logged-in user. |
+| 4) no client-side authorization is weakened | PASS | The client-side logic correctly mirrors server-side expectations without bypassing security. Line 149 defines `isManager` based on server-side Thymeleaf authorization. The `eventClick` handler (Line 218) uses this flag to determine which modal to show (Manager vs. Staff). Crucially, the actual data modification requests (POST/PUT/DELETE) rely on the server to enforce permissions; the client only hides/shows UI elements. The CSRF token is properly retrieved and attached to headers (Lines 155-160). |
+| 5) null/empty event data is handled safely | PASS | The code includes defensive checks for null/undefined data. Line 164 filters events where `ev.extendedProps` and `ev.extendedProps.staffName` exist before processing the legend. In the `eventClick` handler, default values are provided for optional fields, e.g., `ev.plannedBreakMinutes || 0` (Line 226) and `ev.ownerMemo || ''` (Line 228). The memo display also handles nulls with `ev.staffMemo || '特になし'` (Line 243). |
+| 6) Japanese UI text is coherent | PASS | The Japanese text is natural, professional, and contextually appropriate. Examples: "シフト管理・希望提出" (Shift Management & Request Submission), "現在のログイン" (Current Login), "希望シフト登録" (Desired Shift Registration). The distinction between "確定" (Confirmed) and "申請中" (Submitted) is clear. The privacy notice "非公開 (他スタッフの希望)" (Private: Other staff's request) is clear and concise. No grammatical errors or awkward phrasing were detected. |
+
+OVERALL: AUDIT_PASSED

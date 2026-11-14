@@ -1,0 +1,29 @@
+{
+  "run_id": "codex_excel_auto_recalculate_20261114_160700",
+  "operator": "Codex",
+  "target_file": "C:\\dev\\kintai\\src\\main\\resources\\templates\\payroll\\list.html",
+  "target_sha256": "345262ee41ca5e8d0d2dfdd1e78ac0a3628373ebccba3437bab973c5bd896272",
+  "model": "qwen27b:latest",
+  "host_url": "http://100.111.193.94:11434",
+  "options": {
+    "think": false,
+    "temperature": 0.1,
+    "seed": 42,
+    "num_ctx": 24576
+  },
+  "started_at_local": "2026-11-14T16:26:53.1639026+09:00",
+  "status": "SUCCESS",
+  "source_script": "C:\\dev\\kintai\\scripts\\audit_with_hermes.ps1",
+  "source_script_sha256": "b055c1e01285e56684abd13b23644082b2208c8d50fdfae7a119d739d216987b",
+  "config_file": "C:\\dev\\kintai\\scripts\\audit_config.json",
+  "config_sha256": "1ebaf50e6e54e97e87acc79fbf002d6a20d38743ac79961760e264742e4999db",
+  "custom_prompt_sha256": "4726291997ff5eedefd69295bae15bf4eeaffde8f3a7900e26461c44897f65b5",
+  "system_prompt_override_sha256": "DEFAULT_IN_RUNNER",
+  "transport_requested": "Http",
+  "ollama_path": "C:\\Users\\klad3\\AppData\\Local\\Programs\\Ollama\\ollama.exe",
+  "output_dir": ".\\docs\\audit_runs\\codex_excel_auto_recalculate_20261114_160700",
+  "transport_used": "Http",
+  "finished_at_local": "2026-11-14T16:27:07.7515593+09:00",
+  "report_sha256": "e91e4c8b25b5202352a954f9ffaf59b2d2be68fc60c3b234c6d9ba1ee6fc693b",
+  "report_file": ".\\docs\\audit_runs\\codex_excel_auto_recalculate_20261114_160700\\hermes_report.md"
+}

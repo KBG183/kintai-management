@@ -1,0 +1,15 @@
+﻿### [Hermes Audit Execution Metrics]
+| Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed |
+|---|---|---|---|---|---|
+| C:\dev\kintai\docs\final-portfolio\video_demo_error_ledger_KO.md (36 lines) | qwen27b:latest | 13.55s | 1782 tokens | 592 tokens | 47.3 tokens/s |
+
+| Audit Item | Verdict (PASS / WARN / FAIL) | Detailed Finding & Recommendation (English) |
+|---|---|---|
+| 1. Each recorded issue has a concrete symptom and stage | PASS | All entries (VD-001 to VD-006) explicitly define the "Simulation Stage" (e.g., Demo Homepage Access, Login, Excel Download) and the "Actual Symptom" (e.g., Connection refused, Login redirect, Invalid Excel file). The symptoms are specific technical observations rather than vague descriptions. |
+| 2. Root causes are separated from corrective actions | PASS | The table structure strictly separates "Confirmed Cause" (Root Cause) from "Action" (Corrective Action). For example, in VD-002, the cause is identified as a stale server/CSRF issue, while the action is the server replacement and form update. This separation allows for clear architectural analysis. |
+| 3. Resolved claims have concrete verification evidence | PASS | Entries marked as `VERIFIED` include specific technical evidence in the "Re-verification Result" column. Examples include HTTP status codes (200/302), specific file headers (`PK` header for XLSX), database state checks (`attendanceId` linkage), and API response validations (specific staff names/dates returned). |
+| 4. The ledger distinguishes unresolved or deferred scope from verified fixes | PASS | The ledger uses a strict status taxonomy: `VERIFIED` for fixed and tested items, and `DEFERRED` for items intentionally left out of the current demo scope (e.g., VD-006 regarding full regression tests). The distinction is clear, and `DEFERRED` items are not falsely claimed as fixed. |
+| 5. Current demo URL, database, account identifiers, and last pending request are explicitly recorded without exposing passwords or secrets | PASS | The "Current Verification Values" section explicitly lists the URL (`http://127.0.0.1:8082`), DB name (`kintai_demo_670d117db861`), and account emails (`staff3@kintai.com`, `owner@kintai.com`). It explicitly states that passwords are not recorded, adhering to security best practices. The last pending request ID (`mod_request_id=4`) is also documented. |
+| 6. The future error-recording procedure preserves original evidence and supports repeatable revalidation | PASS | The "Next Error Recording Rules" section mandates preserving original evidence (screenshots, HTTP responses, logs, DB state) in `docs/audit_runs/` with no overwrite policy. It also defines a 5-step process that includes re-running the simulation path from the start to ensure repeatable revalidation. |
+
+OVERALL: AUDIT_PASSED

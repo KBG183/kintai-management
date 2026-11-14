@@ -117,6 +117,7 @@
         document.addEventListener('DOMContentLoaded', function () {
             const storeId = /*[[${storeId}]]*/ 1;
             let currentYearMonth = /*[[${targetYearMonth}]]*/ '2026-10';
+            let currentPayrollList = [];
             const detailModal = new bootstrap.Modal(document.getElementById('payrollDetailModal'));
 
             // 分を「H時間M分」形式に変換
@@ -141,6 +142,7 @@
                     .then(res => res.json())
                     .then(resData => {
                         const list = resData.data;
+                        currentPayrollList = list || [];
                         if (!list || list.length === 0) {
                             tbody.innerHTML = '<tr><td colspan="12" class="py-4 text-muted">該当月の給与データがありません。「給与一括計算」を実行してください。</td></tr>';
                             return;
@@ -340,7 +342,49 @@
 
             // Excelエクスポートボタン
             document.getElementById('btnExportExcel').addEventListener('click', function () {
-                window.location.href = `/api/payroll/excel?storeId=${storeId}&yearMonth=${currentYearMonth}`;
+                const button = this;
+                if (!confirm(`${currentYearMonth} の最新の承認済み勤怠を反映してからExcelを出力しますか？`)) {
+                    return;
+                }
+
+                const hasConfirmedPayroll = currentPayrollList.some(item =>
+                    item.payrollStatus === 'CONFIRMED' || item.payrollStatus === 'PAID'
+                );
+                if (hasConfirmedPayroll) {
+                    alert('確定済みの給与が含まれているため、再計算・Excel出力を中止しました。確定後の給与は変更できません。');
+                    return;
+                }
+
+                button.disabled = true;
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i>再計算中...';
+
+                // Excelは給与スナップショットを出力するため、承認済み勤怠を先に再集計する。
+                fetch('/api/payroll/calculate', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        storeId: storeId,
+                        targetYearMonth: currentYearMonth
+                    })
+                })
+                .then(async res => {
+                    const data = await res.json();
+                    if (!res.ok || !data.success) {
+                        throw new Error(data.message || '給与の再計算に失敗しました。');
+                    }
+                    return data;
+                })
+                .then(() => {
+                    button.disabled = false;
+                    button.innerHTML = originalText;
+                    window.location.href = `/api/payroll/excel?storeId=${storeId}&yearMonth=${currentYearMonth}`;
+                })
+                .catch(err => {
+                    alert('Excel出力前の再計算に失敗しました: ' + err.message);
+                    button.disabled = false;
+                    button.innerHTML = originalText;
+                });
             });
 
             // 初期ロード

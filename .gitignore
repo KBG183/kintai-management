@@ -45,4 +45,22 @@ initial_db_schema.md
 kintai_requirements_specification_revised.md
 docs/hermes_*.md
 
+# Large media files
+*.mp4
+*.webm
+*.avi
+
+# Logs
+*.log
+logs/
+
+# Local Korean Presentation Backups
+*_KOR.html
+*_KO.md
+*_KO_*.md
+
+
+
+
+
 

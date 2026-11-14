@@ -14,6 +14,6 @@ Use only a newly created isolated demo database, never the operating database. F
 
 ## Expected data and limits
 
-The isolated demo contains 313 confirmed shifts and 313 attendance rows over 2026. The Day 13 checkpoint recorded 83 passes, zero failures/errors/skips. The later full regression after residual fixes recorded 92 passes, zero failures/errors/skips, on isolated DB `kintai_full_test_d4124a317ed0`; see `docs/audit_runs/isolated_all_20261114_094427_kintai_full_test_d4124a317ed0/`. Day 13-specific UI/demo records remain in `docs/audit_runs/day13_calendar_20261114/`.
+The isolated demo contains 313 confirmed shifts and 313 attendance rows over 2026. The latest full regression after all residual fixes (including B-05/B-06) recorded 94 passes, zero failures/errors/skips, on isolated DB `kintai_full_test_8a75679f5b1e`; see `docs/audit_runs/isolated_all_20261114_114819_kintai_full_test_8a75679f5b1e/`. (Historical checkpoints: Day 13 83 passes, prior residual 92 passes.) Day 13-specific UI/demo records remain in `docs/audit_runs/day13_calendar_20261114/`.
 
 The demo password is intentionally omitted. Use the locally seeded demo credential and discard or rotate it after the demo. This is a local demonstration, not production deployment guidance.

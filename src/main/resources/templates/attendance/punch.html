@@ -35,7 +35,10 @@
                             </div>
                             <div sec:authorize="!hasRole('OWNER')">
                                 <select class="form-select form-select-lg text-center" id="selectStaff" disabled>
-                                    <option value="1" selected>山田 太郎 (Staff ID: 1 - ログイン中)</option>
+                                    <option th:if="${storeStaffId != null}" th:value="${storeStaffId}" selected
+                                            th:text="${(loginUserName ?: '不明なスタッフ') + ' (Staff ID: ' + storeStaffId + ' - ログイン中)'}">
+                                        ログイン中スタッフ
+                                    </option>
                                 </select>
                                 <div class="form-text text-muted small">※ スタッフ本人打刻モード（改ざん防止固定）</div>
                             </div>

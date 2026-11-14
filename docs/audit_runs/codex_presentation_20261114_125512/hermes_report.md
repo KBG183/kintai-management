@@ -1,0 +1,13 @@
+﻿### [Hermes Audit Execution Metrics]
+| Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed |
+|---|---|---|---|---|---|
+| C:\dev\kintai\docs\presentation-prototype\index.html (21 lines) | qwen27b:latest | 32.28s | 5501 tokens | 542 tokens | 47.4 tokens/s |
+
+| Item | Verdict (PASS/WARN/FAIL) | Evidence | Recommendation |
+| :--- | :--- | :--- | :--- |
+| **Explanation of Local Qwen & Cross-Review Rationale** | **PASS** | Slide 03 explicitly states the need to "directly manage" conditions and "reproduce" results via local Ollama. Slide 04 explains cross-review as separating roles to reduce "self-review limitations" and bias. | None. The rationale is clearly articulated in the "Why" slides. |
+| **Distinction Between AI Review, Human Decision, and Testing** | **PASS** | Slide 04 clearly delineates "Implementation AI," "Independent Review (Qwen)," and "Developer (Final Judgment)." Slide 05 notes that "audit results are review evidence, distinct from test results." Slide 06 separates "Independent Audit" from "Execution Testing." | None. The workflow clearly distinguishes between AI suggestions, human judgment, and empirical test verification. |
+| **Avoidance of Absolute Guarantees & Invented Claims** | **PASS** | Slide 03 includes a disclaimer: "Local audit usage does not prove the entire development process was free of external transmission." Slide 04 states: "Audit does not guarantee finding all defects." Slide 07 notes: "Does not guarantee same improvement rate or audit quality for all tasks." Slide 10 explicitly lists limits (e.g., "Excludes Day 12 and MySQL 8.4 verification"). | None. The presentation responsibly qualifies its claims and avoids overpromising. |
+| **Navigation Functionality** | **PASS** | The JavaScript implements keyboard navigation (Arrow keys, Home/End), on-screen buttons (`#prev`, `#next`), and clickable dot indicators. The `show(n)` function correctly updates the active slide, counter, progress bar, and accessibility attributes (`aria-hidden`). | None. Navigation is robust and accessible. |
+| **Demo Placeholder** | **PASS** | Slide 09 ("Product Demo") contains a `.video` div with a play icon, the text "Actual homepage demo video," and a note stating "Insert video here after recording." | None. A clear placeholder for the demo video is present. |
+| **Overall Verdict** | **PASS** | The presentation meets all specified criteria. It logically explains the technical choices, maintains a clear distinction between AI assistance and human accountability, uses cautious language regarding results, and includes functional navigation and a demo slot. | No actionable defects found. The prototype is ready for content finalization. |

@@ -1,0 +1,29 @@
+{
+  "run_id": "codex_demo_password_20261114_151500",
+  "operator": "Codex",
+  "target_file": "C:\\dev\\kintai\\src\\main\\resources\\db\\data.sql",
+  "target_sha256": "a2102d8eb88f96e6d33d02e63f54310b41fec8f8141208b0535639d1bc477790",
+  "model": "qwen27b:latest",
+  "host_url": "http://100.111.193.94:11434",
+  "options": {
+    "think": false,
+    "seed": 42,
+    "num_ctx": 24576,
+    "temperature": 0.1
+  },
+  "started_at_local": "2026-11-14T15:10:50.3930199+09:00",
+  "status": "SUCCESS",
+  "source_script": "C:\\dev\\kintai\\scripts\\audit_with_hermes.ps1",
+  "source_script_sha256": "b055c1e01285e56684abd13b23644082b2208c8d50fdfae7a119d739d216987b",
+  "config_file": "C:\\dev\\kintai\\scripts\\audit_config.json",
+  "config_sha256": "1ebaf50e6e54e97e87acc79fbf002d6a20d38743ac79961760e264742e4999db",
+  "custom_prompt_sha256": "aa897d0cda024a340582430fd50b8e4279dfcf2bb1255da917dafdbe6fcbf112",
+  "system_prompt_override_sha256": "4341135f6275637dc5fe12e5508b4502369f1a77670987477fe2a0c63da5c68d",
+  "transport_requested": "Http",
+  "ollama_path": "C:\\Users\\klad3\\AppData\\Local\\Programs\\Ollama\\ollama.exe",
+  "output_dir": "docs\\audit_runs\\codex_demo_password_20261114_151500",
+  "transport_used": "Http",
+  "finished_at_local": "2026-11-14T15:10:56.6091136+09:00",
+  "report_sha256": "b433789716a48fe5d7aeaac5735ed80bf411bf3ffdd23c5777a29c337734c121",
+  "report_file": "docs\\audit_runs\\codex_demo_password_20261114_151500\\hermes_report.md"
+}

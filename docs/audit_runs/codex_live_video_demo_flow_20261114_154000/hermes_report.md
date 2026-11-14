@@ -1,0 +1,15 @@
+﻿### [Hermes Audit Execution Metrics]
+| Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed |
+|---|---|---|---|---|---|
+| C:\dev\kintai\docs\final-portfolio\video_demo_script_KO.md (104 lines) | qwen27b:latest | 13.25s | 1601 tokens | 554 tokens | 45.2 tokens/s |
+
+| Audit Item | Verdict (PASS / WARN / FAIL) | Detailed Finding & Recommendation (English) |
+|---|---|---|
+| 1. The video demonstrates live writes and reads rather than only pre-seeded screenshots | PASS | The script explicitly states in the "Shooting Principles" that "results registered during shooting are not pre-determined" and in Section 2 that the schedule is "not a pre-made screen but the actual application result just entered by the employee." Section 3 confirms the state change from `[Hope]` to `[Confirmed]` is shown live. |
+| 2. Staff and owner roles are accurately separated | PASS | The script defines distinct accounts (`staff3@kintai.com` and `owner@kintai.com`) in the "Pre-shooting Preparation" section. Section 1 limits staff view to their own shifts/attendance, while Section 3 and 6 show the owner performing approvals and viewing the full calendar, demonstrating clear role-based access control (RBAC). |
+| 3. Shift request and approval are shown as state transitions | PASS | Section 2 describes the creation of a `[Hope]` (Request) status. Section 3 explicitly describes the owner clicking to confirm, changing the status to `[Confirmed]`, and refreshing the calendar to verify the visual state transition from `[Hope]` to `[Confirmed]`. |
+| 4. Attendance correction and payroll flow are technically coherent | PASS | Section 5 describes submitting a correction request (not a direct overwrite) for a specific date (Nov 2). Section 6 shows the owner approving this request. Section 7 then executes payroll calculation for November, logically incorporating the approved corrections. The flow follows a standard request-approve-calculate lifecycle. |
+| 5. The isolated demo database rationale is accurate | PASS | The "Pre-shooting Preparation" section mandates creating a new isolated demo DB or applying a specific SQL script (`scripts/prepare_video_demo_state.sql`). This ensures a clean, reproducible state for the demo, preventing data contamination from previous tests and ensuring the "live write" narrative is technically sound. |
+| 6. The script avoids claiming that attendance correction changes the shift calendar | PASS | Section 5 focuses on "attendance correction" (modifying clock-in/out times) for a past date (Nov 2), distinct from the "shift schedule" (Nov 18) handled in Sections 2-3. The script maintains a clear distinction between the *schedule* (planned hours) and *attendance* (actual worked hours), ensuring no logical contradiction where correcting attendance alters the planned shift calendar. |
+
+OVERALL: AUDIT_PASSED

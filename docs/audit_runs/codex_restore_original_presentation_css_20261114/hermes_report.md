@@ -1,0 +1,15 @@
+﻿### [Hermes Audit Execution Metrics]
+| Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed |
+|---|---|---|---|---|---|
+| C:\dev\kintai\docs\presentation-prototype\index.html (27 lines) | qwen27b:latest | 21.33s | 3265 tokens | 686 tokens | 45.1 tokens/s |
+
+| Audit Item | Verdict (PASS / WARN / FAIL) | Detailed Finding & Recommendation (English) |
+|---|---|---|
+| **Visual Structure Preservation** | **PASS** | The HTML successfully restores the card-presentation visual structure. The `shell` class is applied to the body, and the header is injected via JavaScript. The CSS defines the `.slide` (paper card) layout, `.hero`/`.title` typography, `.card`/`.step` grid components, and the dark theme variables (`--bg`, `--panel`). The responsive media query (`@media(max-width:900px)`) correctly collapses grids to single columns. The fixed bottom navigation bar (`.topbar`) with progress indicator is present and styled. |
+| **Slide Count & Content Integrity** | **PASS** | The JavaScript array `S` contains exactly **20** slide entries. Each entry follows the `[eyebrow, title, lead, optional_evidence_flag]` structure. The rendering logic iterates through all 20 items, creating `<section>` elements for each. The "evidence" grid (cards for Summary, Evidence Doc, Raw Logs) is conditionally rendered only for the slide where the 4th array element is `"evidence"` (Slide 19, index 18), which matches the "FOLLOW THE EVIDENCE" slide content. |
+| **Language & Locale Compliance** | **PASS** | The `<html>` tag correctly specifies `lang="ja"`. All user-facing text within the slide array `S` is in Japanese. No Korean characters or text were detected in the HTML, CSS, or JavaScript strings. The font stack prioritizes Japanese fonts (`"Yu Gothic UI", "Noto Sans JP"`). |
+| **Evidence Links & Navigation** | **PASS** | The evidence links on Slide 19 point to valid relative paths: `../final-portfolio/portfolio_summary_JA.md`, `../legacy_audit_reports/portfolio_audit_evidence_JA_cumulative_20261114.md`, and specific audit run artifacts. The navigation logic (`prev`/`next` buttons, keyboard arrows, hash state management) is intact. The `show(n)` function correctly updates the active slide, counter, progress bar, and URL hash. The link interception logic redirects evidence clicks to `evidence.html` with appropriate query parameters. |
+| **Code Robustness & Edge Cases** | **PASS** | The JavaScript handles edge cases appropriately: `Math.max(0, Math.min(slides.length-1, n))` prevents index out-of-bounds errors during navigation. The hash parsing `location.hash.match(/^#slide=(\d+)$/)` safely extracts the slide number, defaulting to 0 if invalid. The `history.replaceState` ensures clean URL updates without creating excessive history entries. |
+| **Security & Input Validation** | **PASS** | No obvious XSS vulnerabilities were found in the static HTML/JS. The `innerHTML` assignments use static strings from the `S` array, not direct user input. The `evidence.html` redirect uses `new URL` and `searchParams.set`, which properly encodes special characters in the query string. |
+
+**OVERALL: AUDIT_PASSED**

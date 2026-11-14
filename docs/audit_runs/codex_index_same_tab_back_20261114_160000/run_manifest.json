@@ -1,0 +1,29 @@
+{
+  "run_id": "codex_index_same_tab_back_20261114_160000",
+  "operator": "Codex",
+  "target_file": "C:\\dev\\kintai\\docs\\presentation-prototype\\index.html",
+  "target_sha256": "5538e3cba7ce506595d5d09e22dda41fb0bec8a4bf5bffc1400fd35e7d219335",
+  "model": "qwen27b:latest",
+  "host_url": "http://100.111.193.94:11434",
+  "options": {
+    "num_ctx": 24576,
+    "temperature": 0.1,
+    "seed": 42,
+    "think": false
+  },
+  "started_at_local": "2026-11-14T14:06:05.9231176+09:00",
+  "status": "SUCCESS",
+  "source_script": "C:\\dev\\kintai\\scripts\\audit_with_hermes.ps1",
+  "source_script_sha256": "b055c1e01285e56684abd13b23644082b2208c8d50fdfae7a119d739d216987b",
+  "config_file": "C:\\dev\\kintai\\scripts\\audit_config.json",
+  "config_sha256": "1ebaf50e6e54e97e87acc79fbf002d6a20d38743ac79961760e264742e4999db",
+  "custom_prompt_sha256": "94aaaea537ce1ab67add30e4c885a3c82839405c8ad0b3b14333d4595d350f13",
+  "system_prompt_override_sha256": "c8a0ed554fe8a89012af5bd080809ea8fe50bd19eabc2999b97f3845a876e95e",
+  "transport_requested": "Http",
+  "ollama_path": "C:\\Users\\klad3\\AppData\\Local\\Programs\\Ollama\\ollama.exe",
+  "output_dir": "C:\\dev\\kintai\\docs\\audit_runs\\codex_index_same_tab_back_20261114_160000",
+  "transport_used": "Http",
+  "finished_at_local": "2026-11-14T14:06:22.5636027+09:00",
+  "report_sha256": "eff03581245276900a7418e1e70ae8507d7c36e4129099114414e7f61df6d66d",
+  "report_file": "C:\\dev\\kintai\\docs\\audit_runs\\codex_index_same_tab_back_20261114_160000\\hermes_report.md"
+}

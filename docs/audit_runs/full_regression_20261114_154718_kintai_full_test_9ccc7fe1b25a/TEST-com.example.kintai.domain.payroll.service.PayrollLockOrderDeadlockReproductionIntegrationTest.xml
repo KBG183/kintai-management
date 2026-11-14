@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="F-04: 락 순서 역전에 따른 실제 MySQL InnoDB 데드락(1213 / 40001) 재현 및 검증" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-11-14T06:47:49.906Z" hostname="BK" time="0.145">
+  <properties/>
+  <testcase name="독립 JDBC 커넥션 2개에서 상호 역순 락 획득 시 MySQL 1213 데드락 감지 및 40001 SQLState 실측" classname="com.example.kintai.domain.payroll.service.PayrollLockOrderDeadlockReproductionIntegrationTest" time="0.139"/>
+  <system-out><![CDATA[2026-11-14T15:47:49.907+09:00  INFO 23172 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.PayrollLockOrderDeadlockReproductionIntegrationTest]: PayrollLockOrderDeadlockReproductionIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-14T15:47:49.907+09:00  INFO 23172 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.PayrollLockOrderDeadlockReproductionIntegrationTest
+2026-11-14T15:47:49.907+09:00  INFO 23172 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.PayrollLockOrderDeadlockReproductionIntegrationTest]: PayrollLockOrderDeadlockReproductionIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-14T15:47:49.907+09:00  INFO 23172 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.PayrollLockOrderDeadlockReproductionIntegrationTest
+[Conn-1] Step 1: store_staff 행 락 획득 완료
+[Conn-2] Step 1: payroll 행 락 획득 완료
+[Conn-2] Step 2: store_staff 행 락 요청 시도 (데드락 유발)
+[Conn-1] Step 2: payroll 행 락 요청 시도
+[Conn-2] Step 2 성공 (생존자 트랜잭션)
+[Conn-1] SQLException 포착: ErrorCode=1213, SQLState=40001, Msg=Deadlock found when trying to get lock; try restarting transaction
+==================================================================
+[F-04 데드락 정밀 실측 결과]
+Conn-1 Exception: ErrorCode=1213, SQLState=40001 (Deadlock found when trying to get lock; try restarting transaction)
+Conn-2 Exception: SURVIVED & COMMITTED
+==================================================================
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
