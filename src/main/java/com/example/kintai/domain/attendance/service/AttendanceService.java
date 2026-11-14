@@ -31,8 +31,17 @@ public class AttendanceService {
      */
     @Transactional
     public AttendanceDto punch(AttendancePunchDto punchDto) {
+        if (punchDto == null) {
+            throw new IllegalArgumentException("打刻データは必須です。");
+        }
         Long storeStaffId = punchDto.getStoreStaffId();
         String punchType = punchDto.getPunchType();
+        if (storeStaffId == null || storeStaffId <= 0) {
+            throw new IllegalArgumentException("有効なスタッフIDは必須です。");
+        }
+        if (punchType == null || !List.of("CLOCK_IN", "CLOCK_OUT", "BREAK_START", "BREAK_END").contains(punchType)) {
+            throw new IllegalArgumentException("有効な打刻タイプは必須です。");
+        }
         LocalDateTime now = LocalDateTime.now();
         LocalDate today = now.toLocalDate();
 

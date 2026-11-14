@@ -1,5 +1,6 @@
 package com.example.kintai.domain.attendance.service;
 
+import com.example.kintai.database.IsolatedDatabaseGuard;
 import com.example.kintai.domain.attendance.dto.AttendanceDto;
 import com.example.kintai.domain.attendance.dto.AttendancePunchDto;
 import com.example.kintai.domain.attendance.mapper.AttendanceMapper;
@@ -17,6 +18,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -45,10 +48,11 @@ class AttendanceServiceConcurrencyIntegrationTest {
     @Autowired
     private DataSource dataSource;
 
-    private final List<Long> createdAttendanceIds = new ArrayList<>();
+    private final Queue<Long> createdAttendanceIds = new ConcurrentLinkedQueue<>();
 
     @BeforeEach
     void setUp() throws Exception {
+        IsolatedDatabaseGuard.requireAllowedDatabase(dataSource, "kintai_(day10_test|full_test)_[0-9a-f]{12}");
         deleteActiveAttendances();
     }
 
@@ -82,9 +86,7 @@ class AttendanceServiceConcurrencyIntegrationTest {
                 try {
                     start.await(5, TimeUnit.SECONDS);
                     AttendanceDto result = attendanceService.punch(punch("CLOCK_IN"));
-                    synchronized (createdAttendanceIds) {
-                        createdAttendanceIds.add(result.getAttendanceId());
-                    }
+                    createdAttendanceIds.add(result.getAttendanceId());
                     successCount.incrementAndGet();
                 } catch (IllegalStateException expected) {
                     rejectedCount.incrementAndGet();

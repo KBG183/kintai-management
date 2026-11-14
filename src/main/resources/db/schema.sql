@@ -3,8 +3,6 @@
 -- データベース スキーマ 定義書 (schema.sql) - rev.3 最終完全版
 -- ==============================================================================
 
-CREATE DATABASE IF NOT EXISTS kintai_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE kintai_db;
 
 -- 1. 会員 (オーナーおよびスタッフアカウントマスタ)
 CREATE TABLE IF NOT EXISTS member (

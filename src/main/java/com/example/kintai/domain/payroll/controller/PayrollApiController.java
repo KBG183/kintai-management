@@ -19,14 +19,23 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/api/payroll")
 @RequiredArgsConstructor
 public class PayrollApiController {
 
+    private static final Pattern YEAR_MONTH_PATTERN = Pattern.compile("^\\d{4}-(0[1-9]|1[0-2])$");
+
     private final PayrollService payrollService;
     private final StoreAuthorizationService storeAuthorizationService;
+
+    private void validateYearMonth(String yearMonth) {
+        if (yearMonth == null || !YEAR_MONTH_PATTERN.matcher(yearMonth).matches()) {
+            throw new IllegalArgumentException("無効な対象年月フォーマットです (形式: YYYY-MM): " + yearMonth);
+        }
+    }
 
     /**
      * 月別給与一覧取得 (オーナー店舗所有権検証必須)
@@ -37,6 +46,7 @@ public class PayrollApiController {
             @RequestParam("yearMonth") String yearMonth,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
+        validateYearMonth(yearMonth);
         storeAuthorizationService.validateStoreOwnership(storeId, userDetails.getMemberId());
         List<PayrollDto> list = payrollService.getPayrollsByStoreAndMonth(storeId, yearMonth);
         return ResponseEntity.ok(ApiResponse.ok("給与一覧を取得しました。", list));
@@ -47,9 +57,13 @@ public class PayrollApiController {
      */
     @PostMapping("/calculate")
     public ResponseEntity<ApiResponse<Void>> calculateMonthlyPayroll(
-            @RequestBody PayrollCalculateRequestDto requestDto,
+            @RequestBody(required = false) PayrollCalculateRequestDto requestDto,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
+        if (requestDto == null || requestDto.getStoreId() == null) {
+            throw new IllegalArgumentException("店舗IDは必須です。");
+        }
+        validateYearMonth(requestDto.getTargetYearMonth());
         storeAuthorizationService.validateStoreOwnership(requestDto.getStoreId(), userDetails.getMemberId());
         payrollService.calculateMonthlyPayroll(requestDto.getStoreId(), requestDto.getTargetYearMonth());
         return ResponseEntity.ok(ApiResponse.ok("給与計算が完了しました。", null));
@@ -60,9 +74,13 @@ public class PayrollApiController {
      */
     @PostMapping("/confirm-month")
     public ResponseEntity<ApiResponse<Integer>> confirmMonthlyPayroll(
-            @RequestBody PayrollCalculateRequestDto requestDto,
+            @RequestBody(required = false) PayrollCalculateRequestDto requestDto,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
+        if (requestDto == null || requestDto.getStoreId() == null) {
+            throw new IllegalArgumentException("店舗IDは必須です。");
+        }
+        validateYearMonth(requestDto.getTargetYearMonth());
         storeAuthorizationService.validateStoreOwnership(requestDto.getStoreId(), userDetails.getMemberId());
         int confirmedCount = payrollService.confirmMonthlyPayroll(requestDto.getStoreId(), requestDto.getTargetYearMonth());
         return ResponseEntity.ok(ApiResponse.ok("月次給与の一括確定が完了しました。(確定件数: " + confirmedCount + "件)", confirmedCount));
@@ -104,10 +122,7 @@ public class PayrollApiController {
             @RequestParam("yearMonth") String yearMonth,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) throws IOException {
-        // 対象年月フォーマットの厳格な検証 (F-006 対策: YYYY-MM 形式)
-        if (yearMonth == null || !yearMonth.matches("^\\d{4}-(0[1-9]|1[0-2])$")) {
-            throw new IllegalArgumentException("無効な対象年月フォーマットです (形式: YYYY-MM): " + yearMonth);
-        }
+        validateYearMonth(yearMonth);
 
         storeAuthorizationService.validateStoreOwnership(storeId, userDetails.getMemberId());
         byte[] excelBytes = payrollService.exportPayrollToExcel(storeId, yearMonth);

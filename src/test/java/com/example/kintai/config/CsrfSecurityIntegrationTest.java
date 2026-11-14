@@ -44,6 +44,22 @@ class CsrfSecurityIntegrationTest {
     }
 
     @Test
+    @DisplayName("CSRFトークンが有効でも未認証ユーザーの打刻APIアクセスはログインへ拒否されること")
+    void anonymousPunchWithValidCsrf_ShouldBeRejectedBySecurityFilter() throws Exception {
+        mockMvc.perform(post("/api/attendance/punch")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"storeStaffId\":1,\"punchType\":\"CLOCK_IN\"}"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(result -> {
+                    String redirectedUrl = result.getResponse().getRedirectedUrl();
+                    if (redirectedUrl == null || !redirectedUrl.endsWith("/login")) {
+                        throw new AssertionError("未認証打刻はログインへ誘導される必要があります。actual=" + redirectedUrl);
+                    }
+                });
+    }
+
+    @Test
     @DisplayName("不正なCSRFトークンを含むPOSTリクエストは403 Forbiddenで拒否されること")
     @WithMockUser(username = "staff1", roles = {"STAFF"})
     void postWithInvalidCsrf_ShouldReturn403Forbidden() throws Exception {

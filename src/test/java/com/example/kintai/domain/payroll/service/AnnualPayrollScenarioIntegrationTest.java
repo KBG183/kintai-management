@@ -1,7 +1,10 @@
 package com.example.kintai.domain.payroll.service;
 
+import com.example.kintai.database.IsolatedDatabaseGuard;
+import com.example.kintai.domain.attendance.dto.AttendancePunchDto;
 import com.example.kintai.domain.attendance.dto.LaborDetailDto;
 import com.example.kintai.domain.attendance.mapper.AttendanceMapper;
+import com.example.kintai.domain.attendance.service.AttendanceService;
 import com.example.kintai.domain.attendance.service.LaborCalculationService;
 import com.example.kintai.domain.payroll.dto.PayrollDto;
 import org.junit.jupiter.api.AfterEach;
@@ -25,6 +28,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @DisplayName("Day 11: 12-month attendance-to-payroll scenario")
@@ -38,6 +42,9 @@ class AnnualPayrollScenarioIntegrationTest {
 
     @Autowired
     private AttendanceMapper attendanceMapper;
+
+    @Autowired
+    private AttendanceService attendanceService;
 
     @Autowired
     private PayrollService payrollService;
@@ -69,6 +76,7 @@ class AnnualPayrollScenarioIntegrationTest {
 
     @BeforeEach
     void seedAnnualScenario() throws Exception {
+        IsolatedDatabaseGuard.requireAllowedDatabase(dataSource, "kintai_(day11_test|full_test)_[0-9a-f]{12}");
         try (Connection connection = dataSource.getConnection()) {
             memberId = insertAndGetId(connection,
                     "INSERT INTO member(email,password,name,phone,role) VALUES(?,?,?,?,'ROLE_OWNER')",
@@ -128,6 +136,7 @@ class AnnualPayrollScenarioIntegrationTest {
 
     @Test
     void calculatesEveryMonthAndAnnualTotalAgainstIndependentOracle() {
+        insertAdditionalMonthlyWorkdays();
         int annualGrossPay = 0;
         int actualAnnualGrossPay = 0;
         int annualWorkMinutes = 0;
@@ -147,13 +156,14 @@ class AnnualPayrollScenarioIntegrationTest {
             String yearMonth = String.format("2026-%02d", shift.month());
             PayrollDto payroll = payrollService.calculatePayrollForStaff(storeId, staffId, yearMonth, start, end);
 
-            int expectedBase = shift.wage() * shift.netMinutes() / 60;
+            int monthlyNetMinutes = shift.netMinutes() + 2 * 480;
+            int expectedBase = shift.wage() * monthlyNetMinutes / 60;
             int expectedNightAllowance = shift.wage() * shift.nightMinutes() / 240;
             int expectedOvertimeAllowance = shift.wage() * shift.overtimeMinutes() / 240;
             int expectedGross = expectedBase + expectedNightAllowance + expectedOvertimeAllowance + 1000;
             assertNotNull(payroll.getPayrollId(), "persisted payroll for month " + shift.month());
-            assertEquals(1, payroll.getWorkDaysCount(), "work days for month " + shift.month());
-            assertEquals(shift.netMinutes(), payroll.getTotalWorkMinutes(), "payroll work minutes for month " + shift.month());
+            assertEquals(3, payroll.getWorkDaysCount(), "three distinct work dates for month " + shift.month());
+            assertEquals(monthlyNetMinutes, payroll.getTotalWorkMinutes(), "payroll work minutes for month " + shift.month());
             assertEquals(shift.nightMinutes(), payroll.getTotalNightMinutes(), "payroll night minutes for month " + shift.month());
             assertEquals(shift.overtimeMinutes(), payroll.getTotalOvertimeMinutes(), "payroll overtime minutes for month " + shift.month());
             assertEquals(expectedBase, payroll.getBasePay(), "base pay for month " + shift.month());
@@ -165,7 +175,7 @@ class AnnualPayrollScenarioIntegrationTest {
 
             annualGrossPay += expectedGross;
             actualAnnualGrossPay += payroll.getGrossPay();
-            annualWorkMinutes += shift.netMinutes();
+            annualWorkMinutes += monthlyNetMinutes;
             annualNightMinutes += shift.nightMinutes();
             annualOvertimeMinutes += shift.overtimeMinutes();
         }
@@ -176,9 +186,11 @@ class AnnualPayrollScenarioIntegrationTest {
                 + (8 * 1300 + 3 * 1300 / 2 + 1000)
                 + 3 * (8 * 1400 + 1000)
                 + (9 * 1400 + 1400 / 4 + 1000)
-                + 2 * (8 * 1400 + 3 * 1400 / 2 + 1000);
+                + 2 * (8 * 1400 + 3 * 1400 / 2 + 1000)
+                + (2 * 8 * 1300 * 6)
+                + (2 * 8 * 1400 * 6);
         assertEquals(independentAnnualOracle, annualGrossPay);
-        assertEquals(12 * 480 + 3 * 60, annualWorkMinutes);
+        assertEquals(12 * (3 * 480) + 3 * 60, annualWorkMinutes);
         assertEquals(3 * 360, annualNightMinutes);
         assertEquals(3 * 60, annualOvertimeMinutes);
     }
@@ -187,6 +199,125 @@ class AnnualPayrollScenarioIntegrationTest {
     void contractHistoryUsesInclusiveStartAndExclusiveEndDates() {
         assertEquals(1300, attendanceMapper.findHourlyWageForStaffOnDate(staffId, LocalDate.of(2026, 6, 30)));
         assertEquals(1400, attendanceMapper.findHourlyWageForStaffOnDate(staffId, LocalDate.of(2026, 7, 1)));
+    }
+
+    @Test
+    void isolatedDatabaseGuardRejectsAnyDatabaseOutsideTheExactAllowlist() {
+        assertThrows(IllegalStateException.class,
+                () -> IsolatedDatabaseGuard.requireAllowedDatabase(dataSource, "kintai_never_allowed_[0-9a-f]{12}"));
+    }
+
+    @Test
+    void splitShiftClockOutAccumulatesPriorWorkAndFlowsIntoMonthlyPayroll() throws Exception {
+        LocalDateTime now = LocalDateTime.now().withNano(0);
+        LocalDateTime secondShiftStart = now.minusHours(5);
+        LocalDateTime firstShiftStart = secondShiftStart.minusHours(4);
+        LocalDate workDate = firstShiftStart.toLocalDate();
+        insertCompletedAttendance(workDate, firstShiftStart, secondShiftStart, 240);
+
+        com.example.kintai.domain.attendance.dto.AttendanceDto active = new com.example.kintai.domain.attendance.dto.AttendanceDto();
+        active.setStoreId(storeId);
+        active.setStoreStaffId(staffId);
+        active.setWorkDate(workDate);
+        active.setClockInAt(secondShiftStart);
+        active.setTotalBreakMinutes(0);
+        active.setNetWorkMinutes(0);
+        active.setNightWorkMinutes(0);
+        active.setOvertimeMinutes(0);
+        active.setClockInMethod("BUTTON");
+        active.setAttendanceStatus("WORKING");
+        attendanceMapper.insertAttendance(active);
+
+        AttendancePunchDto clockOut = new AttendancePunchDto();
+        clockOut.setStoreId(storeId);
+        clockOut.setStoreStaffId(staffId);
+        clockOut.setPunchType("CLOCK_OUT");
+        com.example.kintai.domain.attendance.dto.AttendanceDto completed = attendanceService.punch(clockOut);
+        assertEquals(300, completed.getNetWorkMinutes());
+        assertEquals(60, completed.getOvertimeMinutes(), "the second split shift must include the prior four hours");
+
+        LocalDate monthStart = workDate.withDayOfMonth(1);
+        LocalDate monthEnd = workDate.withDayOfMonth(workDate.lengthOfMonth());
+        PayrollDto payroll = payrollService.calculatePayrollForStaff(
+                storeId, staffId, workDate.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM")), monthStart, monthEnd);
+        assertEquals(1020, payroll.getTotalWorkMinutes());
+        assertEquals(60, payroll.getTotalOvertimeMinutes());
+        assertEquals(2, payroll.getWorkDaysCount());
+    }
+
+    @Test
+    void payrollMonthRangeIncludesMonthEndButExcludesNextMonthFirstDay() throws Exception {
+        LocalDate januaryEnd = LocalDate.of(2026, 1, 31);
+        LocalDate februaryStart = LocalDate.of(2026, 2, 1);
+        insertCompletedAttendance(januaryEnd, januaryEnd.atTime(9, 0), januaryEnd.atTime(17, 0), 480);
+        insertCompletedAttendance(februaryStart, februaryStart.atTime(9, 0), februaryStart.atTime(17, 0), 480);
+
+        PayrollDto january = payrollService.calculatePayrollForStaff(
+                storeId, staffId, "2026-01", LocalDate.of(2026, 1, 1), januaryEnd);
+        PayrollDto february = payrollService.calculatePayrollForStaff(
+                storeId, staffId, "2026-02", februaryStart, LocalDate.of(2026, 2, 28));
+
+        assertEquals(2, january.getWorkDaysCount());
+        assertEquals(960, january.getTotalWorkMinutes());
+        assertEquals(2, february.getWorkDaysCount());
+        assertEquals(1020, february.getTotalWorkMinutes());
+    }
+
+    @Test
+    void nightWorkOverlappingDailyOvertimeReceivesBothPremiums() throws Exception {
+        LocalDate workDate = LocalDate.of(2026, 1, 14);
+        insertCompletedAttendance(workDate, workDate.atTime(20, 0),
+                workDate.plusDays(1).atTime(5, 0), 540);
+        long attendanceId = attendanceIds.get(attendanceIds.size() - 1);
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(
+                     "UPDATE attendance SET night_work_minutes=420,overtime_minutes=60 WHERE attendance_id=?")) {
+            statement.setLong(1, attendanceId);
+            assertEquals(1, statement.executeUpdate());
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to set the overlapping night/overtime test case.", e);
+        }
+
+        PayrollDto payroll = payrollService.calculatePayrollForStaff(
+                storeId, staffId, "2026-01", LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 31));
+
+        assertEquals(1020, payroll.getTotalWorkMinutes());
+        assertEquals(420, payroll.getTotalNightMinutes());
+        assertEquals(60, payroll.getTotalOvertimeMinutes());
+        assertEquals(22_100, payroll.getBasePay());
+        assertEquals(2_275, payroll.getNightAllowance());
+        assertEquals(325, payroll.getOvertimeAllowance());
+        assertEquals(25_700, payroll.getGrossPay());
+    }
+
+    private void insertAdditionalMonthlyWorkdays() {
+        for (int month = 1; month <= 12; month++) {
+            LocalDate first = LocalDate.of(2026, month, 5);
+            LocalDate second = LocalDate.of(2026, month, 25);
+            insertCompletedAttendance(first, first.atTime(9, 0), first.atTime(18, 0), 480, 60);
+            insertCompletedAttendance(second, second.atTime(9, 0), second.atTime(18, 0), 480, 60);
+        }
+    }
+
+    private void insertCompletedAttendance(LocalDate workDate, LocalDateTime clockIn, LocalDateTime clockOut,
+                                           int netMinutes) throws Exception {
+        insertCompletedAttendance(workDate, clockIn, clockOut, netMinutes, 0);
+    }
+
+    private void insertCompletedAttendance(LocalDate workDate, LocalDateTime clockIn, LocalDateTime clockOut,
+                                           int netMinutes, int breakMinutes) {
+        try (Connection connection = dataSource.getConnection()) {
+            long attendanceId = insertAndGetId(connection,
+                    "INSERT INTO attendance(store_id,store_staff_id,work_date,clock_in_at,clock_out_at,total_break_minutes,net_work_minutes,night_work_minutes,overtime_minutes,clock_in_method,attendance_status) VALUES(?,?,?,?,?,?,?,0,0,'BUTTON','COMPLETED')",
+                    storeId, staffId, Date.valueOf(workDate), java.sql.Timestamp.valueOf(clockIn),
+                    java.sql.Timestamp.valueOf(clockOut), breakMinutes, netMinutes);
+            attendanceIds.add(attendanceId);
+            if (breakMinutes > 0) {
+                insertBreak(connection, attendanceId, workDate.atTime(13, 0), workDate.atTime(14, 0));
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to insert isolated attendance scenario for " + workDate, e);
+        }
     }
 
     private static void insertBreaks(Connection connection, long attendanceId, LocalDate date, ShiftCase shift) throws Exception {
