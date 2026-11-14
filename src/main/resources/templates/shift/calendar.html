@@ -227,24 +227,21 @@
                                 let bg = '#ffc107'; // SUBMITTED
                                 let border = '#e0a800';
                                 let text = '#000000';
-                                if (ev.status === 'CONFIRMED') {
+                                const status = ev.extendedProps.status;
+                                if (status === 'CONFIRMED') {
                                     bg = '#198754';
                                     border = '#157347';
                                     text = '#ffffff';
-                                } else if (ev.status === 'REJECTED' || ev.status === 'CANCELED') {
+                                } else if (status === 'REJECTED' || status === 'CANCELED') {
                                     bg = '#6c757d';
                                     border = '#5a6268';
                                     text = '#ffffff';
                                 }
                                 return {
-                                    id: ev.shiftId,
-                                    title: `${ev.staffName} (${ev.startTime.substring(0,5)}〜${ev.endTime.substring(0,5)})`,
-                                    start: `${ev.workDate}T${ev.startTime}`,
-                                    end: `${ev.workDate}T${ev.endTime}`,
+                                    ...ev,
                                     backgroundColor: bg,
                                     borderColor: border,
-                                    textColor: text,
-                                    extendedProps: ev
+                                    textColor: text
                                 };
                             });
                             successCallback(events);
@@ -275,15 +272,18 @@
                 eventClick: function (info) {
                     const ev = info.event.extendedProps;
                     const isOwnShift = currentStaffId && (String(currentStaffId) === String(ev.storeStaffId));
+                    const workDate = info.event.startStr.substring(0, 10);
+                    const startTime = info.event.startStr.substring(11, 16);
+                    const endTime = info.event.endStr.substring(11, 16);
 
                     if (isManager) {
                         // 店長: 確定・調整モーダル
                         document.getElementById('confShiftId').value = ev.shiftId;
                         document.getElementById('confStaffName').value = ev.staffName;
-                        document.getElementById('confWorkDate').value = ev.workDate;
-                        document.getElementById('confStartTime').value = ev.startTime.substring(0, 5);
-                        document.getElementById('confEndTime').value = ev.endTime.substring(0, 5);
-                        document.getElementById('confBreakMinutes').value = ev.breakMinutes || 0;
+                        document.getElementById('confWorkDate').value = workDate;
+                        document.getElementById('confStartTime').value = startTime;
+                        document.getElementById('confEndTime').value = endTime;
+                        document.getElementById('confBreakMinutes').value = ev.plannedBreakMinutes || 0;
                         document.getElementById('confStatus').value = (ev.status === 'REJECTED') ? 'REJECTED' : 'CONFIRMED';
                         document.getElementById('confOwnerMemo').value = ev.ownerMemo || '';
                         confModal.show();
@@ -291,8 +291,8 @@
                         // スタッフ: 詳細・取消モーダル (他スタッフのプライベートメモ非表示)
                         document.getElementById('detailShiftId').value = ev.shiftId;
                         document.getElementById('detailStaffName').innerText = ev.staffName;
-                        document.getElementById('detailWorkDate').innerText = ev.workDate;
-                        document.getElementById('detailTimeRange').innerText = `${ev.startTime.substring(0, 5)} 〜 ${ev.endTime.substring(0, 5)}`;
+                        document.getElementById('detailWorkDate').innerText = workDate;
+                        document.getElementById('detailTimeRange').innerText = `${startTime} 〜 ${endTime}`;
                         
                         const statusBadge = (ev.status === 'CONFIRMED')
                             ? '<span class="badge bg-success">確定 (CONFIRMED)</span>'

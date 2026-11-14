@@ -64,18 +64,17 @@
                     let csrfToken = null;
                     let csrfHeader = 'X-XSRF-TOKEN';
 
-                    // 1. Meta タグから優先取得 (XOR保護トークン)
+                    // CookieCsrfTokenRepository と SPA handler は Cookie の生トークンをヘッダーで照合する。
+                    // Meta の値は XOR 保護済みでヘッダー比較には使えないため、Cookie を優先する。
+                    csrfToken = getCookie('XSRF-TOKEN');
+                    csrfHeader = 'X-XSRF-TOKEN';
+
+                    // Cookie がない画面では meta のトークンとヘッダー名を利用する。
                     const metaToken = document.querySelector('meta[name="_csrf"]');
                     const metaHeader = document.querySelector('meta[name="_csrf_header"]');
-                    if (metaToken && metaHeader) {
+                    if (!csrfToken && metaToken && metaHeader) {
                         csrfToken = metaToken.getAttribute('content');
                         csrfHeader = metaHeader.getAttribute('content');
-                    }
-
-                    // 2. Cookieから取得 (XSRF-TOKEN 平文トークン)
-                    if (!csrfToken) {
-                        csrfToken = getCookie('XSRF-TOKEN');
-                        csrfHeader = 'X-XSRF-TOKEN';
                     }
 
                     if (csrfToken) {
