@@ -1,0 +1,12 @@
+{
+  "status": "INPUT_READY",
+  "bundle_path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_e1394d20fae14d51a8e9c5ee81446688\\input_bundle",
+  "manifest_path": "C:\\dev\\kintai\\scripts\\..\\docs\\audit_runs\\preflight_e1394d20fae14d51a8e9c5ee81446688\\input_manifest.json",
+  "bundle_sha256": "7898dce049db27937e95f02e2e308ddaaf32b7b73df1335ec2942a016a47564f",
+  "failures": []
+}
+### [Hermes Audit Execution Metrics v1.1.1]
+| Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed | Done Reason | Run ID |
+|---|---|---|---|---|---|---|---|
+| C:\dev\kintai\scripts\..\docs\audit_runs\preflight_e1394d20fae14d51a8e9c5ee81446688\input_bundle | qwen27b:latest (IQ3_M) | 44.9s | 3156 tokens | 1807 tokens | 42 tokens/s | stop | 20261113_231504_7898dce0 |
+

@@ -1,0 +1,8 @@
+{
+  "request_id": "codex_live_relay_probe_20261113_e577d707",
+  "model": "qwen27b:latest",
+  "endpoint": "http://100.111.193.94:11434",
+  "prompt": "Reply with exactly REMOTE_OK",
+  "created_by": "Codex",
+  "status": "PENDING"
+}

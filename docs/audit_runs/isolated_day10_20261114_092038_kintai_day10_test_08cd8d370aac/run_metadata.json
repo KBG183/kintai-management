@@ -1,0 +1,8 @@
+{
+  "database": "kintai_day10_test_08cd8d370aac",
+  "scope": "Day10",
+  "test_class": "com.example.kintai.domain.attendance.controller.AttendanceApiSecurityTest",
+  "run_id": "20261114_092038",
+  "output_dir": "C:\\dev\\kintai\\docs\\audit_runs\\isolated_day10_20261114_092038_kintai_day10_test_08cd8d370aac",
+  "jdbc_url_host": "127.0.0.1:3306"
+}

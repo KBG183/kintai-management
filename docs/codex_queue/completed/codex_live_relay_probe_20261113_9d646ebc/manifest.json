@@ -1,0 +1,19 @@
+{
+    "request_id":  "codex_live_relay_probe_20261113_9d646ebc",
+    "status":  "SUCCESS",
+    "endpoint":  "http://100.111.193.94:11434",
+    "model":  "qwen27b:latest",
+    "created_by":  "Codex",
+    "started_at_local":  "2026-11-13T19:28:35.2331171+09:00",
+    "finished_at_local":  "2026-11-13T19:28:42.6692646+09:00",
+    "elapsed_seconds":  7.322,
+    "prompt_eval_count":  58,
+    "eval_count":  27,
+    "response_sha256":  "27b785f067494204b16d9c487f9ae9de093fa854515e3245da97475bcca48fc1",
+    "files":  {
+                  "request":  "request.json",
+                  "raw_response":  "raw_response.json",
+                  "result":  "result.md",
+                  "sha256":  "response_sha256.txt"
+              }
+}

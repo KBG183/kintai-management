@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="① 月間労働時間の端数処理（29分切り捨て / 30分切り上げ）" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-13T22:45:32.078Z" hostname="BK" time="0.001">
+  <properties/>
+  <testcase name="59分端数は1時間に切り上げられること" classname="com.example.kintai.domain.payroll.util.StatutoryRoundingTest$MonthlyHoursRoundingTest" time="0.0"/>
+  <testcase name="30分端数は1時間に切り上げられること" classname="com.example.kintai.domain.payroll.util.StatutoryRoundingTest$MonthlyHoursRoundingTest" time="0.0"/>
+  <testcase name="29分端数は切り捨てられること" classname="com.example.kintai.domain.payroll.util.StatutoryRoundingTest$MonthlyHoursRoundingTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

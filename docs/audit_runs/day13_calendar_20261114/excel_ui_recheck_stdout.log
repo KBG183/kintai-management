@@ -1,0 +1,46 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.8.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :compileJava UP-TO-DATE
+> Task :processResources UP-TO-DATE
+> Task :classes UP-TO-DATE
+> Task :resolveMainClassName UP-TO-DATE
+
+> Task :bootRun
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-11-14T08:37:16.650+09:00  INFO 19976 --- [           main] com.example.kintai.KintaiApplication     : Starting KintaiApplication using Java 17.0.12 with PID 19976 (C:\dev\kintai\build\classes\java\main started by klad3 in C:\dev\kintai)
+2026-11-14T08:37:16.654+09:00  INFO 19976 --- [           main] com.example.kintai.KintaiApplication     : No active profile set, falling back to 1 default profile: "default"
+2026-11-14T08:37:18.042+09:00  INFO 19976 --- [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8081 (http)
+2026-11-14T08:37:18.059+09:00  INFO 19976 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-11-14T08:37:18.059+09:00  INFO 19976 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-11-14T08:37:18.145+09:00  INFO 19976 --- [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 1440 ms
+2026-11-14T08:37:18.880+09:00  INFO 19976 --- [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-11-14T08:37:19.476+09:00  WARN 19976 --- [           main] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Failed to start bean 'webServerStartStop'
+2026-11-14T08:37:19.487+09:00  INFO 19976 --- [           main] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-11-14T08:37:19.502+09:00 ERROR 19976 --- [           main] o.s.b.d.LoggingFailureAnalysisReporter   : 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 8081 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 8081 or configure this application to listen on another port.
+
+
+> Task :bootRun FAILED
+4 actionable tasks: 1 executed, 3 up-to-date

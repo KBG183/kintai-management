@@ -1,5 +1,13 @@
-경고: [Queue] Failed to parse existing lock file. Removing corrupt lock.
-경고: [Queue] Error removing lock file (C:\dev\kintai\docs\codex_queue\.qwen_remote.lock): 
-C:\dev\kintai\docs\codex_queue\.qwen_remote.lock 항목을 제거할 수 없습니다. 'C:\dev\kintai\docs\codex_queue\.qwen_remote.lock' 파일은
- 다른 프로세스에서 사용 중이므로 프로세스에서 액세스할 수 없습니다.
-[Queue] Lock released.
+[Queue] Lock acquired: C:\dev\kintai\docs\codex_queue\.qwen_remote.lock
+[Queue] Processing: codex_live_relay_probe_20261113_9d646ebc.json at 2026-11-13T19:28:35.2331171+09:00
+[Queue] Calling Remote Ollama: http://100.111.193.94:11434/api/generate (Model: qwen27b:latest)...
+[Queue] SUCCESS: Request codex_live_relay_probe_20261113_9d646ebc completed in 7.322s. Verified SHA: 27b785f067494204b16d9c487f9ae9de093fa854515e3245da97475bcca48fc1
+[Queue] Processing: codex_day11_annual_payroll_audit_20261113.json at 2026-11-13T19:52:58.9056430+09:00
+[Queue] Calling Remote Ollama: http://100.111.193.94:11434/api/generate (Model: qwen27b:latest)...
+[Queue] SUCCESS: Request codex_day11_annual_payroll_audit_20261113 completed in 133.092s. Verified SHA: 14c1950a3fd06509244dcd78ed08ea4fac48475c86b3db3204c35064e47efe11
+[Queue] Processing: codex_day11_annual_payroll_audit_v2_20261113.json at 2026-11-13T19:59:24.7678085+09:00
+[Queue] Calling Remote Ollama: http://100.111.193.94:11434/api/generate (Model: qwen27b:latest)...
+[Queue] SUCCESS: Request codex_day11_annual_payroll_audit_v2_20261113 completed in 111.837s. Verified SHA: 5a306a2b6ebec880398d63452c83346ff1379767f011dd0c98205b157861e61f
+[Queue] Processing: codex_day11_annual_payroll_audit_v3_20261113.json at 2026-11-13T20:04:17.1277072+09:00
+[Queue] Calling Remote Ollama: http://100.111.193.94:11434/api/generate (Model: qwen27b:latest)...
+[Queue] SUCCESS: Request codex_day11_annual_payroll_audit_v3_20261113 completed in 27.305s. Verified SHA: 8df2c3bc5b10d5b56aa6ffae3cc53d3e94c33b341f5a04503bb6d7030ba1a3b5

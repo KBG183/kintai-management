@@ -1,0 +1,47 @@
+[
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_e55c583173004fdfb6405aa93bfa4acb\\input_bundle",
+    "Hash": "DD991D3CA2AB013943B9F6E7F5B676524B4E77DF34D67FE77E881586F03AA7C8",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_e55c583173004fdfb6405aa93bfa4acb\\input_manifest.json",
+    "Hash": "F3CA3015EEB496990440E63551EDB8D8B63D341C68BA7F591DEF7EFFC2E66993",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_e55c583173004fdfb6405aa93bfa4acb\\preflight_result.json",
+    "Hash": "2A204FA0717A4EDA265A738FBE2EBC92751A30B5482826F84F0456C0A2E20385",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\prior_residuals_20261114\\qwen_day10_final\\hermes_final\\.done",
+    "Hash": "8174A4E36CAFC7B1D07E4ACB0FC1EC571437439D03EE5B94EDC0C9B9BAC66465",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\prior_residuals_20261114\\qwen_day10_final\\hermes_final\\audit_run.json",
+    "Hash": "2A785FEFE9CADE1D0EDED0A71BE5A02A257FA2F068AD101B64207A86C8048E9B",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\prior_residuals_20261114\\qwen_day10_final\\hermes_final\\bundle.manifest.json",
+    "Hash": "AEDD3B445AC15E77DC7C7BB61895C3DCFCEBA43D44BCD06FA18F263069E8B581",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\prior_residuals_20261114\\qwen_day10_final\\hermes_final\\raw_response.txt",
+    "Hash": "3352EE812F812D4E498B38B5F02930D745DE78CE98152EFAB4E066FE6101BFC3",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\prior_residuals_20261114\\qwen_day10_final\\hermes_final\\report.json",
+    "Hash": "0DB7E6EC7EF08DAA3FA63B46FAE7F859EAF18D637F291370115337B1755F4AA9",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\prior_residuals_20261114\\qwen_day10_final\\hermes_final\\report.md",
+    "Hash": "31E8E18609EC458E8E589888646A05502F1F37C269BC4820B25DF6BDB62BF430",
+    "Algorithm": "SHA256"
+  }
+]

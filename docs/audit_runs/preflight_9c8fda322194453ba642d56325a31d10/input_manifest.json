@@ -1,0 +1,38 @@
+{
+  "target_day": "2026-11-14 final residual documentation",
+  "requirements": [
+    "RTM/evidence/handoff factual consistency",
+    "KO/JA parity",
+    "unresolved owner and environment limitations accurately retained"
+  ],
+  "rtm_items": [
+    "R-02",
+    "R-05",
+    "R-08",
+    "R-09",
+    "R-10",
+    "R-11",
+    "R-12",
+    "R-14"
+  ],
+  "test_ids": [
+    "AnnualPayrollScenarioIntegrationTest",
+    "full regression 92 tests",
+    "Qwen remote source review 12 findings"
+  ],
+  "execution_logs": [
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_094427_kintai_full_test_d4124a317ed0\\gradle_console.log",
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_094427_kintai_full_test_d4124a317ed0\\exit_summary.json",
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_day11_20261114_094349_kintai_day11_test_01f4cb1439e6\\gradle_console.log",
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_day11_20261114_094349_kintai_day11_test_01f4cb1439e6\\exit_summary.json",
+    "C:\\dev\\kintai\\docs\\audit_runs\\prior_residuals_20261114\\mysql84_runtime_probe.log",
+    "C:\\dev\\kintai\\docs\\audit_runs\\preflight_f99c7739c6b64ba0bfeb8b423f4b0cfb\\hermes\\report.md",
+    "C:\\dev\\kintai\\docs\\audit_runs\\preflight_1e3b8fba040b4197aed07afbde9334f2\\hermes\\report.md"
+  ],
+  "junit_xml": [
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_094427_kintai_full_test_d4124a317ed0\\TEST-com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest.xml",
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_094427_kintai_full_test_d4124a317ed0\\TEST-com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest.xml"
+  ],
+  "environment": "Windows; local MySQL 26.7 isolated test DBs; remote Qwen 27B at prescribed endpoint",
+  "bundle_sha256": "fba935b3d9b5a2efb7a6586f136be41c5c6d3c4695d0b1f01fce111e8d850865"
+}

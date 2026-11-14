@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.kintai.domain.attendance.util.SplitShiftOvertimeDefectTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-11-14T00:28:48.009Z" hostname="BK" time="0.048">
+  <properties/>
+  <testcase name="分割勤務（昼4時間＋夜5時間）で同日合計9時間勤務した際、夜の勤務で1時間残業が正確に計上されること" classname="com.example.kintai.domain.attendance.util.SplitShiftOvertimeDefectTest" time="0.027"/>
+  <testcase name="秒精度不変式検証: 4時間30秒＋4時間30秒の分割勤務で、全28,860秒が1秒の損失もなく完全保存されること" classname="com.example.kintai.domain.attendance.util.SplitShiftOvertimeDefectTest" time="0.005"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

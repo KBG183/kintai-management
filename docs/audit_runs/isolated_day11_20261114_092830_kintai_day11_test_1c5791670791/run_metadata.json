@@ -1,0 +1,8 @@
+{
+  "database": "kintai_day11_test_1c5791670791",
+  "scope": "Day11",
+  "test_class": "com.example.kintai.domain.attendance.util.SplitShiftOvertimeDefectTest",
+  "run_id": "20261114_092830",
+  "output_dir": "C:\\dev\\kintai\\docs\\audit_runs\\isolated_day11_20261114_092830_kintai_day11_test_1c5791670791",
+  "jdbc_url_host": "127.0.0.1:3306"
+}

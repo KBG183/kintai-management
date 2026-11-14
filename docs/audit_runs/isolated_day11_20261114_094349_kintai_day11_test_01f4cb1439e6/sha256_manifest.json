@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "run_id": "20261114_094349",
+  "generated_at_utc": "2026-11-14T00:44:13.2302901Z",
+  "algorithm": "SHA-256",
+  "files": [
+    {
+      "path": "gradle_console.log",
+      "bytes": 1070,
+      "sha256": "0135f5626bb21b8b5ae39ae5f1f4cb4357856052c658ac5773341b458abbe4b2"
+    },
+    {
+      "path": "TEST-com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest.xml",
+      "bytes": 4345,
+      "sha256": "55cc890b9717475f933dfa2dbc31ea485a3b68fbfaad3e2d3fb6a696dfdadae9"
+    }
+  ]
+}

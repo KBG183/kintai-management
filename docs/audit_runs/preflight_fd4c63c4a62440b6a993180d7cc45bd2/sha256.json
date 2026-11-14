@@ -1,0 +1,47 @@
+[
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_fd4c63c4a62440b6a993180d7cc45bd2\\input_bundle",
+    "Hash": "DE97A43107482FB40E156DA1BBF3F7329452B916C8F6E9B5312A2FBC4757AE62",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_fd4c63c4a62440b6a993180d7cc45bd2\\input_manifest.json",
+    "Hash": "6AEA1AD5F90C3E925023B54D99FB2AE41D9A3FB14154761E451257A95451326E",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_fd4c63c4a62440b6a993180d7cc45bd2\\preflight_result.json",
+    "Hash": "492862915E9A9016CEE0E9DBD5820BE9CECEE44CB1970803871724C65A9B7E9B",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_fd4c63c4a62440b6a993180d7cc45bd2\\hermes\\.done",
+    "Hash": "07D8B4D95192107D07017EC1763D533DC52C5A531B5FA425C7641C24357E20DD",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_fd4c63c4a62440b6a993180d7cc45bd2\\hermes\\audit_run.json",
+    "Hash": "AB7765A49A26DD966DE9B6E15B246E504261C67AA8B030E8A39D7E051D141299",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_fd4c63c4a62440b6a993180d7cc45bd2\\hermes\\bundle.manifest.json",
+    "Hash": "40B4CF9A0F62D468BBE35A1A4375F19A95638A3872CFB897CBECA9E13F6A8E93",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_fd4c63c4a62440b6a993180d7cc45bd2\\hermes\\raw_response.txt",
+    "Hash": "BB3CC43B448718307ED13129D72C30C2E03725D07AD16684E40FBF53D0FCEF94",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_fd4c63c4a62440b6a993180d7cc45bd2\\hermes\\report.json",
+    "Hash": "5D7CE3AE417D2C8DACCD1494F090D9A9882A0BC6394834EFC3ADBB0C5B8D4499",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_fd4c63c4a62440b6a993180d7cc45bd2\\hermes\\report.md",
+    "Hash": "81FAEA4646456FD77CA48C309DF8A608D0BE87C9B918BC619857EDCA1581F478",
+    "Algorithm": "SHA256"
+  }
+]

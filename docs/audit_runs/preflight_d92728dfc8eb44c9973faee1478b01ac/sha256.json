@@ -1,0 +1,47 @@
+[
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_d92728dfc8eb44c9973faee1478b01ac\\input_bundle",
+    "Hash": "63682C635726CE583CCD43B86386876311703A7EDA8880F34BEB5E1EB2C53B7D",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_d92728dfc8eb44c9973faee1478b01ac\\input_manifest.json",
+    "Hash": "C5BCDCB16DBDD43AA4AF64AFCED5BB700CB9D7F20354482B1A2E80FECA92CE4C",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_d92728dfc8eb44c9973faee1478b01ac\\preflight_result.json",
+    "Hash": "035F78F1925335276745362ADC4AA55AFE961F7136B8348B3E5AC1CE1AAFE664",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\day13_calendar_20261114\\final_portfolio_review\\hermes_reaudit\\.done",
+    "Hash": "9667C26F5FD12D786BCB8DBEF217AE3FA69BFBE28D566D52FCC43F06350C360B",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\day13_calendar_20261114\\final_portfolio_review\\hermes_reaudit\\audit_run.json",
+    "Hash": "E4E3C4C2A964FA150D7298299CCC34274C02CE71E6D24143E47C15145992AAFE",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\day13_calendar_20261114\\final_portfolio_review\\hermes_reaudit\\bundle.manifest.json",
+    "Hash": "87EF7B21FC6177084850FE4F6999593EB366E8DEE32E7DCD54C968AA47F108A0",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\day13_calendar_20261114\\final_portfolio_review\\hermes_reaudit\\raw_response.txt",
+    "Hash": "0255EDB00AAAB2B3E5988710F096F02A3DFFD2D05836D2A1F4E1D48EF0560AE0",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\day13_calendar_20261114\\final_portfolio_review\\hermes_reaudit\\report.json",
+    "Hash": "27F02266D805E9509EDBE8CDB1FF9C93E59AB4BEDE07F3DB14BA22757E3A0D7A",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\day13_calendar_20261114\\final_portfolio_review\\hermes_reaudit\\report.md",
+    "Hash": "C6DD7B9C99223FD61D5148609C70088ED23266A86DE7B1394D9CA54A4C0065AB",
+    "Algorithm": "SHA256"
+  }
+]

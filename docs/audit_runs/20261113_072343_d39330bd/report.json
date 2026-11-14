@@ -1,0 +1,78 @@
+﻿{
+    "run_id":  "20261113_072343_d39330bd",
+    "generated_at":  "2026-11-13T16:24:36.2319285+09:00",
+    "findings":  [
+                     {
+                         "finding_id":  "A-01",
+                         "audit_item":  "Japanese Labor Standards Act Art 37: Night Work \u0026 Overtime Calculation Logic",
+                         "severity":  "P0",
+                         "verdict":  "N/A",
+                         "evidence":  "No payroll calculation source code (`PayrollService`, `PayrollCalculator`) or specific unit tests for overtime/night work rates were provided in the target document. The document references `PayrollMapper` and `PayrollService` tests passing, but does not expose the logic for `+25%` (night/OT) or `+50%` (night+OT) calculations.",
+                         "analysis":  "The provided text is an audit log/evidence summary, not the source code for payroll calculation. Therefore, the specific labor law compliance logic (Art 37) cannot be verified from this input alone. **Recommendation:** Provide the source code for `PayrollService` or `PayrollCalculator` and corresponding unit tests that explicitly verify the 25%/50% premium rates and the deduction of break times from night work hours."
+                     },
+                     {
+                         "finding_id":  "A-02",
+                         "audit_item":  "Payroll Math \u0026 Rounding (HALF_UP)",
+                         "severity":  "P1",
+                         "verdict":  "N/A",
+                         "evidence":  "No code snippets showing `BigDecimal` usage, `RoundingMode.HALF_UP`, or 1-yen discrepancy tests were provided.",
+                         "analysis":  "Similar to A-01, the specific implementation of rounding logic is not visible in the provided text. The document mentions `PayrollService` tests passing, but without the code, the rounding mode cannot be audited. **Recommendation:** Provide the payroll calculation code and unit tests that verify rounding behavior for edge cases (e.g., 0.5 yen scenarios) to ensure compliance with `RoundingMode.HALF_UP`."
+                     },
+                     {
+                         "finding_id":  "A-03",
+                         "audit_item":  "Concurrency \u0026 Security: Pessimistic Locking (`SELECT ... FOR UPDATE`)",
+                         "severity":  "P1",
+                         "verdict":  "PASS",
+                         "evidence":  "**Evidence:** \u003cbr\u003e1. `AttendanceServiceConcurrencyIntegrationTest` passed (2 threads, 1 success, 1 rejection). \u003cbr\u003e2. `PerformanceSchemaDataLocksIntegrationTest` verified `Mode: IX` and `Status: GRANTED` on `payroll` table. \u003cbr\u003e3. `AttendanceMapper.xml` contains `lockStoreStaffForUpdate` with `resultType=\"java.lang.Long\"` (fixed from previous error). \u003cbr\u003e4. SHA-256 hashes provided for `AttendanceMapper.xml` and test files.",
+                         "analysis":  "The audit log confirms that pessimistic locking is implemented and verified via integration tests. The `PerformanceSchemaDataLocksIntegrationTest` explicitly checks the lock mode in MySQL\u0027s `performance_schema`, providing strong evidence that `SELECT ... FOR UPDATE` is functioning correctly under concurrency. The fix for the `resultType` missing error in `AttendanceMapper.xml` indicates that the locking query is correctly mapped. **Recommendation:** Maintain this verification. Ensure that `PerformanceSchemaDataLocksIntegrationTest` remains in the CI pipeline to prevent regression of lock behavior."
+                     },
+                     {
+                         "finding_id":  "A-04",
+                         "audit_item":  "Concurrency \u0026 Security: `@Transactional` Presence \u0026 Isolation Level",
+                         "severity":  "P1",
+                         "verdict":  "PASS",
+                         "evidence":  "**Evidence:** \u003cbr\u003e1. `AttendanceServiceConcurrencyIntegrationTest` verifies that concurrent `CLOCK_IN`/`CLOCK_OUT` results in exactly one success and one `IllegalStateException`. \u003cbr\u003e2. `PayrollServiceTransactionRollbackIntegrationTest` passed. \u003cbr\u003e3. Full regression test (79/79 PASS) includes transactional integrity tests.",
+                         "analysis":  "The successful execution of concurrency tests (where exactly one thread succeeds and others are rejected) implies that `@Transactional` boundaries are correctly defined and that the isolation level (likely `READ_COMMITTED` or `REPEATABLE_READ` with pessimistic locks) prevents dirty reads or lost updates. The passing of `PayrollServiceTransactionRollbackIntegrationTest` further confirms transactional integrity. **Recommendation:** No immediate action required. Ensure that `@Transactional` annotations are not accidentally removed or overridden in future refactoring."
+                     },
+                     {
+                         "finding_id":  "A-05",
+                         "audit_item":  "Concurrency \u0026 Security: IDOR Vulnerabilities (Insecure Direct Object References)",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "**Evidence:** \u003cbr\u003e1. `AttendanceApiSecurityTest` passed (mentioned in \"Independent Audit\" section). \u003cbr\u003e2. Static analysis confirmed \"staff session identifier forced binding\" and \"owner ownership check\". \u003cbr\u003e3. `CsrfSecurityIntegrationTest` passed, verifying authentication flow.",
+                         "analysis":  "The audit log states that IDOR vulnerabilities were checked via `AttendanceApiSecurityTest` and static analysis of session binding. The tests passed, indicating that users cannot access other staff\u0027s records. The mention of \"forced binding\" suggests that the service layer enforces ownership checks based on the authenticated session. **Recommendation:** Continue to include `AttendanceApiSecurityTest` in the regression suite. Consider adding negative test cases where a user attempts to access a non-existent or another user\u0027s ID to ensure proper 404/403 responses."
+                     },
+                     {
+                         "finding_id":  "A-06",
+                         "audit_item":  "Exception Handling \u0026 Boundary Validation",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "**Evidence:** \u003cbr\u003e1. `DateTimeParseException` handling is not explicitly mentioned. \u003cbr\u003e2. `AttendancePunchDto` input boundary validation is noted as \"remaining\" in the \"A-05/A-06 Static Comparison\" section. \u003cbr\u003e3. `IllegalStateException` is thrown for concurrent conflicts, which is a valid exception type.",
+                         "analysis":  "The document explicitly states that \"A-06 verification for `AttendancePunchDto` field input boundaries also remained.\" This indicates that boundary validation for input DTOs (e.g., negative hours, null dates, invalid time formats) is not fully verified. While concurrency exceptions are handled, input validation edge cases may still be vulnerable. **Recommendation:** Implement and verify unit tests for `AttendancePunchDto` to ensure that invalid inputs (null, negative, out-of-range dates) are properly rejected with `MethodArgumentNotValidException` or similar, preventing `DateTimeParseException` or `NullPointerException` in the service layer."
+                     },
+                     {
+                         "finding_id":  "A-07",
+                         "audit_item":  "Test Environment \u0026 Schema Consistency",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "**Evidence:** \u003cbr\u003e1. Full regression test (79/79 PASS) executed on isolated DB `kintai_full_test_a65c3d18271f` using `src/main/resources/db/schema.sql` (rev.3). \u003cbr\u003e2. SHA-256 of schema file: `E856528C2D56D1833DF07FA44EDFB7746112857595088E8786A7E069CAE735EE`. \u003cbr\u003e3. `PerformanceSchemaDataLocksIntegrationTest` was fixed to use dynamic schema (`SELECT DATABASE()`) instead of hardcoded `kintai_db`.",
+                         "analysis":  "The audit log demonstrates a rigorous process of resolving schema inconsistencies. The final state shows that all 79 tests pass on an isolated database using the correct schema version (rev.3). The fix to the `PerformanceSchemaDataLocksIntegrationTest` to use dynamic schema resolution ensures that tests are not brittle to database name changes. **Recommendation:** Maintain the use of isolated databases for integration tests. Ensure that `schema.sql` (rev.3) is the single source of truth for database structure. Consider using Flyway or Liquibase for schema versioning to prevent future drift."
+                     },
+                     {
+                         "finding_id":  "A-08",
+                         "audit_item":  "Docker/Testcontainers Availability",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "**Evidence:** \u003cbr\u003e1. \"Docker/Testcontainers and this regression\u0027s Qwen re-audit were not performed... Docker command absence.\" \u003cbr\u003e2. \"MySQL 8.4 Testcontainers: Docker absence due to BLOCKED state strictly maintained.\" \u003cbr\u003e3. Tests were run on local MySQL 26.7.0 instead of MySQL 8.4 via Testcontainers.",
+                         "analysis":  "The audit log explicitly states that Docker is not installed, preventing the use of Testcontainers for MySQL 8.4 verification. Tests were run on local MySQL 26.7.0. While this validates the logic, it does not verify compatibility with MySQL 8.4 specific features or behaviors. **Recommendation:** Install Docker in the development/CI environment to enable Testcontainers-based testing. This will allow verification of the application against MySQL 8.4, ensuring compatibility with the target production database version."
+                     },
+                     {
+                         "finding_id":  "A-09",
+                         "audit_item":  "Documentation \u0026 Audit Trail Integrity",
+                         "severity":  "Info",
+                         "verdict":  "PASS",
+                         "evidence":  "**Evidence:** \u003cbr\u003e1. SHA-256 hashes provided for key files (`AttendanceMapper.xml`, test files, schema). \u003cbr\u003e2. Detailed logs and JUnit XMLs preserved in `docs/audit_runs/`. \u003cbr\u003e3. Discrepancies in previous hashes were investigated and resolved (e.g., `reconstructed_input_bundle.md`).",
+                         "analysis":  "The audit log demonstrates a high level of rigor in maintaining audit trails. SHA-256 hashes are provided for critical files, and discrepancies were investigated and resolved. The preservation of logs and JUnit XMLs ensures reproducibility. **Recommendation:** Continue to maintain this level of documentation. Consider automating the generation of SHA-256 hashes and their inclusion in the audit log to reduce manual error."
+                     }
+                 ]
+}

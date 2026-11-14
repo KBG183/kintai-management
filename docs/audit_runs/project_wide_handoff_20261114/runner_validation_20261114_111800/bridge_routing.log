@@ -1,0 +1,4 @@
+Http => HTTP http://100.111.193.94:11434, qwen27b:latest: PASS
+Auto => HTTP http://100.111.193.94:11434, qwen27b:latest: PASS
+duplicate-run-id: rejected; prior evidence preserved
+BRIDGE_ROUTING_AND_RUN_METADATA: PASS

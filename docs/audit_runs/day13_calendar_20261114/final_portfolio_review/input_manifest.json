@@ -1,0 +1,30 @@
+{
+  "target_day": "Day 13 final portfolio documentation audit",
+  "requirements": [
+    "R-19 deliverable correctness",
+    "Scope and evidence accuracy",
+    "Architecture, calculation, authorization, demo safety"
+  ],
+  "rtm_items": [
+    "R-15",
+    "R-16",
+    "R-17",
+    "R-18",
+    "R-19"
+  ],
+  "test_ids": [
+    "Day13 isolated full regression: 83 pass, 0 fail/errors/skips",
+    "LaborCalculationEngineTest overlap case",
+    "PayrollCalculatorStatutoryRoundingTest boundaries",
+    "StoreAuthorizationServicePayrollOwnershipTest",
+    "AttendanceApiSecurityTest IDOR examples"
+  ],
+  "execution_logs": [
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_081141_kintai_full_test_9f4b67f66b64\\gradle_console.log"
+  ],
+  "junit_xml": [
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_081141_kintai_full_test_9f4b67f66b64\\TEST-com.example.kintai.KintaiApplicationTests.xml"
+  ],
+  "environment": "Windows repository docs; local isolated MySQL 26.7 test evidence; independent reviewer remote qwen27b:latest",
+  "bundle_sha256": "4af20cd936e1a70c91ca8d6b905f0d6f948d108b1c09fd226958a2a6c2b3b543"
+}

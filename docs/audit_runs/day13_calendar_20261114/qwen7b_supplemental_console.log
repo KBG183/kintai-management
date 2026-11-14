@@ -1,0 +1,20 @@
+{
+  "status": "INPUT_READY",
+  "bundle_path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_25d5fcf26da24901b8c826fcc202d987\\input_bundle",
+  "manifest_path": "C:\\dev\\kintai\\scripts\\..\\docs\\audit_runs\\preflight_25d5fcf26da24901b8c826fcc202d987\\input_manifest.json",
+  "bundle_sha256": "716710c9d2b4cc80e0fcda41c403808b2540e5b0ad8ad4ce9afd8e07f3be8d1f",
+  "failures": []
+}
+[Hermes v1.1.1] Initializing audit run (AUDIT) in: C:\dev\kintai\docs\audit_runs\day13_calendar_20261114\qwen7b_supplemental
+[Hermes v1.1.1] Model verified: qwen2.5:7b (Ollama v0.40.16, Digest: 845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e, Quant: Q4_K_M, Params: 7.6B)
+[07:55:30] Generating... Tokens: 56
+[07:55:40] Generating... Tokens: 113
+[07:55:50] Generating... Tokens: 168
+[07:56:00] Generating... Tokens: 225
+[07:56:10] Generating... Tokens: 285
+[07:56:21] Generating... Tokens: 349
+[07:56:31] Generating... Tokens: 412
+[07:56:41] Generating... Tokens: 470
+[07:56:51] Generating... Tokens: 531
+[07:57:01] Generating... Tokens: 594
+[07:57:11] Generating... Tokens: 655

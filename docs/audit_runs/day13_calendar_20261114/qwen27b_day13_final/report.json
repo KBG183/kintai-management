@@ -1,0 +1,126 @@
+﻿{
+    "run_id":  "20261113_234922_d69a9b63",
+    "generated_at":  "2026-11-14T08:50:11.2002429+09:00",
+    "findings":  [
+                     {
+                         "finding_id":  "F-01",
+                         "audit_item":  "Japanese Labor Standards Act Art 37: Night Work Premium (22:00-05:00)",
+                         "severity":  "P0",
+                         "verdict":  "PASS",
+                         "evidence":  "`LaborCalculationEngineTest.java` (13:00-01:00 overlap case); `PayrollCalculator.java` (125% night logic)",
+                         "analysis":  "The code correctly identifies the night work window (22:00-05:00). The test case `13:00-01:00` correctly isolates the night portion (22:00-01:00) for premium calculation. The `PayrollCalculator` applies the 125% rate to night hours."
+                     },
+                     {
+                         "finding_id":  "F-02",
+                         "audit_item":  "Japanese Labor Standards Act Art 37: Daily Overtime Premium (\u003e8h/day)",
+                         "severity":  "P0",
+                         "verdict":  "PASS",
+                         "evidence":  "`LaborCalculationEngineTest.java` (09:00-21:00 case); `PayrollCalculator.java` (125% overtime logic)",
+                         "analysis":  "The engine correctly calculates overtime for hours exceeding 8 hours per day. The test case `09:00-21:00` (12 hours) results in 4 hours of overtime, which is subject to the 125% premium."
+                     },
+                     {
+                         "finding_id":  "F-03",
+                         "audit_item":  "Japanese Labor Standards Act Art 37: Night + Overtime Concurrent Overlap",
+                         "severity":  "P0",
+                         "verdict":  "PASS",
+                         "evidence":  "`LaborCalculationEngineTest.java` (13:00-01:00 case, 180 mins at 150%); `PayrollCalculator.java` (150% overlap formula)",
+                         "analysis":  "The system correctly identifies the intersection of night work and overtime. The test verifies that 180 minutes (3 hours) falling within both categories are paid at 150% (base + 50% extra). This aligns with Art 37, Paragraph 2."
+                     },
+                     {
+                         "finding_id":  "F-04",
+                         "audit_item":  "Japanese Labor Standards Act Art 37: Break Time Deduction from Night Work",
+                         "severity":  "P0",
+                         "verdict":  "PASS",
+                         "evidence":  "`LaborCalculationEngineTest.java` (23:00-00:00 break deduction)",
+                         "analysis":  "The test explicitly verifies that a break taken during the night work window (23:00-00:00) is deducted from the night work hours before premium calculation. This prevents paying premiums for non-worked night hours."
+                     },
+                     {
+                         "finding_id":  "F-05",
+                         "audit_item":  "Payroll Math \u0026 Rounding: RoundingMode.HALF_UP",
+                         "severity":  "P1",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollCalculator.java` (`yenRound` method); `PayrollCalculatorStatutoryRoundingTest.java`",
+                         "analysis":  "The `PayrollCalculator` uses `BigDecimal` with `RoundingMode.HALF_UP`. The statutory rounding test verifies boundary conditions: 324.49 -\u003e 324, 324.50 -\u003e 325. This prevents 1-yen discrepancies in payroll totals."
+                     },
+                     {
+                         "finding_id":  "F-06",
+                         "audit_item":  "Concurrency \u0026 Security: Pessimistic Locking",
+                         "severity":  "P1",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollMapper.xml` (`FOR UPDATE`); `PayrollServiceConcurrentExecutionIntegrationTest.java`",
+                         "analysis":  "The `PayrollMapper` uses `SELECT ... FOR UPDATE` on critical rows (payroll ID, staff/month, store staff). Integration tests verify that concurrent confirmations do not result in double-payment or data corruption."
+                     },
+                     {
+                         "finding_id":  "F-07",
+                         "audit_item":  "Concurrency \u0026 Security: Transactional Isolation",
+                         "severity":  "P1",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollService.java` (`@Transactional`); `PayrollServiceMonthlyConfirmConcurrencyIntegrationTest.java`",
+                         "analysis":  "The `PayrollService` methods are annotated with `@Transactional`. The concurrency integration tests confirm that the isolation level prevents race conditions during monthly payroll confirmation."
+                     },
+                     {
+                         "finding_id":  "F-08",
+                         "audit_item":  "Security: IDOR Vulnerability Prevention (Payroll)",
+                         "severity":  "P0",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollApiController.java` (`validateStoreOwnership`, `validatePayrollOwnership`); `StoreAuthorizationServicePayrollOwnershipTest.java`",
+                         "analysis":  "The controller validates ownership before accessing payroll data. The dedicated test `StoreAuthorizationServicePayrollOwnershipTest` confirms that a user cannot access another user\u0027s payroll (member 42\u0027s payroll is denied to member 17)."
+                     },
+                     {
+                         "finding_id":  "F-09",
+                         "audit_item":  "Exception Handling \u0026 Boundary Validation: Time Parsing",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollCalculator.java` (`resolveDateRange`); `LaborCalculationEngineTest.java` (invalid time/break ranges)",
+                         "analysis":  "The `resolveDateRange` method catches `DateTimeParseException` and converts it to `IllegalArgumentException`. The engine tests verify rejection of clock-out-before-clock-in and out-of-range break times."
+                     },
+                     {
+                         "finding_id":  "F-10",
+                         "audit_item":  "Exception Handling \u0026 Boundary Validation: Negative/Null Inputs",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollCalculatorStatutoryRoundingTest.java` (negative monthly minutes, null/negative rounding inputs)",
+                         "analysis":  "The rounding logic explicitly handles negative and null inputs, preventing `NullPointerException` or incorrect negative payroll calculations."
+                     },
+                     {
+                         "finding_id":  "F-11",
+                         "audit_item":  "Data Integrity: UTF-8 Encoding in Demo Data",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`prepare_local_demo_db.ps1` (stdin redirection); `HEX(name)` verification in evidence",
+                         "analysis":  "The PowerShell script uses stdin redirection to avoid code-page corruption. The evidence confirms that Japanese names are stored correctly in UTF-8 (e.g., `E794B0E4B8AD...`), not as question marks (`0x3F`)."
+                     },
+                     {
+                         "finding_id":  "F-12",
+                         "audit_item":  "UI/DTO Contract Alignment",
+                         "severity":  "P1",
+                         "verdict":  "PASS",
+                         "evidence":  "`CalendarEventDto.java`; `calendar.html` (event mapping); `ShiftApiController.java`",
+                         "analysis":  "The frontend `calendar.html` now correctly maps the `CalendarEventDto` fields (`id`, `title`, `start`, `end`, `extendedProps`) instead of the raw `ShiftDto`. This resolves the empty calendar issue."
+                     },
+                     {
+                         "finding_id":  "F-13",
+                         "audit_item":  "Security: CSRF Protection",
+                         "severity":  "P1",
+                         "verdict":  "PASS",
+                         "evidence":  "`layout.html` (fetch interceptor); `CsrfCookieHeaderLifecycleIntegrationTest.java`; `CsrfSecurityIntegrationTest.java`",
+                         "analysis":  "The fetch interceptor correctly prioritizes the `XSRF-TOKEN` cookie for mutation requests. Integration tests verify the CSRF token lifecycle and security enforcement."
+                     },
+                     {
+                         "finding_id":  "F-14",
+                         "audit_item":  "Test Coverage: Full Regression Suite",
+                         "severity":  "Info",
+                         "verdict":  "PASS",
+                         "evidence":  "`run_isolated_regression.ps1` output; 83 tests, 0 failures",
+                         "analysis":  "The final isolated regression run executed 83 tests with 0 failures and 0 errors. This includes specific tests for payroll ownership, concurrency, and statutory rounding."
+                     },
+                     {
+                         "finding_id":  "F-15",
+                         "audit_item":  "Evidence: Browser UI Verification",
+                         "severity":  "Info",
+                         "verdict":  "PASS",
+                         "evidence":  "`excel_browser_download.json`; `payroll_2026-01_browser_download.xlsx`",
+                         "analysis":  "The browser UI was verified to display correct payroll data (佐藤 花子 ¥141,700, 鈴木 一郎 ¥164,332). The Excel download was successfully generated and inspected, confirming end-to-end functionality."
+                     }
+                 ]
+}

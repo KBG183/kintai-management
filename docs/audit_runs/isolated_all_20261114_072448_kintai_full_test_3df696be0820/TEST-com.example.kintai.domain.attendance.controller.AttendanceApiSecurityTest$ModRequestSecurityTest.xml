@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="勤怠修正申請（POST /api/attendance/mod-request）のIDOR防御 HTTPテスト" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-13T22:25:16.426Z" hostname="BK" time="0.102">
+  <properties/>
+  <testcase name="オーナーが自己所有店舗のスタッフの修正を代理申請する場合は正常に許可されること（HTTP 200）" classname="com.example.kintai.domain.attendance.controller.AttendanceApiSecurityTest$ModRequestSecurityTest" time="0.054"/>
+  <testcase name="スタッフがリクエスト本文で他人のstoreStaffIdを指定してもセッションの本人IDに強制バインドされること（HTTP 200）" classname="com.example.kintai.domain.attendance.controller.AttendanceApiSecurityTest$ModRequestSecurityTest" time="0.023"/>
+  <testcase name="オーナーが他人の店舗に所属するスタッフの代理申請を試みた場合は HTTP 403 Forbidden で遮断されること" classname="com.example.kintai.domain.attendance.controller.AttendanceApiSecurityTest$ModRequestSecurityTest" time="0.023"/>
+  <system-out><![CDATA[2026-11-14T07:25:16.443+09:00  INFO 21284 --- [    Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-11-14T07:25:16.443+09:00  INFO 21284 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-14T07:25:16.444+09:00  INFO 21284 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-11-14T07:25:16.495+09:00  INFO 21284 --- [    Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-11-14T07:25:16.496+09:00  INFO 21284 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-14T07:25:16.496+09:00  INFO 21284 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-11-14T07:25:16.517+09:00  INFO 21284 --- [    Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-11-14T07:25:16.518+09:00  INFO 21284 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-14T07:25:16.518+09:00  INFO 21284 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-11-14T07:25:16.526+09:00  WARN 21284 --- [    Test worker] c.e.k.g.e.GlobalExceptionHandler         : アクセス拒絶 (AccessDenied): ?象スタッフに?する管理?限がありません。
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

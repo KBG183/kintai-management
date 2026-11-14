@@ -1,0 +1,34 @@
+{
+    "status":  "INPUT_READY",
+    "bundle_path":  "C:\\dev\\kintai\\docs\\audit_runs\\project_wide_handoff_20261114\\current_docs_audit_bundle_final.md",
+    "manifest_path":  "C:\\dev\\kintai\\docs\\audit_runs\\project_wide_handoff_20261114\\current_docs_audit_manifest_final.json",
+    "bundle_sha256":  "cd7cd20d12ba7771fb8ceb01dcd95181bfe39c924b8a595aa5e6fb91fdf649b8",
+    "failures":  [
+
+                 ]
+}
+[Hermes] Auditing single file (385 lines)...
+[10:38:38] Generating... Total Tokens: 201
+[10:38:43] Generating... Total Tokens: 400
+[10:38:48] Generating... Total Tokens: 600
+[10:38:53] Generating... Total Tokens: 787
+[10:38:58] Generating... Total Tokens: 983
+[10:39:03] Generating... Total Tokens: 1176
+[10:39:08] Generating... Total Tokens: 1376
+[10:39:13] Generating... Total Tokens: 1576
+[10:39:18] Generating... Total Tokens: 1776
+[10:39:23] Generating... Total Tokens: 1970
+[10:39:28] Generating... Total Tokens: 2154
+[10:39:33] Generating... Total Tokens: 2351
+[10:39:38] Generating... Total Tokens: 2546
+[10:39:43] Generating... Total Tokens: 2745
+[10:39:48] Generating... Total Tokens: 2939
+[10:39:53] Generating... Total Tokens: 3138
+[10:39:58] Generating... Total Tokens: 3320
+=== [5070 Ti] Done! Tokens: 3397 | Time: 104.79s | Speed: 39.5 tok/s ===
+[Hermes] Audit completed! Full report saved to C:\dev\kintai\docs\audit_runs\project_wide_handoff_20261114\qwen27b_current_docs_final_report.md.
+### [Hermes Audit Execution Metrics]
+| Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed |
+|---|---|---|---|---|---|
+| C:\dev\kintai\docs\audit_runs\project_wide_handoff_20261114\current_docs_audit_bundle_final.md (385 lines) | qwen27b:latest | 104.79s | 21179 tokens | 3397 tokens | 39.5 tokens/s |
+

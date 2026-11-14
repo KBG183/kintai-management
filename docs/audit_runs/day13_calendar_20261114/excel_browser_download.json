@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "reviewed_at": "2026-11-14T08:41:07.3778279+09:00",
+  "browser": "Codex in-app browser (isolated tab)",
+  "application": "http://127.0.0.1:8082/payroll",
+  "database": "kintai_demo_9f3f8487bc42",
+  "action": "Selected 2026-01; verified two payroll rows; clicked Excel output; browser download event completed",
+  "download_event": true,
+  "downloaded_filename": "給与台帳_2026-01.xlsx",
+  "download_path": "C:\\Users\\klad3\\Downloads\\給与台帳_2026-01.xlsx",
+  "evidence_copy": "docs/audit_runs/day13_calendar_20261114/payroll_2026-01_browser_download.xlsx",
+  "bytes": 5092,
+  "sha256": "ba127f65f193f8289c2b4e445efc09a06e1590e2230ed0b1ad603d839cfdcd98",
+  "checks": {
+    "workbook": true,
+    "sheet": true,
+    "month": true,
+    "gross141700": true,
+    "gross164332": true
+  }
+}

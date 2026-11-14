@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="CSRF 多層防御セキュリティ統合テスト" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-11-13T22:33:55.486Z" hostname="BK" time="0.938">
+  <properties/>
+  <testcase name="CSRFトークンなしのPOSTリクエストは403 Forbiddenで拒否されること" classname="com.example.kintai.config.CsrfSecurityIntegrationTest" time="0.02"/>
+  <testcase name="不正なCSRFトークンを含むPOSTリクエストは403 Forbiddenで拒否されること" classname="com.example.kintai.config.CsrfSecurityIntegrationTest" time="0.006"/>
+  <testcase name="オーナーおよびスタッフのアカウントで正常にログインできること" classname="com.example.kintai.config.CsrfSecurityIntegrationTest" time="0.726"/>
+  <testcase name="正常なCSRFトークンを付与したPOSTリクエストは403にならず正常に受け付けられること" classname="com.example.kintai.config.CsrfSecurityIntegrationTest" time="0.175"/>
+  <system-out><![CDATA[2026-11-14T07:33:55.488+09:00  INFO 24648 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.config.CsrfSecurityIntegrationTest]: CsrfSecurityIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-14T07:33:55.490+09:00  INFO 24648 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.config.CsrfSecurityIntegrationTest
+2026-11-14T07:33:55.491+09:00  INFO 24648 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.config.CsrfSecurityIntegrationTest]: CsrfSecurityIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-14T07:33:55.491+09:00  INFO 24648 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.config.CsrfSecurityIntegrationTest
+2026-11-14T07:33:55.502+09:00  INFO 24648 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-14T07:33:55.502+09:00  INFO 24648 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-14T07:33:55.504+09:00  INFO 24648 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-11-14T07:33:55.517+09:00  INFO 24648 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-14T07:33:55.517+09:00  INFO 24648 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-14T07:33:55.518+09:00  INFO 24648 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-11-14T07:33:55.524+09:00  INFO 24648 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-14T07:33:55.525+09:00  INFO 24648 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-14T07:33:55.526+09:00  INFO 24648 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-11-14T07:33:55.616+09:00  INFO 24648 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-11-14T07:33:56.004+09:00  INFO 24648 --- [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@590ab84
+2026-11-14T07:33:56.007+09:00  INFO 24648 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-11-14T07:33:56.251+09:00  INFO 24648 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-14T07:33:56.252+09:00  INFO 24648 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-14T07:33:56.253+09:00  INFO 24648 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

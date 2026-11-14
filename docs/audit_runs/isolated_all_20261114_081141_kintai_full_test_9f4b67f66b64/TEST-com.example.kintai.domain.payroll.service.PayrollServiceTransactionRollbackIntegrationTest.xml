@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="F-08: PayrollService 내부 호출 시 실제 DB 변경 및 트랜잭션 전체 롤백 원자성 정밀 실측" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-11-13T23:12:16.246Z" hostname="BK" time="0.054">
+  <properties/>
+  <testcase name="내부 재계산(calculatePayrollForStaff)으로 금액/상세 변경 도중 예외 발생 시, 실제 DB가 초기 상태로 100% 롤백되는지 실측" classname="com.example.kintai.domain.payroll.service.PayrollServiceTransactionRollbackIntegrationTest" time="0.044"/>
+  <system-out><![CDATA[2026-11-14T08:12:16.248+09:00  INFO 16788 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.PayrollServiceTransactionRollbackIntegrationTest]: PayrollServiceTransactionRollbackIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-14T08:12:16.251+09:00  INFO 16788 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.PayrollServiceTransactionRollbackIntegrationTest
+2026-11-14T08:12:16.252+09:00  INFO 16788 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.PayrollServiceTransactionRollbackIntegrationTest]: PayrollServiceTransactionRollbackIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-14T08:12:16.254+09:00  INFO 16788 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.PayrollServiceTransactionRollbackIntegrationTest
+[F-08 검증 예외 포착]: 確認時と金額が一致しません。(確認額: 999999円, 再計算額: 32700円)。再確認が必要です。
+==================================================================
+[F-08 엄밀 실측 검증 결과 (테스트 레벨 @Transactional 없음)]
+1. 롤백 후 GrossPay      (기대값: 10900, 실측값: 10900)
+2. 롤백 후 WorkDaysCount (기대값: 1,     실측값: 1)
+3. 롤백 후 상세 레코드 수 (기대값: 1,     실측값: 1)
+4. 롤백 후 상태          (기대값: DRAFT, 실측값: DRAFT)
+==================================================================
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

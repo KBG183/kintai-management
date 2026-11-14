@@ -1,0 +1,79 @@
+{
+  "target_day": "Day 13 local demo review (2026-11-14)",
+  "requirements": [
+    "Calendar displays confirmed shifts returned by the API",
+    "Calendar event detail uses the API DTO fields",
+    "Payroll demo result is visible in the local UI"
+  ],
+  "rtm_items": [
+    "R-15",
+    "R-16",
+    "R-17",
+    "R-18"
+  ],
+  "test_ids": [
+    "isolated full regression: 83 tests, all pass",
+    "StoreAuthorizationServicePayrollOwnershipTest: cross-owner denied and owner allowed",
+    "CsrfCookieHeaderLifecycleIntegrationTest",
+    "CsrfSecurityIntegrationTest",
+    "manual browser: November calendar events and 2026-11-02 detail modal",
+    "manual browser: final isolated January payroll table rows",
+    "UTF-8 isolated demo seed verification",
+    "browser-managed Excel download event: completed; saved XLSX content validated"
+  ],
+  "execution_logs": [
+    "docs/audit_runs/day13_calendar_20261114/ui_review_record.md",
+    "docs/audit_runs/day13_calendar_20261114/demo_prepare_retry1.log",
+    "docs/audit_runs/day13_calendar_20261114/payroll_api_list.json",
+    "docs/audit_runs/day13_calendar_20261114/payroll_excel_validation.json",
+    "src/test/java/com/example/kintai/domain/attendance/util/LaborCalculationEngineTest.java",
+    "src/test/java/com/example/kintai/domain/payroll/util/PayrollCalculatorStatutoryRoundingTest.java",
+    "src/main/java/com/example/kintai/domain/payroll/controller/PayrollApiController.java",
+    "src/main/resources/mapper/payroll/PayrollMapper.xml",
+    "docs/audit_runs/day13_calendar_20261114/qwen27b_reaudit/report.md",
+    "docs/audit_runs/day13_calendar_20261114/qwen27b_reaudit/audit_run.json",
+    "docs/audit_runs/day13_calendar_20261114/qwen27b_reaudit_console.log",
+    "docs/audit_runs/day13_calendar_20261114/model_execution_incident.md",
+    "docs/audit_runs/isolated_all_20261114_081141_kintai_full_test_9f4b67f66b64/gradle_console.log",
+    "docs/audit_runs/isolated_all_20261114_081141_kintai_full_test_9f4b67f66b64/TEST-com.example.kintai.domain.store.service.StoreAuthorizationServicePayrollOwnershipTest.xml",
+    "src/test/java/com/example/kintai/domain/store/service/StoreAuthorizationServicePayrollOwnershipTest.java",
+    "docs/audit_runs/isolated_all_20261114_081141_kintai_full_test_9f4b67f66b64/exit_summary.json",
+    "docs/audit_runs/day13_calendar_20261114/qwen27b_final_audit/report.md",
+    "docs/audit_runs/day13_calendar_20261114/qwen27b_final_audit/audit_run.json",
+    "docs/audit_runs/day13_calendar_20261114/qwen27b_final_audit_console.log",
+    "docs/audit_runs/day13_calendar_20261114/qwen27b_final_consistent/report.md",
+    "docs/audit_runs/day13_calendar_20261114/qwen27b_final_consistent/audit_run.json",
+    "docs/audit_runs/day13_calendar_20261114/qwen27b_final_consistent_console.log",
+    "docs/audit_runs/day13_calendar_20261114/qwen27b_remote_ps_final.json",
+    "docs/audit_runs/day13_calendar_20261114/qwen27b_final/report.md",
+    "docs/audit_runs/day13_calendar_20261114/qwen27b_final/audit_run.json",
+    "docs/audit_runs/day13_calendar_20261114/qwen27b_final_console.log",
+    "docs/audit_runs/day13_calendar_20261114/excel_browser_download.json",
+    "docs/audit_runs/day13_calendar_20261114/payroll_2026-01_browser_download.xlsx",
+    "docs/audit_runs/day13_calendar_20261114/review_bundle.md",
+    "docs/audit_runs/day13_calendar_20261114/excel_ui_app_process_evidence.json",
+    "docs/audit_runs/day13_calendar_20261114/excel_ui_recheck_stdout.log",
+    "docs/audit_runs/day13_calendar_20261114/excel_ui_recheck_stderr.log"
+  ],
+  "artifacts": [
+    "docs/audit_runs/day13_calendar_20261114/payroll_2026-01.xlsx",
+    "docs/audit_runs/day13_calendar_20261114/payroll_2026-01_browser_download.xlsx"
+  ],
+  "junit_xml": [
+    "docs/audit_runs/isolated_all_20261114_074456_kintai_full_test_3df696be0820/TEST-com.example.kintai.config.CsrfCookieHeaderLifecycleIntegrationTest.xml",
+    "docs/audit_runs/isolated_all_20261114_074456_kintai_full_test_3df696be0820/TEST-com.example.kintai.config.CsrfSecurityIntegrationTest.xml",
+    "docs/audit_runs/isolated_all_20261114_074456_kintai_full_test_3df696be0820/TEST-com.example.kintai.domain.shift.service.ShiftServiceTest$BreakTimeCalculationTest.xml"
+  ],
+  "environment": "Windows local MySQL 26.7; isolated regression DB kintai_full_test_9f4b67f66b64; final isolated UI demo DB kintai_demo_9f3f8487bc42; Spring Boot 4.0.8 / Java 17.0.12 on port 8082; MySQL 8.4 not tested",
+  "bundle_sha256": "d69a9b63c9a6a79043a38fb9c8942ab9c3fd0f9936087ffe5865d778f6817379",
+  "browser_download_status": "PASS",
+  "browser_download_sha256": "ba127f65f193f8289c2b4e445efc09a06e1590e2230ed0b1ad603d839cfdcd98",
+  "latest_independent_audit": {
+    "run_id": "20261113_234705_5c3c1901",
+    "host": "http://100.111.193.94:11434",
+    "model": "qwen27b:latest",
+    "bundle_sha256": "d69a9b63c9a6a79043a38fb9c8942ab9c3fd0f9936087ffe5865d778f6817379",
+    "report": "docs/audit_runs/day13_calendar_20261114/qwen27b_browser_download_reaudit/report.md",
+    "status": "SUCCESS"
+  }
+}

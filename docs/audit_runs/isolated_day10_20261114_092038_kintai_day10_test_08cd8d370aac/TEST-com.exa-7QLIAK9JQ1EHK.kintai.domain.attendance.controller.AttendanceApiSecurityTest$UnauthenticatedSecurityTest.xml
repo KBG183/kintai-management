@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="未認証アクセスの多層防御 HTTPテスト" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-11-14T00:21:01.222Z" hostname="BK" time="0.039">
+  <properties/>
+  <testcase name="未認証状態（currentPrincipal == null）で審査処理を試みた場合は HTTP 403 Forbidden で遮断されること" classname="com.example.kintai.domain.attendance.controller.AttendanceApiSecurityTest$UnauthenticatedSecurityTest" time="0.018"/>
+  <testcase name="未認証状態（currentPrincipal == null）で修正申請を試みた場合は HTTP 403 Forbidden で遮断されること" classname="com.example.kintai.domain.attendance.controller.AttendanceApiSecurityTest$UnauthenticatedSecurityTest" time="0.02"/>
+  <system-out><![CDATA[09:21:01.235 [Test worker] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+09:21:01.235 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+09:21:01.235 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
+09:21:01.238 [Test worker] WARN com.example.kintai.global.exception.GlobalExceptionHandler -- アクセス拒絶 (AccessDenied): 審査?理には認?が必要です。
+09:21:01.253 [Test worker] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+09:21:01.253 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+09:21:01.253 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
+09:21:01.258 [Test worker] WARN com.example.kintai.global.exception.GlobalExceptionHandler -- アクセス拒絶 (AccessDenied): 勤怠修正申請には認?が必要です。
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

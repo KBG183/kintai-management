@@ -1,25 +1,25 @@
 # 勤怠・シフト・給与管理システム (Kintai Management System)
-
-> **日本の労働基準法第37条に完全準拠した、飲食店・小売業向けシフト・勤怠・給与自動計算プラットフォーム**  
-> 複雑な深夜・時間外割増手当（125%・150%）の完全自動計算、4打刻による法令遵守の休憩時間管理、および排他制御（悲観的ロック）によるデータ整合性を実現した B2B エンタープライズソリューションです。
+> 日本向けのシフト・勤怠・月次給与管理アプリです。動作・計算の主張は記録されたテスト範囲に限ります。
+> 現行SRSが定めるMVPの範囲を提供します。日本の労働法全体への適合や未検証の本番運用条件を保証しません。
+> 検証範囲と残作業は `docs/final-portfolio/README_KO.md` およびRTMを参照してください。
 
 ---
 
 ## 📌 プロジェクト概要 (Project Overview)
 
-日本の外食・小売・サービス業界におけるアルバイト・パートタイム雇用では、掛け持ち勤務、深夜営業、複雑な労働基準法計算への対応が不可欠です。本システムは、現場で頻発する以下の課題を解決するために単独でアーキテクチャ設計および実装を行いました。
+本リポジトリは、シフト・勤怠・月次給与機能のMVPです。動作・計算・画面表示については、ポートフォリオに記載した実行記録の範囲を確認してください。未検証の法令要件や運用条件を保証する資料ではありません。
 
-1. **労働基準法第37条の割増賃金計算エラーの撲滅**:
+1. **割増賃金計算（現行SRSで定義する時間外・深夜の範囲）**:
    - `深夜労働 (22:00 ~ 翌05:00, +25%)`
    - `時間外労働 (1日8時間超過, +25%)`
    - `深夜かつ時間外の重複労働 (+50%)`
-   - これらを1分単位で自動判定し、`BigDecimal` を用いて丸め誤差のない厳密な給与計算を提供します。
-2. **シフト希望・確定のリアルタイム調整とデータ整合性**:
-   - 店長とスタッフ間でのシフト調整において、同時更新による不整合（Race Condition）を防ぐため、データベースレベルの**悲観的ロック (`SELECT ... FOR UPDATE`)** を適用。
-3. **4打刻（出勤・休憩開始・休憩終了・退勤）による正確な実労働時間管理**:
-   - 法定無給休憩時間を深夜帯と日中帯で厳密に分離し、過払い・未払いの発生を根本から防止。
-4. **監査証跡（Audit Trail）を備えた打刻修正ワークフロー**:
-   - 打刻漏れや修正の直接書き換えを禁止し、申請・承認履歴を完全記録。
+   - 対象の計算ケースはテストで検証しています。計算対象・境界・端数処理の詳細は技術証跡を参照してください。
+2. **シフト・給与データの整合性**:
+   - 対象の更新処理にはトランザクションと行ロックを使用します。検証した経路は技術証跡とRTMに記載しています。
+3. **勤怠・休憩記録**:
+   - 打刻と休憩の記録を保持し、対象ケースの時間計算をテストで確認しています。
+4. **検証結果と制約**:
+   - 未検証の機能・法令要件は完了済みとして扱いません。最新の実行結果は `docs/final-portfolio/README_KO.md` と技術証跡を参照してください。
 
 ---
 
@@ -27,10 +27,10 @@
 
 | カテゴリ | 採用技術 | 選定理由・役割 |
 | :--- | :--- | :--- |
-| **Backend** | Java 17, Spring Boot 3.x / 4.x | 高い型安全性、堅牢なエンタープライズバックエンド構築 |
+| **Backend** | Java 17, Spring Boot 4.0.8 | 高い型安全性、堅牢なエンタープライズバックエンド構築 |
 | **ORM / Mapper**| MyBatis 3.x | 複雑な労働時間集計クエリおよび排他ロック（FOR UPDATE）の制御最適化 |
-| **Database** | MySQL 8.0 | トランザクション分離（InnoDB）、インデックス最適化 |
-| **Security** | Spring Security 6 | セッションベースのロール制御（管理者: `OWNER`, 従業員: `STAFF`） |
+| **Database** | MySQL（検証実績: ローカル 26.7.0 Innovation。MySQL 8.4は未検証） | トランザクション分離（InnoDB）、インデックス最適化 |
+| **Security** | Spring Security（正確なバージョンはビルド設定を参照） | セッションベースのロール制御（管理者: `OWNER`, 従業員: `STAFF`） |
 | **Frontend** | Thymeleaf, Bootstrap 5.3 | サーバーサイドレンダリング、レスポンシブな店舗端末UI |
 | **Calendar** | FullCalendar 6.x | 直感的な月間・週間シフトスケジュール視覚化 |
 | **Office/Export**| Apache POI 5.2 | 税理士・社労士提出用の公式給与台帳（Excel）一括生成 |
@@ -129,43 +129,28 @@ erDiagram
 ## 🚀 クイックスタート (Local Setup)
 
 ### 前提条件
-- **Java**: JDK 17 以上
-- **Database**: MySQL 8.0 以上
+- **Java**: JDK 17
+- **Database**: ローカルMySQL。検証済み環境は26.7.0 Innovationです。MySQL 8.4は未検証です。
 
-### 1. リポジトリのクローン
-```bash
-git clone -b develop https://github.com/KBG183/kintai-management.git
-cd kintai-management/kintai
+### 分離デモDBで起動
+運用DB `kintai_db` を使わず、必ず新しいデモ用分離DBを準備してください。パスワードは `KINTAI_DB_PASSWORD` 環境変数で渡します。
+
+```powershell
+$env:KINTAI_DB_PASSWORD = "<ローカルDBパスワード>"
+.\scripts\prepare_local_demo_db.ps1
 ```
 
-### 2. データベース設定
-`src/main/resources/application.properties` に MySQL 接続情報を設定します。
-```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/kintai_db?useSSL=false&serverTimezone=Asia/Tokyo&characterEncoding=UTF-8
-spring.datasource.username=YOUR_USERNAME
-spring.datasource.password=YOUR_PASSWORD
-```
-
-### 3. ビルドおよび起動
-```bash
-# ビルド
-./gradlew build -x test
-
-# アプリケーション起動
-./gradlew bootRun
-```
-
-ブラウザから `http://localhost:8080` にアクセスします。
+スクリプト出力の `APPLICATION_DB_OVERRIDE` を使ってアプリを起動し、ブラウザー手順と期待値は [ローカルデモガイド](docs/final-portfolio/demo_guide.md) を参照してください。テストは `docs/workflow/isolated_test_operation.md` の新規allowlisted DB手順を使います。
 
 ---
 
 ## 👨‍💻 技術的アピールポイント (Engineering Highlights)
 
 - **実務に直結するドメインモデリング**:
-  - 単なる一般的な CRUD アプリケーションではなく、日本特有の労務管理（掛け持ち勤務・労働基準法第37条）の法的要件を綿密に分析・定義。
+  - 勤怠・給与の要件と対応範囲は現行SRSおよび技術証跡に記載しています。未検証の法令範囲への適合は主張しません。
 - **データ整合性と堅牢性の担保**:
-  - シフト希望更新時のデッドロック・競合更新を防止するトランザクション境界設計および悲観的ロックの採用。
+  - 対象処理にトランザクションと悲観的ロックを適用し、同時実行テストで確認した範囲をRTMに記録。
 - **金融水準の計算精度**:
-  - 1円の過不足も許されない給与明細計算において、基幹系業務システムに求められる `BigDecimal` による端数処理基準を実装。
+  - 金額計算には `BigDecimal` を用い、記録されたテストで端数境界を検証しています。
 - **保守性と拡張性を意識したレイヤード設計**:
-  - Controller - Service - Mapper (MyBatis) の責務を厳格に分離し、今後の給与計算式改定（法改正対応）にも Service 層の修正のみで追従可能な構造を担保。
+  - Controller - Service - Mapper (MyBatis) の構成を採用。変更時は関連する層とテストを確認してください。

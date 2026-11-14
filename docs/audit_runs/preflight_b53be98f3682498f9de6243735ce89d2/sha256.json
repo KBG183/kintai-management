@@ -1,0 +1,47 @@
+[
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_b53be98f3682498f9de6243735ce89d2\\input_bundle",
+    "Hash": "76DC1C9F5B3750C9B38D0777BD302893D4EA4DBE3783A0B8EF107EDF37312D93",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_b53be98f3682498f9de6243735ce89d2\\input_manifest.json",
+    "Hash": "5D00CA90E47F58FF0930695A1112943DBA25FF2FAFEB049CD180CE55AEF03C04",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_b53be98f3682498f9de6243735ce89d2\\preflight_result.json",
+    "Hash": "CBE97110CB907CFF199DE20C684119DC4B5A320E2DF8F67653850D214D9FD257",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_b53be98f3682498f9de6243735ce89d2\\hermes\\.done",
+    "Hash": "189506968FC78D50092C9583635790E59BF5D43C31386581ADAAFEFC2DFBAD91",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_b53be98f3682498f9de6243735ce89d2\\hermes\\audit_run.json",
+    "Hash": "EA55E4658250B2848E2626138AE869AB06E55873ECA29A2DF6248451BDCDFFFD",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_b53be98f3682498f9de6243735ce89d2\\hermes\\bundle.manifest.json",
+    "Hash": "6D57F80360B80EECE799CE9AA6A5F270381F63B046A7811CD268A78661E35D1C",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_b53be98f3682498f9de6243735ce89d2\\hermes\\raw_response.txt",
+    "Hash": "E550EFF7D553A8410330C5D6621E1150740959580BB8F0CD59463E1223F745D2",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_b53be98f3682498f9de6243735ce89d2\\hermes\\report.json",
+    "Hash": "D64AA17F29C05786D99DA50C39956692186D3BDCC4408A8B75AB09E0FB404950",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_b53be98f3682498f9de6243735ce89d2\\hermes\\report.md",
+    "Hash": "DEE296CDA885E4BDC8208C9145AB61757D6A5323ECD6F7C9B21016B2CFC6B124",
+    "Algorithm": "SHA256"
+  }
+]

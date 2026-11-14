@@ -1,0 +1,21 @@
+{
+    "status":  "INPUT_READY",
+    "bundle_path":  "C:\\dev\\kintai\\docs\\audit_runs\\preflight_f997274afee34b0fb29f7a76752a2bf7\\input_bundle",
+    "manifest_path":  "C:\\dev\\kintai\\scripts\\..\\docs\\audit_runs\\preflight_f997274afee34b0fb29f7a76752a2bf7\\input_manifest.json",
+    "bundle_sha256":  "d69a9b63c9a6a79043a38fb9c8942ab9c3fd0f9936087ffe5865d778f6817379",
+    "failures":  [
+
+                 ]
+}
+[Hermes v1.1.1] Initializing audit run (AUDIT) in: C:\dev\kintai\docs\audit_runs\day13_calendar_20261114\qwen27b_day13_final
+[Hermes v1.1.1] Model verified: qwen27b:latest (Ollama v0.40.16, Digest: 23c3820b0d9326b73e97191b9fb7e16b53f6e24bb3449d2a17037c5f2b6179a1, Quant: IQ3_M, Params: 27.3B)
+[08:49:35] Generating... Tokens: 341
+[08:49:45] Generating... Tokens: 675
+[08:49:55] Generating... Tokens: 1006
+[08:50:05] Generating... Tokens: 1344
+=== [Hermes v1.1.1] Done! Output saved in: C:\dev\kintai\docs\audit_runs\day13_calendar_20261114\qwen27b_day13_final ===
+### [Hermes Audit Execution Metrics v1.1.1]
+| Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed | Done Reason | Run ID |
+|---|---|---|---|---|---|---|---|
+| C:\dev\kintai\scripts\..\docs\audit_runs\preflight_f997274afee34b0fb29f7a76752a2bf7\input_bundle | qwen27b:latest (IQ3_M) | 48.47s | 3415 tokens | 1539 tokens | 33.5 tokens/s | stop | 20261113_234922_d69a9b63 |
+

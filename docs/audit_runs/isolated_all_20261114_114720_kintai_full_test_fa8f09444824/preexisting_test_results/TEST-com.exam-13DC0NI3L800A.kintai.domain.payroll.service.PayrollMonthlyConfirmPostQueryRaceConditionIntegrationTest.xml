@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="F-04: confirmMonthlyPayroll 트랜잭션 동일성 및 최종 재조회 직후 신규 DRAFT 경쟁 조건 정밀 실측" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-11-14T00:44:55.735Z" hostname="BK" time="0.072">
+  <properties/>
+  <testcase name="2. 재조회 이후 신규 DRAFT 경쟁 시뮬레이션: 최종 UPDATE 대상이 초기 잠금한 직원 ID들로만 한정되어야 함을 실측" classname="com.example.kintai.domain.payroll.service.PayrollMonthlyConfirmPostQueryRaceConditionIntegrationTest" time="0.044"/>
+  <testcase name="1. 실제 Spring 트랜잭션 활성 및 동일 DB Connection 하에서 전 단계가 실행되는지 증명" classname="com.example.kintai.domain.payroll.service.PayrollMonthlyConfirmPostQueryRaceConditionIntegrationTest" time="0.018"/>
+  <system-out><![CDATA[2026-11-14T09:44:55.738+09:00  INFO 21400 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.PayrollMonthlyConfirmPostQueryRaceConditionIntegrationTest]: PayrollMonthlyConfirmPostQueryRaceConditionIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-14T09:44:55.740+09:00  INFO 21400 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.PayrollMonthlyConfirmPostQueryRaceConditionIntegrationTest
+2026-11-14T09:44:55.741+09:00  INFO 21400 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.PayrollMonthlyConfirmPostQueryRaceConditionIntegrationTest]: PayrollMonthlyConfirmPostQueryRaceConditionIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-14T09:44:55.742+09:00  INFO 21400 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.PayrollMonthlyConfirmPostQueryRaceConditionIntegrationTest
+[Tx-Verification] 단일 Connection ID: 510
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

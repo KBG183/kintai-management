@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="リアルタイム打刻（POST /api/attendance/punch）の店舗ID強制バインドおよびIDOR防御" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-14T00:20:58.160Z" hostname="BK" time="2.934">
+  <properties/>
+  <testcase name="スタッフが打刻時に他人IDと他店IDを偽造しても、セッションの本人情報に強制バインドされること" classname="com.example.kintai.domain.attendance.controller.AttendanceApiSecurityTest$PunchSecurityTest" time="2.852"/>
+  <testcase name="オーナーが自己店舗スタッフの打刻時に誤ったstoreIdを指定しても、サーバー側で正規店舗IDに強制バインドされること" classname="com.example.kintai.domain.attendance.controller.AttendanceApiSecurityTest$PunchSecurityTest" time="0.036"/>
+  <testcase name="オーナーが他店舗スタッフの打刻を試みた場合は HTTP 403 Forbidden で遮断されること" classname="com.example.kintai.domain.attendance.controller.AttendanceApiSecurityTest$PunchSecurityTest" time="0.029"/>
+  <system-out><![CDATA[09:21:00.049 [Test worker] INFO org.hibernate.validator.internal.util.Version -- HV000001: Hibernate Validator 9.0.1.Final
+09:21:00.612 [Test worker] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+09:21:00.614 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+09:21:00.620 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 4 ms
+09:21:01.050 [Test worker] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+09:21:01.050 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+09:21:01.050 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
+09:21:01.080 [Test worker] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+09:21:01.081 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+09:21:01.081 [Test worker] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
+09:21:01.090 [Test worker] WARN com.example.kintai.global.exception.GlobalExceptionHandler -- アクセス拒絶 (AccessDenied): ?象スタッフに?する管理?限がありません。
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

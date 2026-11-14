@@ -1,0 +1,157 @@
+{
+  "requested_model": "qwen3.8:27b (incomplete, never installed)",
+  "pull_log": "docs/audit_runs/day13_calendar_20261114/qwen27b_local_pull.log",
+  "model_manifests": "C:\\Users\\klad3\\.ollama\\models\\manifests\\registry.ollama.ai\\library\\qwen2.5\\7b",
+  "artifacts": [
+    {
+      "path": "C:\\Users\\klad3\\.ollama\\models\\blobs\\sha256-492b2922d38e553cabc2d319345644ed482874fbf5e5c9e4495cbf8e17b0cf5f",
+      "bytes": 215,
+      "last_write_time": "2026-11-14T07:58:23.2321677+09:00",
+      "manifest_references": 0,
+      "pull_log_id": "pull-created small metadata layer"
+    },
+    {
+      "path": "C:\\Users\\klad3\\.ollama\\models\\blobs\\sha256-aaee06c39dcf2437cde036998d960e1fc1494b8191be7cc9657d01e509097813",
+      "bytes": 986,
+      "last_write_time": "2026-11-14T07:58:22.7435912+09:00",
+      "manifest_references": 0,
+      "pull_log_id": "pull-created small metadata layer"
+    },
+    {
+      "path": "C:\\Users\\klad3\\.ollama\\models\\blobs\\sha256-ac3714bfdddeca31351f2752bf1a63f266f4df87c0b68c895e44945ca704448e",
+      "bytes": 931146016,
+      "last_write_time": "2026-11-14T07:58:39.435832+09:00",
+      "manifest_references": 0,
+      "pull_log_id": "ac3714bfddde 931 MB layer"
+    },
+    {
+      "path": "C:\\Users\\klad3\\.ollama\\models\\blobs\\sha256-f5f1dd8920d417aac2718b0bda3403da274301efdd6760b4f0f4b864ff2ad57d-partial",
+      "bytes": 16810714464,
+      "last_write_time": "2026-11-14T08:01:11.832435+09:00",
+      "manifest_references": 0,
+      "pull_log_id": "f5f1dd8920d4 16 GB layer, stopped at 7.0 GB"
+    },
+    {
+      "path": "C:\\Users\\klad3\\.ollama\\models\\blobs\\sha256-f5f1dd8920d417aac2718b0bda3403da274301efdd6760b4f0f4b864ff2ad57d-partial-0",
+      "bytes": 59,
+      "last_write_time": "2026-11-14T08:01:11.8347007+09:00",
+      "manifest_references": 0,
+      "pull_log_id": "f5f1dd8920d4 16 GB layer, stopped at 7.0 GB"
+    },
+    {
+      "path": "C:\\Users\\klad3\\.ollama\\models\\blobs\\sha256-f5f1dd8920d417aac2718b0bda3403da274301efdd6760b4f0f4b864ff2ad57d-partial-1",
+      "bytes": 68,
+      "last_write_time": "2026-11-14T08:01:11.8379922+09:00",
+      "manifest_references": 0,
+      "pull_log_id": "f5f1dd8920d4 16 GB layer, stopped at 7.0 GB"
+    },
+    {
+      "path": "C:\\Users\\klad3\\.ollama\\models\\blobs\\sha256-f5f1dd8920d417aac2718b0bda3403da274301efdd6760b4f0f4b864ff2ad57d-partial-2",
+      "bytes": 68,
+      "last_write_time": "2026-11-14T08:01:11.8369185+09:00",
+      "manifest_references": 0,
+      "pull_log_id": "f5f1dd8920d4 16 GB layer, stopped at 7.0 GB"
+    },
+    {
+      "path": "C:\\Users\\klad3\\.ollama\\models\\blobs\\sha256-f5f1dd8920d417aac2718b0bda3403da274301efdd6760b4f0f4b864ff2ad57d-partial-3",
+      "bytes": 68,
+      "last_write_time": "2026-11-14T08:01:11.8369185+09:00",
+      "manifest_references": 0,
+      "pull_log_id": "f5f1dd8920d4 16 GB layer, stopped at 7.0 GB"
+    },
+    {
+      "path": "C:\\Users\\klad3\\.ollama\\models\\blobs\\sha256-f5f1dd8920d417aac2718b0bda3403da274301efdd6760b4f0f4b864ff2ad57d-partial-4",
+      "bytes": 68,
+      "last_write_time": "2026-11-14T08:01:11.8385406+09:00",
+      "manifest_references": 0,
+      "pull_log_id": "f5f1dd8920d4 16 GB layer, stopped at 7.0 GB"
+    },
+    {
+      "path": "C:\\Users\\klad3\\.ollama\\models\\blobs\\sha256-f5f1dd8920d417aac2718b0bda3403da274301efdd6760b4f0f4b864ff2ad57d-partial-5",
+      "bytes": 68,
+      "last_write_time": "2026-11-14T08:01:11.8369185+09:00",
+      "manifest_references": 0,
+      "pull_log_id": "f5f1dd8920d4 16 GB layer, stopped at 7.0 GB"
+    },
+    {
+      "path": "C:\\Users\\klad3\\.ollama\\models\\blobs\\sha256-f5f1dd8920d417aac2718b0bda3403da274301efdd6760b4f0f4b864ff2ad57d-partial-6",
+      "bytes": 68,
+      "last_write_time": "2026-11-14T08:01:11.8394119+09:00",
+      "manifest_references": 0,
+      "pull_log_id": "f5f1dd8920d4 16 GB layer, stopped at 7.0 GB"
+    },
+    {
+      "path": "C:\\Users\\klad3\\.ollama\\models\\blobs\\sha256-f5f1dd8920d417aac2718b0bda3403da274301efdd6760b4f0f4b864ff2ad57d-partial-7",
+      "bytes": 68,
+      "last_write_time": "2026-11-14T08:01:11.8379922+09:00",
+      "manifest_references": 0,
+      "pull_log_id": "f5f1dd8920d4 16 GB layer, stopped at 7.0 GB"
+    },
+    {
+      "path": "C:\\Users\\klad3\\.ollama\\models\\blobs\\sha256-f5f1dd8920d417aac2718b0bda3403da274301efdd6760b4f0f4b864ff2ad57d-partial-8",
+      "bytes": 68,
+      "last_write_time": "2026-11-14T08:01:11.8374559+09:00",
+      "manifest_references": 0,
+      "pull_log_id": "f5f1dd8920d4 16 GB layer, stopped at 7.0 GB"
+    },
+    {
+      "path": "C:\\Users\\klad3\\.ollama\\models\\blobs\\sha256-f5f1dd8920d417aac2718b0bda3403da274301efdd6760b4f0f4b864ff2ad57d-partial-9",
+      "bytes": 68,
+      "last_write_time": "2026-11-14T08:01:11.8379922+09:00",
+      "manifest_references": 0,
+      "pull_log_id": "f5f1dd8920d4 16 GB layer, stopped at 7.0 GB"
+    },
+    {
+      "path": "C:\\Users\\klad3\\.ollama\\models\\blobs\\sha256-f5f1dd8920d417aac2718b0bda3403da274301efdd6760b4f0f4b864ff2ad57d-partial-10",
+      "bytes": 70,
+      "last_write_time": "2026-11-14T08:01:11.8385406+09:00",
+      "manifest_references": 0,
+      "pull_log_id": "f5f1dd8920d4 16 GB layer, stopped at 7.0 GB"
+    },
+    {
+      "path": "C:\\Users\\klad3\\.ollama\\models\\blobs\\sha256-f5f1dd8920d417aac2718b0bda3403da274301efdd6760b4f0f4b864ff2ad57d-partial-11",
+      "bytes": 70,
+      "last_write_time": "2026-11-14T08:01:11.8385406+09:00",
+      "manifest_references": 0,
+      "pull_log_id": "f5f1dd8920d4 16 GB layer, stopped at 7.0 GB"
+    },
+    {
+      "path": "C:\\Users\\klad3\\.ollama\\models\\blobs\\sha256-f5f1dd8920d417aac2718b0bda3403da274301efdd6760b4f0f4b864ff2ad57d-partial-12",
+      "bytes": 70,
+      "last_write_time": "2026-11-14T08:01:11.8374559+09:00",
+      "manifest_references": 0,
+      "pull_log_id": "f5f1dd8920d4 16 GB layer, stopped at 7.0 GB"
+    },
+    {
+      "path": "C:\\Users\\klad3\\.ollama\\models\\blobs\\sha256-f5f1dd8920d417aac2718b0bda3403da274301efdd6760b4f0f4b864ff2ad57d-partial-13",
+      "bytes": 70,
+      "last_write_time": "2026-11-14T08:01:11.8369185+09:00",
+      "manifest_references": 0,
+      "pull_log_id": "f5f1dd8920d4 16 GB layer, stopped at 7.0 GB"
+    },
+    {
+      "path": "C:\\Users\\klad3\\.ollama\\models\\blobs\\sha256-f5f1dd8920d417aac2718b0bda3403da274301efdd6760b4f0f4b864ff2ad57d-partial-14",
+      "bytes": 70,
+      "last_write_time": "2026-11-14T08:01:11.8385406+09:00",
+      "manifest_references": 0,
+      "pull_log_id": "f5f1dd8920d4 16 GB layer, stopped at 7.0 GB"
+    },
+    {
+      "path": "C:\\Users\\klad3\\.ollama\\models\\blobs\\sha256-f5f1dd8920d417aac2718b0bda3403da274301efdd6760b4f0f4b864ff2ad57d-partial-15",
+      "bytes": 70,
+      "last_write_time": "2026-11-14T08:01:11.8379922+09:00",
+      "manifest_references": 0,
+      "pull_log_id": "f5f1dd8920d4 16 GB layer, stopped at 7.0 GB"
+    },
+    {
+      "path": "C:\\Users\\klad3\\.ollama\\models\\blobs\\sha256-f5f1dd8920d417aac2718b0bda3403da274301efdd6760b4f0f4b864ff2ad57d-partial-16",
+      "bytes": 61,
+      "last_write_time": "2026-11-14T07:58:40.7706706+09:00",
+      "manifest_references": 0,
+      "pull_log_id": "f5f1dd8920d4 16 GB layer, stopped at 7.0 GB"
+    }
+  ],
+  "logical_bytes_to_remove": 17741862833.0,
+  "cleanup_status": "DELETED",
+  "deleted_at": "2026-11-14T08:29:15.0757034+09:00"
+}

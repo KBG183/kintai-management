@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="CSRF 多層防御セキュリティ統合テスト" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-14T02:47:45.889Z" hostname="BK" time="0.822">
+  <properties/>
+  <testcase name="CSRFトークンなしのPOSTリクエストは403 Forbiddenで拒否されること" classname="com.example.kintai.config.CsrfSecurityIntegrationTest" time="0.02"/>
+  <testcase name="不正なCSRFトークンを含むPOSTリクエストは403 Forbiddenで拒否されること" classname="com.example.kintai.config.CsrfSecurityIntegrationTest" time="0.005"/>
+  <testcase name="CSRFトークンが有効でも未認証ユーザーの打刻APIアクセスはログインへ拒否されること" classname="com.example.kintai.config.CsrfSecurityIntegrationTest" time="0.008"/>
+  <testcase name="オーナーおよびスタッフのアカウントで正常にログインできること" classname="com.example.kintai.config.CsrfSecurityIntegrationTest" time="0.623"/>
+  <testcase name="正常なCSRFトークンを付与したPOSTリクエストは403にならず正常に受け付けられること" classname="com.example.kintai.config.CsrfSecurityIntegrationTest" time="0.155"/>
+  <system-out><![CDATA[2026-11-14T11:47:45.891+09:00  INFO 18908 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.config.CsrfSecurityIntegrationTest]: CsrfSecurityIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-14T11:47:45.892+09:00  INFO 18908 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.config.CsrfSecurityIntegrationTest
+2026-11-14T11:47:45.893+09:00  INFO 18908 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.config.CsrfSecurityIntegrationTest]: CsrfSecurityIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-14T11:47:45.895+09:00  INFO 18908 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.config.CsrfSecurityIntegrationTest
+2026-11-14T11:47:45.908+09:00  INFO 18908 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-14T11:47:45.908+09:00  INFO 18908 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-14T11:47:45.909+09:00  INFO 18908 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-11-14T11:47:45.921+09:00  INFO 18908 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-14T11:47:45.921+09:00  INFO 18908 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-14T11:47:45.921+09:00  INFO 18908 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-11-14T11:47:45.925+09:00  INFO 18908 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-14T11:47:45.926+09:00  INFO 18908 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-14T11:47:45.927+09:00  INFO 18908 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-11-14T11:47:45.934+09:00  INFO 18908 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-14T11:47:45.934+09:00  INFO 18908 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-14T11:47:45.935+09:00  INFO 18908 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-11-14T11:47:46.010+09:00  INFO 18908 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-11-14T11:47:46.346+09:00  INFO 18908 --- [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@359fd0a2
+2026-11-14T11:47:46.349+09:00  INFO 18908 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-11-14T11:47:46.558+09:00  INFO 18908 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-14T11:47:46.558+09:00  INFO 18908 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-14T11:47:46.559+09:00  INFO 18908 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

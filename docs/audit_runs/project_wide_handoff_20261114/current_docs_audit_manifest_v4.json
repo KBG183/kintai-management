@@ -1,0 +1,95 @@
+{
+  "schema_version": "1.0",
+  "target_day": "2026-11-14 frozen project handoff and audit runner review v4",
+  "bundle_path": "C:\\dev\\kintai\\docs\\audit_runs\\project_wide_handoff_20261114\\current_docs_audit_bundle_v4.md",
+  "bundle_sha256": "e399e0da4352bab4584562661d55cb21951f74e0acff50e9ae74fa0047f40118",
+  "source_sha256": {
+    "scripts/audit_config.json": "1ebaf50e6e54e97e87acc79fbf002d6a20d38743ac79961760e264742e4999db",
+    "scripts/audit_with_hermes.ps1": "bf2463c9ea9f75bdfb4026a3332d50a4ce7972314f6925c3e0d199cc01553fc1",
+    "scripts/codex_hermes_bridge.ps1": "6179c026132cbfeef6513c50ebd4114ddaedfbaff0ad37318a6243644bf98842",
+    "docs/handoff/20261114_antigravity_project_wide_handoff.md": "e77b3819fccfb9ac52f0305c8df4e06c993728223a40abcd530eee2b168e41b2",
+    "docs/rtm_ledger.md": "73234fcad7ed7f4d83a58cf8910a612ab2832437784d407b51b6823dce353aaf",
+    "docs/workflow/pipeline_improvement_backlog.md": "e82b0ea8c31db721779ad16ed11b61683e4ee2ae75f8ad4c5857b11e27c98778",
+    "docs/workflow/project_paths.md": "84e7e618d45b15259af5d6083859316c5a7fa85016b4042026092bac4fa797f6",
+    "docs/final-portfolio/README_KO.md": "7819c346a2323dd7812e1ad9ef2500ebe07c8a80276d22fbbac678b6f0a502b6",
+    "docs/final-portfolio/README.md": "942365effac87d8d9de33fb4044eddb281c7af381292829afdd796b821a5b65d",
+    "docs/final-portfolio/technical_evidence_v2.1.md": "d5fd2077d0a1970bfacaa47518ff3cfd852d0a56ae48839e5e2dce4bcedeaa7c",
+    "docs/final-portfolio/technical_evidence_v2.1_ja.md": "da969e5790ffcfbff181c013233f9a934f60d7ea7172006f703c958283175591",
+    "README.md": "a7bbd01b9d564d0f2e0e44b90d81fb81b5d86b755994479552deba8c778012f4",
+    "docs/audit_runs/isolated_all_20261114_094427_kintai_full_test_d4124a317ed0/exit_summary.json": "92905fcc9bc4f52fc11c05c02b76d4d47d72bafe18bc77a71ed2c0bd42bbc873",
+    "docs/audit_runs/isolated_day11_20261114_094349_kintai_day11_test_01f4cb1439e6/exit_summary.json": "8d4d973a11c710ca4032894f9eabc14be69961bcf487a5b42cd66f16be033799",
+    "docs/audit_runs/project_wide_handoff_20261114/remote_audit_blocked_outcome.json": "8594afcc260801afae452e0d87bde844c5c13e7d424ecda0a5ea597478276cff",
+    "docs/audit_runs/project_wide_handoff_20261114/fail_closed_retest_outcome.json": "1e4321fede8fa98be477577ad9d96882d22ab3d9514e03291cc9ec3524710e0b",
+    "docs/audit_runs/project_wide_handoff_20261114/qwen27b_current_docs_final_summary.json": "4c9a2d9092236a013c27a6d3b5f565b050dab572ff7ead6c6716094bfd114872",
+    "docs/audit_runs/20261114_014515_cd7cd20d/audit_run.json": "5d0427fe787d7a0a9d62cb6649c34930949235cf05bdcc3e772e9ba29fd26edc",
+    "docs/audit_runs/project_wide_handoff_20261114/runner_validation_20261114_111800/runner_validation_summary.json": "aa4a1df9572f6dde8d35db8ef12cc7d1fb508905e27ac0e66e7a7665925f0661",
+    "docs/audit_runs/project_wide_handoff_20261114/qwen27b_current_docs_final_report.md": "1e83ea8c854464db273c54caf856d0d236c3cdbb9758afa8194af375004ce49c",
+    "docs/audit_runs/20261114_014515_cd7cd20d/report.md": "695bb5bd62735a192a13b95d7461c80805d2d88c5608742db3d76201ed94a86d"
+  },
+  "requirements": [
+    "92 full regression and 6 annual target tests match named isolated DB evidence",
+    "R-02/R-05/R-08..R-19 and B-01..B-09 statuses match source ledgers",
+    "B-05/B-06 open; B-01/B-07 deferred; R-05/Day12 excluded",
+    "Exact remote endpoint/model; no operating DB instruction or local model fallback; historical snapshots labeled",
+    "Audit runner rejects empty, incomplete, truncated, malformed, prompt-echo and over-budget responses; bridge defaults to configured remote HTTP",
+    "Prior failed and malformed audit chronology is accurately stated; previous 10/10 applies only to its own frozen bundle",
+    "No Japanese-law-wide compliance claim"
+  ],
+  "rtm_items": [
+    "R-02",
+    "R-05",
+    "R-08",
+    "R-09",
+    "R-10",
+    "R-11",
+    "R-12",
+    "R-13",
+    "R-14",
+    "R-15",
+    "R-16",
+    "R-17",
+    "R-18",
+    "R-19",
+    "B-01",
+    "B-02",
+    "B-03",
+    "B-04",
+    "B-05",
+    "B-06",
+    "B-07",
+    "B-08",
+    "B-09"
+  ],
+  "test_ids": [
+    "isolated full regression 92 tests",
+    "Day 11 annual target 6 tests",
+    "response validation including empty/missing terminal/truncated/context budget/header-only/invalid verdict/prompt echo/output collision",
+    "bridge routing Http and Auto plus configured inference metadata and duplicate-run protection",
+    "Qwen input validator tests",
+    "preflight wrapper mock success/failure/nonzero"
+  ],
+  "execution_logs": [
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_094427_kintai_full_test_d4124a317ed0\\gradle_console.log",
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_day11_20261114_094349_kintai_day11_test_01f4cb1439e6\\gradle_console.log",
+    "C:\\dev\\kintai\\docs\\audit_runs\\project_wide_handoff_20261114\\runner_validation_20261114_111800\\response_validation.log",
+    "C:\\dev\\kintai\\docs\\audit_runs\\project_wide_handoff_20261114\\runner_validation_20261114_111800\\bridge_routing.log",
+    "C:\\dev\\kintai\\docs\\audit_runs\\project_wide_handoff_20261114\\runner_validation_20261114_111800\\preflight_validation.log",
+    "C:\\dev\\kintai\\docs\\audit_runs\\project_wide_handoff_20261114\\runner_validation_20261114_111800\\wrapper_mock.log"
+  ],
+  "junit_xml": [
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_094427_kintai_full_test_d4124a317ed0\\TEST-com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest.xml",
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_day11_20261114_094349_kintai_day11_test_01f4cb1439e6\\TEST-com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest.xml"
+  ],
+  "environment": "Windows; isolated local MySQL 26.7 app evidence; remote Qwen only at http://100.111.193.94:11434 with qwen27b:latest",
+  "known_constraints": [
+    "R-05 and Day 12 excluded until scheduled date",
+    "B-05/B-06 remain open for Antigravity implementation",
+    "B-01/B-07 milestone deferred",
+    "Prior bundle review WARN is historical and not PASS for this bundle",
+    "No operating DB; no local Qwen fallback, alternate endpoint, or download"
+  ],
+  "unverified_items": [
+    "B-05/B-06 implementation and tests",
+    "Independent Qwen verdict for this exact v4 bundle"
+  ]
+}

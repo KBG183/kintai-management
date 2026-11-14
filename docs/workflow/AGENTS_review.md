@@ -13,7 +13,7 @@
 |---|---|---|---|
 | F-01 | The project toolchain is Java 17, while AGENTS.md states Java 21. | `build.gradle` sets `JavaLanguageVersion.of(17)`; AGENTS.md Team Role Architecture | An operator can write or review against the wrong runtime baseline. |
 | F-02 | Hermes execution paths conflict. | AGENTS.md names `C:\Users\klad3\.gemini\scripts\audit_with_hermes.ps1`; active project script is `C:\dev\kintai\scripts\audit_with_hermes.ps1`. | Instructions can call an obsolete or different script. |
-| F-03 | Hermes host values conflict. | AGENTS.md contains `100.111.193.94`; the current project audit script default contains `100.91.26.37`. | Audit requests can be sent to the wrong host or fail. The current authoritative endpoint has not been re-verified in this review. |
+| F-03 (superseded) | An earlier review snapshot reported conflicting Hermes hosts. | The active project script and config were rechecked on 2026-11-14 and both specify `100.111.193.94:11434`. | Historical finding; do not use the obsolete `100.91` value. See current-state correction below. |
 | F-04 | Model policy is internally inconsistent. | AGENTS.md preserves `qwen2.5:7b` fallback rules; current operating policy says the 27B Antigravity/Hermes route is primary and Codex queue routing is not the standard route. | A lower-capacity model or retired workflow can be used unintentionally. |
 | F-05 | The document contains mandatory daily full-audit, pre-audit, re-audit, and three-step source-wide audit requirements. | AGENTS.md sections 6, 11, 14, and 17. | Small changes can trigger disproportionate work, delay the Day-based plan, and encourage checkbox evidence rather than risk-based evidence. |
 | F-06 | Status definitions are duplicated. | AGENTS.md section 20, `operating_policy_v2.md`, `day_task_template.md`, and `evidence_status_policy.md`. | Different agents can apply different meanings to `VERIFIED`, `BLOCKED`, and `PARTIALLY_VERIFIED`. |
@@ -93,3 +93,7 @@ procedures stay in `docs/workflow`.
 - All active workflow documents name a single authority for status definitions.
 - The original `AGENTS.md` remains recoverable until the user accepts the
   replacement.
+
+## Current-state correction (2026-11-14)
+
+F-03 records a historical source snapshot and is superseded: the active project script `scripts/audit_with_hermes.ps1` now defaults to `http://100.111.193.94:11434`, matching `scripts/audit_config.json`; both specify `qwen27b:latest`. This was confirmed by direct file inspection. Do not use the obsolete 100.91 address from this report. F-01/F-02 and the remaining recommendations above are review findings from the original snapshot and are not assertions that current configuration remains unchanged; compare against current files before acting.

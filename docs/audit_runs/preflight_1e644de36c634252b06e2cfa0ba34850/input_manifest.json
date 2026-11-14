@@ -1,0 +1,30 @@
+{
+  "target_day": "2026-11-14 final residual closure",
+  "requirements": [
+    "R-11 annual payroll correctness",
+    "R-12 payroll boundary coverage"
+  ],
+  "rtm_items": [
+    "R-11",
+    "R-12"
+  ],
+  "test_ids": [
+    "AnnualPayrollScenarioIntegrationTest",
+    "SplitShiftOvertimeDefectTest",
+    "PayrollCalculatorStatutoryRoundingTest"
+  ],
+  "execution_logs": [
+    "docs\\audit_runs\\isolated_all_20261114_093302_kintai_full_test_964bf98d5088\\gradle_console.log",
+    "docs\\audit_runs\\isolated_all_20261114_093302_kintai_full_test_964bf98d5088\\exit_summary.json",
+    "docs\\audit_runs\\isolated_day11_20261114_093228_kintai_day11_test_3a25e5513c4f\\gradle_console.log",
+    "docs\\audit_runs\\isolated_day11_20261114_093228_kintai_day11_test_3a25e5513c4f\\exit_summary.json"
+  ],
+  "junit_xml": [
+    "docs\\audit_runs\\isolated_all_20261114_093302_kintai_full_test_964bf98d5088\\TEST-com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest.xml",
+    "docs\\audit_runs\\isolated_all_20261114_093302_kintai_full_test_964bf98d5088\\TEST-com.example.kintai.domain.attendance.controller.AttendancePunchApiIntegrationTest.xml",
+    "docs\\audit_runs\\isolated_all_20261114_093302_kintai_full_test_964bf98d5088\\TEST-com.example.kintai.domain.attendance.util.SplitShiftOvertimeDefectTest.xml",
+    "docs\\audit_runs\\isolated_all_20261114_093302_kintai_full_test_964bf98d5088\\TEST-com.example.kintai.domain.payroll.util.PayrollCalculatorStatutoryRoundingTest.xml"
+  ],
+  "environment": "Windows PowerShell; local MySQL 26.7; generated isolated test databases only; remote Qwen 27B at prescribed host",
+  "bundle_sha256": "5cab967fdc0d749e5ee6d8db89b2f4bcaba26019d2e8da7f15993180306953ba"
+}

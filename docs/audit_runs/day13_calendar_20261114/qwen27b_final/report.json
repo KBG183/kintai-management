@@ -1,0 +1,86 @@
+﻿{
+  "run_id": "20261113_232151_a808922d",
+  "generated_at": "2026-11-14T08:22:34.3457661+09:00",
+  "findings": [
+    {
+      "finding_id": "AUDIT-001",
+      "audit_item": "Japanese Labor Standards Act Art 37: Night Work & Overtime Premiums",
+      "severity": "P0",
+      "verdict": "PASS",
+      "evidence": "`LaborCalculationEngineTest.java`, `PayrollCalculator.java`",
+      "analysis": "**Analysis:** The code correctly implements the statutory premiums. `PayrollCalculator` uses `BigDecimal` with `RoundingMode.HALF_UP`. The logic distinguishes between standard overtime (125%), night work (125%), and the concurrent overlap (150%). <br>**Evidence:** `LaborCalculationEngineTest` explicitly verifies a 13:00-01:00 shift, confirming that the 23:00-01:00 segment is treated as night/overtime overlap at 150%. It also verifies that breaks within the night window (22:00-05:00) are deducted from night work hours before premium calculation. <br>**Recommendation:** None. Implementation aligns with Art 37 requirements."
+    },
+    {
+      "finding_id": "AUDIT-002",
+      "audit_item": "Payroll Math & Rounding (1-yen discrepancy prevention)",
+      "severity": "P1",
+      "verdict": "PASS",
+      "evidence": "`PayrollCalculatorStatutoryRoundingTest.java`, `PayrollCalculator.java`",
+      "analysis": "**Analysis:** The system uses `BigDecimal` for all monetary calculations to avoid floating-point errors. The rounding mode is explicitly set to `HALF_UP`. <br>**Evidence:** `PayrollCalculatorStatutoryRoundingTest` validates boundary conditions: 324.49 rounds to 324, and 324.50 rounds to 325. This confirms that the \"half-up\" logic is correctly applied at the cent/yen level, preventing cumulative rounding errors in monthly totals. <br>**Recommendation:** None. Rounding logic is robust and tested."
+    },
+    {
+      "finding_id": "AUDIT-003",
+      "audit_item": "Concurrency & Security: Pessimistic Locking",
+      "severity": "P1",
+      "verdict": "PASS",
+      "evidence": "`PayrollMapper.xml`, `PayrollServiceConcurrentExecutionIntegrationTest.java`",
+      "analysis": "**Analysis:** The application prevents race conditions during payroll confirmation and updates by using pessimistic locking. <br>**Evidence:** `PayrollMapper.xml` contains `SELECT ... FOR UPDATE` statements for critical entities (payroll ID, staff/month, store staff). The presence of `PayrollServiceConcurrentExecutionIntegrationTest` and `PayrollLockOrderDeadlockReproductionIntegrationTest` in the regression suite confirms that concurrent access patterns are tested to ensure data integrity and prevent deadlocks. <br>**Recommendation:** None. Locking strategy is appropriate for the domain."
+    },
+    {
+      "finding_id": "AUDIT-004",
+      "audit_item": "Concurrency & Security: IDOR Vulnerabilities (Payroll Ownership)",
+      "severity": "P0",
+      "verdict": "PASS",
+      "evidence": "`StoreAuthorizationServicePayrollOwnershipTest.java`, `PayrollApiController.java`",
+      "analysis": "**Analysis:** The API enforces strict ownership checks to prevent Insecure Direct Object References (IDOR). <br>**Evidence:** `PayrollApiController` invokes `StoreAuthorizationService.validateStoreOwnership` and `validatePayrollOwnership` before processing requests. The dedicated test `StoreAuthorizationServicePayrollOwnershipTest` verifies that Member 17 is denied access to Payroll owned by Member 42, while Member 42 is allowed. This confirms that users cannot access other staff's payroll records. <br>**Recommendation:** None. Authorization logic is secure and verified."
+    },
+    {
+      "finding_id": "AUDIT-005",
+      "audit_item": "Exception Handling & Boundary Validation",
+      "severity": "P2",
+      "verdict": "PASS",
+      "evidence": "`LaborCalculationEngineTest.java`, `PayrollCalculator.java`",
+      "analysis": "**Analysis:** The system handles invalid inputs and edge cases gracefully without crashing or producing incorrect data. <br>**Evidence:** `LaborCalculationEngineTest` checks for \"clock-out before clock-in\" scenarios and rejects out-of-range break times. `PayrollCalculator.resolveDateRange` catches `DateTimeParseException` and converts it to an `IllegalArgumentException`, preventing unhandled exceptions from malformed date strings. Negative minute inputs are also handled in rounding tests. <br>**Recommendation:** None. Boundary validation is comprehensive."
+    },
+    {
+      "finding_id": "AUDIT-006",
+      "audit_item": "Day 13 Scope: Calendar UI DTO Integration",
+      "severity": "P1",
+      "verdict": "PASS",
+      "evidence": "`calendar.html`, `CalendarEventDto.java`, `ShiftApiController.java`",
+      "analysis": "**Analysis:** The previous mismatch between `ShiftDto` and `CalendarEventDto` has been resolved. The UI now correctly maps the API response. <br>**Evidence:** The template `calendar.html` now reads `extendedProps` for `status`, `plannedBreakMinutes`, and staff details. The color coding is derived from `extendedProps.status`. The modal correctly displays the break minutes and start/end times from the event object. The regression suite (83 tests) passes, confirming no backend breakage. <br>**Recommendation:** None. The UI integration is correct."
+    },
+    {
+      "finding_id": "AUDIT-007",
+      "audit_item": "Day 13 Scope: UTF-8 Data Integrity",
+      "severity": "P1",
+      "verdict": "PASS",
+      "evidence": "`prepare_local_demo_db.ps1`, `local_demo_attendance.sql`",
+      "analysis": "**Analysis:** The demo data loader now correctly handles UTF-8 encoding, preventing character corruption (e.g., Japanese names becoming question marks). <br>**Evidence:** The PowerShell script uses `Start-Process` with `-RedirectStandardInput` to feed the SQL file directly to the MySQL client, bypassing PowerShell pipeline code-page issues. The database verification shows `HEX(name)` for the owner as valid UTF-8 bytes (`E794B0...`) rather than `0x3F` (question mark). <br>**Recommendation:** None. Data integrity is maintained."
+    },
+    {
+      "finding_id": "AUDIT-008",
+      "audit_item": "Day 13 Scope: Payroll UI/API Consistency",
+      "severity": "P1",
+      "verdict": "PASS",
+      "evidence": "`payroll_2026-01.xlsx`, `payroll_excel_validation.json`, Browser Logs",
+      "analysis": "**Analysis:** The payroll values displayed in the UI and exported to Excel match the API response and database records. <br>**Evidence:** The browser UI displayed DRAFT rows for January with gross totals ¥141,700 and ¥164,332. The authenticated API returned the same values. The exported XLSX file (5,092 bytes) was validated to contain the same totals and correct structure. <br>**Recommendation:** None. Data consistency is confirmed across UI, API, and Export."
+    },
+    {
+      "finding_id": "AUDIT-009",
+      "audit_item": "Browser Download Verification (Excel)",
+      "severity": "P2",
+      "verdict": "WARN",
+      "evidence": "Chrome `ERR_BLOCKED_BY_CLIENT`, `payroll_excel_validation.json`",
+      "analysis": "**Analysis:** The browser client blocked the download due to security policy (`ERR_BLOCKED_BY_CLIENT`), preventing verification of the native browser download record. However, the underlying HTTP response was verified. <br>**Evidence:** While the browser blocked the file save, an authenticated GET request to the export endpoint returned HTTP 200 with a valid XLSX attachment. The file was independently validated as a correct OOXML ZIP containing the expected data. The browser limitation is an environmental constraint, not an application defect. <br>**Recommendation:** Mark as \"Unresolved\" for browser-native download verification only. The application functionality (API/Export) is confirmed working. No code change required."
+    },
+    {
+      "finding_id": "AUDIT-010",
+      "audit_item": "Regression Test Suite Integrity",
+      "severity": "P1",
+      "verdict": "PASS",
+      "evidence": "`run_isolated_regression.ps1` output, JUnit XMLs",
+      "analysis": "**Analysis:** The full regression suite was executed in an isolated environment and passed completely. <br>**Evidence:** The final run reported Gradle exit 0, with 83 tests executed, 0 failures, 0 errors, and 0 skipped. This includes the new payroll ownership tests and CSRF integration tests. <br>**Recommendation:** None. The codebase is stable."
+    }
+  ]
+}

@@ -1,3 +1,5 @@
+> **Legacy snapshot:** This file preserves prior operating instructions and model/fallback values. Do not use it as current execution policy. Follow the repository `AGENTS.md`, `scripts/audit_config.json`, and current handoff.
+
 # Project Agents & Collaborative Audit Workflow (Hermes Pipeline)
 
 ## 운영 정책 우선 적용 (2026-11-13)
@@ -187,3 +189,5 @@ flowchart LR
 | **Day 11** | 예정 | `test/e2e-labor-calc` | 1년 치 가상 근태 시나리오 기반 **노동법 제37조·36협정 한도 E2E 정합성 통합 검증** | 60시간 초과 할증, 36협정 상한 알림 등 노동법 엣지 케이스 단위/통합 테스트 전수 합격 |
 | **Day 12** | 예정 | `infra/docker-compose` | Spring Boot 4 + MySQL 8.4 LTS + Redis 분산 세션 **Docker Compose 컨테이너 환경 구축** | 2026 EoL 대응 MySQL 8.4 LTS 채택 및 실무 배포 환경 코드화(IaC) |
 | **Day 13** | 최종 마감 | `docs/final-portfolio` | **3-Tier AI 협동 감사 기술 증적서(v2.0 최종본) 완성, 아키텍처 다이어그램 및 시연 문서화** | AI를 통제하여 코드 품질과 생산성을 극대화한 'AI-Native 백엔드 개발자'로서의 최종 브랜딩 |
+
+> **현재 일정 상태 주석 (2026-11-13):** 이 legacy 표는 당시 계획을 보존한다. Day 12의 Docker Compose·Redis·웹/클라우드 배포는 이력서 제출 전 범위에서 제외되어 `DEFERRED`이며, 2027년 1월에서 2월 사이 AWS 학습 시 후속 구현한다. 현재 실행 기준은 `docs/working/day11_task.md`와 개정 SRS 부록 B.3이다.

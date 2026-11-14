@@ -1,0 +1,26 @@
+{
+  "target_day": "2026-11-14 R-02 accepted and final scope audit",
+  "requirements": [
+    "record explicit user adoption decision",
+    "align business policy/code/isolated test evidence",
+    "mark excluded R-05 and Day12 out of current scope"
+  ],
+  "rtm_items": [
+    "R-02",
+    "R-05",
+    "R-14"
+  ],
+  "test_ids": [
+    "PayrollMonthlyConfirmPostQueryRaceConditionIntegrationTest: 2 tests",
+    "full isolated regression 92 tests"
+  ],
+  "execution_logs": [
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_094427_kintai_full_test_d4124a317ed0\\gradle_console.log",
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_094427_kintai_full_test_d4124a317ed0\\exit_summary.json"
+  ],
+  "junit_xml": [
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_094427_kintai_full_test_d4124a317ed0\\TEST-com.exam-13DC0NI3L800A.kintai.domain.payroll.service.PayrollMonthlyConfirmPostQueryRaceConditionIntegrationTest.xml"
+  ],
+  "environment": "Remote Qwen 27B at prescribed endpoint; test evidence from isolated local MySQL 26.7 DB",
+  "bundle_sha256": "130b40f43ce1955a36a1c17e50c9e1336021948106dca6b5bfc069888a10dd23"
+}

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="CSRF 実Cookie・Header往復およびライフサイクル統合テスト" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-11-13T22:45:24.364Z" hostname="BK" time="0.598">
+  <properties/>
+  <testcase name="2. モック(.with(csrf()))を一切使わず、GETで発行された実CookieをHeader(X-XSRF-TOKEN)に完全一致させてPOSTした場合、CSRFを突破して403にならないこと" classname="com.example.kintai.config.CsrfCookieHeaderLifecycleIntegrationTest" time="0.487"/>
+  <testcase name="3. 実CookieがあってもHeader(X-XSRF-TOKEN)の値が不一致または改ざんされている場合は403 Forbiddenで確実に拒否されること" classname="com.example.kintai.config.CsrfCookieHeaderLifecycleIntegrationTest" time="0.017"/>
+  <testcase name="1. 未認証GETリクエストにより実レスポンスCookie 'XSRF-TOKEN' が確実に発行されること" classname="com.example.kintai.config.CsrfCookieHeaderLifecycleIntegrationTest" time="0.015"/>
+  <testcase name="4. ログアウト実行時にセッションが無効化され、安全にリダイレクトされること" classname="com.example.kintai.config.CsrfCookieHeaderLifecycleIntegrationTest" time="0.031"/>
+  <system-out><![CDATA[2026-11-14T07:45:24.367+09:00  INFO 4124 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.config.CsrfCookieHeaderLifecycleIntegrationTest]: CsrfCookieHeaderLifecycleIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-14T07:45:24.400+09:00  INFO 4124 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.config.CsrfCookieHeaderLifecycleIntegrationTest
+2026-11-14T07:45:24.401+09:00  INFO 4124 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.config.CsrfCookieHeaderLifecycleIntegrationTest]: CsrfCookieHeaderLifecycleIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-14T07:45:24.403+09:00  INFO 4124 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.config.CsrfCookieHeaderLifecycleIntegrationTest
+2026-11-14T07:45:24.457+09:00  INFO 4124 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-14T07:45:24.457+09:00  INFO 4124 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-14T07:45:24.459+09:00  INFO 4124 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-11-14T07:45:24.898+09:00  INFO 4124 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-14T07:45:24.898+09:00  INFO 4124 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-14T07:45:24.900+09:00  INFO 4124 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-11-14T07:45:24.916+09:00  INFO 4124 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-14T07:45:24.917+09:00  INFO 4124 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-14T07:45:24.918+09:00  INFO 4124 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-11-14T07:45:24.933+09:00  INFO 4124 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-14T07:45:24.934+09:00  INFO 4124 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-14T07:45:24.935+09:00  INFO 4124 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

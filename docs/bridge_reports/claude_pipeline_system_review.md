@@ -1,4 +1,6 @@
-﻿# 🏛️ Architecture & Verification Review: Local AI - Antigravity 4-Tier Collaborative Audit Pipeline (v1.0)
+> **Historical architecture review:** This is a prior roadmap/review snapshot, not current execution configuration or current project status. Use the current `AGENTS.md`, `scripts/audit_config.json`, RTM, and the latest Antigravity handoff. Current remote Qwen is `qwen27b:latest` at `http://100.111.193.94:11434`; do not use older model/fallback instructions below as operational guidance. MySQL 8.4 and Day 12 remain excluded until their scheduled review.
+
+# 🏛️ Architecture & Verification Review: Local AI - Antigravity 4-Tier Collaborative Audit Pipeline (v1.0)
 
 > **Target Reviewer**: Claude (Principal Systems Architect & AI Safety / Verification Engineer)  
 > **Topic**: Evaluating the Architectural Soundness, Blind Spots, and Failure Modes of a Human-AI Collaborative Code Verification Pipeline  
@@ -411,6 +413,10 @@ flowchart LR
 | **Day 11** | 예정 | `test/e2e-labor-calc` | 1년 치 가상 근태 시나리오 기반 **노동법 제37조·36협정 한도 E2E 정합성 통합 검증** | 60시간 초과 할증, 36협정 상한 알림 등 노동법 엣지 케이스 단위/통합 테스트 전수 합격 |
 | **Day 12** | 예정 | `infra/docker-compose` | Spring Boot 4 + MySQL 8.4 LTS + Redis 분산 세션 **Docker Compose 컨테이너 환경 구축** | 2026 EoL 대응 MySQL 8.4 LTS 채택 및 실무 배포 환경 코드화(IaC) |
 | **Day 13** | 최종 마감 | `docs/final-portfolio` | **3-Tier AI 협동 감사 기술 증적서(v2.0 최종본) 완성, 아키텍처 다이어그램 및 시연 문서화** | AI를 통제하여 코드 품질과 생산성을 극대화한 'AI-Native 백엔드 개발자'로서의 최종 브랜딩 |
+
+> **Day 13 완료 범위 보강 (2026-11-13):** 포트폴리오 시연 영상 촬영을 위해 로컬 앱 전체 실행부터 핵심 사용자 흐름까지 브라우저에서 확인한다. 캘린더 동작을 점검·수정하고, 직원·시프트·근태·급여 화면에서 서로 연결되어 보이는 가상 데모 데이터를 준비한다. 영상 촬영 전 데이터 초기화·재실행 방법과 화면별 시연 순서를 확인하고, 촬영 결과와 실제 검수 상태를 최종 시연 문서 및 한·일 증적서에 반영한다. 모든 경우의 수를 데모 데이터로 만들지는 않으며, 영상에서 주장하는 기능은 해당 화면에서 재현·확인 가능한 범위로 한정한다. 날짜별 원본 실행 로그는 보존하고 최종 문서는 날짜별 로그, 커밋, RTM 및 실제 화면 검수 결과를 대조해 정리한다. 원본 로그나 검수 근거가 없는 항목은 완료로 추정하지 않고 미검증으로 남긴다.
+
+> **현재 일정 상태 정정 (2026-11-13):** 위 Day 12 행은 당시 작성된 계획의 원문이다. 이력서 제출 전 완료 범위에서는 Docker Compose·Redis·웹/클라우드 배포를 제외하고 `DEFERRED`로 관리한다. 2027년 1월에서 2월 사이 AWS 학습 시 후속 구현한다. 현재 기준은 `docs/working/day11_task.md`, `docs/study_guides/constitution_4layer_specification.md`, 개정 SRS 부록 B.3을 따른다.
 
 ``
 

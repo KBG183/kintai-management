@@ -1,0 +1,16 @@
+{
+  "attempted_at": "2026-11-14",
+  "purpose": "Independent Qwen review of current project-wide documentation bundle",
+  "endpoint": "http://100.111.193.94:11434",
+  "model": "qwen27b:latest",
+  "preflight": "INPUT_READY",
+  "original_error": "Exception calling GetRequestStream: Unable to connect to the remote server",
+  "initial_project_script_exit_code": 0,
+  "initial_report_created": false,
+  "interpreted_result": "BLOCKED, not PASS",
+  "initial_console": "qwen27b_current_docs_console.log",
+  "followup_fail_closed_check": "PASS: chunked attempt exit 1 and no report",
+  "followup_console": "fail_closed_retest_console.log",
+  "report_path": "qwen27b_current_docs_report.md",
+  "final_independent_verdict": "NOT AVAILABLE"
+}

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="労働基準法第34条 推奨休憩時間算定テスト" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-14T02:47:54.561Z" hostname="BK" time="0.005">
+  <properties/>
+  <testcase name="境界値検証: 拘束時間が6時間を1分でも超える（361分）と休憩時間が45分となること" classname="com.example.kintai.domain.shift.service.ShiftServiceTest$BreakTimeCalculationTest" time="0.0"/>
+  <testcase name="拘束時間が6時間超・8時間以下の場合は休憩時間が45分であること" classname="com.example.kintai.domain.shift.service.ShiftServiceTest$BreakTimeCalculationTest" time="0.0"/>
+  <testcase name="境界値検証: 拘束時間が8時間45分超（実働8時間超）の場合は休憩時間が60分となること" classname="com.example.kintai.domain.shift.service.ShiftServiceTest$BreakTimeCalculationTest" time="0.0"/>
+  <testcase name="拘束時間が6時間以下の場合は休憩時間が0分であること" classname="com.example.kintai.domain.shift.service.ShiftServiceTest$BreakTimeCalculationTest" time="0.001"/>
+  <testcase name="拘束時間が8時間超の場合は休憩時間が60分であること" classname="com.example.kintai.domain.shift.service.ShiftServiceTest$BreakTimeCalculationTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

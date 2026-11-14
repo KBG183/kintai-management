@@ -1,0 +1,22 @@
+[
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_84ec4ae0b5634df68e334d5d1625fced\\input_bundle",
+    "Hash": "77734DBC9A0123E97A6E177499F4279095C224770F71A7F6ABC4C2962DEF3450",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_84ec4ae0b5634df68e334d5d1625fced\\input_manifest.json",
+    "Hash": "7450877D8AE280DC10EE7505E0A888AA41FC4001D49DDB89628336514284B51B",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_84ec4ae0b5634df68e334d5d1625fced\\preflight_result.json",
+    "Hash": "FFF7A79EB7AAA358A4AC1E1B10CC32F9BC323C817E766A01B19F1DD5CA1886CD",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\day13_calendar_20261114\\final_portfolio_review\\hermes\\bundle.manifest.json",
+    "Hash": "E54777568C3F3B7E4DEF84AC5CBD28E032B53F2693F3A2275C63D2B17548EC97",
+    "Algorithm": "SHA256"
+  }
+]

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Day 11: 12-month attendance-to-payroll scenario" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-11-14T02:48:48.395Z" hostname="BK" time="1.185">
+  <properties/>
+  <testcase name="nightWorkOverlappingDailyOvertimeReceivesBothPremiums()" classname="com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest" time="0.155"/>
+  <testcase name="splitShiftClockOutAccumulatesPriorWorkAndFlowsIntoMonthlyPayroll()" classname="com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest" time="0.166"/>
+  <testcase name="isolatedDatabaseGuardRejectsAnyDatabaseOutsideTheExactAllowlist()" classname="com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest" time="0.113"/>
+  <testcase name="calculatesEveryMonthAndAnnualTotalAgainstIndependentOracle()" classname="com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest" time="0.489"/>
+  <testcase name="contractHistoryUsesInclusiveStartAndExclusiveEndDates()" classname="com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest" time="0.094"/>
+  <testcase name="payrollMonthRangeIncludesMonthEndButExcludesNextMonthFirstDay()" classname="com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest" time="0.098"/>
+  <system-out><![CDATA[2026-11-14T11:48:48.397+09:00  INFO 8152 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest]: AnnualPayrollScenarioIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-14T11:48:48.450+09:00  INFO 8152 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest
+2026-11-14T11:48:48.452+09:00  INFO 8152 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest]: AnnualPayrollScenarioIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-14T11:48:48.454+09:00  INFO 8152 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

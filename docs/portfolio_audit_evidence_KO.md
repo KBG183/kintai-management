@@ -1,13 +1,13 @@
-# 3-Tier AI-Human 협동 감사 파이프라인 기술 증적 보고서 (2주 프로젝트 진행형 · v1.10 / Day 10 기준)
+# 3-Tier AI-Human 협동 감사 파이프라인 기술 증적 보고서 (누적 기록 · v1.10 Day 10 및 2026-11-14 잔여 검증 갱신)
 
-본 문서는 일본형 근태·시프트·급여 관리 시스템(kintai) 개발에서, **코드 리뷰어가 없는 1인 개발의 구조적 한계와 자기 확증 편향을 완화**하기 위해 생성 AI, 로컬 감사 AI, 인간 승인자의 세 역할로 운영한 협동 감사 프로세스의 실측 기록과 아키텍처적 한계를 정리한 기술 증적서입니다. 여기서 3-Tier는 애플리케이션의 프레젠테이션·비즈니스·데이터 3계층 아키텍처가 아니라 **감사 및 품질 게이트를 수행하는 3개의 독립된 역할**을 뜻합니다.
+본 문서는 일본형 근태·시프트·급여 관리 시스템(kintai)의 구현·테스트·독립 감사 이력을 누적합니다. 여기서 3-Tier는 애플리케이션의 프레젠테이션·비즈니스·데이터 계층이 아니라 **구현 담당, 독립 감사 담당, 최종 결정권자**의 역할을 뜻합니다. 현재 감사 실행은 원격 `qwen27b:latest` (`http://100.111.193.94:11434`) 기준입니다. 과거 항목의 모델 태그와 주소는 당시 기록으로 보존하며 현재 설정으로 사용하지 않습니다. 최신 판정은 이 문서의 2026-11-14 잔여 검증 추가 기록, `docs/rtm_ledger.md`, `docs/final-portfolio/README_KO.md`를 확인하십시오.
 
-최종 목적은 로컬 LLM을 단순한 코드 생성기가 아니라 **독립적인 코드 검수자**로 활용한 이유와 운영 방식을 일본 취업 포트폴리오·이력서에서 설명하는 것입니다. 이를 위해 생성 AI와 로컬 감사 AI를 분리한 배경, 실제 결함 발견·수정·재감사 사례, 토큰·속도·실행 시간 등 측정값, 로컬 처리의 정보 보호·재현성 측면의 장단점을 프로젝트 진행 중 축적합니다. 이 문서는 현재 완성된 품질 인증서가 아니라, 2주 스프린트에서 확인된 사실과 다음 검증 과제를 계속 추가하는 진행형 증적입니다.
+이 문서는 품질 인증서가 아니라 시점별 검증 사실, 제한 및 후속 과제를 구분하는 누적 증적입니다.
 
 > **문서 운용 안내 및 진행 상태**
 > - **통달 출처 대조 주의 (2026-11-13):** 끝수 처리의 `基発第150号`에 대해 아이치 노동국 자료는 1988년 3월 14일을, 후생노동성 Q&A는 1987년 3월 14일을 표기한다. 아래 과거 이력 및 본문의 연도 표기는 출처 충돌이 해소되기 전까지 확정하지 않는다. 전자는 [노동국 자료](https://jsite.mhlw.go.jp/aichi-roudoukyoku/var/rev0/0119/6636/hasuutoriatukai.pdf), 후자는 [후생노동성 Q&A](https://www.check-roudou.mhlw.go.jp/qa/roudousya/chingin/q3.html) 참조. 1988년의 일반 해석례 통달 존재는 [후생노동성 개정 통달](https://www.mhlw.go.jp/web/t_doc?dataId=00tb3991&dataType=1&pageNo=1)로 확인되나, 이것만으로 Q&A의 1987년 표기가 오기라고 단정하지 않는다.
 > - 추가 대조: [시마네 노동국의 끝수 처리 안내](https://jsite.mhlw.go.jp/shimane-roudoukyoku/content/contents/001308250.pdf)도 1988년을 표기한다. 이는 1988년 표기를 뒷받침하지만 Q&A의 1987년 표기와의 차이가 발생한 이유까지 확인한 것은 아니다. 이 자료 대조만으로 프로젝트 계산 구현 전체의 법적 적합성을 판정하지 않는다.
-> - 본 문서는 **2주 개발 스프린트가 진행되는 동안 갱신하는 Living Document**입니다. 현재 수록된 실행 증거는 Sprint Day 1부터 Day 10까지(2026-11-02부터 2026-11-13까지)의 기록이며, 2주 프로젝트 전체의 최종 완료 보고서가 아닙니다.
+> - 본 문서는 **2주 개발 스프린트가 진행되는 동안 갱신하는 Living Document**입니다. 초기 본문에는 Day 1~Day 10 기록이 포함되어 있고, 이후 Day 13 및 2026-11-14 잔여 검증 기록이 아래에 추가되었습니다. 과거 판정은 해당 시점의 스냅샷이며 최신값으로 해석하지 않습니다.
 > - 일본 현지 취업 포트폴리오·GitHub 제출용 일본어판은 동일 디렉터리의 [`portfolio_audit_evidence.md`](portfolio_audit_evidence.md)를 사용합니다. 본 한국어판은 정밀 검수 및 기술 면접 답변 준비용입니다.
 > - 부록 A의 45개 항목은 **Phase 1(핵심 감사 17개 항목)**과 **Phase 2(도메인·보안 심화 확장 28개 항목)**으로 구성된 점검 기준표입니다. 45개 모두가 매일 실제 감사되었거나 구현·테스트까지 완료되었다는 뜻은 아닙니다.
 > - 표의 상태는 현재까지의 명세·코드 반영 현황을 나타냅니다. 별도 표시가 없는 한 `구현/반영`은 결정적 런타임 테스트 완료를 의미하지 않으며, 예정된 테스트 결과는 실제 실행 후 날짜·로그·통과 건수를 추가합니다.
@@ -52,8 +52,8 @@
 | 평가 항목 | 기존 1인 개발 + 상용 AI 단독 | 본 프로젝트의 3-Tier 협동 감사 |
 |---|---|---|
 | **코드 검증 체계** | 리뷰어 부재로 AI 환각·잠재 버그를 걸러내기 어렵고 그대로 적용하기 쉬움 | 생성 AI와 감사 AI를 **서로 다른 모델**로 분리하고 인간이 최종 판단하여 자기 확증 편향을 **완화** (모델 간 상관 오류는 잔존, 6장) |
-| **도메인 법규 점검** | 제37조(심야 25% + 시간외 25% 중복 가산) 등 경계 케이스 누락 가능 | 로컬 감사 모델이 **Phase별 체크리스트를 기준으로 상시 점검** (도메인 기준표는 부록 A 참조) |
-| **정보 보안** | 소스·업무 로직이 외부 클라우드 API로 송신됨 | **감사 단계**의 코드는 자택 GPU(로컬 Ollama)에서만 처리. 단, 생성 단계는 상용 AI를 사용하므로 전 구간 외부 송신 차단은 아님 |
+| **도메인 법규 점검** | 제37조(심야 25% + 시간외 25% 중복 가산) 등 경계 케이스 누락 가능 | 원격 Qwen 27B 감사 모델이 요청된 번들을 **Phase별 체크리스트 기준으로 검토** (도메인 기준표는 부록 A 참조) |
+| **정보 보안** | 소스·업무 로직이 외부 클라우드 API로 송신됨 | **감사 단계**의 번들은 Tailscale을 통해 사용자 데스크톱의 원격 Ollama로 전송해 처리. 단, 생성 단계는 상용 AI를 사용하므로 전 구간 외부 송신 차단은 아님 |
 | **검증 비용·빈도** | API 종량제와 이용 한도로 대량 반복 검사 부담 | 보유 GPU로 **추가 API 한계 비용(Marginal Cost) 없이 반복 감사 가능** (전력비·하드웨어 감가상각 별도, 5장) |
 | **1인 개발자의 역할** | AI 산출물을 그대로 적용하는 수동적 코더 | 두 AI의 산출물을 비교·판정하고 **릴리스 게이트를 통제하는 시스템 승인자** |
 
@@ -64,7 +64,7 @@
 ```mermaid
 flowchart LR
     A["<b>Role 1: 생성 AI</b><br>Antigravity (상용 AI 개발 플랫폼)<br>실제 선택 모델은 실행별 기록 대상"]
-    B["<b>Role 2: 감사 AI</b><br>Ollama 로컬 태그: qwen3.8:27b<br>(Qwen3.8-27B 기반 / IQ3_M 양자화)<br>RTX 5070 Ti 16GB"]
+    B["<b>Role 2: 감사 AI</b><br>원격 Ollama: qwen27b:latest<br>http://100.111.193.94:11434<br>호스트: 사용자 데스크톱 GPU"]
     C["<b>Role 3: 인간 승인자</b><br>1인 개발자<br>최종 판단 및 릴리스 게이트"]
     A -->|"생성 코드 전달"| B
     B -->|"감사 리포트 반환"| C
@@ -73,7 +73,7 @@ flowchart LR
 ```
 
 - **Role 1 (생성 AI - Antigravity)**: AI 모델을 선택해 코드 생성과 개발 작업을 수행하는 개발 플랫폼입니다. Antigravity 자체를 단일 생성 모델명으로 취급하지 않으며, 실제 선택 모델과 실행일은 당시 UI·로그 증거로 별도 기록합니다.
-- **Role 2 (로컬 감사 AI - Local Ollama)**: 감사 추론은 자택 GPU의 로컬 Ollama에서 수행합니다. 외부 개발 환경에서는 인증된 Tailscale Tailnet 경로를 통해 접근하며, 인터넷과 완전히 단절된 Air-gapped 환경이라는 뜻은 아닙니다. DB 동시성, IDOR 보안 취약점, 상태 전이 무결성, 일본 노동기준법 계산 요건 등을 점검하며, 측정 당시 로컬 모델 태그는 `qwen3.8:27b`(Qwen3.8-27B 기반, IQ3_M 양자화)였습니다.
+- **Role 2 (로컬 감사 AI - Local Ollama)**: 감사 추론은 사용자 데스크톱의 원격 Ollama에서 수행하고, 지정된 Tailscale 주소로 접근합니다. 현재 실행 태그는 `qwen27b:latest`이며, 실제 결과와 범위는 실행 증적을 따릅니다.
 - **Role 3 (인간 승인자 - 1인 개발자)**: 감사 결과를 판정하고 코드 수정·재감사·컴파일·통합 테스트를 통제합니다. LLM의 PASS 판정도 자동 승인으로 취급하지 않으며, 미해결 Recommendation은 릴리스 전 필수 조치 또는 아키텍처 개선 과제로 분류하여 관리합니다(4장 말미의 Open Items Register 참조).
 - **3-Tier의 정의**: 본 문서의 3-Tier는 웹 애플리케이션 계층 구조가 아닌 **생성 AI · 감사 AI · 인간 승인자**의 3자 상호 견제 역할을 의미합니다.
 - **전송 경로 및 접근 보안**: 외부(학원 등) 개발 환경에서는 Tailscale의 WireGuard 기반 P2P 암호화 터널을 통해 자택 데스크톱의 Ollama 인스턴스에 접근합니다. 프로젝트 증적상 공인 IP 포트포워딩은 사용하지 않고 Tailnet 경로로 연결합니다. 이는 접근 경로를 제한한 구성이지, 모든 네트워크로부터 물리적·논리적으로 격리된 환경을 의미하지 않습니다.
@@ -1085,3 +1085,97 @@ Day 4 이후 기록을 추가할 때는 기존 수치를 덮어쓰지 않고 날
 - Qwen 검수 Run ID `20261113_113749_a39493e5`와 지적 대조표를 보존했다. 단, 최종 소스에 추가된 일부 계약 경계·통근비 상한 단언이 해당 리뷰 입력 이후 반영되어 최종 소스 전체에 대한 독립 재검수는 부분 상태다.
 - RTM: R-11 **PARTIALLY_VERIFIED**, R-12 **PARTIALLY_VERIFIED**, R-13 **VERIFIED (로컬 MySQL 26.7 한정)**, R-14 **PARTIALLY_VERIFIED**. 상세 매핑은 `docs/rtm_ledger.md`를 따른다.
 - MySQL 8.4 Testcontainers는 사용자 결정에 따라 **2027년 1월 재검토(DEFERRED)** 이며 미검증이다. 달력 및 현실적인 브라우저 데모 데이터 확인은 이 Day 11 서비스 통합 결과에 포함하지 않는다.
+### Day 13 데모 DB·캘린더 UI 수정 (2026-11-14)
+
+- 격리 데모 DB의 첫 생성본 `kintai_demo_c5567594663c`는 이름이 `?` 바이트로 저장된 것을 확인했다. MySQL 입력 인코딩 문제를 수정하고 새 DB `kintai_demo_9f3f8487bc42`를 생성했다. 새 DB에서 `SELECT DATABASE()`, 2026-01-01~2026-12-31 확정 근무표 313건, 근태 313건 및 owner 이름 UTF-8 HEX를 확인했다. 이전 DB는 삭제하거나 수정하지 않았다.
+- 브라우저 화면에서 캘린더가 비어 보이는 문제를 재현했다. API는 `CalendarEventDto` 형태(`id`, `title`, `start`, `end`, `extendedProps`)를 반환했지만 템플릿은 `ShiftDto` 필드(`shiftId`, `workDate`, `startTime`, `endTime`)로 재매핑하고 있었다. 템플릿을 실제 API 계약에 맞춰 수정한 뒤 2026년 11월 확정 근무 이벤트와 11월 2일 확정 모달(09:00~18:00, 휴게 60분)을 화면에서 확인했다.
+- 격리 전체 회귀 실행: `scripts/run_isolated_regression.ps1 -Scope All -DatabaseName kintai_full_test_3df696be0820`. 최종 실행은 Gradle 종료 코드 0, JUnit XML 34개, 테스트 81건, 실패·오류·스킵 0건. 실행 로그·요약·SHA-256: `docs/audit_runs/isolated_all_20261114_074456_kintai_full_test_3df696be0820/`.
+- 첫 demo DB에서 급여 UI의 2026-01 DRAFT 2건(총지급액 ¥141,700 및 ¥164,332)을 확인했다. 새 UTF-8 demo DB에서는 인증 계산 API가 HTTP 200으로 두 이름이 온전한 DRAFT 급여와 같은 금액을 반환했다. Excel API도 HTTP 200, XLSX media type, 5,092-byte OOXML(월 및 두 총액 포함)을 반환했고 원본과 SHA-256을 보존했다: `payroll_2026-01.xlsx`, `payroll_excel_validation.json`. 브라우저 탭 자동화 시간 초과로 새 DB 급여 화면과 browser-managed 다운로드 동작은 미검증이다.
+- Demo 준비 스크립트의 `SOURCE` 비대화식 호출은 SQL 1064로 실패해 원문 로그 및 생성된 격리 DB를 보존했다. 이후 UTF-8 SQL 파일을 mysql stdin으로 전달하고 이름 HEX/shift 건수 검증을 추가하여 재실행 성공했다. 성공 로그: `docs/audit_runs/day13_calendar_20261114/demo_prepare_retry1.log`.
+- 독립 감사 업데이트(2026-11-14): 이전 기록의 `100.91...`은 잘못 선택한 과거 주소였습니다. 설정 스크립트와 원격 `/api/tags`로 `http://100.111.193.94:11434`, `qwen27b:latest` (27.3B, IQ3_M, digest `23c3820b0d9326b73e97191b9fb7e16b53f6e24bb3449d2a17037c5f2b6179a1`)을 확인하고 원격 독립 감사를 완료했습니다. 최초 감사는 번들에 넓은 급여 체크리스트 코드·테스트 증거가 빠져 FAIL이었으나 근거를 보강해 재감사했고 Day 13 범위 PASS를 받았습니다. Run ID `20261113_230538_8ce60d45`, 49초, 3055 입력/2056 출력 토큰. 결과 `docs/audit_runs/day13_calendar_20261114/qwen27b_reaudit/report.md`; 입력 SHA-256 `8ce60d454594e968d3b9c44060457a4ebcd8c302f72ebc9758bad76e1b80e449`; 보고서 SHA-256 `D34F3290E4AA660EFE5FFFEDDF5FC4EEF865681C4DE80BD533F727CE0551DF8A`. Qwen은 전용 cross-store payroll IDOR 부정 테스트를 후속 권고했습니다.
+- UI 및 감사 범위 기록: `docs/audit_runs/day13_calendar_20261114/`; 상태 추적: `docs/rtm_ledger.md` R-15~R-18; 인수인계: `docs/handoff/20261114_0746_codex_day13_handoff.md`.
+
+
+- 실행 절차 오류도 기록합니다: 27B 원격 사용 지시를 제가 잘못 해석해 qwen3.8:27b 로컬 pull을 시작했고 약 7GB 뒤 중단했습니다. 감사에 사용하지 않았고 재개하지 않았습니다. 부분 캐시 블롭은 다른 모델과 공유될 수 있어 삭제하지 않았습니다. Qwen 7B 보충 감사는 중단되어 판정이 없습니다. 원본 로그는 docs/audit_runs/day13_calendar_20261114/qwen27b_local_pull.log, qwen7b_supplemental_console.log에 보존했습니다.
+
+
+- 최종 재검수 업데이트: cross-owner 급여 권한 단위 테스트 StoreAuthorizationServicePayrollOwnershipTest(타 점주 거부, 본인 허용) 추가 후 새 격리 DB kintai_full_test_9f4b67f66b64에서 83/83 PASS, 실패·오류·스킵 0. 결과 docs/audit_runs/isolated_all_20261114_081141_kintai_full_test_9f4b67f66b64/. 최종 Qwen 27B Run ID 20261113_231257_4dd6f9c5, 결과 docs/audit_runs/day13_calendar_20261114/qwen27b_final_audit/report.md, Day 13 범위 PASS. 브라우저 download UX 미관찰은 Info/WARN 한계로 남고 R-17은 부분 검증 유지.
+
+- 번들 정합성 최종 재감사: Run ID 20261113_231504_7898dce0 (원격 100.111.193.94, 27.3B IQ3_M), 44.9초, 3156 입력/1807 출력 토큰. 일관성 수정 최종 번들 SHA-256 7898dce049db27937e95f02e2e308ddaaf32b7b73df1335ec2942a016a47564f; 보고서 docs/audit_runs/day13_calendar_20261114/qwen27b_final_consistent/report.md, SHA-256 7CD37FABD171FD36AFE5F8FECA4189AF61076B62B9FA0151893747D88122FA12. 범위 PASS; browser download UX만 Info/WARN로 분리됨. /api/ps 최종 증거 qwen27b_remote_ps_final.json에서 원격 qwen27b:latest 27.3B 모델 로드 및 VRAM residency를 확인. 로컬 ollama ps는 비어 있음.
+
+
+- 증거 번들 최종 정합성 감사: Hermes v1.1.1 / Qwen 27B IQ3_M, 원격 100.111.193.94:11434; Run ID 20261113_231841_e3e0981e, 30.19초, 3162 입력/1169 출력 토큰. 번들 SHA-256 3e0981eaac3a4f47314aa2c9164c2cdfb1ec18f4541622ca27d8f4f40f4a7f0; 보고서 docs/audit_runs/day13_calendar_20261114/qwen27b_final/report.md, SHA-256 41087C2A78D80FFA37B50A79BF8CA5F46B2DA9E3BC6EB9B0967974C7CFE40A9. 최종 verdict PASS. 원격 /api/ps 모델 상태와 로컬 Ollama 비어 있음은 qwen27b_remote_ps_final.json에 기록.
+
+- 브라우저 다운로드 최종 확인 결과: Chrome의 export 클릭이 /api/payroll/excel?storeId=1&yearMonth=2026-01에서 ERR_BLOCKED_BY_CLIENT로 끝났다. 브라우저 도구의 URL 정책은 chrome://downloads/ 이동과 대체 경로/우회를 명시적으로 거부했다. 원인을 앱 또는 확장 프로그램으로 단정하지 않는다. 인증 API XLSX는 정상·유효하나 실제 browser-managed 저장은 미확인으로 남긴다. Qwen 최종 감사 Run ID 20261113_232151_a808922d는 핵심 범위 PASS, 이 검증 항목만 P2 WARN/Unresolved. 보고서 SHA-256 1CBA641563D0BD88CCE21E41C71F97E7A563C550EBFDEA9DF9FB6A09F646D61E.
+
+### Day 13 범위 독립 재검수 및 R-17 브라우저 다운로드 완료 (2026-11-14 KST)
+
+- **Day 13 범위 스냅샷 판정: PASS (해당 시점 로컬 MySQL 26.7 검수 범위).** 이 항목의 83건 회귀는 Day 13 체크포인트 결과입니다. 이후 잔여 검증 종료 시점의 최신 전체 회귀는 별도 격리 DB에서 92건 PASS이며, 아래 잔여 검증 갱신을 현재 최종 회귀로 봅니다. RTM R-15/R-16/R-17/R-18 모두 VERIFIED. MySQL 8.4 Testcontainers는 기존 결정대로 2027년 1월 재검토(DEFERRED)이며 이번 로컬 검수와 구분한다.
+- R-17 후속 화면 검수에서 격리 데모 DB `kintai_demo_9f3f8487bc42`의 2026-01 급여 행과 합계(佐藤 花子 ¥141,700; 鈴木 一郎 ¥164,332)를 확인하고 Excel 출력 버튼을 클릭했다. 브라우저 download 이벤트가 완료되어 5,092-byte XLSX가 저장됐다. 파일 OOXML 구조, 월, 두 합계를 검사했다. SHA-256 `ba127f65f193f8289c2b4e445efc09a06e1590e2230ed0b1ad603d839cfdcd98`. 증거: `docs/audit_runs/day13_calendar_20261114/excel_browser_download.json`, `payroll_2026-01_browser_download.xlsx`.
+- 격리 전체 회귀: 83건 PASS, 실패·오류·스킵 0, Gradle exit 0; DB `kintai_full_test_9f4b67f66b64`.
+- 최신 독립 감사: Hermes v1.1.1, 원격 `http://100.111.193.94:11434`, `qwen27b:latest` IQ3_M 27.3B, digest `23c3820b0d9326b73e97191b9fb7e16b53f6e24bb3449d2a17037c5f2b6179a1`; Run ID `20261113_234922_d69a9b63`; 번들 SHA-256 `d69a9b63c9a6a79043a38fb9c8942ab9c3fd0f9936087ffe5865d778f6817379`; 보고서 SHA-256 `0dc324150a75bb8a1d3035f7ee770a03ec2bffd8241a3a041ffd9ee2066fbf32`. 15 findings PASS, WARN/FAIL 0. 이전 Chrome `ERR_BLOCKED_BY_CLIENT`는 이후 인앱 브라우저에서 다운로드 성공으로 해소됐으며 과거 시도 기록은 보존한다.
+- 잘못 시작한 미설치 Qwen pull 캐시 21개는 사용자 요청에 따라 제거했고, Qwen 7B 설치는 보존했다. 상세: `docs/audit_runs/day13_calendar_20261114/qwen_local_pull_cleanup_manifest.json`.
+## 최종 포트폴리오 패키지 작성 및 독립 재검수 (2026-11-14)
+
+- Day 13 최종 산출물을 `docs/final-portfolio/`에 구성했습니다: 기술 증적 v2.0(일본어/영어), 한국어 요약, 애플리케이션 및 3역 AI 협업 Mermaid 아키텍처, 격리 로컬 데모 안내(일본어/영어).
+- 현재 정본 DDL을 대조해 오래된 `uq_att_open_per_staff` 설명은 현행 스키마 사실이 아님을 명시했습니다. RTM R-11/R-12/R-14 부분 검증 및 R-05(MySQL 8.4) 연기를 포트폴리오에 분명히 표시했습니다.
+- 문서 로컬 확인에서 상대 Markdown 링크를 검사했습니다. 전체 회귀 83/83, 오류·실패·스킵 0 및 Day 13 기존 15개 finding Qwen PASS를 원본 증거와 대조했습니다.
+- 포트폴리오 Qwen 27B 감사 초회는 계산 및 잠금 구현 증거가 입력 번들에 없다고 지적했습니다. 관련 계산기/테스트/IDOR 테스트에 더해 AttendanceService 트랜잭션, Mapper `FOR UPDATE`, PayrollService 잠금 순서를 번들에 추가해 재감사를 진행했습니다. 원본 입력·응답·해시 및 최초 지적은 `docs/audit_runs/day13_calendar_20261114/final_portfolio_review/`에 보존합니다.
+- 본 패키지 완료 판정은 최종 Qwen 재감사 및 문서 일치 검사 후 확정합니다. 프로젝트 전체 완료나 일본 노동법 전 범위 적합을 주장하지 않습니다.
+- 최종 문구와 소스 근거를 포함한 원격 Qwen 재감사 Run `20261114_000458_4af20cd9`는 15/15 PASS, WARN/FAIL 0입니다. 초기 계산 증거 부족 지적과 잠금 증거 WARN을 필요한 코드·테스트·Mapper 근거를 추가해 해소했고, 정확한 최종 번들 재감사에서 PASS를 받았습니다. 번들 SHA-256 `4af20cd936e1a70c91ca8d6b905f0d6f948d108b1c09fd226958a2a6c2b3b543`, 보고서 SHA-256 `4876963e92a4cb197596d02fb5d172a50db4a13b7b382930c312e433337d1d28`.
+- R-19 VERIFIED. 포트폴리오 전 문서의 상대 Markdown 링크 확인 PASS. 최종 상태 `docs/audit_runs/day13_calendar_20261114/final_portfolio_review/final_verification_summary.json`.
+
+### 잔여 검증 최종 갱신 (2026-11-14 KST)
+
+- RTM R-08/R-09/R-10/R-11/R-12/R-14는 이 날짜 최종 증거 기준으로 VERIFIED입니다. 이전 날짜의 `PARTIALLY_VERIFIED` 및 테스트 개수는 당시 이력으로 보존하며, 현재 상태는 `docs/rtm_ledger.md`를 따릅니다.
+- 급여 통합 경계 테스트에서 20:00~다음 날 05:00 근무(총 540분), 야간 420분, 일일 연장 60분을 구성했습니다. 급여에 야간 25%와 연장 25%가 각각 가산되어 겹친 시간의 합산 50% 프리미엄이 반영되는 것을 확인했습니다. 야간 휴게 차감은 `LaborCalculationEngineTest`의 야간 시간대 휴게 사례로 검증했습니다.
+- 새 격리 DB `kintai_day11_test_01f4cb1439e6`에서 `AnnualPayrollScenarioIntegrationTest` 6/6 PASS. 이후 전체 회귀는 새 격리 DB `kintai_full_test_d4124a317ed0`에서 92/92 PASS, 실패·오류·스킵 0, Gradle exit 0입니다. 운영 DB `kintai_db`에는 연결하거나 데이터를 변경하지 않았습니다.
+- 수정 뒤 원격 독립 검수는 지정 주소 `http://100.111.193.94:11434`, `qwen27b:latest` (27.3B, IQ3_M)에서 실행했습니다. Run `20261114_004900_46049b14`; 12 findings PASS, WARN/FAIL 0. 입력 SHA-256 `46049b14578b32462a6f105966643d658919d5ed658faaf885796e2e1cd2c4b8`; 결과 SHA-256 `b1ae1c9d7844d92b6ab4b47bf5e5c66dbb0f1f3f916549688e3c83ea56798f10`. 실행 증거는 `docs/audit_runs/preflight_1e3b8fba040b4197aed07afbde9334f2/hermes/`입니다.
+- R-05 MySQL 8.4/Testcontainers는 사용자 지시에 따라 예정된 검토일까지 이번 업무에서 제외합니다. Docker/Podman 미설치 확인 기록은 보존했으며 소프트웨어를 설치·다운로드하지 않았습니다.
+- R-02 업무정책은 사용자가 2026-11-14 채택했습니다. 정책 문서와 RTM에 반영했고 기술 검증은 격리 전체 회귀에서 통과했습니다. Day12는 예정일 전까지 제외하며 외부 AWS/클라우드 변경은 실행하지 않았습니다.
+- 체크리스트 및 실행 요약: `docs/audit_runs/prior_residuals_20261114/completion_checklist.json`; 인수인계: `docs/handoff/20261114_residuals_handoff.md`.
+
+- 최종 문서 독립 검수: Qwen Run `20261114_005527_76dc1c9f`, 10/10 PASS, WARN/FAIL 0. 최초 문서 감사에서 나온 R-14 상태 불일치와 Day 13 83건 체크포인트 표기 모호성을 수정하고 재검수했습니다. 번들 SHA-256 `76dc1c9f5b3750c9b38d0777bd302893d4ea4dbe3783a0b8ef107edf37312d93`; 보고서 SHA-256 `dee296cda885e4bdc8208c9145ab61757d6a5323ecd6f7c9b21016b2cfc6b124`. 상세: `docs/audit_runs/preflight_b53be98f3682498f9de6243735ce89d2/hermes/`.
+
+### R-02 업무 정책 채택 결정 (2026-11-14)
+
+- 사용자께서 스냅샷 고정 범위 및 신규 DRAFT 감지 시 일괄 확정 전체 롤백 정책을 채택했습니다. 이를 RTM과 정책 문서에 반영했습니다.
+- 구현은 변경하지 않았습니다. 최신 격리 전체 회귀의 `PayrollMonthlyConfirmPostQueryRaceConditionIntegrationTest` 2건 PASS로 기술 동작을 확인했습니다. 전체 실행 증거: `docs/audit_runs/isolated_all_20261114_094427_kintai_full_test_d4124a317ed0/`.
+
+
+### 적용 범위 최종 지시 (2026-11-14)
+
+- 사용자 지시에 따라 R-05(MySQL 8.4)와 Day 12 업무는 예정된 검토/시행일 전까지 현재 작업에서 제외했습니다. 실행하지 않으며, Docker/Podman 미설치 기록은 참고 증거로 보존합니다.
+- R-02 채택 기록 독립 검수: 원격 Qwen Run `20261114_010419_130b40f4`, 8/8 PASS, WARN/FAIL 0. 번들 SHA-256 `130b40f43ce1955a36a1c17e50c9e1336021948106dca6b5bfc069888a10dd23`; 보고서 SHA-256 `b2e25feef3dad944738d2209f6b7b1e17ce6f501c0533930ddc9e0a2145d1a99`.
+
+### Antigravity 인수인계 정리 (2026-11-14)
+
+- 전체 프로젝트 대조 결과, B-04 상태를 완료로 정정하고 RTM R-13과 Day 11 작업표의 최신 실행 수치를 92건 회귀 증거로 갱신했습니다. Day 13의 83건은 과거 체크포인트로 구분했습니다.
+- 루트 README의 법률 전체 준수 과장 문구를 MVP 검증 범위 안내로 바로잡고, 한국어·일본어 포트폴리오 및 시연 가이드에 현재 범위를 반영했습니다.
+- 남은 프로젝트 코드 과제는 B-05 급여 API YearMonth HTTP 400 검증과 B-06 안전한 급여 상세 JSON의 민감 필드 미포함 회귀 테스트입니다. B-06에서 실제 정보 노출은 확인되지 않았습니다.
+- Antigravity 실행 순서, 분리 DB 금지선, Qwen 원격 주소와 제외 작업은 `docs/handoff/20261114_antigravity_project_wide_handoff.md`에 정리했습니다.
+### 원격 감사 모델 표기 정정 (2026-11-14)
+
+- 과거 부록의 `qwen3.8:27b` 태그 표기와 `100.91` 마스킹 주소는 현재 실행 설정이 아닙니다. 실제 사용 태그는 `qwen27b:latest`, 주소는 `http://100.111.193.94:11434`입니다. 과거 기록은 감사 이력으로 보존하되 현재 실행 설정으로 재사용하지 않습니다. 정본: `scripts/audit_config.json`, `scripts/audit_with_hermes.ps1`.
+### 현재 인수인계 문서 감사 시도 및 감사 스크립트 보정 (2026-11-14)
+
+- 첫 문서 bundle 호출은 지정 주소 `http://100.111.193.94:11434`의 `GetRequestStream`에서 `Unable to connect to the remote server`로 실패했고 보고서가 없었습니다. 이후 동일 bundle SHA `cd7cd20d12ba7771fb8ceb01dcd95181bfe39c924b8a595aa5e6fb91fdf649b8`에 대한 호출은 exit 0으로 잘못된 보고서를 생성했습니다. Qwen 독립 재감사 Run `20261114_014515_cd7cd20d`는 WARN 3건을 반환했습니다. 이 결과들은 PASS가 아니며, 이전 문서 감사 10/10 PASS는 당시 고정 bundle에만 적용됩니다.
+- 지적 반영: 프로젝트 감사 스크립트에 작업별 system prompt, 입력 컨텍스트 예산과 응답 종료 청크·비어 있지 않은 본문·verdict 표 검증, 잘못된 대상 경로와 기존 출력의 non-zero 거부를 추가했습니다. Bridge의 기본 및 Auto 전송은 설정된 원격 HTTP로 고정하고, 모델이 설치되지 않은 명시적 CLI 경로에서는 pull/download를 거부합니다. 중복 run ID와 출력 덮어쓰기를 거부하며 매니페스트에 runner/config/inference/prompt 해시를 기록합니다.
+- 로컬 검증: `runner_validation_20261114_112300`에서 응답 계약 테스트가 빈 응답·종료 청크 누락·잘림·context 초과·헤더만 있는 표·허용되지 않은 verdict·프롬프트 반복을 거부하고 유효한 PASS/WARN 표를 수락했습니다. 잘못된 대상은 exit 2, 기존 보고서는 exit 2로 거부하고 원본을 보존했습니다. PowerShell parser, Qwen 입력 검증기, wrapper mock, HTTP/Auto 원격 기본값·inference 옵션 해시·중복 run ID 거부 테스트가 PASS했습니다. 원격 Run `codex_20261114_111907_v7`에서 `think:false`가 실제 API 본문에 전달되지 않아 감사 내용이 비어 있음을 확인하고, 설정 전달 및 빈 문자열 처리 수정을 반영했습니다. 최신 독립 감사 결과는 입력 bundle SHA와 일치하는 `docs/audit_runs/` 실행 폴더에서 확인합니다.
+- 원본 실행 로그·요약, 최초 실패, 잘못된 보고서, WARN 재감사 및 새 번들은 `docs/audit_runs/project_wide_handoff_20261114/`와 해시별 실행 폴더에 append-only로 보존합니다. 운영 DB, 로컬 7B, 다른 IP, 다운로드는 사용하지 않았습니다.
+- 최종 독립 재검수: 원격 Qwen 27B Run `codex_20261114_112428_v10`, Overall PASS. 입력 bundle SHA-256 `80311a3d1ff7aecb1cac5890e9519106b9ce6c0e557386163c85ce06ee0f9f0a`, 보고서 SHA-256 `94f7f5bb0e263eec9adbb85400e4e0d254d905347a88ee5cf311f19b101030e8`. 실행 경로 `docs/audit_runs/codex_20261114_112428_v10/`. B-09 완료 근거입니다.
+
+### Codex 실행 지연 인시던트 기록 (2026-11-14)
+
+- 사용자의 두 차례 진행 요청 후 작업이 약 1시간으로 늘어난 것은 정상 소요가 아닙니다. 범위 통제 실패, 원격 권한 사전 확인 누락, 설정 미전달, 번들 생성 오류, 기록 분산이 원인이었습니다. v4 HTTP 400, v6 socket 권한 실패, v7 빈 content와 binding error, v8 번들 549,068 bytes/12,728 lines 생성, v9 자동 분할 위험을 각각 기록했습니다. v8/v9는 원격 감사를 실행하지 않았으며 validator의 `INPUT_READY`는 audit PASS가 아닙니다.
+- v10은 지정 원격에서 51.41초 만에 Overall PASS를 반환했습니다. 코드 수정과 로컬 검수, bundle 및 report SHA는 앞 항목을 참조하십시오. 실패 run들은 그대로 보존했습니다.
+- 전체 타임라인, 원인, 영향, 적용한 수정과 재발 방지는 `docs/audit_runs/project_wide_handoff_20261114/codex_execution_incident_20261114.md` 및 일본어 요약 `codex_execution_incident_20261114_ja.md`에 있습니다.
+- 사후 저장소 전체 대조에서 Day 10/11 Gradle·fixture·CSRF·schema·원격 감사·queue·화면검수 오류도 추가 확인해 같은 인시던트 기록의 저장소 인벤토리에 합쳤습니다. 각 항목은 해결됨, 미완료, 원인 미확인으로 나눴으며 대화 원문 전체가 저장소에 없는 경우는 범위 한계로 명시했습니다.
+
+
+### B-05 / B-06 후속 구현 및 격리 회귀·독립 감사 완료 (2026-11-14)
+
+- **B-05 (`YearMonth` 입력 경계)**: `PayrollApiController.java`에 공용 `validateYearMonth` 검증(`^\d{4}-(0[1-9]|1[0-2])$`)을 추가하여 `/list`, `/calculate`, `/confirm-month`, `/excel` 전 경로에서 `2026-13`, `2026-00`, `2026-1`, `not-a-month` 등 비정상 입력 시 `GlobalExceptionHandler`를 통해 일관되게 HTTP 400 (`success: false`)을 반환하도록 통일했습니다. (`/calculate`, `/confirm-month`의 `requestDto == null` 또는 `storeId == null` 방어 포함)
+- **B-06 (`PayrollDetailResponseDto` 데이터 최소화 직렬화 검증)**: `PayrollApiValidationAndSerializationIntegrationTest.java`에서 `GET /api/payroll/{payrollId}/detail` 실제 JSON 직렬화 응답을 파싱하여 허용 필드 집합(`payrollId`, `staffName`, `targetYearMonth`, `appliedHourlyWage`, `summary`, `dailyAttendances`) 일치 및 민감 필드(`bankAccount`, `accountNumber`, `bankName`, `branchCode`, `myNumber`, `socialSecurityNumber`, `residentNumber`, `password`, `email`, `phone`) 미포함을 검증했습니다.
+- **최신 격리 전체 회귀 (로컬 MySQL 26.7)**: 신규 격리 DB `kintai_full_test_8a75679f5b1e`에서 **94건 PASS** (실패 0, 오류 0, 스킵 0, JUnit XML 38개, Gradle exit 0). 근거: `docs/audit_runs/isolated_all_20261114_114819_kintai_full_test_8a75679f5b1e/exit_summary.json`. (직전 컬럼명 오기 실패 이력 `isolated_all_20261114_114720_kintai_full_test_fa8f09444824`는 수정 전 실패 로그로 보존)
+- **원격 Qwen 27B 독립 감사**: 엔드포인트 `http://100.111.193.94:11434`, 모델 `qwen27b:latest`, Run ID `b05_b06_20261114_c598266c`, 번들 `docs/audit_runs/b05_b06_audit_20261114/b05_b06_audit_bundle.md` (575 lines, SHA-256 `c598266c11ff2828bbf8da5f73d37a75470e3acde127ab430ecd9563bf2ea272`), 소요 109.07s, 입력 8598 tokens / 출력 3920 tokens. 보고서: `docs/audit_runs/b05_b06_20261114_c598266c/hermes_report.md`. Controller·GlobalExceptionHandler·통합 테스트·94건 회귀 요약 섹션 모두 PASS 확인 (단독 DTO 섹션은 575행 자동 분할로 컨트롤러 코드 미포함 컨텍스트 경고 3건 표기, 컨트롤러 및 통합 테스트 섹션에서 해소 확인).

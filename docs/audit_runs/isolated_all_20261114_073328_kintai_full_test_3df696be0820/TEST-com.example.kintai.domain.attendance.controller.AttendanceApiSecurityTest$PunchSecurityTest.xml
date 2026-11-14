@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="リアルタイム打刻（POST /api/attendance/punch）の店舗ID強制バインドおよびIDOR防御" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-13T22:33:56.428Z" hostname="BK" time="0.999">
+  <properties/>
+  <testcase name="スタッフが打刻時に他人IDと他店IDを偽造しても、セッションの本人情報に強制バインドされること" classname="com.example.kintai.domain.attendance.controller.AttendanceApiSecurityTest$PunchSecurityTest" time="0.881"/>
+  <testcase name="オーナーが自己店舗スタッフの打刻時に誤ったstoreIdを指定しても、サーバー側で正規店舗IDに強制バインドされること" classname="com.example.kintai.domain.attendance.controller.AttendanceApiSecurityTest$PunchSecurityTest" time="0.063"/>
+  <testcase name="オーナーが他店舗スタッフの打刻を試みた場合は HTTP 403 Forbidden で遮断されること" classname="com.example.kintai.domain.attendance.controller.AttendanceApiSecurityTest$PunchSecurityTest" time="0.047"/>
+  <system-out><![CDATA[2026-11-14T07:33:56.832+09:00  INFO 24648 --- [    Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-11-14T07:33:56.833+09:00  INFO 24648 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-14T07:33:56.835+09:00  INFO 24648 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-11-14T07:33:57.343+09:00  INFO 24648 --- [    Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-11-14T07:33:57.343+09:00  INFO 24648 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-14T07:33:57.344+09:00  INFO 24648 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-11-14T07:33:57.401+09:00  INFO 24648 --- [    Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-11-14T07:33:57.401+09:00  INFO 24648 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-14T07:33:57.401+09:00  INFO 24648 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-11-14T07:33:57.420+09:00  WARN 24648 --- [    Test worker] c.e.k.g.e.GlobalExceptionHandler         : アクセス拒絶 (AccessDenied): ?象スタッフに?する管理?限がありません。
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,12 @@
+{
+  "status": "INPUT_INCOMPLETE",
+  "bundle_path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_0c3db2d72c2d45ef909a808235a0e82b\\input_bundle",
+  "manifest_path": "C:\\dev\\kintai\\scripts\\..\\docs\\audit_runs\\preflight_0c3db2d72c2d45ef909a808235a0e82b\\input_manifest.json",
+  "bundle_sha256": "59fcbb5b99dd4d14c7448f4f39a6f392734ac57ba4a757df69a0635de641385e",
+  "failures": [
+    {
+      "code": "EVIDENCE_NOT_FOUND",
+      "message": "Evidence file does not exist: C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_094427_kintai_full_test_d4124a317ed0\\TEST-com.example.kintai.domain.attendance.util.LaborCalculationEngineTest.xml"
+    }
+  ]
+}

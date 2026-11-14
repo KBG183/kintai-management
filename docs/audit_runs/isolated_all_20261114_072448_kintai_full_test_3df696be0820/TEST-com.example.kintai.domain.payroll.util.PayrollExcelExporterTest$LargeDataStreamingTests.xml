@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="大容量データストリーミングおよびウィンドウローリング検証" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-11-13T22:25:21.434Z" hostname="BK" time="0.164">
+  <properties/>
+  <testcase name="ウィンドウサイズ(100行)を超える大量データ(250行)でもOOMなくストリーミング出力され、要約数式が整合すること" classname="com.example.kintai.domain.payroll.util.PayrollExcelExporterTest$LargeDataStreamingTests" time="0.163"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

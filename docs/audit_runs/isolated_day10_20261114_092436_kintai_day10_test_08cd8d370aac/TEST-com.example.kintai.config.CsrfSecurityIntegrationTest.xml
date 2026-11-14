@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="CSRF 多層防御セキュリティ統合テスト" tests="5" skipped="0" failures="1" errors="0" timestamp="2026-11-14T00:24:53.806Z" hostname="BK" time="5.818">
+  <properties/>
+  <testcase name="CSRFトークンなしのPOSTリクエストは403 Forbiddenで拒否されること" classname="com.example.kintai.config.CsrfSecurityIntegrationTest" time="0.919"/>
+  <testcase name="不正なCSRFトークンを含むPOSTリクエストは403 Forbiddenで拒否されること" classname="com.example.kintai.config.CsrfSecurityIntegrationTest" time="0.01"/>
+  <testcase name="CSRFトークンが有効でも未認証ユーザーの打刻APIアクセスはログインへ拒否されること" classname="com.example.kintai.config.CsrfSecurityIntegrationTest" time="0.015"/>
+  <testcase name="オーナーおよびスタッフのアカウントで正常にログインできること" classname="com.example.kintai.config.CsrfSecurityIntegrationTest" time="0.55">
+    <failure message="java.lang.AssertionError: オーナーログイン後のリダイレクト先が不正です: /login?error=true" type="java.lang.AssertionError">java.lang.AssertionError: オーナーログイン後のリダイレクト先が不正です: /login?error=true
+	at com.example.kintai.config.CsrfSecurityIntegrationTest.lambda$testFormLoginSuccess$1(CsrfSecurityIntegrationTest.java:85)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:212)
+	at com.example.kintai.config.CsrfSecurityIntegrationTest.testFormLoginSuccess(CsrfSecurityIntegrationTest.java:82)
+</failure>
+  </testcase>
+  <testcase name="正常なCSRFトークンを付与したPOSTリクエストは403にならず正常に受け付けられること" classname="com.example.kintai.config.CsrfSecurityIntegrationTest" time="0.215"/>
+  <system-out><![CDATA[09:24:53.989 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.kintai.config.CsrfSecurityIntegrationTest]: CsrfSecurityIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+09:24:54.129 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.config.CsrfSecurityIntegrationTest
+09:24:54.224 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.kintai.config.CsrfSecurityIntegrationTest]: CsrfSecurityIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+09:24:54.226 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.config.CsrfSecurityIntegrationTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-11-14T09:24:54.643+09:00  INFO 25080 --- [    Test worker] c.e.k.c.CsrfSecurityIntegrationTest      : Starting CsrfSecurityIntegrationTest using Java 17.0.12 with PID 25080 (started by klad3 in C:\dev\kintai)
+2026-11-14T09:24:54.644+09:00  INFO 25080 --- [    Test worker] c.e.k.c.CsrfSecurityIntegrationTest      : No active profile set, falling back to 1 default profile: "default"
+2026-11-14T09:24:56.792+09:00  INFO 25080 --- [    Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-11-14T09:24:57.864+09:00  INFO 25080 --- [    Test worker] c.e.k.c.CsrfSecurityIntegrationTest      : Started CsrfSecurityIntegrationTest in 3.551 seconds (process running for 5.053)
+2026-11-14T09:24:58.778+09:00  INFO 25080 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-14T09:24:58.778+09:00  INFO 25080 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-14T09:24:58.780+09:00  INFO 25080 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-11-14T09:24:58.833+09:00  INFO 25080 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-14T09:24:58.833+09:00  INFO 25080 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-14T09:24:58.834+09:00  INFO 25080 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-11-14T09:24:58.844+09:00  INFO 25080 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-14T09:24:58.844+09:00  INFO 25080 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-14T09:24:58.845+09:00  INFO 25080 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-11-14T09:24:58.860+09:00  INFO 25080 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-14T09:24:58.860+09:00  INFO 25080 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-14T09:24:58.861+09:00  INFO 25080 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-11-14T09:24:58.937+09:00  INFO 25080 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-11-14T09:24:59.259+09:00  INFO 25080 --- [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@345d641e
+2026-11-14T09:24:59.262+09:00  INFO 25080 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-11-14T09:24:59.411+09:00  INFO 25080 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-14T09:24:59.411+09:00  INFO 25080 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-14T09:24:59.413+09:00  INFO 25080 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

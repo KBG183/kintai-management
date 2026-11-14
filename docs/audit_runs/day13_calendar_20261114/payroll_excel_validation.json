@@ -1,0 +1,21 @@
+{
+  "http_status": 200,
+  "content_type": [
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  ],
+  "content_disposition": [
+    "attachment; filename=\"%E7%B5%A6%E4%B8%8E%E5%8F%B0%E5%B8%B3_2026-01.xlsx\"; filename*=UTF-8''%E7%B5%A6%E4%B8%8E%E5%8F%B0%E5%B8%B3_2026-01.xlsx"
+  ],
+  "bytes": 5092,
+  "sha256": "d4c02471fa0c9d9fb90487acbdf0a6bd99dc67f1414d2b3bdc586b498f12d195",
+  "magic": "50-4B-03-04",
+  "workbook_present": true,
+  "sheet_present": true,
+  "entry_count": 9,
+  "sheet_xml_has_month": true,
+  "sheet_xml_has_total_141700": true,
+  "sheet_xml_has_total_164332": true,
+  "browser_download_verified": true,
+  "browser_download_evidence": "excel_browser_download.json",
+  "browser_download_sha256": "ba127f65f193f8289c2b4e445efc09a06e1590e2230ed0b1ad603d839cfdcd98"
+}

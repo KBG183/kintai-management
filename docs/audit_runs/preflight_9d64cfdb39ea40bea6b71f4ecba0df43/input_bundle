@@ -1,0 +1,2605 @@
+===== src/main/java/com/example/kintai/domain/attendance/service/AttendanceService.java =====
+package com.example.kintai.domain.attendance.service;
+
+import com.example.kintai.domain.attendance.dto.*;
+import com.example.kintai.domain.attendance.mapper.AttendanceMapper;
+import com.example.kintai.domain.attendance.util.AttendanceTimeCalculator;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Service
+@Transactional(readOnly = true)
+public class AttendanceService {
+
+    private final AttendanceMapper attendanceMapper;
+
+    public AttendanceService(AttendanceMapper attendanceMapper) {
+        this.attendanceMapper = attendanceMapper;
+    }
+
+    /**
+     * リアルタイム打刻処理（出勤・休憩開始・休憩終了・退勤）
+     */
+    @Transactional
+    public AttendanceDto punch(AttendancePunchDto punchDto) {
+        if (punchDto == null) {
+            throw new IllegalArgumentException("打刻データは必須です。");
+        }
+        Long storeStaffId = punchDto.getStoreStaffId();
+        String punchType = punchDto.getPunchType();
+        if (storeStaffId == null || storeStaffId <= 0) {
+            throw new IllegalArgumentException("有効なスタッフIDは必須です。");
+        }
+        if (punchType == null || !List.of("CLOCK_IN", "CLOCK_OUT", "BREAK_START", "BREAK_END").contains(punchType)) {
+            throw new IllegalArgumentException("有効な打刻タイプは必須です。");
+        }
+        LocalDateTime now = LocalDateTime.now();
+        LocalDate today = now.toLocalDate();
+
+        // 排他制御: 同時打刻の競合を防止する悲観的ロック
+        attendanceMapper.lockStoreStaffForUpdate(storeStaffId);
+
+        AttendanceDto active = attendanceMapper.findActiveAttendance(storeStaffId);
+
+        switch (punchType) {
+            case "CLOCK_IN":
+                return handleClockIn(punchDto, today, now, active);
+
+            case "BREAK_START":
+                return handleBreakStart(now, active);
+
+            case "BREAK_END":
+                return handleBreakEnd(now, active);
+
+            case "CLOCK_OUT":
+                return handleClockOut(now, active);
+
+            default:
+                throw new IllegalArgumentException("無効な打刻タイプです: " + punchType);
+        }
+    }
+
+    private AttendanceDto handleClockIn(AttendancePunchDto punchDto, LocalDate today, LocalDateTime now, AttendanceDto active) {
+        if (active != null) {
+            throw new IllegalStateException("既に出勤中の打刻が存在します。");
+        }
+
+        // 該当日の給与が既に確定済（CONFIRMED / PAID）の場合は新規打刻を遮断
+        if (attendanceMapper.isPayrollConfirmedForDate(punchDto.getStoreStaffId(), today)) {
+            throw new IllegalStateException("対象期間の給与は既に確定済みのため、新規打刻はできません。");
+        }
+
+        Long shiftId = attendanceMapper.findConfirmedShiftIdForDate(punchDto.getStoreStaffId(), today);
+
+        // 店舗ID補正 (DTO未指定時は店舗所属マスタから補完)
+        Long storeId = punchDto.getStoreId();
+        if (storeId == null) {
+            storeId = attendanceMapper.findStoreIdByStoreStaffId(punchDto.getStoreStaffId());
+            if (storeId == null) {
+                throw new IllegalStateException("所属店舗情報が存在しないため打刻できません。(storeStaffId: " + punchDto.getStoreStaffId() + ")");
+            }
+        }
+
+        AttendanceDto attendance = new AttendanceDto();
+        attendance.setStoreId(storeId);
+        attendance.setStoreStaffId(punchDto.getStoreStaffId());
+        attendance.setShiftId(shiftId);
+        attendance.setWorkDate(today);
+        attendance.setClockInAt(now);
+        attendance.setTotalBreakMinutes(0);
+        attendance.setNetWorkMinutes(0);
+        attendance.setNightWorkMinutes(0);
+        attendance.setOvertimeMinutes(0);
+        attendance.setClockInMethod("BUTTON");
+        attendance.setAttendanceStatus("WORKING");
+
+        attendanceMapper.insertAttendance(attendance);
+        return attendance;
+    }
+
+    private AttendanceDto handleBreakStart(LocalDateTime now, AttendanceDto active) {
+        if (active == null || !"WORKING".equals(active.getAttendanceStatus())) {
+            throw new IllegalStateException("勤務中のみ休憩開始が可能です。");
+        }
+
+        active.setBreakStartAt(now);
+        active.setAttendanceStatus("ON_BREAK");
+        attendanceMapper.updateAttendance(active);
+        return active;
+    }
+
+    private AttendanceDto handleBreakEnd(LocalDateTime now, AttendanceDto active) {
+        if (active == null || !"ON_BREAK".equals(active.getAttendanceStatus())) {
+            throw new IllegalStateException("休憩中のみ休憩終了が可能です。");
+        }
+
+        LocalDateTime breakStart = active.getBreakStartAt();
+        int breakDuration = Math.toIntExact(Duration.between(breakStart, now).toMinutes());
+
+        AttendanceBreakDto breakDto = new AttendanceBreakDto(breakStart, now, breakDuration);
+        breakDto.setAttendanceId(active.getAttendanceId());
+        attendanceMapper.insertBreak(breakDto);
+
+        active.setBreakStartAt(null);
+        active.setBreakEndAt(now);
+        active.setTotalBreakMinutes(active.getTotalBreakMinutes() + breakDuration);
+        active.setAttendanceStatus("WORKING");
+        attendanceMapper.updateAttendance(active);
+        return active;
+    }
+
+    private AttendanceDto handleClockOut(LocalDateTime now, AttendanceDto active) {
+        if (active == null || !"WORKING".equals(active.getAttendanceStatus())) {
+            throw new IllegalStateException("勤務中のみ退勤打刻が可能です。(休憩中の場合は先に休憩を終了してください)");
+        }
+
+        // 休憩区間一覧の取得
+        List<AttendanceBreakDto> breakEntities = attendanceMapper.findBreaksByAttendanceId(active.getAttendanceId());
+        List<AttendanceTimeCalculator.BreakInterval> breakIntervals = new ArrayList<>();
+        for (AttendanceBreakDto b : breakEntities) {
+            breakIntervals.add(new AttendanceTimeCalculator.BreakInterval(b.getBreakStartAt(), b.getBreakEndAt()));
+        }
+
+        // 分割勤務（中抜け）対応: 同一スタッフ・同日の先行完了実労働時間の秒精度累計を取得
+        long priorWorkSeconds = attendanceMapper.sumPriorNetWorkSecondsOnDate(
+                active.getStoreStaffId(),
+                active.getWorkDate(),
+                active.getAttendanceId(),
+                now
+        );
+
+        // 時間計算機（秒精度精密計算・先行累計連動）呼び出し
+        AttendanceTimeCalculator.CalculationResult calc = AttendanceTimeCalculator.calculate(
+                active.getClockInAt(),
+                now,
+                breakIntervals,
+                priorWorkSeconds
+        );
+
+        active.setClockOutAt(now);
+        active.setTotalBreakMinutes(calc.totalBreakMinutes());
+        active.setNetWorkMinutes(calc.netWorkMinutes());
+        active.setNightWorkMinutes(calc.nightWorkMinutes());
+        active.setOvertimeMinutes(calc.overtimeMinutes());
+        active.setAttendanceStatus("COMPLETED");
+
+        attendanceMapper.updateAttendance(active);
+        return active;
+    }
+
+    public AttendanceDto getActiveAttendance(Long storeStaffId) {
+        return attendanceMapper.findActiveAttendance(storeStaffId);
+    }
+
+    /**
+     * 勤怠修正申請の登録（スタッフ申請）
+     */
+    @Transactional
+    public Long requestModification(AttendanceModRequestDto requestDto) {
+        if (requestDto == null) {
+            throw new IllegalArgumentException("修正申請データが空です。");
+        }
+        Long storeStaffId = requestDto.getStoreStaffId();
+        LocalDate workDate = requestDto.getWorkDate();
+
+        if (storeStaffId == null || workDate == null) {
+            throw new IllegalArgumentException("店舗スタッフIDおよび勤務基準日は必須です。");
+        }
+        if (requestDto.getRequestedClockInAt() == null || requestDto.getRequestedClockOutAt() == null) {
+            throw new IllegalArgumentException("修正希望の出退勤日時は必須です。");
+        }
+        if (requestDto.getReason() == null || requestDto.getReason().trim().isEmpty()) {
+            throw new IllegalArgumentException("修正申請理由は必須入力です。");
+        }
+
+        // 排他制御: 悲観的ロックの確保
+        attendanceMapper.lockStoreStaffForUpdate(storeStaffId);
+
+        // 該当勤務日の給与が確定済の場合は修正申請を遮断
+        if (attendanceMapper.isPayrollConfirmedForDate(storeStaffId, workDate)) {
+            throw new IllegalStateException("指定された勤務日 (" + workDate + ") は既に給与が確定されているため、修正申請できません。");
+        }
+
+        // 出勤日と勤務基準日の一致検証
+        if (!requestDto.getRequestedClockInAt().toLocalDate().equals(workDate)) {
+            throw new IllegalArgumentException("出勤時刻の日付は勤務基準日と一致している必要があります。");
+        }
+        if (!requestDto.getRequestedClockOutAt().isAfter(requestDto.getRequestedClockInAt())) {
+            throw new IllegalArgumentException("退勤時刻は出勤時刻より後である必要があります。");
+        }
+
+        // 既存勤務記録との重複検証（時間帯重複防止）
+        int overlapCount = attendanceMapper.countOverlappingAttendances(
+                storeStaffId,
+                requestDto.getRequestedClockInAt(),
+                requestDto.getRequestedClockOutAt(),
+                requestDto.getAttendanceId()
+        );
+        if (overlapCount > 0) {
+            throw new IllegalStateException("申請された勤務時間帯に重複する既存の勤務記録が存在します。");
+        }
+
+        // 休憩区間の詳細検証
+        if (requestDto.getRequestedBreaks() != null && !requestDto.getRequestedBreaks().isEmpty()) {
+            List<AttendanceModRequestDto.BreakTimeDto> breaks = new ArrayList<>(requestDto.getRequestedBreaks());
+            for (AttendanceModRequestDto.BreakTimeDto b : breaks) {
+                if (b.getStartAt() == null || b.getEndAt() == null || !b.getEndAt().isAfter(b.getStartAt())) {
+                    throw new IllegalArgumentException("休憩終了時刻は休憩開始時刻より後である必要があります。");
+                }
+                if (b.getStartAt().isBefore(requestDto.getRequestedClockInAt()) || b.getEndAt().isAfter(requestDto.getRequestedClockOutAt())) {
+                    throw new IllegalArgumentException("休憩時間は勤務時間（出退勤）の範囲内である必要があります。");
+                }
+            }
+            // 休憩区間同士の重複チェック
+            breaks.sort(Comparator.comparing(AttendanceModRequestDto.BreakTimeDto::getStartAt));
+            for (int i = 0; i < breaks.size() - 1; i++) {
+                if (breaks.get(i).getEndAt().isAfter(breaks.get(i + 1).getStartAt())) {
+                    throw new IllegalArgumentException("休憩時間同士が重複しています。");
+                }
+            }
+        }
+
+        // 既存勤怠が存在する場合は元のスナップショットを取得し、状態をMOD_REQUESTEDに遷移
+        AttendanceDto original = null;
+        if (requestDto.getAttendanceId() != null) {
+            original = attendanceMapper.findById(requestDto.getAttendanceId());
+            if (original == null) {
+                throw new IllegalArgumentException("対象となる勤怠記録が存在しません。(ID: " + requestDto.getAttendanceId() + ")");
+            }
+            if (!original.getStoreStaffId().equals(storeStaffId)) {
+                throw new IllegalArgumentException("他スタッフの勤怠記録に対して修正申請を行うことはできません。");
+            }
+            if ("MOD_REQUESTED".equals(original.getAttendanceStatus())) {
+                throw new IllegalStateException("該当の勤怠は既に修正申請が行われており、承認待ちです。");
+            }
+
+            requestDto.setBeforeClockInAt(original.getClockInAt());
+            requestDto.setBeforeClockOutAt(original.getClockOutAt());
+            requestDto.setBeforeBreakMinutes(original.getTotalBreakMinutes());
+            requestDto.setStoreId(original.getStoreId());
+        }
+
+        if (requestDto.getStoreId() == null) {
+            Long storeId = attendanceMapper.findStoreIdByStoreStaffId(storeStaffId);
+            if (storeId == null) {
+                throw new IllegalStateException("所属店舗情報が存在しないため修正申請できません。(storeStaffId: " + storeStaffId + ")");
+            }
+            requestDto.setStoreId(storeId);
+        }
+
+        // 申請合計休憩時間の計算
+        int totalBreakMin = (requestDto.getRequestedBreakMinutes() != null) ? requestDto.getRequestedBreakMinutes() : 0;
+        if (requestDto.getRequestedBreaks() != null && !requestDto.getRequestedBreaks().isEmpty()) {
+            int sumBreak = 0;
+            for (AttendanceModRequestDto.BreakTimeDto b : requestDto.getRequestedBreaks()) {
+                sumBreak += (int) Duration.between(b.getStartAt(), b.getEndAt()).toMinutes();
+            }
+            totalBreakMin = sumBreak;
+        }
+        requestDto.setRequestedBreakMinutes(totalBreakMin);
+
+        // 1. 修正申請レコード登録
+        attendanceMapper.insertModRequest(requestDto);
+        Long modRequestId = requestDto.getModRequestId();
+
+        // 2. 修正前休憩区間スナップショットの保存および既存勤怠の状態保留(MOD_REQUESTED)
+        if (original != null) {
+            List<AttendanceBreakDto> beforeBreaks = attendanceMapper.findBreaksByAttendanceId(original.getAttendanceId());
+            for (AttendanceBreakDto b : beforeBreaks) {
+                attendanceMapper.insertModBreak(modRequestId, "BEFORE", b.getBreakStartAt(), b.getBreakEndAt(), b.getDurationMinutes());
+            }
+            attendanceMapper.updateAttendanceStatus(original.getAttendanceId(), "MOD_REQUESTED");
+        }
+
+        // 3. 修正希望休憩区間スナップショットの保存
+        if (requestDto.getRequestedBreaks() != null) {
+            for (AttendanceModRequestDto.BreakTimeDto b : requestDto.getRequestedBreaks()) {
+                int dur = (int) Duration.between(b.getStartAt(), b.getEndAt()).toMinutes();
+                attendanceMapper.insertModBreak(modRequestId, "REQUESTED", b.getStartAt(), b.getEndAt(), dur);
+            }
+        }
+
+        return modRequestId;
+    }
+
+    /**
+     * 店舗別勤怠修正申請一覧取得（バッチ一括取得によりN+1クエリ問題を解消）
+     */
+    public List<AttendanceModResponseDto> getModRequests(Long storeId, String status) {
+        List<AttendanceModResponseDto> list = attendanceMapper.findModRequestsByStoreId(storeId, status);
+        if (list == null || list.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // 全申請IDを抽出して休憩区間を一括取得
+        List<Long> requestIds = list.stream().map(AttendanceModResponseDto::getModRequestId).toList();
+        List<AttendanceBreakDto> allBreaks = attendanceMapper.findModBreaksByRequestIds(requestIds);
+
+        Map<Long, List<AttendanceBreakDto>> beforeMap = new HashMap<>();
+        Map<Long, List<AttendanceBreakDto>> reqMap = new HashMap<>();
+
+        if (allBreaks != null) {
+            for (AttendanceBreakDto b : allBreaks) {
+                Long reqId = b.getAttendanceId(); // mod_request_idをマッピング
+                if ("BEFORE".equalsIgnoreCase(b.getBreakSetType())) {
+                    beforeMap.computeIfAbsent(reqId, k -> new ArrayList<>()).add(b);
+                } else if ("REQUESTED".equalsIgnoreCase(b.getBreakSetType())) {
+                    reqMap.computeIfAbsent(reqId, k -> new ArrayList<>()).add(b);
+                }
+            }
+        }
+
+        for (AttendanceModResponseDto item : list) {
+            item.setBeforeBreaks(beforeMap.getOrDefault(item.getModRequestId(), Collections.emptyList()));
+            item.setRequestedBreaks(reqMap.getOrDefault(item.getModRequestId(), Collections.emptyList()));
+        }
+
+        return list;
+    }
+
+    /**
+     * 店長による勤怠修正申請の承認または却下処理
+     */
+    @Transactional
+    public void reviewModification(Long modRequestId, Long reviewerId, AttendanceModReviewDto reviewDto) {
+        if (reviewDto == null || reviewDto.getAction() == null) {
+            throw new IllegalArgumentException("審査アクションは必須です。");
+        }
+
+        AttendanceModResponseDto req = attendanceMapper.findModRequestById(modRequestId);
+        if (req == null) {
+            throw new IllegalArgumentException("存在しない修正申請です。(ID: " + modRequestId + ")");
+        }
+
+        if (!"PENDING".equals(req.getApprovalStatus())) {
+            throw new IllegalStateException("既に処理された申請です。(状態: " + req.getApprovalStatus() + ")");
+        }
+
+        // 排他制御: 悲観的ロックの確保
+        attendanceMapper.lockStoreStaffForUpdate(req.getStoreStaffId());
+
+        // 該当勤務日の給与が確定済の場合は承認不可
+        if (attendanceMapper.isPayrollConfirmedForDate(req.getStoreStaffId(), req.getWorkDate())) {
+            throw new IllegalStateException("指定された勤務日は既に給与が確定されているため、承認できません。");
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+
+        // 却下（REJECT）処理
+        if ("REJECT".equalsIgnoreCase(reviewDto.getAction())) {
+            int affected = attendanceMapper.updateModRequestReview(modRequestId, "REJECTED", reviewerId, reviewDto.getRejectReason(), now);
+            if (affected != 1) {
+                throw new IllegalStateException("他の管理者によって既に申請が処理されたか、状態が変更されています。(CAS競合)");
+            }
+            if (req.getAttendanceId() != null) {
+                // 既存勤怠の保留状態(MOD_REQUESTED)を通常完了状態(COMPLETED)に復帰
+                attendanceMapper.updateAttendanceStatus(req.getAttendanceId(), "COMPLETED");
+            }
+            return;
+        }
+
+        // 承認（APPROVE）処理
+        // 既存勤務記録との重複再検証
+        int overlapCount = attendanceMapper.countOverlappingAttendances(
+                req.getStoreStaffId(),
+                req.getRequestedClockInAt(),
+                req.getRequestedClockOutAt(),
+                req.getAttendanceId()
+        );
+        if (overlapCount > 0) {
+            throw new IllegalStateException("承認対象の勤務時間は、既存の他の勤務記録と重複しています。");
+        }
+
+        List<AttendanceBreakDto> reqBreaks = attendanceMapper.findModBreaksByRequestId(modRequestId, "REQUESTED");
+        List<AttendanceTimeCalculator.BreakInterval> breakIntervals = new ArrayList<>();
+        int totalBreakMin = 0;
+
+        for (AttendanceBreakDto b : reqBreaks) {
+            breakIntervals.add(new AttendanceTimeCalculator.BreakInterval(b.getBreakStartAt(), b.getBreakEndAt()));
+            totalBreakMin += b.getDurationMinutes();
+        }
+
+        if (totalBreakMin == 0 && req.getRequestedBreakMinutes() != null && req.getRequestedBreakMinutes() > 0) {
+            totalBreakMin = req.getRequestedBreakMinutes();
+        }
+
+        // 分割勤務（中抜け）対応: 同一スタッフ・同日の先行完了実労働時間の秒精度累計を取得
+        long priorWorkSeconds = attendanceMapper.sumPriorNetWorkSecondsOnDate(
+                req.getStoreStaffId(),
+                req.getWorkDate(),
+                req.getAttendanceId(),
+                req.getRequestedClockInAt()
+        );
+
+        // 秒精度精密勤怠計算（労働基準法第37条準拠・先行累計連動）
+        AttendanceTimeCalculator.CalculationResult calc = AttendanceTimeCalculator.calculate(
+                req.getRequestedClockInAt(),
+                req.getRequestedClockOutAt(),
+                breakIntervals,
+                priorWorkSeconds
+        );
+
+        if (req.getAttendanceId() != null) {
+            // 既存勤怠の更新（事後承認マーク・COMPLETED復帰・再計算値反映）
+            AttendanceDto att = attendanceMapper.findById(req.getAttendanceId());
+            if (att != null) {
+                att.setClockInAt(req.getRequestedClockInAt());
+                att.setClockOutAt(req.getRequestedClockOutAt());
+                att.setTotalBreakMinutes(Math.max(totalBreakMin, calc.totalBreakMinutes()));
+                att.setNetWorkMinutes(calc.netWorkMinutes());
+                att.setNightWorkMinutes(calc.nightWorkMinutes());
+                att.setOvertimeMinutes(calc.overtimeMinutes());
+                att.setClockInMethod("MANUAL_APPROVED");
+                att.setAttendanceStatus("COMPLETED");
+                attendanceMapper.updateAttendance(att);
+
+                // 休憩テーブルの置換
+                attendanceMapper.deleteBreaksByAttendanceId(att.getAttendanceId());
+                for (AttendanceBreakDto b : reqBreaks) {
+                    b.setAttendanceId(att.getAttendanceId());
+                    attendanceMapper.insertBreak(b);
+                }
+            }
+        } else {
+            // 完全打刻漏れによる事後新規勤怠生成
+            AttendanceDto newAtt = new AttendanceDto();
+            newAtt.setStoreId(req.getStoreId());
+            newAtt.setStoreStaffId(req.getStoreStaffId());
+            newAtt.setWorkDate(req.getWorkDate());
+            newAtt.setClockInAt(req.getRequestedClockInAt());
+            newAtt.setClockOutAt(req.getRequestedClockOutAt());
+            newAtt.setTotalBreakMinutes(Math.max(totalBreakMin, calc.totalBreakMinutes()));
+            newAtt.setNetWorkMinutes(calc.netWorkMinutes());
+            newAtt.setNightWorkMinutes(calc.nightWorkMinutes());
+            newAtt.setOvertimeMinutes(calc.overtimeMinutes());
+            newAtt.setClockInMethod("MANUAL_APPROVED");
+            newAtt.setAttendanceStatus("COMPLETED");
+
+            Long shiftId = attendanceMapper.findConfirmedShiftIdForDate(req.getStoreStaffId(), req.getWorkDate());
+            newAtt.setShiftId(shiftId);
+
+            attendanceMapper.insertAttendance(newAtt);
+
+            for (AttendanceBreakDto b : reqBreaks) {
+                b.setAttendanceId(newAtt.getAttendanceId());
+                attendanceMapper.insertBreak(b);
+            }
+
+            // 新規作成された勤怠IDを申請履歴に紐付け
+            attendanceMapper.updateModRequestAttendanceId(modRequestId, newAtt.getAttendanceId());
+        }
+
+        int affected = attendanceMapper.updateModRequestReview(modRequestId, "APPROVED", reviewerId, null, now);
+        if (affected != 1) {
+            throw new IllegalStateException("他の管理者によって既に申請が処理されたか、状態が変更されています。(CAS競合)");
+        }
+    }
+}
+
+
+===== src/main/java/com/example/kintai/domain/attendance/controller/AttendanceApiController.java =====
+package com.example.kintai.domain.attendance.controller;
+
+import com.example.kintai.domain.attendance.dto.*;
+import com.example.kintai.domain.attendance.service.AttendanceService;
+import com.example.kintai.domain.store.service.StoreAuthorizationService;
+import com.example.kintai.global.common.ApiResponse;
+import com.example.kintai.global.security.CustomUserDetails;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+/**
+ * 勤怠管理 REST API コントローラー
+ */
+@RestController
+@RequestMapping("/api/attendance")
+public class AttendanceApiController {
+
+    private final AttendanceService attendanceService;
+    private final StoreAuthorizationService storeAuthorizationService;
+
+    public AttendanceApiController(AttendanceService attendanceService, StoreAuthorizationService storeAuthorizationService) {
+        this.attendanceService = attendanceService;
+        this.storeAuthorizationService = storeAuthorizationService;
+    }
+
+    /**
+     * リアルタイム出退勤・休憩打刻 API
+     * 認証済みスタッフの storeStaffId を優先適用し IDOR（なりすまし打刻）を防止。
+     * オーナー（OWNER）の代理打刻時は、対象スタッフが自身の所有店舗に所属しているかを検証。
+     */
+    @PostMapping("/punch")
+    public ResponseEntity<ApiResponse<AttendanceDto>> punch(
+            @RequestBody AttendancePunchDto punchDto,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        if (userDetails != null) {
+            if (userDetails.getStoreStaffId() != null) {
+                // 一般スタッフ本人打刻：セッションの storeStaffId で強制上書き
+                punchDto.setStoreStaffId(userDetails.getStoreStaffId());
+                if (userDetails.getStoreId() != null) {
+                    punchDto.setStoreId(userDetails.getStoreId());
+                }
+            } else if (punchDto.getStoreStaffId() != null) {
+                // オーナー（OWNER）代理打刻：対象スタッフがオーナー店舗の所属員であるかを厳格検証し、実店舗IDを強制バインド
+                Long validatedStoreId = storeAuthorizationService.validateStaffStoreOwnership(punchDto.getStoreStaffId(), userDetails.getMemberId());
+                punchDto.setStoreId(validatedStoreId);
+            }
+        }
+
+        AttendanceDto result = attendanceService.punch(punchDto);
+        return ResponseEntity.ok(ApiResponse.ok("打刻が完了しました。", result));
+    }
+
+    /**
+     * 現在進行中の勤務実績取得 API
+     */
+    @GetMapping("/active")
+    public ResponseEntity<ApiResponse<AttendanceDto>> getActiveAttendance(
+            @RequestParam(name = "storeStaffId", required = false) Long storeStaffId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        if (userDetails == null) {
+            throw new AccessDeniedException("認証が必要です。");
+        }
+
+        Long targetStaffId;
+        if (userDetails.getStoreStaffId() != null) {
+            targetStaffId = userDetails.getStoreStaffId();
+        } else {
+            if (storeStaffId == null) {
+                throw new IllegalArgumentException("スタッフIDが指定されていません。");
+            }
+            storeAuthorizationService.validateStaffStoreOwnership(storeStaffId, userDetails.getMemberId());
+            targetStaffId = storeStaffId;
+        }
+
+        AttendanceDto active = attendanceService.getActiveAttendance(targetStaffId);
+        return ResponseEntity.ok(ApiResponse.ok(active));
+    }
+
+    /**
+     * 勤怠修正申請登録 API（スタッフ申請）
+     * スタッフ本人の申請時はセッションの storeStaffId を強制適用。
+     * オーナー等による代理申請時は対象スタッフの店舗所属権限を検証し IDOR を完全遮断。
+     */
+    @PostMapping("/mod-request")
+    public ResponseEntity<ApiResponse<Long>> requestModification(
+            @RequestBody AttendanceModRequestDto requestDto,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        if (userDetails == null) {
+            throw new AccessDeniedException("勤怠修正申請には認証が必要です。");
+        }
+
+        if (userDetails.getStoreStaffId() != null) {
+            requestDto.setStoreStaffId(userDetails.getStoreStaffId());
+            if (userDetails.getStoreId() != null) {
+                requestDto.setStoreId(userDetails.getStoreId());
+            }
+        } else {
+            if (requestDto.getStoreStaffId() == null) {
+                throw new IllegalArgumentException("対象スタッフIDが指定されていません。");
+            }
+            Long validatedStoreId = storeAuthorizationService.validateStaffStoreOwnership(requestDto.getStoreStaffId(), userDetails.getMemberId());
+            requestDto.setStoreId(validatedStoreId);
+        }
+
+        Long modRequestId = attendanceService.requestModification(requestDto);
+        return ResponseEntity.ok(ApiResponse.ok("勤怠修正申請を受け付けました。", modRequestId));
+    }
+
+    /**
+     * 勤怠修正申請一覧取得 API（店長・管理者用）
+     * ハードコード店舗IDを排除し、店舗オーナーシップを厳格検証
+     */
+    @GetMapping("/mod-requests")
+    public ResponseEntity<ApiResponse<List<AttendanceModResponseDto>>> getModRequests(
+            @RequestParam(name = "storeId", required = false) Long storeId,
+            @RequestParam(name = "status", required = false) String status,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        if (userDetails == null) {
+            throw new AccessDeniedException("修正申請一覧の取得には認証が必要です。");
+        }
+
+        Long targetStoreId;
+        if (userDetails.getStoreId() != null) {
+            targetStoreId = userDetails.getStoreId();
+        } else if (storeId != null) {
+            storeAuthorizationService.validateStoreOwnership(storeId, userDetails.getMemberId());
+            targetStoreId = storeId;
+        } else {
+            throw new IllegalArgumentException("店舗IDが指定されていません。");
+        }
+
+        List<AttendanceModResponseDto> list = attendanceService.getModRequests(targetStoreId, status);
+        return ResponseEntity.ok(ApiResponse.ok(list));
+    }
+
+    /**
+     * 勤怠修正申請の承認・却下審査 API（店長・オーナー用）
+     * 審査対象の申請がオーナー所有店舗のリソースであることを検証し、不正審査を完全遮断
+     */
+    @PostMapping("/mod-requests/{modRequestId}/review")
+    public ResponseEntity<ApiResponse<Void>> reviewModification(
+            @PathVariable("modRequestId") Long modRequestId,
+            @RequestBody AttendanceModReviewDto reviewDto,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        if (userDetails == null) {
+            throw new AccessDeniedException("審査処理には認証が必要です。");
+        }
+
+        storeAuthorizationService.validateModRequestStoreOwnership(modRequestId, userDetails.getMemberId());
+        attendanceService.reviewModification(modRequestId, userDetails.getMemberId(), reviewDto);
+        return ResponseEntity.ok(ApiResponse.ok("審査処理が完了しました。", null));
+    }
+}
+
+
+===== src/main/java/com/example/kintai/config/SecurityConfig.java =====
+package com.example.kintai.config;
+
+import com.example.kintai.global.security.CustomAuthenticationSuccessHandler;
+import com.example.kintai.global.security.CustomUserDetailsService;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
+import org.springframework.security.web.csrf.CsrfTokenRequestHandler;
+import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
+import org.springframework.util.StringUtils;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+import java.util.function.Supplier;
+
+/**
+ * Spring Security 6 セキュリティ設定クラス
+ * セッションベースの認証・権限管理およびアクセス制御を統合設定
+ */
+@Configuration
+@EnableWebSecurity
+@RequiredArgsConstructor
+public class SecurityConfig {
+
+    private final CustomUserDetailsService userDetailsService;
+    private final CustomAuthenticationSuccessHandler successHandler;
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        CookieCsrfTokenRepository tokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+        SpaCsrfTokenRequestHandler requestHandler = new SpaCsrfTokenRequestHandler();
+
+        http
+                // BREACH攻撃防御とSPA/Fetch（Cookie/Header）の互換性を両立するCSRF多層防御設定
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(tokenRepository)
+                        .csrfTokenRequestHandler(requestHandler)
+                )
+                .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
+                .authorizeHttpRequests(auth -> auth
+                        // 静的リソースおよび認証関連エンドポイントの開放
+                        .requestMatchers(
+                                "/css/**",
+                                "/js/**",
+                                "/images/**",
+                                "/favicon.ico",
+                                "/login",
+                                "/login-process"
+                        ).permitAll()
+                        // オーナー専用エンドポイント（給与計算、勤怠修正承認等）
+                        .requestMatchers(
+                                "/payroll/**",
+                                "/api/payroll/**",
+                                "/attendance/mod-requests/**",
+                                "/api/attendance/mod-requests/**"
+                        ).hasRole("OWNER")
+                        // 勤怠打刻およびシフト管理（スタッフ・オーナー共通）
+                        .requestMatchers(
+                                "/attendance",
+                                "/attendance/**",
+                                "/shift/**",
+                                "/shifts",
+                                "/shifts/**",
+                                "/api/shifts/**",
+                                "/api/attendance/**"
+                        ).hasAnyRole("STAFF", "OWNER", "ADMIN")
+                        // サンプル確認用画面
+                        .requestMatchers(
+                                "/members/sample",
+                                "/api/members/**"
+                        ).hasRole("ADMIN")
+                        // その他のリクエストは認証必須
+                        .anyRequest().authenticated()
+                )
+                .formLogin(login -> login
+                        .loginPage("/login")
+                        .loginProcessingUrl("/login-process")
+                        .usernameParameter("email")
+                        .passwordParameter("password")
+                        .successHandler(successHandler)
+                        .failureUrl("/login?error=true")
+                        .permitAll()
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout=true")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID", "XSRF-TOKEN")
+                        .permitAll()
+                )
+                .exceptionHandling(ex -> ex
+                        .accessDeniedPage("/access-denied")
+                );
+
+        return http.build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder authBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        authBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+        return authBuilder.build();
+    }
+
+    /**
+     * SPA/Fetch API向けCSRFトークンリクエストハンドラー
+     * ヘッダー経由（Cookieの生トークン）は平文比較、フォーム送信はBREACH防御（XOR）を自動判別
+     */
+    static final class SpaCsrfTokenRequestHandler implements CsrfTokenRequestHandler {
+        private final CsrfTokenRequestHandler plain = new CsrfTokenRequestAttributeHandler();
+        private final CsrfTokenRequestHandler xor = new XorCsrfTokenRequestAttributeHandler();
+
+        @Override
+        public void handle(HttpServletRequest request, HttpServletResponse response, Supplier<CsrfToken> csrfToken) {
+            this.xor.handle(request, response, csrfToken);
+            csrfToken.get(); // クッキーを確実に発行させるため遅延ロードを即時解決
+        }
+
+        @Override
+        public String resolveCsrfTokenValue(HttpServletRequest request, CsrfToken csrfToken) {
+            String headerValue = request.getHeader(csrfToken.getHeaderName());
+            return (StringUtils.hasText(headerValue))
+                    ? this.plain.resolveCsrfTokenValue(request, csrfToken)
+                    : this.xor.resolveCsrfTokenValue(request, csrfToken);
+        }
+    }
+
+    /**
+     * レスポンスヘッダーおよびCookieに最新のCSRFトークンを確実に反映させるフィルター
+     */
+    static final class CsrfCookieFilter extends OncePerRequestFilter {
+        @Override
+        protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+                throws ServletException, IOException {
+            CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+            if (csrfToken != null) {
+                // クッキーの書き出しをトリガー
+                csrfToken.getToken();
+            }
+            filterChain.doFilter(request, response);
+        }
+    }
+}
+
+
+===== src/main/resources/mapper/attendance/AttendanceMapper.xml =====
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.kintai.domain.attendance.mapper.AttendanceMapper">
+
+    <select id="findActiveAttendance" resultType="com.example.kintai.domain.attendance.dto.AttendanceDto">
+        SELECT
+            attendance_id,
+            store_id,
+            store_staff_id,
+            shift_id,
+            work_date,
+            clock_in_at,
+            clock_out_at,
+            break_start_at,
+            break_end_at,
+            total_break_minutes,
+            net_work_minutes,
+            night_work_minutes,
+            overtime_minutes,
+            clock_in_method,
+            attendance_status
+        FROM attendance
+        WHERE store_staff_id = #{storeStaffId}
+          AND attendance_status IN ('WORKING', 'ON_BREAK')
+        ORDER BY attendance_id DESC
+        LIMIT 1
+    </select>
+
+    <select id="findById" resultType="com.example.kintai.domain.attendance.dto.AttendanceDto">
+        SELECT
+            attendance_id,
+            store_id,
+            store_staff_id,
+            shift_id,
+            work_date,
+            clock_in_at,
+            clock_out_at,
+            break_start_at,
+            break_end_at,
+            total_break_minutes,
+            net_work_minutes,
+            night_work_minutes,
+            overtime_minutes,
+            clock_in_method,
+            attendance_status
+        FROM attendance
+        WHERE attendance_id = #{attendanceId}
+    </select>
+
+    <insert id="insertAttendance" useGeneratedKeys="true" keyProperty="attendanceId">
+        INSERT INTO attendance (
+            store_id,
+            store_staff_id,
+            shift_id,
+            work_date,
+            clock_in_at,
+            clock_out_at,
+            break_start_at,
+            break_end_at,
+            total_break_minutes,
+            net_work_minutes,
+            night_work_minutes,
+            overtime_minutes,
+            clock_in_method,
+            attendance_status
+        ) VALUES (
+            #{storeId},
+            #{storeStaffId},
+            #{shiftId},
+            #{workDate},
+            #{clockInAt},
+            #{clockOutAt},
+            #{breakStartAt},
+            #{breakEndAt},
+            #{totalBreakMinutes},
+            #{netWorkMinutes},
+            #{nightWorkMinutes},
+            #{overtimeMinutes},
+            #{clockInMethod},
+            #{attendanceStatus}
+        )
+    </insert>
+
+    <update id="updateAttendance">
+        UPDATE attendance
+        <set>
+            <if test="clockInAt != null">clock_in_at = #{clockInAt},</if>
+            <if test="clockOutAt != null">clock_out_at = #{clockOutAt},</if>
+            <if test="breakStartAt != null">break_start_at = #{breakStartAt},</if>
+            <if test="breakEndAt != null">break_end_at = #{breakEndAt},</if>
+            <if test="totalBreakMinutes != null">total_break_minutes = #{totalBreakMinutes},</if>
+            <if test="netWorkMinutes != null">net_work_minutes = #{netWorkMinutes},</if>
+            <if test="nightWorkMinutes != null">night_work_minutes = #{nightWorkMinutes},</if>
+            <if test="overtimeMinutes != null">overtime_minutes = #{overtimeMinutes},</if>
+            <if test="clockInMethod != null">clock_in_method = #{clockInMethod},</if>
+            <if test="attendanceStatus != null">attendance_status = #{attendanceStatus},</if>
+            updated_at = CURRENT_TIMESTAMP
+        </set>
+        WHERE attendance_id = #{attendanceId}
+    </update>
+
+    <insert id="insertBreak" useGeneratedKeys="true" keyProperty="attendanceBreakId">
+        INSERT INTO attendance_break (
+            attendance_id,
+            break_start_at,
+            break_end_at,
+            duration_minutes
+        ) VALUES (
+            #{attendanceId},
+            #{breakStartAt},
+            #{breakEndAt},
+            #{durationMinutes}
+        )
+    </insert>
+
+    <select id="findBreaksByAttendanceId" resultType="com.example.kintai.domain.attendance.dto.AttendanceBreakDto">
+        SELECT
+            attendance_break_id,
+            attendance_id,
+            break_start_at,
+            break_end_at,
+            duration_minutes
+        FROM attendance_break
+        WHERE attendance_id = #{attendanceId}
+        ORDER BY break_start_at ASC
+    </select>
+
+    <delete id="deleteBreaksByAttendanceId">
+        DELETE FROM attendance_break
+        WHERE attendance_id = #{attendanceId}
+    </delete>
+
+    <select id="isPayrollConfirmedForDate" resultType="boolean">
+        SELECT COUNT(*) &gt; 0
+        FROM payroll
+        WHERE store_staff_id = #{storeStaffId}
+          AND #{workDate} &gt;= range_start_date
+          AND #{workDate} &lt;= range_end_date
+          AND payroll_status IN ('CONFIRMED', 'PAID')
+    </select>
+
+    <select id="lockStoreStaffForUpdate" resultType="java.lang.Long">
+        SELECT store_staff_id
+        FROM store_staff
+        WHERE store_staff_id = #{storeStaffId}
+        FOR UPDATE
+    </select>
+
+    <select id="findStoreIdByStoreStaffId" resultType="java.lang.Long">
+        SELECT store_id
+        FROM store_staff
+        WHERE store_staff_id = #{storeStaffId}
+        LIMIT 1
+    </select>
+
+    <select id="findConfirmedShiftIdForDate" resultType="java.lang.Long">
+        SELECT shift_id
+        FROM shift_schedule
+        WHERE store_staff_id = #{storeStaffId}
+          AND work_date = #{workDate}
+          AND status = 'CONFIRMED'
+        LIMIT 1
+    </select>
+
+    <select id="findCompletedAttendancesForStaffAndPeriod" resultType="com.example.kintai.domain.attendance.dto.AttendanceDto">
+        SELECT
+            attendance_id,
+            store_id,
+            store_staff_id,
+            shift_id,
+            work_date,
+            clock_in_at,
+            clock_out_at,
+            total_break_minutes,
+            net_work_minutes,
+            night_work_minutes,
+            overtime_minutes,
+            clock_in_method,
+            attendance_status
+        FROM attendance
+        WHERE store_staff_id = #{storeStaffId}
+          AND work_date &gt;= #{startDate}
+          AND work_date &lt;= #{endDate}
+          AND attendance_status = 'COMPLETED'
+        ORDER BY work_date ASC
+    </select>
+
+    <!-- 勤怠修正申請の新規登録 -->
+    <insert id="insertModRequest" useGeneratedKeys="true" keyProperty="modRequestId">
+        INSERT INTO attendance_mod_request (
+            attendance_id,
+            store_id,
+            store_staff_id,
+            work_date,
+            before_clock_in_at,
+            before_clock_out_at,
+            before_break_minutes,
+            requested_clock_in_at,
+            requested_clock_out_at,
+            requested_break_minutes,
+            reason,
+            approval_status
+        ) VALUES (
+            #{attendanceId},
+            #{storeId},
+            #{storeStaffId},
+            #{workDate},
+            #{beforeClockInAt},
+            #{beforeClockOutAt},
+            #{beforeBreakMinutes},
+            #{requestedClockInAt},
+            #{requestedClockOutAt},
+            #{requestedBreakMinutes},
+            #{reason},
+            'PENDING'
+        )
+    </insert>
+
+    <!-- 勤怠修正休憩区間の登録 -->
+    <insert id="insertModBreak">
+        INSERT INTO attendance_mod_break (
+            mod_request_id,
+            break_set_type,
+            break_start_at,
+            break_end_at,
+            duration_minutes
+        ) VALUES (
+            #{modRequestId},
+            #{breakSetType},
+            #{startAt},
+            #{endAt},
+            #{duration}
+        )
+    </insert>
+
+    <!-- 店舗別勤怠修正申請一覧取得 -->
+    <select id="findModRequestsByStoreId" resultType="com.example.kintai.domain.attendance.dto.AttendanceModResponseDto">
+        SELECT
+            r.mod_request_id,
+            r.attendance_id,
+            r.store_id,
+            r.store_staff_id,
+            m.name AS staff_name,
+            r.work_date,
+            r.before_clock_in_at,
+            r.before_clock_out_at,
+            r.before_break_minutes,
+            r.requested_clock_in_at,
+            r.requested_clock_out_at,
+            r.requested_break_minutes,
+            r.reason,
+            r.approval_status,
+            r.reject_reason,
+            r.created_at
+        FROM attendance_mod_request r
+        JOIN store_staff ss ON r.store_staff_id = ss.store_staff_id
+        JOIN member m ON ss.member_id = m.member_id
+        WHERE r.store_id = #{storeId}
+        <if test="status != null and status != ''">
+            AND r.approval_status = #{status}
+        </if>
+        ORDER BY r.mod_request_id DESC
+    </select>
+
+    <!-- 修正申請単件取得 -->
+    <select id="findModRequestById" resultType="com.example.kintai.domain.attendance.dto.AttendanceModResponseDto">
+        SELECT
+            r.mod_request_id,
+            r.attendance_id,
+            r.store_id,
+            r.store_staff_id,
+            m.name AS staff_name,
+            r.work_date,
+            r.before_clock_in_at,
+            r.before_clock_out_at,
+            r.before_break_minutes,
+            r.requested_clock_in_at,
+            r.requested_clock_out_at,
+            r.requested_break_minutes,
+            r.reason,
+            r.approval_status,
+            r.reject_reason,
+            r.created_at
+        FROM attendance_mod_request r
+        JOIN store_staff ss ON r.store_staff_id = ss.store_staff_id
+        JOIN member m ON ss.member_id = m.member_id
+        WHERE r.mod_request_id = #{modRequestId}
+    </select>
+
+    <!-- 修正申請の休憩区間一覧取得 -->
+    <select id="findModBreaksByRequestId" resultType="com.example.kintai.domain.attendance.dto.AttendanceBreakDto">
+        SELECT
+            mod_break_id AS attendance_break_id,
+            mod_request_id AS attendance_id,
+            break_set_type,
+            break_start_at,
+            break_end_at,
+            duration_minutes
+        FROM attendance_mod_break
+        WHERE mod_request_id = #{modRequestId}
+          AND break_set_type = #{breakSetType}
+        ORDER BY break_start_at ASC
+    </select>
+
+    <!-- 複数修正申請の全休憩区間一括取得（N+1クエリ解消） -->
+    <select id="findModBreaksByRequestIds" resultType="com.example.kintai.domain.attendance.dto.AttendanceBreakDto">
+        SELECT
+            mod_break_id AS attendance_break_id,
+            mod_request_id AS attendance_id,
+            break_set_type,
+            break_start_at,
+            break_end_at,
+            duration_minutes
+        FROM attendance_mod_break
+        WHERE mod_request_id IN
+        <foreach item="id" collection="requestIds" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        ORDER BY break_start_at ASC
+    </select>
+
+    <!-- 修正申請の承認・却下状態更新 (CAS: PENDING状態の場合のみ1件更新) -->
+    <update id="updateModRequestReview">
+        UPDATE attendance_mod_request
+        SET approval_status = #{status},
+            reviewer_id = #{reviewerId},
+            reject_reason = #{rejectReason},
+            reviewed_at = #{reviewedAt},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE mod_request_id = #{modRequestId}
+          AND approval_status = 'PENDING'
+    </update>
+
+    <!-- 勤怠ステータスの単体更新 -->
+    <update id="updateAttendanceStatus">
+        UPDATE attendance
+        SET attendance_status = #{attendanceStatus},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE attendance_id = #{attendanceId}
+    </update>
+
+    <!-- 同一スタッフにおける勤務時間の重複件数をカウント（勤務時間重複防止） -->
+    <select id="countOverlappingAttendances" resultType="int">
+        SELECT COUNT(*)
+        FROM attendance
+        WHERE store_staff_id = #{storeStaffId}
+          <if test="excludeAttendanceId != null">
+              AND attendance_id != #{excludeAttendanceId}
+          </if>
+          AND clock_in_at &lt; #{clockOutAt}
+          AND (clock_out_at IS NULL OR clock_out_at &gt; #{clockInAt})
+    </select>
+
+    <!-- 事後新規登録された勤怠IDを修正申請レコードに紐付け -->
+    <update id="updateModRequestAttendanceId">
+        UPDATE attendance_mod_request
+        SET attendance_id = #{attendanceId},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE mod_request_id = #{modRequestId}
+    </update>
+
+    <!-- 店舗および指定勤務日の全スタッフ勤怠実績取得（シフト・勤怠リアルタイム対照用） -->
+    <select id="findAttendancesByStoreAndDate" resultType="com.example.kintai.domain.attendance.dto.AttendanceDto">
+        SELECT
+            attendance_id,
+            store_id,
+            store_staff_id,
+            shift_id,
+            work_date,
+            clock_in_at,
+            clock_out_at,
+            break_start_at,
+            break_end_at,
+            total_break_minutes,
+            net_work_minutes,
+            night_work_minutes,
+            overtime_minutes,
+            clock_in_method,
+            attendance_status
+        FROM attendance
+        WHERE store_id = #{storeId}
+          AND work_date = #{workDate}
+        ORDER BY clock_in_at ASC
+    </select>
+
+    <!-- スタッフ氏名取得 -->
+    <select id="findStaffNameByStoreStaffId" resultType="java.lang.String">
+        SELECT m.name
+        FROM store_staff ss
+        JOIN member m ON ss.member_id = m.member_id
+        WHERE ss.store_staff_id = #{storeStaffId}
+        LIMIT 1
+    </select>
+
+    <!-- 勤務日時点の契約時給取得 -->
+    <select id="findHourlyWageForStaffOnDate" resultType="java.lang.Integer">
+        SELECT hourly_wage
+        FROM store_staff_contract_history
+        WHERE store_staff_id = #{storeStaffId}
+          AND effective_from &lt;= #{workDate}
+          AND (effective_to IS NULL OR effective_to &gt; #{workDate})
+        ORDER BY effective_from DESC
+        LIMIT 1
+    </select>
+
+    <!-- 同一スタッフ・同一勤務日の先行完了勤務の実労働時間合計（分）を取得（分割勤務中抜け対応） -->
+    <select id="sumPriorNetWorkMinutesOnDate" resultType="java.lang.Integer">
+        SELECT COALESCE(SUM(net_work_minutes), 0)
+        FROM attendance
+        WHERE store_staff_id = #{storeStaffId}
+          AND work_date = #{workDate}
+          AND attendance_status = 'COMPLETED'
+          <if test="excludeAttendanceId != null">
+              AND attendance_id != #{excludeAttendanceId}
+          </if>
+          <if test="beforeTime != null">
+              AND clock_out_at &lt;= #{beforeTime}
+          </if>
+    </select>
+
+    <!-- 同一スタッフ・同一勤務日の先行完了勤務の実労働時間合計（秒精度）を取得（分割勤務中抜け対応） -->
+    <select id="sumPriorNetWorkSecondsOnDate" resultType="java.lang.Long">
+        SELECT COALESCE(SUM(TIMESTAMPDIFF(SECOND, clock_in_at, clock_out_at) - (total_break_minutes * 60)), 0)
+        FROM attendance
+        WHERE store_staff_id = #{storeStaffId}
+          AND work_date = #{workDate}
+          AND attendance_status = 'COMPLETED'
+          <if test="excludeAttendanceId != null">
+              AND attendance_id != #{excludeAttendanceId}
+          </if>
+          <if test="beforeTime != null">
+              AND clock_out_at &lt;= #{beforeTime}
+          </if>
+    </select>
+
+</mapper>
+
+
+===== src/test/java/com/example/kintai/domain/attendance/service/AttendanceServiceConcurrencyIntegrationTest.java =====
+package com.example.kintai.domain.attendance.service;
+
+import com.example.kintai.database.IsolatedDatabaseGuard;
+import com.example.kintai.domain.attendance.dto.AttendanceDto;
+import com.example.kintai.domain.attendance.dto.AttendancePunchDto;
+import com.example.kintai.domain.attendance.mapper.AttendanceMapper;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+@SpringBootTest
+@DisplayName("Day 10: AttendanceService 동시 출퇴근 타각 검증")
+class AttendanceServiceConcurrencyIntegrationTest {
+
+    private static final long TARGET_STORE_ID = 1L;
+    private static final long TARGET_STAFF_ID = 2L;
+
+    @Autowired
+    private AttendanceService attendanceService;
+
+    @Autowired
+    private AttendanceMapper attendanceMapper;
+
+    @Autowired
+    private DataSource dataSource;
+
+    private final Queue<Long> createdAttendanceIds = new ConcurrentLinkedQueue<>();
+
+    @BeforeEach
+    void setUp() throws Exception {
+        IsolatedDatabaseGuard.requireAllowedDatabase(dataSource, "kintai_(day10_test|full_test)_[0-9a-f]{12}");
+        deleteActiveAttendances();
+    }
+
+    @AfterEach
+    void tearDown() throws Exception {
+        for (Long attendanceId : createdAttendanceIds) {
+            try (Connection connection = dataSource.getConnection();
+                 PreparedStatement statement = connection.prepareStatement(
+                         "DELETE FROM attendance WHERE attendance_id = ?")) {
+                statement.setLong(1, attendanceId);
+                statement.executeUpdate();
+            }
+        }
+        createdAttendanceIds.clear();
+    }
+
+    @Test
+    @DisplayName("동시 CLOCK_IN 요청은 하나만 성공하고 중복 근무 행을 만들지 않는다")
+    void concurrentClockIn_ExactlyOneSucceeds() throws Exception {
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        CountDownLatch ready = new CountDownLatch(2);
+        CountDownLatch start = new CountDownLatch(1);
+        AtomicInteger successCount = new AtomicInteger();
+        AtomicInteger rejectedCount = new AtomicInteger();
+        AtomicReference<Throwable> unexpectedError = new AtomicReference<>();
+        List<Future<?>> futures = new ArrayList<>();
+
+        for (int i = 0; i < 2; i++) {
+            futures.add(executor.submit(() -> {
+                ready.countDown();
+                try {
+                    start.await(5, TimeUnit.SECONDS);
+                    AttendanceDto result = attendanceService.punch(punch("CLOCK_IN"));
+                    createdAttendanceIds.add(result.getAttendanceId());
+                    successCount.incrementAndGet();
+                } catch (IllegalStateException expected) {
+                    rejectedCount.incrementAndGet();
+                } catch (Throwable unexpected) {
+                    unexpectedError.compareAndSet(null, unexpected);
+                }
+            }));
+        }
+
+        assertEquals(true, ready.await(5, TimeUnit.SECONDS));
+        start.countDown();
+        for (Future<?> future : futures) {
+            future.get(10, TimeUnit.SECONDS);
+        }
+        executor.shutdownNow();
+
+        assertNull(unexpectedError.get(), "예상하지 않은 예외가 발생하면 안 됩니다");
+        assertEquals(1, successCount.get(), "동시 CLOCK_IN은 정확히 하나만 성공해야 합니다");
+        assertEquals(1, rejectedCount.get(), "나머지 요청은 중복 타각으로 거부되어야 합니다");
+        assertNotNull(attendanceMapper.findActiveAttendance(TARGET_STAFF_ID));
+    }
+
+    @Test
+    @DisplayName("동시 CLOCK_OUT 요청은 하나만 성공하고 완료 상태를 보존한다")
+    void concurrentClockOut_ExactlyOneSucceeds() throws Exception {
+        AttendanceDto working = createWorkingAttendance();
+
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        CountDownLatch ready = new CountDownLatch(2);
+        CountDownLatch start = new CountDownLatch(1);
+        AtomicInteger successCount = new AtomicInteger();
+        AtomicInteger rejectedCount = new AtomicInteger();
+        AtomicReference<Throwable> unexpectedError = new AtomicReference<>();
+        List<Future<?>> futures = new ArrayList<>();
+
+        for (int i = 0; i < 2; i++) {
+            futures.add(executor.submit(() -> {
+                ready.countDown();
+                try {
+                    start.await(5, TimeUnit.SECONDS);
+                    attendanceService.punch(punch("CLOCK_OUT"));
+                    successCount.incrementAndGet();
+                } catch (IllegalStateException expected) {
+                    rejectedCount.incrementAndGet();
+                } catch (Throwable unexpected) {
+                    unexpectedError.compareAndSet(null, unexpected);
+                }
+            }));
+        }
+
+        assertEquals(true, ready.await(5, TimeUnit.SECONDS));
+        start.countDown();
+        for (Future<?> future : futures) {
+            future.get(10, TimeUnit.SECONDS);
+        }
+        executor.shutdownNow();
+
+        assertNull(unexpectedError.get(), "예상하지 않은 예외가 발생하면 안 됩니다");
+        assertEquals(1, successCount.get(), "동시 CLOCK_OUT은 정확히 하나만 성공해야 합니다");
+        assertEquals(1, rejectedCount.get(), "나머지 요청은 이미 종료된 근무로 거부되어야 합니다");
+
+        AttendanceDto completed = attendanceMapper.findById(working.getAttendanceId());
+        assertNotNull(completed);
+        assertEquals("COMPLETED", completed.getAttendanceStatus());
+    }
+
+    private AttendancePunchDto punch(String punchType) {
+        AttendancePunchDto request = new AttendancePunchDto();
+        request.setStoreId(TARGET_STORE_ID);
+        request.setStoreStaffId(TARGET_STAFF_ID);
+        request.setPunchType(punchType);
+        return request;
+    }
+
+    private AttendanceDto createWorkingAttendance() {
+        AttendanceDto attendance = new AttendanceDto();
+        attendance.setStoreId(TARGET_STORE_ID);
+        attendance.setStoreStaffId(TARGET_STAFF_ID);
+        attendance.setWorkDate(LocalDate.now());
+        attendance.setClockInAt(LocalDateTime.now().minusHours(1));
+        attendance.setTotalBreakMinutes(0);
+        attendance.setNetWorkMinutes(0);
+        attendance.setNightWorkMinutes(0);
+        attendance.setOvertimeMinutes(0);
+        attendance.setClockInMethod("BUTTON");
+        attendance.setAttendanceStatus("WORKING");
+        attendanceMapper.insertAttendance(attendance);
+        createdAttendanceIds.add(attendance.getAttendanceId());
+        return attendance;
+    }
+
+    private void deleteActiveAttendances() throws Exception {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(
+                     "DELETE FROM attendance WHERE store_staff_id = ? " +
+                             "AND attendance_status IN ('WORKING', 'ON_BREAK')")) {
+            statement.setLong(1, TARGET_STAFF_ID);
+            statement.executeUpdate();
+        }
+    }
+}
+
+
+===== src/test/java/com/example/kintai/domain/attendance/service/AttendanceServicePunchValidationTest.java =====
+package com.example.kintai.domain.attendance.service;
+
+import com.example.kintai.domain.attendance.dto.AttendancePunchDto;
+import com.example.kintai.domain.attendance.mapper.AttendanceMapper;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.verifyNoInteractions;
+
+@ExtendWith(MockitoExtension.class)
+class AttendanceServicePunchValidationTest {
+
+    @Mock
+    private AttendanceMapper attendanceMapper;
+
+    @InjectMocks
+    private AttendanceService attendanceService;
+
+    private AttendancePunchDto request;
+
+    @BeforeEach
+    void setUp() {
+        request = new AttendancePunchDto();
+        request.setStoreStaffId(1L);
+        request.setPunchType("CLOCK_IN");
+    }
+
+    @Test
+    void nullRequestIsRejectedBeforeDatabaseAccess() {
+        assertThrows(IllegalArgumentException.class, () -> attendanceService.punch(null));
+        verifyNoInteractions(attendanceMapper);
+    }
+
+    @Test
+    void missingOrNonPositiveStaffIdIsRejectedBeforeDatabaseAccess() {
+        request.setStoreStaffId(null);
+        assertThrows(IllegalArgumentException.class, () -> attendanceService.punch(request));
+        request.setStoreStaffId(0L);
+        assertThrows(IllegalArgumentException.class, () -> attendanceService.punch(request));
+        verifyNoInteractions(attendanceMapper);
+    }
+
+    @Test
+    void missingOrUnsupportedPunchTypeIsRejectedBeforeDatabaseAccess() {
+        request.setPunchType(null);
+        assertThrows(IllegalArgumentException.class, () -> attendanceService.punch(request));
+        request.setPunchType("INVALID");
+        assertThrows(IllegalArgumentException.class, () -> attendanceService.punch(request));
+        verifyNoInteractions(attendanceMapper);
+    }
+}
+
+
+===== src/test/java/com/example/kintai/domain/attendance/controller/AttendancePunchApiIntegrationTest.java =====
+package com.example.kintai.domain.attendance.controller;
+
+import com.example.kintai.database.IsolatedDatabaseGuard;
+import com.example.kintai.domain.member.dto.MemberDto;
+import com.example.kintai.global.security.CustomUserDetails;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.time.LocalDate;
+import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+class AttendancePunchApiIntegrationTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private DataSource dataSource;
+
+    private long ownerId;
+    private long staffMemberId;
+    private long storeId;
+    private long storeStaffId;
+    private Long createdAttendanceId;
+
+    @BeforeEach
+    void createIsolatedApiFixture() throws Exception {
+        IsolatedDatabaseGuard.requireAllowedDatabase(dataSource, "kintai_(day11_test|full_test)_[0-9a-f]{12}");
+        try (Connection connection = dataSource.getConnection()) {
+            ownerId = insertAndGetId(connection,
+                    "INSERT INTO member(email,password,name,phone,role) VALUES(?,?,?,?,'ROLE_OWNER')",
+                    "punch-owner-" + UUID.randomUUID() + "@example.invalid", "test-only", "Punch Owner", "0000000000");
+            staffMemberId = insertAndGetId(connection,
+                    "INSERT INTO member(email,password,name,phone,role) VALUES(?,?,?,?,'ROLE_STAFF')",
+                    "punch-staff-" + UUID.randomUUID() + "@example.invalid", "test-only", "Punch Staff", "0000000001");
+            storeId = insertAndGetId(connection,
+                    "INSERT INTO store(owner_id,store_name,invite_code,qr_token,pay_cutoff_day) VALUES(?,?,?,?,99)",
+                    ownerId, "Punch API Integration", token("invite"), token("qr"));
+            storeStaffId = insertAndGetId(connection,
+                    "INSERT INTO store_staff(store_id,member_id,hourly_wage,joined_date) VALUES(?,?,1300,?)",
+                    storeId, staffMemberId, LocalDate.now());
+        }
+    }
+
+    @AfterEach
+    void cleanIsolatedApiFixture() throws Exception {
+        try (Connection connection = dataSource.getConnection()) {
+            if (createdAttendanceId != null) {
+                try (PreparedStatement statement = connection.prepareStatement("DELETE FROM attendance WHERE attendance_id=?")) {
+                    statement.setLong(1, createdAttendanceId);
+                    statement.executeUpdate();
+                }
+            }
+            if (storeStaffId > 0) delete(connection, "DELETE FROM store_staff WHERE store_staff_id=?", storeStaffId);
+            if (storeId > 0) delete(connection, "DELETE FROM store WHERE store_id=?", storeId);
+            if (staffMemberId > 0) delete(connection, "DELETE FROM member WHERE member_id=?", staffMemberId);
+            if (ownerId > 0) delete(connection, "DELETE FROM member WHERE member_id=?", ownerId);
+        }
+    }
+
+    @Test
+    void authenticatedStaffPunchUsesSessionIdentityInsteadOfSpoofedBodyIds() throws Exception {
+        MemberDto member = new MemberDto();
+        member.setMemberId(staffMemberId);
+        member.setEmail("punch-staff@example.invalid");
+        member.setName("Punch Staff");
+        member.setRole("ROLE_STAFF");
+        member.setIsActive(true);
+        CustomUserDetails principal = new CustomUserDetails(member, storeStaffId, storeId);
+
+        String response = mockMvc.perform(post("/api/attendance/punch")
+                        .with(user(principal))
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"storeId\":999999,\"storeStaffId\":999999,\"punchType\":\"CLOCK_IN\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.storeId").value(storeId))
+                .andExpect(jsonPath("$.data.storeStaffId").value(storeStaffId))
+                .andExpect(jsonPath("$.data.attendanceStatus").value("WORKING"))
+                .andReturn().getResponse().getContentAsString();
+
+        Matcher idMatcher = Pattern.compile("\"attendanceId\"\\s*:\\s*(\\d+)").matcher(response);
+        if (!idMatcher.find()) throw new AssertionError("Response did not contain the generated attendance ID.");
+        long attendanceId = Long.parseLong(idMatcher.group(1));
+        createdAttendanceId = attendanceId;
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(
+                     "SELECT store_id,store_staff_id FROM attendance WHERE attendance_id=?")) {
+            statement.setLong(1, attendanceId);
+            try (ResultSet result = statement.executeQuery()) {
+                if (!result.next()) throw new AssertionError("API-created attendance was not persisted.");
+                assertEquals(storeId, result.getLong("store_id"));
+                assertEquals(storeStaffId, result.getLong("store_staff_id"));
+            }
+        }
+    }
+
+    private static long insertAndGetId(Connection connection, String sql, Object... values) throws Exception {
+        try (PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            for (int i = 0; i < values.length; i++) statement.setObject(i + 1, values[i]);
+            statement.executeUpdate();
+            try (ResultSet keys = statement.getGeneratedKeys()) {
+                if (!keys.next()) throw new IllegalStateException("Missing generated key.");
+                return keys.getLong(1);
+            }
+        }
+    }
+
+    private static void delete(Connection connection, String sql, long id) throws Exception {
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setLong(1, id);
+            statement.executeUpdate();
+        }
+    }
+
+    private static String token(String prefix) {
+        return (prefix + UUID.randomUUID().toString().replace("-", "")).substring(0, 19);
+    }
+}
+
+
+===== src/test/java/com/example/kintai/domain/attendance/controller/AttendanceApiSecurityTest.java =====
+package com.example.kintai.domain.attendance.controller;
+
+import com.example.kintai.domain.attendance.dto.AttendanceModRequestDto;
+import com.example.kintai.domain.attendance.dto.AttendanceModReviewDto;
+import com.example.kintai.domain.attendance.service.AttendanceService;
+import com.example.kintai.domain.member.dto.MemberDto;
+import com.example.kintai.domain.store.service.StoreAuthorizationService;
+import com.example.kintai.global.exception.GlobalExceptionHandler;
+import com.example.kintai.global.security.CustomUserDetails;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.core.MethodParameter;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.bind.support.WebDataBinderFactory;
+import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.method.support.ModelAndViewContainer;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+/**
+ * AttendanceApiSecurityTest（勤怠コントローラー IDOR 多層防御 MockMvc HTTP 検証）
+ * 1. スタッフによる他者ID改ざん申請の強制セッションバインド防御（HTTP 200 & 実DTO上書き実証）
+ * 2. オーナーによる管轄店舗スタッフ代理申請の正常許可（HTTP 200）
+ * 3. オーナーによる他店舗スタッフ代理申請の HTTP 403 Forbidden 遮断
+ * 4. オーナーによる管轄店舗の修正申請審査の正常許可（HTTP 200）
+ * 5. オーナーによる他店舗修正申請審査の HTTP 403 Forbidden 遮断
+ * 6. 未認証ユーザー（userDetails == null）の修正申請に対する HTTP 403 Forbidden 遮断
+ * 7. 未認証ユーザー（userDetails == null）の審査処理に対する HTTP 403 Forbidden 遮断
+ */
+@DisplayName("AttendanceApiController IDOR認可多層防御 MockMvc HTTPテスト")
+class AttendanceApiSecurityTest {
+
+    @Mock
+    private AttendanceService attendanceService;
+
+    @Mock
+    private StoreAuthorizationService storeAuthorizationService;
+
+    @InjectMocks
+    private AttendanceApiController attendanceApiController;
+
+    private MockMvc mockMvc;
+    private CustomUserDetails currentPrincipal;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+
+        // HTTPリクエストから @AuthenticationPrincipal に currentPrincipal を動的インジェクションするリゾルバー
+        HandlerMethodArgumentResolver authPrincipalResolver = new HandlerMethodArgumentResolver() {
+            @Override
+            public boolean supportsParameter(MethodParameter parameter) {
+                return parameter.hasParameterAnnotation(AuthenticationPrincipal.class);
+            }
+
+            @Override
+            public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
+                                          NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
+                return currentPrincipal;
+            }
+        };
+
+        // standaloneSetup + GlobalExceptionHandler（AccessDeniedException -> HTTP 403 Forbidden）
+        mockMvc = MockMvcBuilders.standaloneSetup(attendanceApiController)
+                .setControllerAdvice(new GlobalExceptionHandler())
+                .setCustomArgumentResolvers(authPrincipalResolver)
+                .build();
+    }
+
+    private CustomUserDetails createStaffDetails(Long memberId, Long storeStaffId, Long storeId) {
+        MemberDto member = new MemberDto();
+        member.setMemberId(memberId);
+        member.setEmail("staff@kintai.com");
+        member.setName("一般スタッフ");
+        member.setRole("ROLE_STAFF");
+        member.setIsActive(true);
+        return new CustomUserDetails(member, storeStaffId, storeId);
+    }
+
+    private CustomUserDetails createOwnerDetails(Long memberId) {
+        MemberDto member = new MemberDto();
+        member.setMemberId(memberId);
+        member.setEmail("owner@kintai.com");
+        member.setName("店舗オーナー");
+        member.setRole("ROLE_OWNER");
+        member.setIsActive(true);
+        return new CustomUserDetails(member, null, null);
+    }
+
+    @Nested
+    @DisplayName("リアルタイム打刻（POST /api/attendance/punch）の店舗ID強制バインドおよびIDOR防御")
+    class PunchSecurityTest {
+
+        @Test
+        @DisplayName("オーナーが自己店舗スタッフの打刻時に誤ったstoreIdを指定しても、サーバー側で正規店舗IDに強制バインドされること")
+        void punch_OwnerForOwnStaff_ShouldForceBindCorrectStoreId() throws Exception {
+            Long ownerMemberId = 2L;
+            Long targetStaffId = 10L;
+            Long spoofedStoreId = 999L; // クライアントが改ざんまたは誤指定した店舗ID
+            Long actualStoreId = 1L;   // DBに登録された正規店舗ID
+
+            String jsonPayload = """
+                {
+                    "storeStaffId": 10,
+                    "storeId": 999,
+                    "punchType": "CLOCK_IN"
+                }
+                """;
+
+            when(storeAuthorizationService.validateStaffStoreOwnership(targetStaffId, ownerMemberId)).thenReturn(actualStoreId);
+            currentPrincipal = createOwnerDetails(ownerMemberId);
+
+            mockMvc.perform(post("/api/attendance/punch")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(jsonPayload))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.success").value(true));
+
+            // 検証：サービス層へ渡されたDTOの storeId が正規店舗ID(1L)に強制置換されていること
+            ArgumentCaptor<com.example.kintai.domain.attendance.dto.AttendancePunchDto> captor =
+                    ArgumentCaptor.forClass(com.example.kintai.domain.attendance.dto.AttendancePunchDto.class);
+            verify(attendanceService).punch(captor.capture());
+            assertThat(captor.getValue().getStoreId()).isEqualTo(actualStoreId);
+            assertThat(captor.getValue().getStoreStaffId()).isEqualTo(targetStaffId);
+        }
+
+        @Test
+        @DisplayName("オーナーが他店舗スタッフの打刻を試みた場合は HTTP 403 Forbidden で遮断されること")
+        void punch_OwnerForOtherStoreStaff_ShouldReturn403Forbidden() throws Exception {
+            Long ownerMemberId = 2L;
+            Long attackerTargetStaffId = 777L;
+
+            String jsonPayload = """
+                {
+                    "storeStaffId": 777,
+                    "punchType": "CLOCK_IN"
+                }
+                """;
+
+            doThrow(new AccessDeniedException("対象スタッフに対する管理権限がありません。"))
+                    .when(storeAuthorizationService).validateStaffStoreOwnership(attackerTargetStaffId, ownerMemberId);
+
+            currentPrincipal = createOwnerDetails(ownerMemberId);
+
+            mockMvc.perform(post("/api/attendance/punch")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(jsonPayload))
+                    .andExpect(status().isForbidden())
+                    .andExpect(jsonPath("$.success").value(false))
+                    .andExpect(jsonPath("$.message").value("対象スタッフに対する管理権限がありません。"));
+
+            verify(attendanceService, never()).punch(any());
+        }
+
+        @Test
+        @DisplayName("スタッフが打刻時に他人IDと他店IDを偽造しても、セッションの本人情報に強制バインドされること")
+        void punch_StaffAttemptsSpoofing_ShouldForceBindSessionInfo() throws Exception {
+            Long myStaffId = 10L;
+            Long myStoreId = 1L;
+
+            String jsonPayload = """
+                {
+                    "storeStaffId": 888,
+                    "storeId": 999,
+                    "punchType": "CLOCK_IN"
+                }
+                """;
+
+            currentPrincipal = createStaffDetails(1L, myStaffId, myStoreId);
+
+            mockMvc.perform(post("/api/attendance/punch")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(jsonPayload))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.success").value(true));
+
+            ArgumentCaptor<com.example.kintai.domain.attendance.dto.AttendancePunchDto> captor =
+                    ArgumentCaptor.forClass(com.example.kintai.domain.attendance.dto.AttendancePunchDto.class);
+            verify(attendanceService).punch(captor.capture());
+            assertThat(captor.getValue().getStoreStaffId()).isEqualTo(myStaffId);
+            assertThat(captor.getValue().getStoreId()).isEqualTo(myStoreId);
+        }
+    }
+
+    @Nested
+    @DisplayName("勤怠修正申請（POST /api/attendance/mod-request）のIDOR防御 HTTPテスト")
+    class ModRequestSecurityTest {
+
+        @Test
+        @DisplayName("スタッフがリクエスト本文で他人のstoreStaffIdを指定してもセッションの本人IDに強制バインドされること（HTTP 200）")
+        void requestModification_StaffAttemptsSpoofing_ShouldForceBindSessionStaffId() throws Exception {
+            Long myStaffId = 10L;
+            Long victimStaffId = 999L; // 他人のスタッフIDを捏造
+            Long myStoreId = 1L;
+
+            String jsonPayload = """
+                {
+                    "storeStaffId": 999,
+                    "storeId": 1,
+                    "workDate": "2026-11-10",
+                    "requestedClockInAt": "2026-11-10T09:00:00",
+                    "requestedClockOutAt": "2026-11-10T18:00:00",
+                    "reason": "打刻忘れ修正"
+                }
+                """;
+
+            when(attendanceService.requestModification(any(AttendanceModRequestDto.class))).thenReturn(100L);
+            currentPrincipal = createStaffDetails(1L, myStaffId, myStoreId);
+
+            mockMvc.perform(post("/api/attendance/mod-request")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(jsonPayload))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.success").value(true))
+                    .andExpect(jsonPath("$.data").value(100L));
+
+            // 検証：サービスへ渡されたDTOの storeStaffId が本人ID(10L)に強制上書きされていること
+            ArgumentCaptor<AttendanceModRequestDto> captor = ArgumentCaptor.forClass(AttendanceModRequestDto.class);
+            verify(attendanceService).requestModification(captor.capture());
+            assertThat(captor.getValue().getStoreStaffId()).isEqualTo(myStaffId);
+            verify(storeAuthorizationService, never()).validateStaffStoreOwnership(any(), any());
+        }
+
+        @Test
+        @DisplayName("オーナーが自己所有店舗のスタッフの修正を代理申請する場合は正常に許可されること（HTTP 200）")
+        void requestModification_OwnerForOwnStaff_ShouldSucceed() throws Exception {
+            Long ownerMemberId = 2L;
+            Long targetStaffId = 10L;
+
+            String jsonPayload = """
+                {
+                    "storeStaffId": 10,
+                    "workDate": "2026-11-10",
+                    "requestedClockInAt": "2026-11-10T09:00:00",
+                    "requestedClockOutAt": "2026-11-10T18:00:00",
+                    "reason": "オーナー代理申請"
+                }
+                """;
+
+            when(attendanceService.requestModification(any(AttendanceModRequestDto.class))).thenReturn(101L);
+            currentPrincipal = createOwnerDetails(ownerMemberId);
+
+            mockMvc.perform(post("/api/attendance/mod-request")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(jsonPayload))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.success").value(true))
+                    .andExpect(jsonPath("$.data").value(101L));
+
+            // 検証：オーナーシップ検証が実行されたこと
+            verify(storeAuthorizationService).validateStaffStoreOwnership(targetStaffId, ownerMemberId);
+            verify(attendanceService).requestModification(any(AttendanceModRequestDto.class));
+        }
+
+        @Test
+        @DisplayName("オーナーが他人の店舗に所属するスタッフの代理申請を試みた場合は HTTP 403 Forbidden で遮断されること")
+        void requestModification_OwnerForOtherStoreStaff_ShouldReturn403Forbidden() throws Exception {
+            Long ownerMemberId = 2L;
+            Long attackerTargetStaffId = 777L;
+
+            String jsonPayload = """
+                {
+                    "storeStaffId": 777,
+                    "workDate": "2026-11-10",
+                    "requestedClockInAt": "2026-11-10T09:00:00",
+                    "requestedClockOutAt": "2026-11-10T18:00:00",
+                    "reason": "不正代理申請"
+                }
+                """;
+
+            doThrow(new AccessDeniedException("対象スタッフに対する管理権限がありません。"))
+                    .when(storeAuthorizationService).validateStaffStoreOwnership(attackerTargetStaffId, ownerMemberId);
+
+            currentPrincipal = createOwnerDetails(ownerMemberId);
+
+            mockMvc.perform(post("/api/attendance/mod-request")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(jsonPayload))
+                    .andExpect(status().isForbidden())
+                    .andExpect(jsonPath("$.success").value(false))
+                    .andExpect(jsonPath("$.message").value("対象スタッフに対する管理権限がありません。"));
+
+            verify(attendanceService, never()).requestModification(any());
+        }
+    }
+
+    @Nested
+    @DisplayName("勤怠修正申請の審査（POST /api/attendance/mod-requests/{id}/review）のIDOR防御 HTTPテスト")
+    class ReviewModificationSecurityTest {
+
+        @Test
+        @DisplayName("オーナーが自己所有店舗の勤怠修正申請を審査する場合は正常に成功すること（HTTP 200）")
+        void reviewModification_OwnerForOwnStoreModRequest_ShouldSucceed() throws Exception {
+            Long ownerMemberId = 2L;
+            Long modRequestId = 50L;
+
+            String jsonPayload = """
+                {
+                    "action": "APPROVE",
+                    "rejectReason": null
+                }
+                """;
+
+            currentPrincipal = createOwnerDetails(ownerMemberId);
+
+            mockMvc.perform(post("/api/attendance/mod-requests/{modRequestId}/review", modRequestId)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(jsonPayload))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.success").value(true));
+
+            // 検証：修正申請所有権検証およびサービス呼び出しが実行されたこと
+            verify(storeAuthorizationService).validateModRequestStoreOwnership(modRequestId, ownerMemberId);
+            verify(attendanceService).reviewModification(eq(modRequestId), eq(ownerMemberId), any(AttendanceModReviewDto.class));
+        }
+
+        @Test
+        @DisplayName("オーナーが他人の店舗の修正申請IDを不正審査しようとした場合は HTTP 403 Forbidden で遮断されること")
+        void reviewModification_OwnerForOtherStoreModRequest_ShouldReturn403Forbidden() throws Exception {
+            Long ownerMemberId = 2L;
+            Long targetModRequestId = 999L; // 他店舗の申請ID
+
+            String jsonPayload = """
+                {
+                    "action": "APPROVE",
+                    "rejectReason": null
+                }
+                """;
+
+            doThrow(new AccessDeniedException("対象勤怠修正申請に対する審査権限がありません。"))
+                    .when(storeAuthorizationService).validateModRequestStoreOwnership(targetModRequestId, ownerMemberId);
+
+            currentPrincipal = createOwnerDetails(ownerMemberId);
+
+            mockMvc.perform(post("/api/attendance/mod-requests/{modRequestId}/review", targetModRequestId)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(jsonPayload))
+                    .andExpect(status().isForbidden())
+                    .andExpect(jsonPath("$.success").value(false))
+                    .andExpect(jsonPath("$.message").value("対象勤怠修正申請に対する審査権限がありません。"));
+
+            verify(attendanceService, never()).reviewModification(any(), any(), any());
+        }
+    }
+
+    @Nested
+    @DisplayName("未認証アクセスの多層防御 HTTPテスト")
+    class UnauthenticatedSecurityTest {
+
+        @Test
+        @DisplayName("未認証状態（currentPrincipal == null）で修正申請を試みた場合は HTTP 403 Forbidden で遮断されること")
+        void requestModification_Unauthenticated_ShouldReturn403Forbidden() throws Exception {
+            String jsonPayload = """
+                {
+                    "storeStaffId": 1,
+                    "workDate": "2026-11-10",
+                    "requestedClockInAt": "2026-11-10T09:00:00",
+                    "requestedClockOutAt": "2026-11-10T18:00:00",
+                    "reason": "未認証申請"
+                }
+                """;
+
+            currentPrincipal = null; // 未認証
+
+            mockMvc.perform(post("/api/attendance/mod-request")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(jsonPayload))
+                    .andExpect(status().isForbidden())
+                    .andExpect(jsonPath("$.success").value(false))
+                    .andExpect(jsonPath("$.message").value("勤怠修正申請には認証が必要です。"));
+
+            verify(attendanceService, never()).requestModification(any());
+        }
+
+        @Test
+        @DisplayName("未認証状態（currentPrincipal == null）で審査処理を試みた場合は HTTP 403 Forbidden で遮断されること")
+        void reviewModification_Unauthenticated_ShouldReturn403Forbidden() throws Exception {
+            String jsonPayload = """
+                {
+                    "action": "APPROVE"
+                }
+                """;
+
+            currentPrincipal = null; // 未認証
+
+            mockMvc.perform(post("/api/attendance/mod-requests/1/review")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(jsonPayload))
+                    .andExpect(status().isForbidden())
+                    .andExpect(jsonPath("$.success").value(false))
+                    .andExpect(jsonPath("$.message").value("審査処理には認証が必要です。"));
+
+            verify(attendanceService, never()).reviewModification(any(), any(), any());
+        }
+    }
+}
+
+
+===== src/test/java/com/example/kintai/config/CsrfSecurityIntegrationTest.java =====
+package com.example.kintai.config;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@SpringBootTest
+@DisplayName("CSRF 多層防御セキュリティ統合テスト")
+class CsrfSecurityIntegrationTest {
+
+    @Autowired
+    private WebApplicationContext context;
+
+    private MockMvc mockMvc;
+
+    @BeforeEach
+    void setUp() {
+        mockMvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .apply(springSecurity())
+                .build();
+    }
+
+    @Test
+    @DisplayName("CSRFトークンなしのPOSTリクエストは403 Forbiddenで拒否されること")
+    @WithMockUser(username = "staff1", roles = {"STAFF"})
+    void postWithoutCsrf_ShouldReturn403Forbidden() throws Exception {
+        mockMvc.perform(post("/api/attendance/punch")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"storeStaffId\":1,\"punchType\":\"CLOCK_IN\"}"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("CSRFトークンが有効でも未認証ユーザーの打刻APIアクセスはログインへ拒否されること")
+    void anonymousPunchWithValidCsrf_ShouldBeRejectedBySecurityFilter() throws Exception {
+        mockMvc.perform(post("/api/attendance/punch")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"storeStaffId\":1,\"punchType\":\"CLOCK_IN\"}"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(result -> {
+                    String redirectedUrl = result.getResponse().getRedirectedUrl();
+                    if (redirectedUrl == null || !redirectedUrl.endsWith("/login")) {
+                        throw new AssertionError("未認証打刻はログインへ誘導される必要があります。actual=" + redirectedUrl);
+                    }
+                });
+    }
+
+    @Test
+    @DisplayName("不正なCSRFトークンを含むPOSTリクエストは403 Forbiddenで拒否されること")
+    @WithMockUser(username = "staff1", roles = {"STAFF"})
+    void postWithInvalidCsrf_ShouldReturn403Forbidden() throws Exception {
+        mockMvc.perform(post("/api/attendance/punch")
+                        .header("X-XSRF-TOKEN", "invalid-csrf-token-sample")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"storeStaffId\":1,\"punchType\":\"CLOCK_IN\"}"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("オーナーおよびスタッフのアカウントで正常にログインできること")
+    void testFormLoginSuccess() throws Exception {
+        // オーナー (owner@kintai.com) -> /attendance/mod-requests
+        mockMvc.perform(post("/login-process")
+                        .with(csrf())
+                        .param("email", "owner@kintai.com")
+                        .param("password", "1234"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(result -> {
+                    String url = result.getResponse().getRedirectedUrl();
+                    if (!"/attendance/mod-requests".equals(url)) {
+                        throw new AssertionError("オーナーログイン後のリダイレクト先が不正です: " + url);
+                    }
+                });
+
+        // スタッフ (staff1@kintai.com) -> /attendance
+        mockMvc.perform(post("/login-process")
+                        .with(csrf())
+                        .param("email", "staff1@kintai.com")
+                        .param("password", "1234"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(result -> {
+                    String url = result.getResponse().getRedirectedUrl();
+                    if (!"/attendance".equals(url)) {
+                        throw new AssertionError("スタッフログイン後のリダイレクト先が不正です: " + url);
+                    }
+                });
+    }
+
+    @Test
+    @DisplayName("正常なCSRFトークンを付与したPOSTリクエストは403にならず正常に受け付けられること")
+    @WithMockUser(username = "staff1", roles = {"STAFF"})
+    void postWithValidCsrf_ShouldNotReturnForbidden() throws Exception {
+        mockMvc.perform(post("/api/attendance/punch")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"storeStaffId\":1,\"punchType\":\"CLOCK_IN\"}"))
+                .andExpect(result -> {
+                    int status = result.getResponse().getStatus();
+                    if (status == 403) {
+                        throw new AssertionError("CSRFトークン付きリクエストが403 Forbiddenで拒否されました。");
+                    }
+                });
+    }
+}
+
+
+===== src/test/java/com/example/kintai/database/IsolatedDatabaseGuard.java =====
+package com.example.kintai.database;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.regex.Pattern;
+
+/** Fail closed before integration tests mutate database state. */
+public final class IsolatedDatabaseGuard {
+
+    private IsolatedDatabaseGuard() {}
+
+    public static String requireAllowedDatabase(DataSource dataSource, String allowedNamePattern) throws Exception {
+        Pattern allowed = Pattern.compile(allowedNamePattern);
+        try (Connection connection = dataSource.getConnection();
+             Statement statement = connection.createStatement();
+             ResultSet result = statement.executeQuery("SELECT DATABASE()")) {
+            if (!result.next()) {
+                throw new IllegalStateException("Unable to determine the integration-test database; refusing to continue.");
+            }
+            String database = result.getString(1);
+            if (database == null || !allowed.matcher(database).matches()) {
+                throw new IllegalStateException("Integration test requires an allowlisted isolated database; refusing database: " + database);
+            }
+            return database;
+        }
+    }
+}
+
+
+===== scripts/run_isolated_regression.ps1 =====
+[CmdletBinding()]
+param(
+    [Parameter(Mandatory = $true)]
+    [ValidateSet('Day10', 'Day11', 'All')]
+    [string]$Scope,
+    [Parameter(Mandatory = $true)]
+    [string]$DatabaseName,
+    [string]$TestClass
+)
+
+$ErrorActionPreference = 'Stop'
+$projectRoot = Split-Path -Parent $PSScriptRoot
+$mysqlExe = 'C:\Program Files\MySQL\MySQL Server 26.7\bin\mysql.exe'
+$settingsFile = Join-Path $projectRoot 'src\main\resources\application.yaml'
+$runId = Get-Date -Format 'yyyyMMdd_HHmmss'
+$outputDir = Join-Path $projectRoot ("docs\audit_runs\isolated_{0}_{1}_{2}" -f $Scope.ToLowerInvariant(), $runId, $DatabaseName)
+$consoleLog = Join-Path $outputDir 'gradle_console.log'
+
+if (-not $TestClass) {
+    $TestClass = if ($Scope -eq 'Day11') {
+        'com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest'
+    } else {
+        'com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest'
+    }
+}
+
+if (-not (Test-Path -LiteralPath $mysqlExe -PathType Leaf)) { throw 'MySQL client not found.' }
+if (-not (Test-Path -LiteralPath $settingsFile -PathType Leaf)) { throw 'application.yaml not found.' }
+
+if ($Scope -eq 'Day10' -and $DatabaseName -notmatch '^kintai_day10_test_[0-9a-f]{12}$') {
+    throw "Day10 database name is outside the generated allowlist: $DatabaseName"
+}
+if ($Scope -eq 'Day11' -and $DatabaseName -notmatch '^kintai_day11_test_[0-9a-f]{12}$') {
+    throw "Day11 database name is outside the generated allowlist: $DatabaseName"
+}
+if ($Scope -eq 'All' -and $DatabaseName -notmatch '^kintai_full_test_[0-9a-f]{12}$') {
+    throw "Full-suite database name is outside the generated allowlist: $DatabaseName"
+}
+
+function Get-DatabasePassword {
+    if ($env:KINTAI_DB_PASSWORD) { return $env:KINTAI_DB_PASSWORD }
+    $passwordLine = Get-Content -LiteralPath $settingsFile -Encoding UTF8 |
+        Where-Object { $_ -match '^\s*password:' } | Select-Object -First 1
+    if (-not $passwordLine) { throw 'Datasource password setting not found. Set KINTAI_DB_PASSWORD.' }
+    return (($passwordLine -split ':', 2)[1] -split '#', 2)[0].Trim()
+}
+
+New-Item -ItemType Directory -Path $outputDir -Force | Out-Null
+$resultDir = Join-Path $projectRoot 'build\test-results\test'
+if (Test-Path -LiteralPath $resultDir -PathType Container) {
+    $preexistingResults = @(Get-ChildItem -LiteralPath $resultDir -Filter 'TEST-*.xml' -File -ErrorAction SilentlyContinue)
+    if ($preexistingResults.Count -gt 0) {
+        $preservedResultDir = Join-Path $outputDir 'preexisting_test_results'
+        New-Item -ItemType Directory -Path $preservedResultDir -Force | Out-Null
+        foreach ($result in $preexistingResults) {
+            Copy-Item -LiteralPath $result.FullName -Destination (Join-Path $preservedResultDir $result.Name) -Force
+            Remove-Item -LiteralPath $result.FullName -Force
+        }
+        Write-Output "PRESERVED_PREEXISTING_JUNIT_COUNT=$($preexistingResults.Count)"
+    }
+}
+$oldSpringUrl = $env:SPRING_DATASOURCE_URL
+$oldMysqlPwd = $env:MYSQL_PWD
+$env:MYSQL_PWD = Get-DatabasePassword
+$env:SPRING_DATASOURCE_URL = "jdbc:mysql://127.0.0.1:3306/$DatabaseName"
+
+try {
+    $selected = & $mysqlExe --host=127.0.0.1 --port=3306 --user=root --database=$DatabaseName --batch --skip-column-names `
+        --execute='SELECT DATABASE();'
+    if ($LASTEXITCODE -ne 0) { throw "Target database preflight failed: exit $LASTEXITCODE" }
+    if (($selected | Out-String).Trim() -ne $DatabaseName) {
+        throw "Target database mismatch. Expected '$DatabaseName', got '$selected'."
+    }
+
+    $metadata = [ordered]@{
+        database = $DatabaseName
+        scope = $Scope
+        test_class = if ($Scope -ne 'All') { $TestClass } else { $null }
+        run_id = $runId
+        output_dir = $outputDir
+        jdbc_url_host = '127.0.0.1:3306'
+    }
+    $metadata | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $outputDir 'run_metadata.json') -Encoding UTF8
+    Write-Output "TARGET_DATABASE=$DatabaseName"
+    Write-Output "OUTPUT_DIR=$outputDir"
+
+    if ($Scope -eq 'Day10' -or $Scope -eq 'Day11') {
+        $gradleArgs = "test --tests $TestClass --rerun-tasks --no-daemon --console plain"
+    }
+    else {
+        $gradleArgs = 'test --rerun-tasks --no-daemon --console plain'
+    }
+
+    Push-Location $projectRoot
+    try {
+        $gradleCommand = ".\gradlew.bat $gradleArgs > `"$consoleLog`" 2>&1"
+        & cmd.exe /d /c $gradleCommand
+        $gradleExit = $LASTEXITCODE
+    }
+    finally {
+        Pop-Location
+    }
+
+    $junitSources = @(Get-ChildItem -LiteralPath $resultDir -Filter 'TEST-*.xml' -File -ErrorAction SilentlyContinue)
+    foreach ($source in $junitSources) {
+        Copy-Item -LiteralPath $source.FullName -Destination (Join-Path $outputDir $source.Name) -Force
+    }
+
+    $totals = [ordered]@{ tests = 0; failures = 0; errors = 0; skipped = 0 }
+    $parseErrors = [System.Collections.Generic.List[string]]::new()
+    foreach ($junitFile in @(Get-ChildItem -LiteralPath $outputDir -Filter 'TEST-*.xml' -File -ErrorAction SilentlyContinue)) {
+        try {
+            $xml = [xml][IO.File]::ReadAllText($junitFile.FullName, [Text.Encoding]::UTF8)
+            $suiteNodes = @($xml.SelectNodes('/testsuite | /testsuites/testsuite'))
+            if ($suiteNodes.Count -eq 0) { throw 'No JUnit testsuite element found.' }
+            foreach ($suite in $suiteNodes) {
+                foreach ($key in @('tests', 'failures', 'errors', 'skipped')) {
+                    $value = $suite.GetAttribute($key)
+                    if ($value -and $value -notmatch '^\d+$') { throw "Invalid '$key' attribute '$value'." }
+                    if ($value) { $totals[$key] += [int]$value }
+                }
+            }
+        }
+        catch {
+            $parseErrors.Add("$($junitFile.Name): $($_.Exception.Message)")
+        }
+    }
+
+    $summary = [ordered]@{
+        gradle_exit_code = $gradleExit
+        junit_xml_count = $junitSources.Count
+        tests = $totals.tests
+        failures = $totals.failures
+        errors = $totals.errors
+        skipped = $totals.skipped
+        junit_parse_errors = @($parseErrors)
+        result = if ($gradleExit -ne 0 -or $parseErrors.Count -gt 0) { 'FAILED' } elseif ($junitSources.Count -eq 0 -or $totals.tests -eq 0) { 'NO_JUNIT_XML' } elseif ($totals.failures -gt 0 -or $totals.errors -gt 0) { 'FAILED' } else { 'PASS' }
+    }
+    $summary | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $outputDir 'exit_summary.json') -Encoding UTF8
+
+    $hashTargets = @()
+    if (Test-Path -LiteralPath $consoleLog -PathType Leaf) { $hashTargets += Get-Item -LiteralPath $consoleLog }
+    $hashTargets += @(Get-ChildItem -LiteralPath $outputDir -Filter 'TEST-*.xml' -File -ErrorAction SilentlyContinue)
+    $manifest = foreach ($target in $hashTargets) {
+        [pscustomobject]@{
+            path = $target.Name
+            bytes = $target.Length
+            sha256 = (Get-FileHash -LiteralPath $target.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+        }
+    }
+    [ordered]@{
+        schema_version = '1.0'
+        run_id = $runId
+        generated_at_utc = [DateTime]::UtcNow.ToString('o')
+        algorithm = 'SHA-256'
+        files = @($manifest)
+    } | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $outputDir 'sha256_manifest.json') -Encoding UTF8
+
+    Write-Output "GRADLE_EXIT_CODE=$gradleExit"
+    Write-Output "JUNIT_XML_COUNT=$($junitSources.Count)"
+    Write-Output "TESTS=$($totals.tests)"
+    Write-Output "FAILURES=$($totals.failures)"
+    Write-Output "ERRORS=$($totals.errors)"
+    Write-Output "SKIPPED=$($totals.skipped)"
+    if ($gradleExit -ne 0 -or $parseErrors.Count -gt 0 -or $junitSources.Count -eq 0 -or $totals.tests -eq 0 -or $totals.failures -gt 0 -or $totals.errors -gt 0) {
+        throw "Isolated regression did not pass. See run artifacts: $outputDir"
+    }
+    Write-Output 'ISOLATED_REGRESSION_SUCCESS'
+}
+finally {
+    if ($null -eq $oldSpringUrl) { Remove-Item Env:SPRING_DATASOURCE_URL -ErrorAction SilentlyContinue }
+    else { $env:SPRING_DATASOURCE_URL = $oldSpringUrl }
+    if ($null -eq $oldMysqlPwd) { Remove-Item Env:MYSQL_PWD -ErrorAction SilentlyContinue }
+    else { $env:MYSQL_PWD = $oldMysqlPwd }
+}
+
+
+===== scripts/prepare_day10_isolated_db.ps1 =====
+[CmdletBinding()]
+param()
+
+$ErrorActionPreference = 'Stop'
+$projectRoot = Split-Path -Parent $PSScriptRoot
+$mysqlExe = 'C:\Program Files\MySQL\MySQL Server 26.7\bin\mysql.exe'
+$schemaFile = Join-Path $projectRoot 'src\main\resources\db\schema.sql'
+$settingsFile = Join-Path $projectRoot 'src\main\resources\application.yaml'
+if (-not (Test-Path -LiteralPath $mysqlExe -PathType Leaf)) { throw 'MySQL client not found.' }
+foreach ($path in @($schemaFile, $settingsFile)) { if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "Required file not found: $path" } }
+
+$schema = [IO.File]::ReadAllText($schemaFile, [Text.Encoding]::UTF8)
+# The canonical rev.3 schema contains its own CREATE DATABASE/USE lines for
+# standalone installation. Remove only those two database-selection lines so
+# the exact table definitions are loaded into the newly generated test DB.
+$schema = [regex]::Replace($schema, '(?im)^\s*(CREATE\s+DATABASE\s+IF\s+NOT\s+EXISTS.*|USE\s+[^;]+;)\s*\r?\n', '')
+if ($schema -match '(?im)^\s*(USE\s+|CREATE\s+DATABASE|DROP\s+DATABASE|ALTER\s+DATABASE)') {
+    throw 'Schema contains an unexpected database-level statement after normalization; refusing to run.'
+}
+$passwordLine = Get-Content -LiteralPath $settingsFile -Encoding UTF8 | Where-Object { $_ -match '^\s*password:' } | Select-Object -First 1
+if (-not $passwordLine) { throw 'Datasource password setting not found.' }
+$dbName = 'kintai_day10_test_' + [guid]::NewGuid().ToString('N').Substring(0, 12)
+$env:MYSQL_PWD = (($passwordLine -split ':', 2)[1] -split '#', 2)[0].Trim()
+try {
+    $dbSql = "CREATE DATABASE ``$dbName`` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+    & $mysqlExe --host=127.0.0.1 --port=3306 --user=root --default-character-set=utf8mb4 --execute=$dbSql
+    if ($LASTEXITCODE -ne 0) { throw "Database creation failed: exit $LASTEXITCODE" }
+    Write-Output "ISOLATED_DATABASE=$dbName"
+    Write-Output 'A new isolated database was created. It will not be deleted automatically.'
+
+    $schema | & $mysqlExe --host=127.0.0.1 --port=3306 --user=root --default-character-set=utf8mb4 --database=$dbName
+    if ($LASTEXITCODE -ne 0) { throw "Schema initialization failed: exit $LASTEXITCODE. Retained database: $dbName" }
+    $fixture = @'
+INSERT INTO member (member_id,email,password,name,phone,role) VALUES
+  (1,'day10-owner@example.invalid','test-only','Day10 Owner','0000000000','ROLE_OWNER'),
+  (2,'day10-staff@example.invalid','test-only','Day10 Staff','0000000000','ROLE_STAFF');
+INSERT INTO store (store_id,owner_id,store_name,invite_code,qr_token) VALUES
+  (1,1,'Day10 Test Store','day10-test','day10-test-token');
+INSERT INTO store_staff (store_staff_id,store_id,member_id,hourly_wage,joined_date) VALUES
+  (2,1,2,1300,'2020-01-01');
+SELECT DATABASE() AS selected_database;
+SELECT COUNT(*) AS fixture_staff_count FROM store_staff WHERE store_staff_id=2 AND store_id=1;
+'@
+    $fixture | & $mysqlExe --host=127.0.0.1 --port=3306 --user=root --default-character-set=utf8mb4 --database=$dbName --batch
+    if ($LASTEXITCODE -ne 0) { throw "Fixture initialization failed: exit $LASTEXITCODE. Retained database: $dbName" }
+    Write-Output 'PREPARATION_COMPLETE'
+    Write-Output 'No tests have been run. Report the database name and output before proceeding.'
+} finally {
+    Remove-Item Env:MYSQL_PWD -ErrorAction SilentlyContinue
+}
+
+
+===== Previous independent findings A-05/A-06 and remediation =====
+The prior Qwen report warned that the auditor saw AttendanceService.punch accepting a caller-supplied staff ID without the controller authorization context (A-05), and that request/null/ID validation before database access was not visible (A-06). Current API controller binds staff identity from CustomUserDetails and validates owner staff/store ownership. SecurityConfig protects /api/attendance/**. New full-filter anonymous request test with valid CSRF is expected to redirect to login. Punch service now rejects null payload, null/nonpositive staff ID, null/unsupported type before mapper access; unit tests assert mapper has no interactions. A new end-to-end MockMvc integration test uses actual SecurityFilterChain with a CustomUserDetails principal and verifies spoofed IDs are overwritten and only the real isolated staff/store IDs are persisted. The concurrency fixture list now uses ConcurrentLinkedQueue.
+
+===== Fresh local concurrency repetitions (3 new isolated DBs) =====
+[
+  {
+    "iteration": 1,
+    "database": "kintai_day10_test_f21d3216d0d4",
+    "status": "SUCCESS",
+    "exit_code": 0,
+    "tests": 2,
+    "failures": 0,
+    "errors": 0,
+    "prepare_log": "C:\\dev\\kintai\\docs\\audit_runs\\day10_isolated_regression_20261114_093404\\iteration_01\\prepare.log",
+    "runner_log": "C:\\dev\\kintai\\docs\\audit_runs\\day10_isolated_regression_20261114_093404\\iteration_01\\runner.log",
+    "junit_xml": "C:\\dev\\kintai\\docs\\audit_runs\\day10_isolated_regression_20261114_093404\\iteration_01\\TEST-AttendanceServiceConcurrencyIntegrationTest.xml",
+    "runner_log_sha256": "a2ca89262076d2dbce755b35c927f797982b256d66054af10e999871938a0ef6",
+    "junit_sha256": "ee4df71ce6823ee24754af101741130e781e4a7d0d0ef25677599f6439123b47"
+  },
+  {
+    "iteration": 2,
+    "database": "kintai_day10_test_556e7ea160c0",
+    "status": "SUCCESS",
+    "exit_code": 0,
+    "tests": 2,
+    "failures": 0,
+    "errors": 0,
+    "prepare_log": "C:\\dev\\kintai\\docs\\audit_runs\\day10_isolated_regression_20261114_093404\\iteration_02\\prepare.log",
+    "runner_log": "C:\\dev\\kintai\\docs\\audit_runs\\day10_isolated_regression_20261114_093404\\iteration_02\\runner.log",
+    "junit_xml": "C:\\dev\\kintai\\docs\\audit_runs\\day10_isolated_regression_20261114_093404\\iteration_02\\TEST-AttendanceServiceConcurrencyIntegrationTest.xml",
+    "runner_log_sha256": "b42a0055c1d22adef4efe2d809874af1a5db46d8fbb2738e129e8b8c726d2205",
+    "junit_sha256": "beb5492f7fea1498bcb4ff57cfee27e2e92fb164ba85b5ea88761fdbe737eac5"
+  },
+  {
+    "iteration": 3,
+    "database": "kintai_day10_test_b4c6dec96694",
+    "status": "SUCCESS",
+    "exit_code": 0,
+    "tests": 2,
+    "failures": 0,
+    "errors": 0,
+    "prepare_log": "C:\\dev\\kintai\\docs\\audit_runs\\day10_isolated_regression_20261114_093404\\iteration_03\\prepare.log",
+    "runner_log": "C:\\dev\\kintai\\docs\\audit_runs\\day10_isolated_regression_20261114_093404\\iteration_03\\runner.log",
+    "junit_xml": "C:\\dev\\kintai\\docs\\audit_runs\\day10_isolated_regression_20261114_093404\\iteration_03\\TEST-AttendanceServiceConcurrencyIntegrationTest.xml",
+    "runner_log_sha256": "86e2423316f2f8bda81b3092e01235af1a9762542a66730ae601c81cc929167c",
+    "junit_sha256": "9f5fbf6e96cbb8121d2c2962aa5af4c66b8a3b96fc57616cfc46b26a2a35be57"
+  }
+]
+
+
+===== Full local regression =====
+{
+  "gradle_exit_code": 0,
+  "junit_xml_count": 37,
+  "tests": 91,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "junit_parse_errors": [],
+  "result": "PASS"
+}
+
+
+===== JUnit evidence docs/audit_runs/isolated_all_20261114_093302_kintai_full_test_964bf98d5088/TEST-com.example.kintai.config.CsrfSecurityIntegrationTest.xml =====
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="CSRF 多層防御セキュリティ統合テスト" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-14T00:33:25.288Z" hostname="BK" time="0.786">
+  <properties/>
+  <testcase name="CSRFトークンなしのPOSTリクエストは403 Forbiddenで拒否されること" classname="com.example.kintai.config.CsrfSecurityIntegrationTest" time="0.022"/>
+  <testcase name="不正なCSRFトークンを含むPOSTリクエストは403 Forbiddenで拒否されること" classname="com.example.kintai.config.CsrfSecurityIntegrationTest" time="0.005"/>
+  <testcase name="CSRFトークンが有効でも未認証ユーザーの打刻APIアクセスはログインへ拒否されること" classname="com.example.kintai.config.CsrfSecurityIntegrationTest" time="0.008"/>
+  <testcase name="オーナーおよびスタッフのアカウントで正常にログインできること" classname="com.example.kintai.config.CsrfSecurityIntegrationTest" time="0.596"/>
+  <testcase name="正常なCSRFトークンを付与したPOSTリクエストは403にならず正常に受け付けられること" classname="com.example.kintai.config.CsrfSecurityIntegrationTest" time="0.145"/>
+  <system-out><![CDATA[2026-11-14T09:33:25.290+09:00  INFO 30612 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.config.CsrfSecurityIntegrationTest]: CsrfSecurityIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-14T09:33:25.291+09:00  INFO 30612 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.config.CsrfSecurityIntegrationTest
+2026-11-14T09:33:25.292+09:00  INFO 30612 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.config.CsrfSecurityIntegrationTest]: CsrfSecurityIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-14T09:33:25.293+09:00  INFO 30612 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.config.CsrfSecurityIntegrationTest
+2026-11-14T09:33:25.306+09:00  INFO 30612 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-14T09:33:25.306+09:00  INFO 30612 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-14T09:33:25.308+09:00  INFO 30612 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-11-14T09:33:25.320+09:00  INFO 30612 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-14T09:33:25.321+09:00  INFO 30612 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-14T09:33:25.322+09:00  INFO 30612 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-11-14T09:33:25.326+09:00  INFO 30612 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-14T09:33:25.326+09:00  INFO 30612 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-14T09:33:25.328+09:00  INFO 30612 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-11-14T09:33:25.335+09:00  INFO 30612 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-14T09:33:25.335+09:00  INFO 30612 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-14T09:33:25.336+09:00  INFO 30612 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-11-14T09:33:25.411+09:00  INFO 30612 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-11-14T09:33:25.718+09:00  INFO 30612 --- [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@67201002
+2026-11-14T09:33:25.721+09:00  INFO 30612 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-11-14T09:33:25.931+09:00  INFO 30612 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-14T09:33:25.931+09:00  INFO 30612 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-14T09:33:25.932+09:00  INFO 30612 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
+
+
+===== JUnit evidence docs/audit_runs/isolated_all_20261114_093302_kintai_full_test_964bf98d5088/TEST-com.example.kintai.domain.attendance.controller.AttendancePunchApiIntegrationTest.xml =====
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.kintai.domain.attendance.controller.AttendancePunchApiIntegrationTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-11-14T00:33:27.122Z" hostname="BK" time="1.28">
+  <properties/>
+  <testcase name="authenticatedStaffPunchUsesSessionIdentityInsteadOfSpoofedBodyIds()" classname="com.example.kintai.domain.attendance.controller.AttendancePunchApiIntegrationTest" time="0.126"/>
+  <system-out><![CDATA[2026-11-14T09:33:27.125+09:00  INFO 30612 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.attendance.controller.AttendancePunchApiIntegrationTest]: AttendancePunchApiIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-14T09:33:27.204+09:00  INFO 30612 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.attendance.controller.AttendancePunchApiIntegrationTest
+2026-11-14T09:33:27.206+09:00  INFO 30612 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.attendance.controller.AttendancePunchApiIntegrationTest]: AttendancePunchApiIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-14T09:33:27.209+09:00  INFO 30612 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.attendance.controller.AttendancePunchApiIntegrationTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-11-14T09:33:27.267+09:00  INFO 30612 --- [    Test worker] .d.a.c.AttendancePunchApiIntegrationTest : Starting AttendancePunchApiIntegrationTest using Java 17.0.12 with PID 30612 (started by klad3 in C:\dev\kintai)
+2026-11-14T09:33:27.267+09:00  INFO 30612 --- [    Test worker] .d.a.c.AttendancePunchApiIntegrationTest : No active profile set, falling back to 1 default profile: "default"
+2026-11-14T09:33:28.015+09:00  INFO 30612 --- [    Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-11-14T09:33:28.230+09:00  INFO 30612 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-14T09:33:28.230+09:00  INFO 30612 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-14T09:33:28.233+09:00  INFO 30612 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 3 ms
+2026-11-14T09:33:28.272+09:00  INFO 30612 --- [    Test worker] .d.a.c.AttendancePunchApiIntegrationTest : Started AttendancePunchApiIntegrationTest in 1.052 seconds (process running for 9.479)
+2026-11-14T09:33:28.278+09:00  INFO 30612 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Starting...
+2026-11-14T09:33:28.298+09:00  INFO 30612 --- [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Added connection com.mysql.cj.jdbc.ConnectionImpl@3d26c82d
+2026-11-14T09:33:28.301+09:00  INFO 30612 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Start completed.
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
+
+
+===== JUnit evidence docs/audit_runs/isolated_all_20261114_093302_kintai_full_test_964bf98d5088/TEST-com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest.xml =====
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Day 10: AttendanceService 동시 출퇴근 타각 검증" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-11-14T00:33:28.810Z" hostname="BK" time="0.208">
+  <properties/>
+  <testcase name="동시 CLOCK_IN 요청은 하나만 성공하고 중복 근무 행을 만들지 않는다" classname="com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest" time="0.038"/>
+  <testcase name="동시 CLOCK_OUT 요청은 하나만 성공하고 완료 상태를 보존한다" classname="com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest" time="0.099"/>
+  <system-out><![CDATA[2026-11-14T09:33:28.812+09:00  INFO 30612 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest]: AttendanceServiceConcurrencyIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-14T09:33:28.871+09:00  INFO 30612 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest
+2026-11-14T09:33:28.873+09:00  INFO 30612 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest]: AttendanceServiceConcurrencyIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-14T09:33:28.874+09:00  INFO 30612 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
+

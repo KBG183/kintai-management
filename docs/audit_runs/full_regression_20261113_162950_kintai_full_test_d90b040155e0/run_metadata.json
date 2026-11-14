@@ -1,0 +1,8 @@
+﻿{
+    "database":  "kintai_full_test_d90b040155e0",
+    "jdbc_url":  "jdbc:mysql://127.0.0.1:3306/kintai_full_test_d90b040155e0",
+    "run_id":  "20261113_162950",
+    "output_dir":  "C:\\dev\\kintai\\docs\\audit_runs\\full_regression_20261113_162950_kintai_full_test_d90b040155e0",
+    "test_scope":  "ALL_TESTS",
+    "rerun_tasks":  true
+}

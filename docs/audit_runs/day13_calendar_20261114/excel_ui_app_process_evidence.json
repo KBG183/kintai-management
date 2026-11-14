@@ -1,0 +1,76 @@
+{
+  "status": "PASS",
+  "listener_port": 8082,
+  "listener_pid": 14120,
+  "process_chain": [
+    {
+      "serverPortOverride": true,
+      "datasourceOverride": false,
+      "name": "java.exe",
+      "pid": 14120
+    },
+    {
+      "serverPortOverride": false,
+      "datasourceOverride": false,
+      "name": "java.exe",
+      "pid": 14632
+    },
+    {
+      "serverPortOverride": true,
+      "datasourceOverride": false,
+      "name": "java.exe",
+      "pid": 25484
+    },
+    {
+      "serverPortOverride": true,
+      "datasourceOverride": false,
+      "name": "cmd.exe",
+      "pid": 1836
+    },
+    {
+      "serverPortOverride": true,
+      "datasourceOverride": true,
+      "name": "pwsh.exe",
+      "pid": 26240
+    },
+    {
+      "serverPortOverride": false,
+      "datasourceOverride": false,
+      "name": "codex.exe",
+      "pid": 7300
+    },
+    {
+      "serverPortOverride": false,
+      "datasourceOverride": false,
+      "name": "ChatGPT.exe",
+      "pid": 6436
+    },
+    {
+      "serverPortOverride": false,
+      "datasourceOverride": false,
+      "name": "sihost.exe",
+      "pid": 21408
+    },
+    {
+      "serverPortOverride": false,
+      "datasourceOverride": false,
+      "name": "svchost.exe",
+      "pid": 2528
+    },
+    {
+      "serverPortOverride": false,
+      "datasourceOverride": false,
+      "name": "services.exe",
+      "pid": 1580
+    },
+    {
+      "serverPortOverride": false,
+      "datasourceOverride": false,
+      "name": "wininit.exe",
+      "pid": 1460
+    }
+  ],
+  "isolated_database": "kintai_demo_9f3f8487bc42",
+  "datasource_override_seen_in_process_chain": true,
+  "port_override_seen_in_process_chain": true
+}

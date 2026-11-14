@@ -1,0 +1,12 @@
+﻿### [Hermes Audit Execution Metrics]
+| Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed |
+|---|---|---|---|---|---|
+| scripts/audit_config.json (35 lines) | qwen27b:latest | 48.36s | 887 tokens | 1801 tokens | 41.4 tokens/s |
+
+| Audit Item | Verdict (PASS / WARN / FAIL) | Detailed Finding & Recommendation (English) |
+|---|---|---|
+| Japanese Labor Standards Act Art 37 | WARN | The supplied target is a JSON configuration file, not Java payroll source code. No night-work, overtime, or combined night-overtime premium logic is visible, so compliance with the 25% and 50% premium rules cannot be confirmed. Provide the payroll calculation service, shift schedule model, and test cases for 22:00-05:00, daily overtime, and overlapping night overtime. |
+| Payroll Math & Rounding | WARN | No Java arithmetic, BigDecimal, RoundingMode.HALF_UP, or 1-yen discrepancy handling is present in the target. Verify that all wage calculations use BigDecimal or equivalent exact decimal handling, apply HALF_UP at the final payable amount, and include unit tests for fractional yen, negative hours, and zero-hour edge cases. |
+| Concurrency & Security | WARN | The target contains no Spring Boot service, repository, @Transactional, pessimistic lock, or authorization code. Therefore, concurrent update protection for store_staff or shift_schedule and IDOR prevention cannot be verified. Review the relevant service and repository methods for @Transactional, SELECT ... FOR UPDATE or equivalent optimistic locking, and staff-scoped authorization checks. |
+| Exception Handling & Boundary Validation | WARN | The target is configuration only and does not show handling for DateTimeParseException, null values, negative hours, invalid endpoints, or timeout behavior. Add validation for shift start/end times, non-negative durations, required configuration fields, and safe fallback behavior when the auditor endpoint is unavailable. |
+| Audit Configuration Security | WARN | The primary and fallback endpoints use HTTP on a Tailscale overlay address. If the Tailscale network is trusted and ACL-restricted, this may be acceptable, but using HTTPS or a local Unix socket would reduce exposure. The fallback auditor is disabled and duplicates the primary endpoint/model, so there is no independent fallback. Consider enabling a distinct fallback, pinning the model digest, and validating the endpoint at runtime. |

@@ -1,0 +1,25 @@
+{
+    "status":  "INPUT_READY",
+    "bundle_path":  "C:\\dev\\kintai\\docs\\audit_runs\\project_wide_handoff_20261114\\input_bundle_final.md",
+    "manifest_path":  "C:\\dev\\kintai\\docs\\audit_runs\\project_wide_handoff_20261114\\input_manifest_final.json",
+    "bundle_sha256":  "e1a72f8bec54a02080cf0f258011d641e0eec67f33e253da6f7329ee34c4ec86",
+    "failures":  [
+
+                 ]
+}
+[Hermes] Large file detected (783 lines). Splitting by '## ' sections...
+[Hermes] Total 61 section(s) to audit.
+[1/61] Auditing section: Introduction...
+Call-HermesApi : Ollama Hermes API call failed: Exception calling "GetRequestStream" with "0" argument(s): "Unable to c
+onnect to the remote server"
+At C:\dev\kintai\scripts\audit_with_hermes.ps1:240 char:21
++ ... $auditObj = Call-HermesApi -ContentToAudit $sec.Content -HeaderTitle  ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException
+    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,Call-HermesApi
+ 
+C:\dev\kintai\scripts\audit_with_hermes.ps1 : HERMES_FAILED: no audit response for section 'Introduction'; refusing to 
+write a partial report.
+    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException
+    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,audit_with_hermes.ps1
+ 

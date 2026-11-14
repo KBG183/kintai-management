@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="勤怠修正申請の審査（POST /api/attendance/mod-requests/{id}/review）のIDOR防御 HTTPテスト" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-11-13T07:30:17.951Z" hostname="BK" time="0.065">
+  <properties/>
+  <testcase name="オーナーが他人の店舗の修正申請IDを不正審査しようとした場合は HTTP 403 Forbidden で遮断されること" classname="com.example.kintai.domain.attendance.controller.AttendanceApiSecurityTest$ReviewModificationSecurityTest" time="0.033"/>
+  <testcase name="オーナーが自己所有店舗の勤怠修正申請を審査する場合は正常に成功すること（HTTP 200）" classname="com.example.kintai.domain.attendance.controller.AttendanceApiSecurityTest$ReviewModificationSecurityTest" time="0.029"/>
+  <system-out><![CDATA[2026-11-13T16:30:17.972+09:00  INFO 15932 --- [    Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-11-13T16:30:17.972+09:00  INFO 15932 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-13T16:30:17.972+09:00  INFO 15932 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-11-13T16:30:17.984+09:00  WARN 15932 --- [    Test worker] c.e.k.g.e.GlobalExceptionHandler         : アクセス拒絶 (AccessDenied): ?象勤怠修正申請に?する審査?限がありません。
+2026-11-13T16:30:18.007+09:00  INFO 15932 --- [    Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-11-13T16:30:18.007+09:00  INFO 15932 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-13T16:30:18.008+09:00  INFO 15932 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

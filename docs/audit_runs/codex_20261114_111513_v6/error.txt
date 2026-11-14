@@ -1,0 +1,8 @@
+Write-Error: C:\dev\kintai\scripts\audit_with_hermes.ps1:329
+Line |
+ 329 |  … $auditObj = Call-HermesApi -ContentToAudit $sec.Content -HeaderTitle  …
+     |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | Ollama Hermes API call failed: Exception calling "ReadLine" with "0" argument(s): "Unable to read data from the
+     | transport connection: 현재 연결은 원격 호스트에 의해 강제로 끊겼습니다.."
+
+

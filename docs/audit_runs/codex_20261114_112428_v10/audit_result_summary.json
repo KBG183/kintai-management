@@ -1,0 +1,29 @@
+{
+  "run_id": "codex_20261114_112428_v10",
+  "timestamp_started": "2026-11-14T11:24:28.7511746+09:00",
+  "timestamp_finished": "2026-11-14T11:25:20.3265577+09:00",
+  "process_status": "SUCCESS",
+  "process_exit_code": 0,
+  "semantic_audit_verdict": "PASS",
+  "target_file": "C:\\dev\\kintai\\docs\\audit_runs\\project_wide_handoff_20261114\\current_docs_audit_bundle_v10.md",
+  "bundle_sha256": "80311a3d1ff7aecb1cac5890e9519106b9ce6c0e557386163c85ce06ee0f9f0a",
+  "runner_path": "C:\\dev\\kintai\\scripts\\audit_with_hermes.ps1",
+  "runner_sha256": "b055c1e01285e56684abd13b23644082b2208c8d50fdfae7a119d739d216987b",
+  "config_path": "C:\\dev\\kintai\\scripts\\audit_config.json",
+  "config_sha256": "1ebaf50e6e54e97e87acc79fbf002d6a20d38743ac79961760e264742e4999db",
+  "endpoint": "http://100.111.193.94:11434",
+  "model": "qwen27b:latest",
+  "inference_options": {
+    "think": false,
+    "num_ctx": 24576,
+    "seed": 42,
+    "temperature": 0.1
+  },
+  "system_prompt_sha256": "9fbc1e36ff6028d5185a6dce04b771cd869882da3c990a503970d0eccb7518d6",
+  "custom_prompt_sha256": "34dabb3f41998fa644b18f17cab1bad95ea590d353e3af80da5a7893232e2b08",
+  "transport": "Http",
+  "report_path": "C:\\dev\\kintai\\docs\\audit_runs\\codex_20261114_112428_v10\\hermes_report.md",
+  "report_sha256": "94f7f5bb0e263eec9adbb85400e4e0d254d905347a88ee5cf311f19b101030e8",
+  "report_schema_valid": true,
+  "response_terminal_and_content_validated": true
+}

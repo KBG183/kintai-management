@@ -1,0 +1,102 @@
+﻿{
+    "run_id":  "20261113_234537_5c3c1901",
+    "generated_at":  "2026-11-14T08:46:30.8291770+09:00",
+    "findings":  [
+                     {
+                         "finding_id":  "F-01",
+                         "audit_item":  "Japanese Labor Standards Act Art 37: Night Work Premium (22:00-05:00)",
+                         "severity":  "P0",
+                         "verdict":  "PASS",
+                         "evidence":  "`LaborCalculationEngineTest.java` (13:00-01:00 overlap case); `PayrollCalculator.java` (125% night logic)",
+                         "analysis":  "The code correctly identifies the night work window (22:00-05:00). The test case `13:00-01:00` correctly isolates the night portion (22:00-01:00) for premium calculation. The `PayrollCalculator` applies the 125% rate to night hours."
+                     },
+                     {
+                         "finding_id":  "F-02",
+                         "audit_item":  "Japanese Labor Standards Act Art 37: Daily Overtime Premium (\u003e8h)",
+                         "severity":  "P0",
+                         "verdict":  "PASS",
+                         "evidence":  "`LaborCalculationEngineTest.java` (09:00-21:00 case); `PayrollCalculator.java` (125% overtime logic)",
+                         "analysis":  "The engine correctly calculates overtime for hours exceeding 8 hours per day. The test case `09:00-21:00` (12 hours) results in 4 hours of overtime, which is subject to the 125% premium."
+                     },
+                     {
+                         "finding_id":  "F-03",
+                         "audit_item":  "Japanese Labor Standards Act Art 37: Night + Overtime Concurrent Overlap",
+                         "severity":  "P0",
+                         "verdict":  "PASS",
+                         "evidence":  "`LaborCalculationEngineTest.java` (180 minutes at 150%); `PayrollCalculator.java` (150% overlap formula)",
+                         "analysis":  "The system correctly identifies the intersection of night work and overtime. The test verifies that 180 minutes falling within both categories are calculated at the 150% premium rate (100% base + 50% extra), complying with Art 37."
+                     },
+                     {
+                         "finding_id":  "F-04",
+                         "audit_item":  "Break Time Deduction from Night Work Hours",
+                         "severity":  "P0",
+                         "verdict":  "PASS",
+                         "evidence":  "`LaborCalculationEngineTest.java` (23:00-00:00 break deduction)",
+                         "analysis":  "The test explicitly verifies that a break taken during the night window (23:00-00:00) is deducted from the night work hours before premium calculation. This prevents paying premium rates for non-worked night hours."
+                     },
+                     {
+                         "finding_id":  "F-05",
+                         "audit_item":  "Payroll Math \u0026 Rounding: RoundingMode.HALF_UP",
+                         "severity":  "P1",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollCalculator.java` (`yenRound` method); `PayrollCalculatorStatutoryRoundingTest.java`",
+                         "analysis":  "The `PayrollCalculator` uses `BigDecimal` with `RoundingMode.HALF_UP`. The statutory rounding test verifies boundary conditions: 324.49 -\u003e 324, 324.50 -\u003e 325. This prevents 1-yen discrepancies and ensures compliance with standard financial rounding practices."
+                     },
+                     {
+                         "finding_id":  "F-06",
+                         "audit_item":  "Concurrency: Pessimistic Locking (SELECT ... FOR UPDATE)",
+                         "severity":  "P1",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollMapper.xml` (`FOR UPDATE` clauses); `PayrollServiceConcurrentExecutionIntegrationTest.java`",
+                         "analysis":  "The MyBatis mapper explicitly uses `FOR UPDATE` on critical rows (payroll ID, staff/month, store staff) to prevent race conditions during concurrent updates. Integration tests verify that concurrent confirmations do not result in double-processing or data corruption."
+                     },
+                     {
+                         "finding_id":  "F-07",
+                         "audit_item":  "Security: IDOR Vulnerability Prevention (Payroll Ownership)",
+                         "severity":  "P0",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollApiController.java` (`validatePayrollOwnership`); `StoreAuthorizationServicePayrollOwnershipTest.java`",
+                         "analysis":  "The API controller enforces ownership checks before accessing payroll details. The dedicated test `StoreAuthorizationServicePayrollOwnershipTest` verifies that a user (Member 17) is denied access to another user\u0027s (Member 42) payroll, while the rightful owner is allowed. This mitigates Insecure Direct Object References (IDOR)."
+                     },
+                     {
+                         "finding_id":  "F-08",
+                         "audit_item":  "Exception Handling: DateTimeParseException \u0026 Boundary Validation",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollCalculator.resolveDateRange` (catches `DateTimeParseException`); `LaborCalculationEngineTest` (invalid time/break ranges)",
+                         "analysis":  "The system handles invalid date/time inputs by catching `DateTimeParseException` and converting it to a domain-specific `IllegalArgumentException`. Tests verify rejection of clock-out-before-clock-in scenarios and out-of-range break times, preventing runtime crashes from malformed input."
+                     },
+                     {
+                         "finding_id":  "F-09",
+                         "audit_item":  "Data Integrity: UTF-8 Encoding in Demo Data",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`prepare_local_demo_db.ps1` (stdin redirection); `HEX(name)` verification in evidence",
+                         "analysis":  "The PowerShell script feeds SQL via stdin to avoid PowerShell pipeline code-page corruption. Evidence confirms that Japanese names (e.g., `佐藤 花子`) are stored correctly as UTF-8 bytes (`E794B0...`) rather than replacement characters (`0x3F`). This ensures data integrity for payroll displays and exports."
+                     },
+                     {
+                         "finding_id":  "F-10",
+                         "audit_item":  "UI/DTO Contract Alignment (Calendar Events)",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`CalendarEventDto.java`; `calendar.html` (event mapping logic)",
+                         "analysis":  "The frontend template was corrected to map `CalendarEventDto` fields (`id`, `title`, `start`, `end`, `extendedProps`) instead of the raw `ShiftDto`. This resolves the issue where the calendar appeared empty due to field mismatch. The modal now correctly reads `plannedBreakMinutes` and times from the event object."
+                     },
+                     {
+                         "finding_id":  "F-11",
+                         "audit_item":  "CSRF Protection: XSRF Token Handling",
+                         "severity":  "P1",
+                         "verdict":  "PASS",
+                         "evidence":  "`layout.html` (fetch interceptor); `CsrfCookieHeaderLifecycleIntegrationTest.java`",
+                         "analysis":  "The frontend fetch interceptor correctly prioritizes the `XSRF-TOKEN` cookie for mutation requests, falling back to the meta tag if the cookie is absent. Integration tests verify the lifecycle of the CSRF token, ensuring that state-changing requests are properly authenticated and protected against Cross-Site Request Forgery."
+                     },
+                     {
+                         "finding_id":  "F-12",
+                         "audit_item":  "Excel Export Data Integrity",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`payroll_excel_validation.json`; `payroll_2026-01_browser_download.xlsx` (SHA-256 verified)",
+                         "analysis":  "The browser download of the Excel payroll sheet was verified. The file contains the correct gross amounts (¥141,700 and ¥164,332) and staff names. The SHA-256 hash confirms the file integrity, ensuring that the exported data matches the calculated payroll values."
+                     }
+                 ]
+}

@@ -1,0 +1,18 @@
+{
+    "status":  "INPUT_READY",
+    "bundle_path":  "C:\\dev\\kintai\\docs\\audit_runs\\project_wide_handoff_20261114\\current_docs_audit_bundle_review.md",
+    "manifest_path":  "C:\\dev\\kintai\\docs\\audit_runs\\project_wide_handoff_20261114\\current_docs_audit_manifest_review.json",
+    "bundle_sha256":  "ae9e440bff9d9cf5582704bcfec9fd47503aa2006e80fc249b6a74410db186c0",
+    "failures":  [
+
+                 ]
+}
+[Hermes] Auditing single file (393 lines)...
+Call-HermesApi : Ollama Hermes API call failed: Exception calling "GetRequestStream" with "0" argument(s): "Unable to c
+onnect to the remote server"
+At C:\dev\kintai\scripts\audit_with_hermes.ps1:263 char:15
++ ...   $resObj = Call-HermesApi -ContentToAudit $rawText -HeaderTitle $Tar ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException
+    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,Call-HermesApi
+ 

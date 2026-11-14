@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="② 時間当たり賃金額・割増賃金額の端数処理（49銭切り捨て / 50銭切り上げ）" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-11-14T00:33:32.941Z" hostname="BK" time="0.001">
+  <properties/>
+  <testcase name="0.50円（50銭）は1円に切り上げられること" classname="com.example.kintai.domain.payroll.util.StatutoryRoundingTest$HourlyRateRoundingTest" time="0.0"/>
+  <testcase name="0.49円（49銭）は切り捨てられること" classname="com.example.kintai.domain.payroll.util.StatutoryRoundingTest$HourlyRateRoundingTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

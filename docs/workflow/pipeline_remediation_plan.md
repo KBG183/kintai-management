@@ -1,4 +1,6 @@
-﻿# 🛠️ kintai 4각 AI 협동 감사 파이프라인 결함 조치 계획서 (Remediation Plan v1.1.1)
+> **履歴計画:** 本計画のタスクID・MySQL 8.4・ローカルLLM等は作成時点の案です。現行実施範囲とQwen実行先は `AGENTS.md`、`scripts/audit_config.json`、RTM、最新のAntigravity引き継ぎを優先してください。R-05とDay 12はユーザー指示により現在除外されています。
+
+# 🛠️ kintai 4각 AI 협동 감사 파이프라인 결함 조치 계획서 (Remediation Plan v1.1.1)
 
 > **문서 버전**: v1.1.1 (최종 검토 의견 8대 보완 지침 전수 반영본)  
 > **기준 감사 보고서**: `kintai_pipeline_audit_report.md` (P0: 9건, P1: 26건, P2: 15건 전수 50건 대응)  

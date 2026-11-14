@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "target_day": "2026-11-14 project-wide current documentation handoff",
+  "bundle_path": "C:\\dev\\kintai\\docs\\audit_runs\\project_wide_handoff_20261114\\input_bundle.md",
+  "bundle_sha256": "1aa9257c7aa833853ae7fdad89c83fae98163ec71f03f8ce88912ef17fbb5521",
+  "requirements": [
+    "All latest current status claims match primary evidence",
+    "Korean/Japanese current summaries agree on totals, statuses, and exclusions",
+    "Historical snapshots cannot be mistaken for current model, endpoint, or regression status",
+    "Antigravity handoff gives safe, actionable remaining work"
+  ],
+  "rtm_items": [
+    "R-02",
+    "R-05",
+    "R-08",
+    "R-09",
+    "R-10",
+    "R-11",
+    "R-12",
+    "R-13",
+    "R-14",
+    "R-15",
+    "R-16",
+    "R-17",
+    "R-18",
+    "R-19",
+    "B-04",
+    "B-05",
+    "B-06"
+  ],
+  "test_ids": [
+    "latest full regression: 92 tests",
+    "annual payroll target: 6 tests",
+    "Qwen source review prior run: 12 findings",
+    "Qwen doc review prior run: 10 findings"
+  ],
+  "execution_logs": [
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_094427_kintai_full_test_d4124a317ed0\\exit_summary.json",
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_094427_kintai_full_test_d4124a317ed0\\gradle_console.log",
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_day11_20261114_094349_kintai_day11_test_01f4cb1439e6\\exit_summary.json",
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_day11_20261114_094349_kintai_day11_test_01f4cb1439e6\\gradle_console.log"
+  ],
+  "junit_xml": [
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_094427_kintai_full_test_d4124a317ed0\\TEST-com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest.xml",
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_094427_kintai_full_test_d4124a317ed0\\TEST-com.example.kintai.domain.attendance.controller.AttendancePunchApiIntegrationTest.xml"
+  ],
+  "environment": "Windows; repository documentation review; execution facts reference isolated local MySQL 26.7 only; Qwen endpoint must be http://100.111.193.94:11434 with qwen27b:latest",
+  "known_constraints": [
+    "R-05 and Day 12 are excluded by the user until scheduled review",
+    "B-05 and B-06 remain open for Antigravity implementation",
+    "No operating database used"
+  ],
+  "unverified_items": [
+    "This updated documentation bundle has not yet received a new Qwen audit"
+  ]
+}

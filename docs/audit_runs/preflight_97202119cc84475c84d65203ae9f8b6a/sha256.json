@@ -1,0 +1,22 @@
+[
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_97202119cc84475c84d65203ae9f8b6a\\input_bundle",
+    "Hash": "ED3E2BBDF699E02D13468FC013547BC21266D1566351683B6CD8EC27FD427B82",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_97202119cc84475c84d65203ae9f8b6a\\input_manifest.json",
+    "Hash": "F20890979F075D44AB6461684B5CCBBB97185870BBD596F13C66E3909C6372F7",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_97202119cc84475c84d65203ae9f8b6a\\preflight_result.json",
+    "Hash": "6B01CB83FEC601AF5D2BB71230E227533FB2C097394DE4E264F9C140D29E38C3",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_97202119cc84475c84d65203ae9f8b6a\\hermes\\bundle.manifest.json",
+    "Hash": "0154E2207C46732D683A1ADC683B60AC972121DAA9200A7BD6C76AEB17F9CD68",
+    "Algorithm": "SHA256"
+  }
+]

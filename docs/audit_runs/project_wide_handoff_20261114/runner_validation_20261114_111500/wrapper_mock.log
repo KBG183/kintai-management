@@ -1,0 +1,4 @@
+MOCK_SUCCESS: input delivered, response saved, hashes matched
+MOCK_FAILURE: exception propagated
+MOCK_NONZERO_EXIT: failure propagated
+Mock evidence retained: C:\Users\klad3\AppData\Local\Packages\openai.codex_2p2nqsd0c76g0\AC\#!sandbox.{524ffbfc-d751-4830-bbf4-4ad4882cdda6}\Temp\kintai-wrapper-test-c055828916fa4fd7b10859a1cb13261b

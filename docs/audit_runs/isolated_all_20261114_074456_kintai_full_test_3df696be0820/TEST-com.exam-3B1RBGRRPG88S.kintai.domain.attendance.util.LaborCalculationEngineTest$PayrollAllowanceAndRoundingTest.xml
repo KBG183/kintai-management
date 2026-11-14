@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="給与割増計算および端数処理テスト" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-11-13T22:45:27.970Z" hostname="BK" time="0.002">
+  <properties/>
+  <testcase name="昭和62年3月14日付 基発第150号基準 1円単位四捨五入(HALF_UP)丸め検証" classname="com.example.kintai.domain.attendance.util.LaborCalculationEngineTest$PayrollAllowanceAndRoundingTest" time="0.0"/>
+  <testcase name="時給1,500円重畳割増勤務: 総計視点と区分別内訳視点の支給額が完全に一致すること" classname="com.example.kintai.domain.attendance.util.LaborCalculationEngineTest$PayrollAllowanceAndRoundingTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

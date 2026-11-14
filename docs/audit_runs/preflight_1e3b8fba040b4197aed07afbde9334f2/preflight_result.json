@@ -1,0 +1,7 @@
+{
+  "status": "INPUT_READY",
+  "bundle_path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_1e3b8fba040b4197aed07afbde9334f2\\input_bundle",
+  "manifest_path": "C:\\dev\\kintai\\scripts\\..\\docs\\audit_runs\\preflight_1e3b8fba040b4197aed07afbde9334f2\\input_manifest.json",
+  "bundle_sha256": "46049b14578b32462a6f105966643d658919d5ed658faaf885796e2e1cd2c4b8",
+  "failures": []
+}

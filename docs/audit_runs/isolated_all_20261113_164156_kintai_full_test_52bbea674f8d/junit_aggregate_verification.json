@@ -1,0 +1,11 @@
+{
+  "gradle_exit_code": null,
+  "junit_xml_count": 33,
+  "tests": 79,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "junit_parse_errors": [],
+  "result": "PASS",
+  "verification_note": "Derived from preserved JUnit XML; Gradle exit code unavailable in this earlier run artifact."
+}

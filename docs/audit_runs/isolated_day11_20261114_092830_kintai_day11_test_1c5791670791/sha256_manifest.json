@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "run_id": "20261114_092830",
+  "generated_at_utc": "2026-11-14T00:28:48.3996474Z",
+  "algorithm": "SHA-256",
+  "files": [
+    {
+      "path": "gradle_console.log",
+      "bytes": 643,
+      "sha256": "fcaf028fbafe219c9b9d0a4a0d635216cab773d7e5810e02fcddcda4797558ad"
+    },
+    {
+      "path": "TEST-com.example.kintai.domain.attendance.util.SplitShiftOvertimeDefectTest.xml",
+      "bytes": 872,
+      "sha256": "784521d795e450fd525a5e5962a2ffb31e5abfe73b7dc42fe5f1d8bd98cbc7f6"
+    }
+  ]
+}

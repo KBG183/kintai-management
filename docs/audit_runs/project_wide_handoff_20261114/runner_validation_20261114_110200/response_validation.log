@@ -1,0 +1,9 @@
+empty: REJECTED
+missing-terminal: REJECTED
+header-only: REJECTED
+unrecognized-verdict: REJECTED
+prompt-echo: REJECTED
+valid-pass: ACCEPTED
+valid-warn: ACCEPTED
+missing-target: exit=2 and no report
+AUDIT_RESPONSE_VALIDATION: PASS

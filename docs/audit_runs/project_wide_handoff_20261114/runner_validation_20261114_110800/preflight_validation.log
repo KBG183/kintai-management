@@ -1,0 +1,8 @@
+valid: exit=0 status=INPUT_READY
+failed: exit=2 status=INPUT_INCOMPLETE
+invalid: exit=2 status=INPUT_INCOMPLETE
+all_skipped: exit=2 status=INPUT_INCOMPLETE
+no_tests: exit=2 status=INPUT_INCOMPLETE
+empty_log: exit=2 status=INPUT_INCOMPLETE
+bad_hash: exit=2 status=INPUT_INCOMPLETE
+Fixtures preserved: C:\Users\klad3\AppData\Local\Packages\openai.codex_2p2nqsd0c76g0\AC\#!sandbox.{436c8b2b-33a6-4904-a1d8-62fe2b6c3451}\Temp\kintai-validation-2b80deec66cc42128ca6a5563422e44c

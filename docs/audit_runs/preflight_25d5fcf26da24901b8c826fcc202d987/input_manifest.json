@@ -1,0 +1,24 @@
+{
+  "target_day": "Day 13 local demo review (2026-11-14)",
+  "requirements": ["Calendar displays confirmed shifts returned by the API", "Calendar event detail uses the API DTO fields", "Payroll demo result is visible in the local UI"],
+  "rtm_items": ["R-15", "R-16", "R-17", "R-18"],
+  "test_ids": ["isolated full regression: 81 tests", "CsrfCookieHeaderLifecycleIntegrationTest", "CsrfSecurityIntegrationTest", "manual browser: November calendar events and 2026-11-02 detail modal", "UTF-8 isolated demo seed verification"],
+  "execution_logs": [
+    "docs/audit_runs/isolated_all_20261114_074456_kintai_full_test_3df696be0820/gradle_console.log",
+    "docs/audit_runs/day13_calendar_20261114/ui_review_record.md",
+    "docs/audit_runs/day13_calendar_20261114/demo_prepare_retry1.log",
+    "docs/audit_runs/day13_calendar_20261114/payroll_api_list.json",
+    "docs/audit_runs/day13_calendar_20261114/payroll_excel_validation.json",
+    "docs/audit_runs/day13_calendar_20261114/independent_audit_status.md"
+  ],
+  "artifacts": [
+    "docs/audit_runs/day13_calendar_20261114/payroll_2026-01.xlsx"
+  ],
+  "junit_xml": [
+    "docs/audit_runs/isolated_all_20261114_074456_kintai_full_test_3df696be0820/TEST-com.example.kintai.config.CsrfCookieHeaderLifecycleIntegrationTest.xml",
+    "docs/audit_runs/isolated_all_20261114_074456_kintai_full_test_3df696be0820/TEST-com.example.kintai.config.CsrfSecurityIntegrationTest.xml",
+    "docs/audit_runs/isolated_all_20261114_074456_kintai_full_test_3df696be0820/TEST-com.example.kintai.domain.shift.service.ShiftServiceTest$BreakTimeCalculationTest.xml"
+  ],
+  "environment": "Windows local MySQL 26.7.0; isolated regression DB kintai_full_test_3df696be0820; final isolated UI demo DB kintai_demo_9f3f8487bc42; Spring Boot 4.0.8 / Java 17.0.12 on port 8082; MySQL 8.4 not tested",
+  "bundle_sha256": "716710c9d2b4cc80e0fcda41c403808b2540e5b0ad8ad4ce9afd8e07f3be8d1f"
+}

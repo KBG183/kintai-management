@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="F-04: 실제 PayrollService 경로 동시 실행 시 락 순서 일치에 따른 데드락 소멸 및 직렬화 검증" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-11-13T22:25:19.373Z" hostname="BK" time="0.045">
+  <properties/>
+  <testcase name="동일 직원에 대해 calculatePayrollForStaff와 confirmPayroll 동시 실행 시 데드락 없이 순차 실행 완료 검증" classname="com.example.kintai.domain.payroll.service.PayrollServiceConcurrentExecutionIntegrationTest" time="0.034"/>
+  <system-out><![CDATA[2026-11-14T07:25:19.375+09:00  INFO 21284 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.PayrollServiceConcurrentExecutionIntegrationTest]: PayrollServiceConcurrentExecutionIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-14T07:25:19.378+09:00  INFO 21284 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.PayrollServiceConcurrentExecutionIntegrationTest
+2026-11-14T07:25:19.379+09:00  INFO 21284 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.PayrollServiceConcurrentExecutionIntegrationTest]: PayrollServiceConcurrentExecutionIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-14T07:25:19.380+09:00  INFO 21284 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.PayrollServiceConcurrentExecutionIntegrationTest
+==================================================================
+[실제 서비스 경로 동시 실행 결과]
+Thread 1 (calculatePayrollForStaff) Exception: 指定年月 (2026-10) の給?は?に確定?み(CONFIRMED) のため、再計算できません。(給?不?性保護)
+Thread 2 (confirmPayroll) Exception: ?に確定?みの給?デ?タです。(現在の?態: CONFIRMED)
+==================================================================
+최종 급여 상태: CONFIRMED, 총지급액: 10900
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

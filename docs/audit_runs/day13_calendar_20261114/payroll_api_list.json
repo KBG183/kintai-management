@@ -1,0 +1,52 @@
+{
+  "success": true,
+  "message": "給与一覧を取得しました。",
+  "data": [
+    {
+      "appliedHourlyWage": 1300,
+      "appliedTransportLimit": 15000,
+      "basePay": 135200,
+      "confirmedAt": null,
+      "grossPay": 141700,
+      "nightAllowance": 0,
+      "overtimeAllowance": 0,
+      "paidAt": null,
+      "payrollId": 1,
+      "payrollStatus": "DRAFT",
+      "rangeEndDate": "2026-01-31",
+      "rangeStartDate": "2026-01-01",
+      "staffName": "佐藤 花子",
+      "storeId": 1,
+      "storeStaffId": 1,
+      "targetYearMonth": "2026-01",
+      "totalNightMinutes": 0,
+      "totalOvertimeMinutes": 0,
+      "totalWorkMinutes": 6240,
+      "transportAllowance": 6500,
+      "workDaysCount": 13
+    },
+    {
+      "appliedHourlyWage": 1350,
+      "appliedTransportLimit": 15000,
+      "basePay": 151200,
+      "confirmedAt": null,
+      "grossPay": 164332,
+      "nightAllowance": 4732,
+      "overtimeAllowance": 0,
+      "paidAt": null,
+      "payrollId": 2,
+      "payrollStatus": "DRAFT",
+      "rangeEndDate": "2026-01-31",
+      "rangeStartDate": "2026-01-01",
+      "staffName": "鈴木 一郎",
+      "storeId": 1,
+      "storeStaffId": 2,
+      "targetYearMonth": "2026-01",
+      "totalNightMinutes": 840,
+      "totalOvertimeMinutes": 0,
+      "totalWorkMinutes": 6720,
+      "transportAllowance": 8400,
+      "workDaysCount": 14
+    }
+  ]
+}

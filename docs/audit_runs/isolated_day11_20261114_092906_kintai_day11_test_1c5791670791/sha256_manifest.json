@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "run_id": "20261114_092906",
+  "generated_at_utc": "2026-11-14T00:29:23.9662058Z",
+  "algorithm": "SHA-256",
+  "files": [
+    {
+      "path": "gradle_console.log",
+      "bytes": 643,
+      "sha256": "fcaf028fbafe219c9b9d0a4a0d635216cab773d7e5810e02fcddcda4797558ad"
+    },
+    {
+      "path": "TEST-com.exam-3B1RBGRRPG88S.kintai.domain.attendance.util.LaborCalculationEngineTest$PayrollAllowanceAndRoundingTest.xml",
+      "bytes": 831,
+      "sha256": "fc7981a4d02fdd4ec3a7dac05528869387828cff15ab6ecd5c2f5ff31d4040b3"
+    },
+    {
+      "path": "TEST-com.example.kintai.domain.attendance.util.LaborCalculationEngineTest$TimelineSlicingTimeTest.xml",
+      "bytes": 1497,
+      "sha256": "324ad444809b9ac7b9dc75e89b4e86b6000ba673070e5e2a4c36ace053fadd29"
+    },
+    {
+      "path": "TEST-com.example.kintai.domain.attendance.util.LaborCalculationEngineTest$ValidationTest.xml",
+      "bytes": 788,
+      "sha256": "b55bc845ea832a92c44f85a64ddd589f824e42ff08b802ac92511abd6a8391ab"
+    }
+  ]
+}

@@ -1,9 +1,9 @@
 {
     "worker":  "codex_qwen_queue_worker",
-    "pid":  13288,
+    "pid":  5716,
     "machine":  "BK",
     "state":  "IDLE",
     "request_id":  "",
     "detail":  "No pending requests found.",
-    "updated_at":  "2026-11-13T12:52:00.4195310+09:00"
+    "updated_at":  "2026-11-13T20:41:53.9127824+09:00"
 }

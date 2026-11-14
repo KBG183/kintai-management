@@ -1,0 +1,37 @@
+[
+  {
+    "file": "scripts/audit_with_hermes.ps1",
+    "result": "PASS",
+    "errors": []
+  },
+  {
+    "file": "scripts/codex_hermes_bridge.ps1",
+    "result": "PASS",
+    "errors": []
+  },
+  {
+    "file": "scripts/run_codex_hermes_host.ps1",
+    "result": "PASS",
+    "errors": []
+  },
+  {
+    "file": "scripts/audit_hermes_preflight.ps1",
+    "result": "PASS",
+    "errors": []
+  },
+  {
+    "file": "scripts/test_audit_response_validation.ps1",
+    "result": "PASS",
+    "errors": []
+  },
+  {
+    "file": "scripts/test_codex_hermes_bridge_routing.ps1",
+    "result": "PASS",
+    "errors": []
+  },
+  {
+    "file": "scripts/test_qwen_wrapper_mock.ps1",
+    "result": "PASS",
+    "errors": []
+  }
+]

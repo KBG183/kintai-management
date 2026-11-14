@@ -1,0 +1,8 @@
+﻿{
+  "timestamp_utc": "2026-11-14T00:47:41.3867160Z",
+  "target_file": "C:\\dev\\kintai\\scripts\\..\\docs\\audit_runs\\preflight_42c9b1c8215d41b1ad4f554e85a5d6f5\\input_bundle",
+  "resolved_path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_42c9b1c8215d41b1ad4f554e85a5d6f5\\input_bundle",
+  "sha256": "59fcbb5b99dd4d14c7448f4f39a6f392734ac57ba4a757df69a0635de641385e",
+  "line_count": 788,
+  "git_head": "8a5d7a10b2102916d40f6975ebab48d6662345b7"
+}

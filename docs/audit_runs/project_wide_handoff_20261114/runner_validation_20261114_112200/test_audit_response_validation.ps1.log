@@ -1,0 +1,12 @@
+empty: REJECTED
+missing-terminal: REJECTED
+header-only: REJECTED
+truncated: REJECTED
+context-budget: REJECTED
+unrecognized-verdict: REJECTED
+prompt-echo: REJECTED
+valid-pass: ACCEPTED
+valid-warn: ACCEPTED
+missing-target: exit=2 and no report
+existing-report: exit=2 and prior evidence preserved
+AUDIT_RESPONSE_VALIDATION: PASS

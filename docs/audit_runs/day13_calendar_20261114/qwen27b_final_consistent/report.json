@@ -1,0 +1,134 @@
+﻿{
+  "run_id": "20261113_231504_7898dce0",
+  "generated_at": "2026-11-14T08:15:49.3506186+09:00",
+  "findings": [
+    {
+      "finding_id": "AUDIT-001",
+      "audit_item": "Japanese Labor Standards Act Art 37: Night work (22:00~05:00) +25% extra pay",
+      "severity": "P0",
+      "verdict": "PASS",
+      "evidence": "`LaborCalculationEngineTest.java`, `PayrollCalculator.java`",
+      "analysis": "The `PayrollCalculator` uses `BigDecimal` with `RoundingMode.HALF_UP`. The `LaborCalculationEngineTest` explicitly verifies night work premiums. The logic correctly identifies the 22:00-05:00 window and applies the 1.25x multiplier to base rates, ensuring statutory compliance for night shifts."
+    },
+    {
+      "finding_id": "AUDIT-002",
+      "audit_item": "Japanese Labor Standards Act Art 37: Daily overtime (>8h/day) +25% extra pay",
+      "severity": "P0",
+      "verdict": "PASS",
+      "evidence": "`LaborCalculationEngineTest.java`, `PayrollCalculator.java`",
+      "analysis": "Tests confirm that hours exceeding 8 hours per day are correctly segmented and assigned a 1.25x premium. The engine distinguishes between standard daily overtime and night overtime, applying the correct statutory rates without double-counting base pay."
+    },
+    {
+      "finding_id": "AUDIT-003",
+      "audit_item": "Japanese Labor Standards Act Art 37: Night + Overtime concurrent overlap +50% combined extra pay",
+      "severity": "P0",
+      "verdict": "PASS",
+      "evidence": "`LaborCalculationEngineTest.java`",
+      "analysis": "The test case `13:00-01:00 night/overtime overlap` verifies that the overlapping segment (which is both night and overtime) receives the 1.50x (150%) premium. This confirms the \"concurrent overlap\" rule is implemented correctly, preventing the common error of simply adding 25% + 25%."
+    },
+    {
+      "finding_id": "AUDIT-004",
+      "audit_item": "Japanese Labor Standards Act Art 37: Break time deduction from night work hours",
+      "severity": "P0",
+      "verdict": "PASS",
+      "evidence": "`LaborCalculationEngineTest.java`",
+      "analysis": "The test `23:00-00:00 break deducted from night work` validates that breaks occurring within the night window are subtracted from the total night hours before premium calculation. This ensures employees are not paid premiums for non-working break times during night shifts."
+    },
+    {
+      "finding_id": "AUDIT-005",
+      "audit_item": "Payroll Math & Rounding: RoundingMode.HALF_UP logic",
+      "severity": "P1",
+      "verdict": "PASS",
+      "evidence": "`PayrollCalculatorStatutoryRoundingTest.java`, `PayrollCalculator.java`",
+      "analysis": "The `yenRound` method explicitly uses `RoundingMode.HALF_UP`. The `PayrollCalculatorStatutoryRoundingTest` verifies boundary conditions (e.g., 324.49 -> 324, 324.50 -> 325), preventing 1-yen discrepancies that could arise from default `HALF_EVEN` or truncation modes."
+    },
+    {
+      "finding_id": "AUDIT-006",
+      "audit_item": "Concurrency & Security: @Transactional and Isolation",
+      "severity": "P1",
+      "verdict": "PASS",
+      "evidence": "`PayrollService.java`, `PayrollMapper.xml`",
+      "analysis": "The `PayrollService` methods are annotated with `@Transactional`. The mapper XML utilizes `SELECT ... FOR UPDATE` (pessimistic locking) on critical rows (payroll ID, staff/month, store staff) to prevent race conditions during concurrent updates, ensuring data integrity in multi-user scenarios."
+    },
+    {
+      "finding_id": "AUDIT-007",
+      "audit_item": "Concurrency & Security: Pessimistic Locking on Concurrent Updates",
+      "severity": "P1",
+      "verdict": "PASS",
+      "evidence": "`PayrollMapper.xml`, `PayrollServiceConcurrentExecutionIntegrationTest.java`",
+      "analysis": "The presence of `FOR UPDATE` clauses in `PayrollMapper.xml` for `store_staff` and `shift_schedule` related queries confirms that pessimistic locking is applied. Integration tests (`PayrollServiceConcurrentExecutionIntegrationTest`) verify that concurrent confirmations do not result in duplicate or corrupted payroll records."
+    },
+    {
+      "finding_id": "AUDIT-008",
+      "audit_item": "Concurrency & Security: IDOR Vulnerabilities (Payroll Ownership)",
+      "severity": "P0",
+      "verdict": "PASS",
+      "evidence": "`StoreAuthorizationServicePayrollOwnershipTest.java`, `PayrollApiController.java`",
+      "analysis": "The `PayrollApiController` invokes `StoreAuthorizationService.validatePayrollOwnership` before accessing specific payroll records. The dedicated test `StoreAuthorizationServicePayrollOwnershipTest` confirms that a user (Member 17) is denied access to a payroll owned by another user (Member 42), while the rightful owner is allowed. This mitigates IDOR risks."
+    },
+    {
+      "finding_id": "AUDIT-009",
+      "audit_item": "Exception Handling & Boundary Validation: DateTime Parsing",
+      "severity": "P2",
+      "verdict": "PASS",
+      "evidence": "`PayrollCalculator.java`, `LaborCalculationEngineTest.java`",
+      "analysis": "The `PayrollCalculator.resolveDateRange` method explicitly catches `DateTimeParseException` and converts it to an `IllegalArgumentException`. Tests verify that invalid time ranges (e.g., clock-out before clock-in) and out-of-range breaks are rejected, preventing runtime crashes or silent data corruption."
+    },
+    {
+      "finding_id": "AUDIT-010",
+      "audit_item": "Exception Handling & Boundary Validation: Null/Negative Inputs",
+      "severity": "P2",
+      "verdict": "PASS",
+      "evidence": "`PayrollCalculatorStatutoryRoundingTest.java`",
+      "analysis": "The rounding tests include checks for negative monthly minutes and null/negative rounding inputs. This ensures that the calculation engine handles edge cases gracefully without throwing unhandled exceptions or producing negative payroll amounts."
+    },
+    {
+      "finding_id": "AUDIT-011",
+      "audit_item": "Day 13 Scope: Calendar DTO/UI Integration",
+      "severity": "P1",
+      "verdict": "PASS",
+      "evidence": "`calendar.html`, `CalendarEventDto.java`",
+      "analysis": "The UI mismatch between `ShiftDto` and `CalendarEventDto` was identified and fixed. The template now correctly maps `extendedProps` (status, break minutes) and ISO dates. Browser evidence confirms that November 2026 shifts display correctly with proper names and times, validating the DTO integration."
+    },
+    {
+      "finding_id": "AUDIT-012",
+      "audit_item": "Day 13 Scope: UTF-8 Isolated Demo Data",
+      "severity": "P2",
+      "verdict": "PASS",
+      "evidence": "`prepare_local_demo_db.ps1`, `local_demo_attendance.sql`",
+      "analysis": "The demo database loader was updated to feed UTF-8 SQL via stdin to avoid PowerShell code-page corruption. Verification via `HEX(name)` confirmed correct UTF-8 encoding for Japanese names (e.g., `E794B0...`), resolving the previous issue of `0x3F` (question mark) replacement characters."
+    },
+    {
+      "finding_id": "AUDIT-013",
+      "audit_item": "Day 13 Scope: CSRF Fetch Handling",
+      "severity": "P1",
+      "verdict": "PASS",
+      "evidence": "`layout.html`, `CsrfCookieHeaderLifecycleIntegrationTest.java`",
+      "analysis": "The shared fetch interceptor was updated to prefer the raw `XSRF-TOKEN` cookie value for mutation requests, falling back to the meta token. Integration tests confirm that CSRF tokens are correctly attached to AJAX requests, preventing cross-site request forgery attacks on payroll and calendar mutations."
+    },
+    {
+      "finding_id": "AUDIT-014",
+      "audit_item": "Day 13 Scope: Payroll UI/API/XLSX Export",
+      "severity": "P1",
+      "verdict": "PASS",
+      "evidence": "`PayrollApiController.java`, `payroll_excel_validation.json`",
+      "analysis": "The payroll UI displays DRAFT rows matching the API response. The XLSX export endpoint returns a valid OOXML ZIP file (5,092 bytes) with correct gross totals (¥141,700 and ¥164,332). Although the browser download UI was not visually confirmed, the API artifact validation confirms the export logic is functional and secure."
+    },
+    {
+      "finding_id": "AUDIT-015",
+      "audit_item": "Regression Testing: Fresh 83-Test Isolated Run",
+      "severity": "P1",
+      "verdict": "PASS",
+      "evidence": "`docs/audit_runs/isolated_all_20261114_081141_kintai_full_test_9f4b67f66b64/`",
+      "analysis": "The final isolated regression run executed 83 tests with 0 failures, 0 errors, and 0 skipped. This includes the new `StoreAuthorizationServicePayrollOwnershipTest` and existing concurrency/rounding tests. The clean pass confirms that the Day 13 changes did not introduce regressions in the core payroll or security logic."
+    },
+    {
+      "finding_id": "AUDIT-016",
+      "audit_item": "Browser Download UX Limitation",
+      "severity": "Info",
+      "verdict": "WARN",
+      "evidence": "Browser observation logs",
+      "analysis": "The browser Excel button click did not expose a download artifact in the UI, although the API endpoint returned a valid XLSX file. This is a UI/UX limitation or browser-specific behavior (e.g., popup blocker, headless environment) rather than a backend defect. It is reported separately as a non-blocking UX issue."
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="F-04: confirmMonthlyPayroll 2단계 잠금 및 동시성 경계(신규 DRAFT 경쟁) 검증" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-11-13T22:45:30.128Z" hostname="BK" time="0.067">
+  <properties/>
+  <testcase name="2단계 잠금 일괄 확정(confirmMonthlyPayroll) 정상 동작 및 대상 DRAFT 전원 CONFIRMED 전환 검증" classname="com.example.kintai.domain.payroll.service.PayrollServiceMonthlyConfirmConcurrencyIntegrationTest" time="0.028"/>
+  <testcase name="동시 실행: 일괄 확정(confirmMonthlyPayroll)과 개별 재계산(calculatePayrollForStaff) 경합 시 데드락 없이 직렬화 성공" classname="com.example.kintai.domain.payroll.service.PayrollServiceMonthlyConfirmConcurrencyIntegrationTest" time="0.029"/>
+  <system-out><![CDATA[2026-11-14T07:45:30.130+09:00  INFO 4124 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.PayrollServiceMonthlyConfirmConcurrencyIntegrationTest]: PayrollServiceMonthlyConfirmConcurrencyIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-14T07:45:30.132+09:00  INFO 4124 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.PayrollServiceMonthlyConfirmConcurrencyIntegrationTest
+2026-11-14T07:45:30.133+09:00  INFO 4124 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.PayrollServiceMonthlyConfirmConcurrencyIntegrationTest]: PayrollServiceMonthlyConfirmConcurrencyIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-14T07:45:30.134+09:00  INFO 4124 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.PayrollServiceMonthlyConfirmConcurrencyIntegrationTest
+[Thread 2] calculatePayrollForStaff(staff 11) 시작 at 1794609930177
+[Thread 1] confirmMonthlyPayroll 시작 at 1794609930177
+[Thread 1] confirmMonthlyPayroll 완료 at 1794609930189
+==================================================================
+Thread 1 Error: SUCCESS
+Thread 2 Error: 勤務日 (2026-10-20) に有?な契約時給デ?タが存在しません。
+==================================================================
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

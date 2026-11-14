@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="タイムライン・スライシング時間算定テスト" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-11-14T00:44:54.278Z" hostname="BK" time="0.005">
+  <properties/>
+  <testcase name="深夜休憩控除（18:00~翌04:00、深夜帯23:00~00:00に1時間休憩）: 深夜休憩が適正に控除され所定内深夜と深夜残業が正しく配分されること" classname="com.example.kintai.domain.attendance.util.LaborCalculationEngineTest$TimelineSlicingTimeTest" time="0.001"/>
+  <testcase name="労働基準法第37条核心 重畳割増（13:00~翌01:00、休憩17:00~18:00）: 深夜帯かつ残業の重複が150%割増として厳密に分離されること" classname="com.example.kintai.domain.attendance.util.LaborCalculationEngineTest$TimelineSlicingTimeTest" time="0.001"/>
+  <testcase name="標準日勤8時間（09:00~18:00、休憩1時間）: 所定内100%のみ発生し残業・深夜は0分であること" classname="com.example.kintai.domain.attendance.util.LaborCalculationEngineTest$TimelineSlicingTimeTest" time="0.001"/>
+  <testcase name="日中残業（09:00~21:00、休憩1時間）: 8時間超過分が通常残業（125%）として分単位で分離されること" classname="com.example.kintai.domain.attendance.util.LaborCalculationEngineTest$TimelineSlicingTimeTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

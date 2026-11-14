@@ -1,0 +1,22 @@
+{
+  "status": "PASS",
+  "scope": "Day13 final portfolio document package",
+  "markdown_relative_links": "PASS",
+  "japanese_korean_content_review": "PASS",
+  "independent_review": {
+    "model": "qwen27b:latest",
+    "run_id": "20261114_000458_4af20cd9",
+    "fail": 0,
+    "bundle_sha256": "4af20cd936e1a70c91ca8d6b905f0d6f948d108b1c09fd226958a2a6c2b3b543",
+    "endpoint": "http://100.111.193.94:11434",
+    "provider": "Hermes remote Qwen",
+    "pass": 15,
+    "report_sha256": "4876963e92a4cb197596d02fb5d172a50db4a13b7b382930c312e433337d1d28",
+    "warn": 0,
+    "findings": 15
+  },
+  "references": [
+    "docs/final-portfolio/",
+    "docs/audit_runs/day13_calendar_20261114/final_portfolio_review/hermes_final_snapshot/"
+  ]
+}

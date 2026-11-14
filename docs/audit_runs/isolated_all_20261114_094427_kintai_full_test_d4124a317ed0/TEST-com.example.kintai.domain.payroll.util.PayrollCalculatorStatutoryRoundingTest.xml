@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="F-03: 行政通達（昭和63年3月14日付 基発第150号）法定端数処理境界値ゴールデンケース単体テスト" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-14T00:44:57.032Z" hostname="BK" time="0.003">
+  <properties/>
+  <testcase name="③ 月間割増手当総額の端数処理（50銭境界・HALF_UP）の厳密検証" classname="com.example.kintai.domain.payroll.util.PayrollCalculatorStatutoryRoundingTest" time="0.0"/>
+  <testcase name="① 月間総時間数の端数処理（30分未満切り捨て、30分以上1時間切り上げ）の厳密検証" classname="com.example.kintai.domain.payroll.util.PayrollCalculatorStatutoryRoundingTest" time="0.0"/>
+  <testcase name="② 1時間当たりの賃金額および割増賃金額（50銭境界・HALF_UP）の厳密検証" classname="com.example.kintai.domain.payroll.util.PayrollCalculatorStatutoryRoundingTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

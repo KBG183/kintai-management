@@ -1,0 +1,15 @@
+﻿### [Hermes Audit Execution Metrics]
+| Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed |
+|---|---|---|---|---|---|
+| C:\dev\kintai\docs\audit_runs\project_wide_handoff_20261114\current_docs_audit_bundle_v10.md (727 lines) | qwen27b:latest | 51.41s | 19696 tokens | 720 tokens | 22.8 tokens/s |
+
+Overall Verdict: PASS
+
+| Finding | Verdict (PASS/WARN/FAIL) | Source | Evidence | Correction |
+| :--- | :--- | :--- | :--- | :--- |
+| Handoff accuracy and scope consistency | PASS | `docs/handoff/20261114_antigravity_project_wide_handoff.md` | Handoff correctly identifies B-05/B-06 as immediate code tasks, B-04 as VERIFIED, and R-05/Day 12 as excluded. It accurately reflects the 92 PASS full regression and 6/6 Day 11 target suite results. | None required. |
+| RTM/Backlog status consistency | PASS | `docs/workflow/pipeline_improvement_backlog.md` | B-09 is correctly marked "수정 중 (최종 독립 재검수 대기)" (In Progress/Awaiting Final Re-audit), consistent with the handoff's instruction not to mark it complete until independent Qwen re-verification passes. B-02, B-03, B-08, and B-04 are consistently marked as completed/verified across RTM and backlog. | None required. |
+| Remote endpoint and model routing | PASS | `scripts/codex_hermes_bridge.ps1`, `scripts/audit_config.json` | Bridge script defaults to `http://100.111.193.94:11434` and `qwen27b:latest` from config. The `Transport` parameter defaults to `Http`, and the script explicitly rejects local Ollama CLI usage if the model is not locally installed, enforcing the remote-only constraint. | None required. |
+| Think setting propagation | PASS | `scripts/audit_with_hermes.ps1`, `scripts/codex_hermes_bridge.ps1` | The v7 correction log confirms that `think: false` was previously omitted from the API body, causing empty responses. The current code in `audit_with_hermes.ps1` (lines 150-168) explicitly includes `think = $Think` in the `$bodyObj` options, and the bridge script passes this value from the config. | None required. |
+| Fail-closed response validation | PASS | `scripts/audit_with_hermes.ps1` | The `Assert-HermesAuditResponse` function validates the terminal chunk, checks for truncation (`done_reason -eq 'length'`), verifies token usage against 90% of context limit, and ensures the content is not empty and contains a valid verdict table. This prevents false PASSes from empty or malformed responses. | None required. |
+| Local tests and historical evidence | PASS | `docs/audit_runs/project_wide_handoff_20261114/runner_validation_20261114_112300/` | Local validation run `runner_validation_20261114_112300` shows PASS for parser, response validation, bridge routing, input preflight, and wrapper mock. Historical evidence (e.g., Run `20261114_014515_cd7cd20d` WARN) is preserved and correctly cited as non-PASS in the handoff. | None required. |

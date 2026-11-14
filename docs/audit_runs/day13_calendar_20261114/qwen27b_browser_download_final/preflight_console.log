@@ -1,0 +1,31 @@
+{
+    "status":  "INPUT_READY",
+    "bundle_path":  "C:\\dev\\kintai\\docs\\audit_runs\\preflight_d37460504b074c1e9a9cfd211e74b9a3\\input_bundle",
+    "manifest_path":  "C:\\dev\\kintai\\scripts\\..\\docs\\audit_runs\\preflight_d37460504b074c1e9a9cfd211e74b9a3\\input_manifest.json",
+    "bundle_sha256":  "5c3c1901c40b8004e0d48580bc42efa64b3a349714b1d8581fd8431fc3ad8760",
+    "failures":  [
+
+                 ]
+}
+[Hermes v1.1.1] Initializing audit run (AUDIT) in: C:\dev\kintai\docs\audit_runs\day13_calendar_20261114\qwen27b_browser_download_final
+[Hermes v1.1.1] Model verified: qwen27b:latest (Ollama v0.40.16, Digest: 23c3820b0d9326b73e97191b9fb7e16b53f6e24bb3449d2a17037c5f2b6179a1, Quant: IQ3_M, Params: 27.3B)
+[08:45:55] Generating... Tokens: 269
+[08:46:05] Generating... Tokens: 591
+[08:46:15] Generating... Tokens: 928
+[08:46:25] Generating... Tokens: 1261
+=== [Hermes v1.1.1] Done! Output saved in: C:\dev\kintai\docs\audit_runs\day13_calendar_20261114\qwen27b_browser_download_final ===
+### [Hermes Audit Execution Metrics v1.1.1]
+| Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed | Done Reason | Run ID |
+|---|---|---|---|---|---|---|---|
+| C:\dev\kintai\scripts\..\docs\audit_runs\preflight_d37460504b074c1e9a9cfd211e74b9a3\input_bundle | qwen27b:latest (IQ3_M) | 52.83s | 3309 tokens | 1427 tokens | 31.7 tokens/s | stop | 20261113_234537_5c3c1901 |
+
+Get-FileHash : The file 'C:\dev\kintai\docs\audit_runs\day13_calendar_20261114\qwen27b_browser_download_final\preflight
+_console.log' cannot be read: The process cannot access the file 'C:\dev\kintai\docs\audit_runs\day13_calendar_20261114
+\qwen27b_browser_download_final\preflight_console.log' because it is being used by another process.
+At C:\dev\kintai\scripts\audit_hermes_preflight.ps1:58 char:81
++ ... lPath $auditArgs['OutputDir'] -File | Get-FileHash -Algorithm SHA256)
++                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ReadError: (C:\dev\kintai\d...ght_console.log:PSObject) [Write-Error], WriteErrorExcepti 
+   on
+    + FullyQualifiedErrorId : FileReadError,Get-FileHash
+ 

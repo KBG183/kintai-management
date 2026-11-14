@@ -1,0 +1,277 @@
+# Final frozen-document consistency audit
+
+Verify final source facts and documentation. Check prior WARN corrections, all figures and hashes, bilingual parity, and limitations.
+
+## RTM rows
+
+| **R-02** | 최종 재조회 이후 신규 DRAFT 경쟁 조건 재현 및 격리 검증 | T1(재조회 후 CAS 직전 대기)과 T2(신규 DRAFT 생성/커밋) 간 기술적 격리 실측 및 업무 정책 문서화 | 신규 DRAFT가 DRAFT 상태로 안전하게 보존됨 기술 실측 완료. (업무 정책 채택 여부는 사용자 승인 대기) | JUnit XML, DB 상태 조회 쿼리 결과, `r02_business_policy.md` | `PayrollService.java`, `PayrollMapper.xml` | **VERIFIED (기술 검증)** | 기술적 격리 테스트 통과 완료 (업무 정책 승인 대기) |
+| **R-05** | MySQL 8.4 LTS 최종 검증 및 26.7 분리 | 로컬 `MySQL 26.7.0 Innovation` 결과와 `MySQL 8.4 LTS` 결과를 혼합하지 않고 각각 분리 기록 | `SELECT VERSION()` 실측치 명시 및 8.4 LTS 전용 검증 분리 | DB 버전 출력, EXPLAIN 결과 분리 파일 | `docs/f04_evidence/` | **DEFERRED (2027-01)** | MySQL 8.4/Testcontainers는 프로젝트 완성의 현재 차단 요인에서 제외. 2027년 1월 재검토 예정이며 미실행 상태 유지 |
+| **R-08** | 출퇴근 CLOCK_IN 동시 요청 중복 생성 차단 및 비관적 락 정합성 실측 | 동일 직원 동시 CLOCK_IN에서 성공 1건·업무 거부 1건 및 중복 미생성을 검증한다. | 2개 스레드 결과, DB 상태, 격리 DB 증거와 반복 로그 | `AttendanceService.java`; `AttendanceMapper.xml`; `AttendanceServiceConcurrencyIntegrationTest.java`; `docs/audit_runs/day10_isolated_regression_20261114_093404/` | **VERIFIED (로컬 MySQL 26.7)** | 최종 소스에서 신규 격리 DB 3개 각각 2건 테스트, 총 6건 PASS, 실패·오류 0. 요약과 JUnit SHA-256은 run 폴더 `summary.json`. 최신 전체 회귀(2026-11-14)는 92 PASS. 운영 DB 미사용. |
+| **R-09** | 출퇴근 CLOCK_OUT 동시 요청 완료 상태 보존 및 중복 퇴근 거부 실측 | 동일 직원 진행 근태의 동시 CLOCK_OUT에서 성공 1건·거부 1건, 최종 COMPLETED를 검증한다. | 2개 스레드 결과, DB 최종 상태, 격리 DB 증거와 반복 로그 | `AttendanceService.java`; `AttendanceMapper.xml`; `AttendanceServiceConcurrencyIntegrationTest.java`; `docs/audit_runs/day10_isolated_regression_20261114_093404/` | **VERIFIED (로컬 MySQL 26.7)** | 최종 소스에서 신규 격리 DB 3개 각각 CLOCK_OUT 테스트 포함 2건 PASS, 총 6건 PASS, 실패·오류 0. 최신 전체 회귀(2026-11-14)는 92 PASS. 운영 DB 미사용. |
+| **R-10** | Day 10 출퇴근 동시성 독립 Qwen 감사 및 감사관 지적 해소 | 최신 근태 타각·인증·입력 경계 구현과 반복 검증을 독립 감사한다. | 현행 소스 번들, 실행 결과, A-05/A-06 및 재검수 결과 보존 | `docs/audit_runs/prior_residuals_20261114/qwen_day10_final/hermes_final/`; bundle SHA-256 `dd991d3ca2ab013943b9f6e7f5b676524b4e77df34d67fe77e881586f03aa7c8` | **VERIFIED (로컬 MySQL 26.7 범위)** | 원격 `http://100.111.193.94:11434`, `qwen27b:latest`, Run `20261114_003657_dd991d3c`. 10 findings 중 PASS 9, N/A 1(급여 계산은 Day10 근태 타각 감사 범위 밖), WARN/FAIL 0. 기존 A-05/A-06을 세션 ID 강제 바인딩/소유권 검사, 실제 필터 미인증 요청 테스트, 입력 거부 및 Mapper 무호출로 해소. report SHA-256 `31e8e18609ec458e8e589888646a05502f1f37c269bc4820b25df6bdb62bf430`. |
+| **R-11** | Day 11 12개월 급여 계산 시나리오 및 계약 유효기간 | 월별 근무 분포, 계약 이력, API/Service 경로와 급여를 대조하고 독립 연간 합계를 검증한다. | 12개월×3근무일, 계약 임금 변경, 독립 연간 oracle, 타각 HTTP/API 경로, JUnit 및 격리 DB 로그 | `AnnualPayrollScenarioIntegrationTest.java`; `AttendancePunchApiIntegrationTest.java`; `docs/audit_runs/isolated_day11_20261114_093228_kintai_day11_test_3a25e5513c4f/`; `docs/audit_runs/isolated_all_20261114_094427_kintai_full_test_d4124a317ed0/`; remote Qwen Run `20261114_004900_46049b14` | **VERIFIED (로컬 MySQL 26.7)** | 12개월 각각 3일의 근태 및 독립 연간 oracle 대조 PASS, 계약 경계 6/30·7/1 PASS. 실제 Spring Security 필터→Controller→Service→DB 타각 API spoofed ID 차단·저장 검증 PASS(전용 통합 테스트 및 R-10 재감사 증적 참조). 최신 전체 회귀 92 PASS. Qwen R-11/R-12 소스 감사 12/12 PASS, WARN/FAIL 0. |
+| **R-12** | Day 11 경계·결함 시나리오 | 야간·다회 휴게·계약 경계·동일일 분할 근무 8시간 누적·월마감·반올림을 독립 기대값으로 검증한다. | 각 경계의 통합/단위 테스트, 저장된 실행 및 JUnit | `AnnualPayrollScenarioIntegrationTest.java`; `LaborCalculationEngineTest.java`; `SplitShiftOvertimeDefectTest.java`; `PayrollCalculatorStatutoryRoundingTest.java`; `docs/audit_runs/isolated_day11_20261114_094349_kintai_day11_test_01f4cb1439e6/`; `docs/audit_runs/isolated_all_20261114_094427_kintai_full_test_d4124a317ed0/` | **VERIFIED (로컬 MySQL 26.7)** | 4h+5h 분할근무 후 CLOCK_OUT service에서 60분 초과 산출 및 월 급여 반영 PASS. 20:00~05:00 야간 420분 중 연장 60분 중첩의 25%+25%=50% 프리미엄 및 급여 합계 PASS. 1/31 포함·2/1 제외, 계약·자정·다회휴게·야간휴게 차감·HALF_UP 경계 PASS. Qwen Run `20261114_004900_46049b14` 12 findings PASS, WARN/FAIL 0. 전체 회귀 92 PASS. |
+| **R-14** | Day 11 독립 검수 및 추적 문서 정합성 | Qwen 입력·결과를 보존하고 지적사항 및 한계를 한·일 증적·RTM·인수인계에 반영한다. | Run ID·입력 해시·결과·지적별 대조와 일치 문서 | `docs/audit_runs/preflight_1e3b8fba040b4197aed07afbde9334f2/`; final document audit `docs/audit_runs/preflight_9c8fda322194453ba642d56325a31d10/`; 한·일 portfolio evidence; `docs/handoff/20261114_residuals_handoff.md` | **VERIFIED (2026-11-14 source/document scope)** | Qwen 27B 원격 Run `20261114_004900_46049b14`, 입력 bundle SHA-256 `46049b14578b32462a6f105966643d658919d5ed658faaf885796e2e1cd2c4b8`, report SHA-256 `b1ae1c9d7844d92b6ab4b47bf5e5c66dbb0f1f3f916549688e3c83ea56798f10`. 12/12 PASS, WARN/FAIL 0. 기존 결함 F-03 중첩 프리미엄 경고에 통합 단언 추가 후 새 격리 DB 대상 6/6 PASS 및 전체 92/92 PASS. 한·일 증적과 RTM/인수인계 수치 대조 완료. 최종 문서 독립 감사 Run `20261114_005254_fba935b3`: 12/12 PASS, prior WARN 2건 조치 확인. bundle SHA-256 `fba935b3d9b5a2efb7a6586f136be41c5c6d3c4695d0b1f01fce111e8d850865`, report SHA-256 `847837dfd3a986814e231e89ffd3e57c0da9b5da8093ce8ea2d81c35baf31885`. |
+
+## Checklist
+
+{
+  "work_date": "2026-11-14",
+  "objective": "Close feasible pre-Day13 residual verification gaps in order, preserving environment boundaries.",
+  "items": [
+    {
+      "id": "R-08/R-09",
+      "task": "Fail-closed isolation guard and 3 fresh local MySQL concurrency runs",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "R-10",
+      "task": "Re-run attendance security and input-boundary checks; remote Qwen 27B audit exact final source",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "R-11",
+      "task": "Improve annual scenario distribution and verify service/API-path scope with independent totals",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "R-12",
+      "task": "Add/execute split-shift, month-boundary and rounding boundary integration checks",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "R-14",
+      "task": "Audit final frozen source and reconcile Korean/Japanese evidence, RTM, handoff",
+      "status": "VERIFIED_DOCUMENT_SCOPE"
+    },
+    {
+      "id": "R-05",
+      "task": "Run MySQL 8.4 Testcontainers separately if Docker is available; otherwise preserve exact blocker",
+      "status": "BLOCKED_ENVIRONMENT_DOCKER_MISSING"
+    },
+    {
+      "id": "R-02",
+      "task": "Resolve documented business-policy acceptance status without silently claiming user approval",
+      "status": "PENDING_OWNER_DECISION"
+    },
+    {
+      "id": "Day12",
+      "task": "Review deferred Compose/Redis/cloud scope; no external deployment without separate explicit authorization",
+      "status": "DEFERRED_EXTERNAL_CLOUD_NOT_AUTHORIZED"
+    }
+  ],
+  "database_policy": "Use only newly generated allowlisted isolated test databases; never kintai_db; do not delete retained databases.",
+  "audit_policy": "Remote Qwen only at http://100.111.193.94:11434 with qwen27b:latest; no local fallback or downloads.",
+  "evidence": {
+    "targeted_payroll_run": "isolated_day11_20261114_094349_kintai_day11_test_01f4cb1439e6",
+    "full_regression_run": "isolated_all_20261114_094427_kintai_full_test_d4124a317ed0",
+    "full_regression": "92 PASS, 0 failures, 0 errors, 0 skipped",
+    "qwen_run": "20261114_004900_46049b14",
+    "qwen_findings": "12 PASS, 0 WARN, 0 FAIL",
+    "qwen_endpoint": "http://100.111.193.94:11434",
+    "qwen_model": "qwen27b:latest",
+    "mysql84_probe": "docs/audit_runs/prior_residuals_20261114/mysql84_runtime_probe.log",
+    "final_document_audit": {
+      "run_id": "20261114_005254_fba935b3",
+      "findings": "12 PASS, 0 WARN, 0 FAIL",
+      "bundle_sha256": "fba935b3d9b5a2efb7a6586f136be41c5c6d3c4695d0b1f01fce111e8d850865",
+      "report_sha256": "847837dfd3a986814e231e89ffd3e57c0da9b5da8093ce8ea2d81c35baf31885",
+      "first_audit_warnings_corrected": [
+        "R-14 status synchronized",
+        "historic 83-test Day13 checkpoint distinguished from latest 92-test residual regression"
+      ]
+    }
+  }
+}
+
+## Korean final closure
+
+
+- 브라우저 다운로드 최종 확인 결과: Chrome의 export 클릭이 /api/payroll/excel?storeId=1&yearMonth=2026-01에서 ERR_BLOCKED_BY_CLIENT로 끝났다. 브라우저 도구의 URL 정책은 chrome://downloads/ 이동과 대체 경로/우회를 명시적으로 거부했다. 원인을 앱 또는 확장 프로그램으로 단정하지 않는다. 인증 API XLSX는 정상·유효하나 실제 browser-managed 저장은 미확인으로 남긴다. Qwen 최종 감사 Run ID 20261113_232151_a808922d는 핵심 범위 PASS, 이 검증 항목만 P2 WARN/Unresolved. 보고서 SHA-256 1CBA641563D0BD88CCE21E41C71F97E7A563C550EBFDEA9DF9FB6A09F646D61E.
+
+### Day 13 범위 독립 재검수 및 R-17 브라우저 다운로드 완료 (2026-11-14 KST)
+
+- **Day 13 범위 스냅샷 판정: PASS (해당 시점 로컬 MySQL 26.7 검수 범위).** 이 항목의 83건 회귀는 Day 13 체크포인트 결과입니다. 이후 잔여 검증 종료 시점의 최신 전체 회귀는 별도 격리 DB에서 92건 PASS이며, 아래 잔여 검증 갱신을 현재 최종 회귀로 봅니다. RTM R-15/R-16/R-17/R-18 모두 VERIFIED. MySQL 8.4 Testcontainers는 기존 결정대로 2027년 1월 재검토(DEFERRED)이며 이번 로컬 검수와 구분한다.
+- R-17 후속 화면 검수에서 격리 데모 DB `kintai_demo_9f3f8487bc42`의 2026-01 급여 행과 합계(佐藤 花子 ¥141,700; 鈴木 一郎 ¥164,332)를 확인하고 Excel 출력 버튼을 클릭했다. 브라우저 download 이벤트가 완료되어 5,092-byte XLSX가 저장됐다. 파일 OOXML 구조, 월, 두 합계를 검사했다. SHA-256 `ba127f65f193f8289c2b4e445efc09a06e1590e2230ed0b1ad603d839cfdcd98`. 증거: `docs/audit_runs/day13_calendar_20261114/excel_browser_download.json`, `payroll_2026-01_browser_download.xlsx`.
+- 격리 전체 회귀: 83건 PASS, 실패·오류·스킵 0, Gradle exit 0; DB `kintai_full_test_9f4b67f66b64`.
+- 최신 독립 감사: Hermes v1.1.1, 원격 `http://100.111.193.94:11434`, `qwen27b:latest` IQ3_M 27.3B, digest `23c3820b0d9326b73e97191b9fb7e16b53f6e24bb3449d2a17037c5f2b6179a1`; Run ID `20261113_234922_d69a9b63`; 번들 SHA-256 `d69a9b63c9a6a79043a38fb9c8942ab9c3fd0f9936087ffe5865d778f6817379`; 보고서 SHA-256 `0dc324150a75bb8a1d3035f7ee770a03ec2bffd8241a3a041ffd9ee2066fbf32`. 15 findings PASS, WARN/FAIL 0. 이전 Chrome `ERR_BLOCKED_BY_CLIENT`는 이후 인앱 브라우저에서 다운로드 성공으로 해소됐으며 과거 시도 기록은 보존한다.
+- 잘못 시작한 미설치 Qwen pull 캐시 21개는 사용자 요청에 따라 제거했고, Qwen 7B 설치는 보존했다. 상세: `docs/audit_runs/day13_calendar_20261114/qwen_local_pull_cleanup_manifest.json`.
+## 최종 포트폴리오 패키지 작성 및 독립 재검수 (2026-11-14)
+
+- Day 13 최종 산출물을 `docs/final-portfolio/`에 구성했습니다: 기술 증적 v2.0(일본어/영어), 한국어 요약, 애플리케이션 및 3역 AI 협업 Mermaid 아키텍처, 격리 로컬 데모 안내(일본어/영어).
+- 현재 정본 DDL을 대조해 오래된 `uq_att_open_per_staff` 설명은 현행 스키마 사실이 아님을 명시했습니다. RTM R-11/R-12/R-14 부분 검증 및 R-05(MySQL 8.4) 연기를 포트폴리오에 분명히 표시했습니다.
+- 문서 로컬 확인에서 상대 Markdown 링크를 검사했습니다. 전체 회귀 83/83, 오류·실패·스킵 0 및 Day 13 기존 15개 finding Qwen PASS를 원본 증거와 대조했습니다.
+- 포트폴리오 Qwen 27B 감사 초회는 계산 및 잠금 구현 증거가 입력 번들에 없다고 지적했습니다. 관련 계산기/테스트/IDOR 테스트에 더해 AttendanceService 트랜잭션, Mapper `FOR UPDATE`, PayrollService 잠금 순서를 번들에 추가해 재감사를 진행했습니다. 원본 입력·응답·해시 및 최초 지적은 `docs/audit_runs/day13_calendar_20261114/final_portfolio_review/`에 보존합니다.
+- 본 패키지 완료 판정은 최종 Qwen 재감사 및 문서 일치 검사 후 확정합니다. 프로젝트 전체 완료나 일본 노동법 전 범위 적합을 주장하지 않습니다.
+- 최종 문구와 소스 근거를 포함한 원격 Qwen 재감사 Run `20261114_000458_4af20cd9`는 15/15 PASS, WARN/FAIL 0입니다. 초기 계산 증거 부족 지적과 잠금 증거 WARN을 필요한 코드·테스트·Mapper 근거를 추가해 해소했고, 정확한 최종 번들 재감사에서 PASS를 받았습니다. 번들 SHA-256 `4af20cd936e1a70c91ca8d6b905f0d6f948d108b1c09fd226958a2a6c2b3b543`, 보고서 SHA-256 `4876963e92a4cb197596d02fb5d172a50db4a13b7b382930c312e433337d1d28`.
+- R-19 VERIFIED. 포트폴리오 전 문서의 상대 Markdown 링크 확인 PASS. 최종 상태 `docs/audit_runs/day13_calendar_20261114/final_portfolio_review/final_verification_summary.json`.
+
+### 잔여 검증 최종 갱신 (2026-11-14 KST)
+
+- RTM R-08/R-09/R-10/R-11/R-12/R-14는 이 날짜 최종 증거 기준으로 VERIFIED입니다. 이전 날짜의 `PARTIALLY_VERIFIED` 및 테스트 개수는 당시 이력으로 보존하며, 현재 상태는 `docs/rtm_ledger.md`를 따릅니다.
+- 급여 통합 경계 테스트에서 20:00~다음 날 05:00 근무(총 540분), 야간 420분, 일일 연장 60분을 구성했습니다. 급여에 야간 25%와 연장 25%가 각각 가산되어 겹친 시간의 합산 50% 프리미엄이 반영되는 것을 확인했습니다. 야간 휴게 차감은 `LaborCalculationEngineTest`의 야간 시간대 휴게 사례로 검증했습니다.
+- 새 격리 DB `kintai_day11_test_01f4cb1439e6`에서 `AnnualPayrollScenarioIntegrationTest` 6/6 PASS. 이후 전체 회귀는 새 격리 DB `kintai_full_test_d4124a317ed0`에서 92/92 PASS, 실패·오류·스킵 0, Gradle exit 0입니다. 운영 DB `kintai_db`에는 연결하거나 데이터를 변경하지 않았습니다.
+- 수정 뒤 원격 독립 검수는 지정 주소 `http://100.111.193.94:11434`, `qwen27b:latest` (27.3B, IQ3_M)에서 실행했습니다. Run `20261114_004900_46049b14`; 12 findings PASS, WARN/FAIL 0. 입력 SHA-256 `46049b14578b32462a6f105966643d658919d5ed658faaf885796e2e1cd2c4b8`; 결과 SHA-256 `b1ae1c9d7844d92b6ab4b47bf5e5c66dbb0f1f3f916549688e3c83ea56798f10`. 실행 증거는 `docs/audit_runs/preflight_1e3b8fba040b4197aed07afbde9334f2/hermes/`입니다.
+- R-05 MySQL 8.4/Testcontainers는 Docker/Podman 실행 파일이 없어 실행되지 않았고 `BLOCKED`로 남깁니다. 소프트웨어 설치·다운로드를 하지 않았습니다. 2027년 1월 재검토 범위입니다.
+- R-02는 기술 검증은 완료했지만 `r02_business_policy.md`의 업무정책 채택은 사용자 결정 전이므로 승인 완료로 기록하지 않았습니다. Day12의 외부 AWS 배포/클라우드 변경도 이번 로컬 검수에 포함하거나 실행하지 않았습니다.
+- 체크리스트 및 실행 요약: `docs/audit_runs/prior_residuals_20261114/completion_checklist.json`; 인수인계: `docs/handoff/20261114_residuals_handoff.md`.
+
+- 최종 문서 독립 검수: Qwen Run 20261114_005254_fba935b3, 12/12 PASS, WARN/FAIL 0. 최초 문서 감사에서 나온 R-14 상태 불일치와 Day 13 83건 체크포인트 표기 모호성을 수정했습니다. 번들 SHA-256 $hash; 보고서 SHA-256 $report. 상세: `docs/audit_runs/preflight_9c8fda322194453ba642d56325a31d10/hermes/`.
+
+## Japanese final closure
+
+
+- ブラウザーDLの最終確認: ChromeでExcel出力をクリックすると /api/payroll/excel?storeId=1&yearMonth=2026-01 で ERR_BLOCKED_BY_CLIENT となった。ブラウザーツールのURLポリシーは chrome://downloads/ への移動と代替経路・回避を明示的に拒否した。原因をアプリまたは拡張機能と断定しない。認証APIのXLSXは正常・有効だが、browser-managed保存は未確認。Qwen最終Run ID 20261113_232151_a808922d は対象範囲PASS、この検証項目のみP2 WARN/Unresolved。報告書SHA-256 1CBA641563D0BD88CCE21E41C71F97E7A563C550EBFDEA9DF9FB6A09F646D61E。
+
+### Day 13 範囲の独立再監査とR-17ブラウザーダウンロード完了 (2026-11-14 KST)
+
+- **Day 13 範囲スナップショット判定: PASS（当時点のローカルMySQL 26.7検証範囲）。** ここに記載した83件回帰はDay 13時点のチェックポイント結果です。その後の残存検証終了時点における最新の全回帰は、別の隔離DBで92件PASSです。下記の残存検証更新を現在の最終回帰結果として扱います。 RTM R-15/R-16/R-17/R-18 はすべてVERIFIED。MySQL 8.4 Testcontainersは既定どおり2027年1月に再検討（DEFERRED）であり、今回のローカル検証範囲とは分ける。
+- R-17の追加UI検証で隔離デモDB `kintai_demo_9f3f8487bc42` の2026-01給与行と合計（佐藤 花子 ¥141,700、鈴木 一郎 ¥164,332）を確認し、Excel出力ボタンをクリックした。ブラウザーのdownloadイベントが完了し、5,092-byte XLSXが保存された。OOXML構造、対象月、両合計を検査。SHA-256 `ba127f65f193f8289c2b4e445efc09a06e1590e2230ed0b1ad603d839cfdcd98`。証拠: `docs/audit_runs/day13_calendar_20261114/excel_browser_download.json`、`payroll_2026-01_browser_download.xlsx`。
+- 隔離全体回帰: 83件PASS、失敗・エラー・スキップ0、Gradle exit 0。DB `kintai_full_test_9f4b67f66b64`。
+- 最新独立監査: Hermes v1.1.1、リモート `http://100.111.193.94:11434`、`qwen27b:latest` IQ3_M 27.3B、digest `23c3820b0d9326b73e97191b9fb7e16b53f6e24bb3449d2a17037c5f2b6179a1`; Run ID `20261113_234922_d69a9b63`; バンドルSHA-256 `d69a9b63c9a6a79043a38fb9c8942ab9c3fd0f9936087ffe5865d778f6817379`; 報告書SHA-256 `0dc324150a75bb8a1d3035f7ee770a03ec2bffd8241a3a041ffd9ee2066fbf32`。15件すべてPASS、WARN/FAIL 0。以前のChrome `ERR_BLOCKED_BY_CLIENT` は後続のインアプリブラウザーでダウンロード成功により解消し、過去の試行記録は保持する。
+- 誤って開始した未インストールQwen pullのキャッシュ21件はユーザー指示に従い削除し、既存のQwen 7Bインストールは保持した。詳細: `docs/audit_runs/day13_calendar_20261114/qwen_local_pull_cleanup_manifest.json`。
+## 最終ポートフォリオ作成と独立再レビュー (2026-11-14)
+
+- Day 13成果物を`docs/final-portfolio/`に整備した。技術証跡v2.0（日本語/英語）、韓国語要約、アプリ構成および3役AI協働のMermaid図、分離ローカルDBのデモ手順（日本語/英語）を含む。
+- 現行正本DDLを照合し、旧資料の`uq_att_open_per_staff`は現行スキーマの事実ではないと明記した。RTM R-11/R-12/R-14の一部検証およびR-05（MySQL 8.4）の延期も明示した。
+- ローカル文書確認で相対Markdownリンクを検査した。全回帰83/83、失敗・エラー・スキップ0、およびDay 13の既存Qwen監査15件PASSを原本証跡と照合した。
+- ポートフォリオ初回Qwen 27B監査は、計算実装とロック実装の根拠が入力に不足すると指摘した。計算機/テスト/IDORテストに加え、AttendanceServiceトランザクション、Mapper `FOR UPDATE`、PayrollServiceのロック順序を監査バンドルに追加し、再監査を実施した。入力・応答・ハッシュおよび初回指摘は`docs/audit_runs/day13_calendar_20261114/final_portfolio_review/`に保存した。
+- パッケージの完了判定は最終Qwen再監査と文書整合確認後に確定する。プロジェクト全体の完了や日本の労働法全範囲への適合は主張しない。
+- 最終文面とソース根拠を含むリモートQwen再監査Run `20261114_000458_4af20cd9`は15/15 PASS、WARN/FAIL 0。初回の計算根拠不足指摘とロック証跡WARNに対し、必要なコード・テスト・Mapper根拠を追加し、最終バンドルの再監査でPASSを得た。バンドルSHA-256 `4af20cd936e1a70c91ca8d6b905f0d6f948d108b1c09fd226958a2a6c2b3b543`、報告書SHA-256 `4876963e92a4cb197596d02fb5d172a50db4a13b7b382930c312e433337d1d28`。
+- R-19 VERIFIED。全ポートフォリオ文書の相対Markdownリンク検査PASS。最終状態は`docs/audit_runs/day13_calendar_20261114/final_portfolio_review/final_verification_summary.json`。
+
+### 残存検証の最終更新 (2026-11-14 KST)
+
+- RTM R-08/R-09/R-10/R-11/R-12/R-14は、この日付の最終証拠に基づきVERIFIEDです。過去日の`PARTIALLY_VERIFIED`およびテスト件数は当時の履歴として保持し、現在の状態は`docs/rtm_ledger.md`に従います。
+- 給与統合境界テストで20:00から翌05:00までの勤務（合計540分）、深夜420分、日次時間外60分を設定しました。深夜25%と時間外25%が個別に加算され、重複時間に合計50%の割増が反映されることを確認しました。深夜休憩の控除は`LaborCalculationEngineTest`の深夜帯休憩ケースで検証しました。
+- 新規隔離DB `kintai_day11_test_01f4cb1439e6`で`AnnualPayrollScenarioIntegrationTest`は6/6 PASS。その後、新規隔離DB `kintai_full_test_d4124a317ed0`で全回帰92/92 PASS、失敗・エラー・スキップ0、Gradle exit 0です。運用DB `kintai_db`には接続せず、データ変更もしていません。
+- 修正後のリモート独立監査は指定先`http://100.111.193.94:11434`、`qwen27b:latest`（27.3B、IQ3_M）で実行しました。Run `20261114_004900_46049b14`、12 findings PASS、WARN/FAIL 0。入力SHA-256 `46049b14578b32462a6f105966643d658919d5ed658faaf885796e2e1cd2c4b8`、結果SHA-256 `b1ae1c9d7844d92b6ab4b47bf5e5c66dbb0f1f3f916549688e3c83ea56798f10`。実行証拠は`docs/audit_runs/preflight_1e3b8fba040b4197aed07afbde9334f2/hermes/`です。
+- R-05 MySQL 8.4/TestcontainersはDocker/Podman実行ファイルがないため実行できず、`BLOCKED`のままです。ソフトウェアのインストール・ダウンロードは行っていません。2027年1月の再検討対象です。
+- R-02は技術検証済みですが、`r02_business_policy.md`に記載した業務方針の採用はユーザー決定前のため、承認済みとは記録していません。Day12のAWSデプロイ・クラウド変更も今回のローカル検証に含めず、実行していません。
+- チェックリストと実行サマリー: `docs/audit_runs/prior_residuals_20261114/completion_checklist.json`; 引継ぎ: `docs/handoff/20261114_residuals_handoff.md`。
+
+- 最終文書独立監査: Qwen Run 20261114_005254_fba935b3、12/12 PASS、WARN/FAIL 0。初回文書監査で指摘されたR-14状態の不一致と、Day 13の83件チェックポイント表記の曖昧さを修正しました。バンドルSHA-256 $hash、報告書SHA-256 $report。詳細: `docs/audit_runs/preflight_9c8fda322194453ba642d56325a31d10/hermes/`。
+
+## Handoff
+
+# 2026-11-14 Residual Verification Handoff
+
+- Work date: 2026-11-14 KST
+- Scope: close feasible pre-Day13 RTM residuals in order; preserve operational DB and deferred scope.
+- Working tree: pre-existing changes were preserved; no commit or push was made.
+
+## Final evidence-backed results
+
+- R-08/R-09: three newly generated isolated MySQL 26.7 DBs; 6 concurrency tests PASS, 0 failures/errors. Evidence: `docs/audit_runs/day10_isolated_regression_20261114_093404/`.
+- R-10: updated attendance security/input/concurrency source independently audited by remote Qwen 27B. Run `20261114_003657_dd991d3c`; 9 PASS, 1 N/A (payroll law is outside the attendance-punch audit slice), 0 WARN/FAIL. Report: `docs/audit_runs/prior_residuals_20261114/qwen_day10_final/hermes_final/report.md`.
+- R-11/R-12: expanded 12-month and boundary coverage; added the night + daily overtime overlap assertion after Qwen finding F-03. At 1,300 yen/hour, 540 net minutes, 420 night minutes and 60 overtime minutes, the test asserts 2,275 yen night premium, 325 yen overtime premium, 22,100 yen base, 1,000 yen transport cap, and 25,700 yen gross. Night-break deduction is separately covered by `LaborCalculationEngineTest`.
+- Targeted annual integration: fresh isolated DB `kintai_day11_test_01f4cb1439e6`; 6 tests PASS, 0 failures/errors/skips. Evidence: `docs/audit_runs/isolated_day11_20261114_094349_kintai_day11_test_01f4cb1439e6/`.
+- Full regression after the last source change: fresh isolated DB `kintai_full_test_d4124a317ed0`; 92 tests PASS, 0 failures/errors/skips, Gradle exit 0. Evidence: `docs/audit_runs/isolated_all_20261114_094427_kintai_full_test_d4124a317ed0/`.
+- Final remote independent review used only `http://100.111.193.94:11434`, model `qwen27b:latest` (27.3B, IQ3_M). Run `20261114_004900_46049b14`: 12/12 PASS, WARN/FAIL 0. Bundle SHA-256 `46049b14578b32462a6f105966643d658919d5ed658faaf885796e2e1cd2c4b8`; report SHA-256 `b1ae1c9d7844d92b6ab4b47bf5e5c66dbb0f1f3f916549688e3c83ea56798f10`. Evidence folder: `docs/audit_runs/preflight_1e3b8fba040b4197aed07afbde9334f2/hermes/`.
+- R-14: Korean/Japanese evidence, RTM and this handoff have been reconciled to the above evidence. The first independent document audit Run `20261114_005138_3485208b` found two WARNs (stale RTM R-14 state and an ambiguous historic Day 13 83-test heading). Both were corrected. Final frozen-document audit Run `20261114_005254_fba935b3` returned 12/12 PASS, WARN/FAIL 0. Bundle SHA-256 `fba935b3d9b5a2efb7a6586f136be41c5c6d3c4695d0b1f01fce111e8d850865`; report SHA-256 `847837dfd3a986814e231e89ffd3e57c0da9b5da8093ce8ea2d81c35baf31885`.
+
+## Remaining owner/environment decisions
+
+- R-02: technical race isolation verified. Adoption of the business rule in `docs/f04_evidence/r02_business_policy.md` remains pending the user's explicit decision; do not claim it was accepted.
+- R-05: MySQL 8.4 Testcontainers is blocked because Docker and Podman executables are absent. Exact probe: `docs/audit_runs/prior_residuals_20261114/mysql84_runtime_probe.log`. No software was downloaded/installed. Revisit in January 2027; local MySQL 26.7 is not a substitute.
+- Day 12 cloud deployment remains deferred and was not performed. It would create external cloud resources; it is outside local verification authorization.
+- No operating DB was used. Test runs used newly created, allowlisted isolated databases. No DBs were deleted.
+
+## Tracking
+
+- RTM: `docs/rtm_ledger.md`
+- Residual checklist: `docs/audit_runs/prior_residuals_20261114/completion_checklist.json`
+- Korean evidence: `docs/portfolio_audit_evidence_KO.md`
+- Japanese evidence: `docs/portfolio_audit_evidence.md`
+
+
+## Full regression
+
+{
+  "gradle_exit_code": 0,
+  "junit_xml_count": 37,
+  "tests": 92,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "junit_parse_errors": [],
+  "result": "PASS"
+}
+
+
+## Targeted test
+
+{
+  "gradle_exit_code": 0,
+  "junit_xml_count": 1,
+  "tests": 6,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "junit_parse_errors": [],
+  "result": "PASS"
+}
+
+
+## Remote code audit metadata
+
+{
+  "version": "1.1.1",
+  "run_type": "AUDIT",
+  "run_id": "20261114_004900_46049b14",
+  "timestamp_utc": "2026-11-14T00:49:00.6273871Z",
+  "status": "SUCCESS",
+  "exit_code": 0,
+  "ollama_version": "0.40.16",
+  "model_name": "qwen27b:latest",
+  "model_digest": "23c3820b0d9326b73e97191b9fb7e16b53f6e24bb3449d2a17037c5f2b6179a1",
+  "model_quantization": "IQ3_M",
+  "model_parameter_size": "27.3B",
+  "host_url": "http://100.111.193.94:11434",
+  "num_ctx": 24576,
+  "seed": 42,
+  "temperature": 0.1,
+  "target_file": "C:\\dev\\kintai\\scripts\\..\\docs\\audit_runs\\preflight_1e3b8fba040b4197aed07afbde9334f2\\input_bundle",
+  "target_sha256": "46049b14578b32462a6f105966643d658919d5ed658faaf885796e2e1cd2c4b8",
+  "git_head": "8a5d7a10b2102916d40f6975ebab48d6662345b7",
+  "script_sha256": "d94df24a6df2c97a51d25c5016403eb44f676cbd456f648752b3e2cbc5841b0e",
+  "prompt_sha256": "586ed5e13f1794efcb1eb9cf9250c6ff64fd82ea20e083d2071fcdd30e840c7c",
+  "prompt_tokens": 13162,
+  "eval_tokens": 1530,
+  "total_seconds": 46.15,
+  "speed_tps": 40.6,
+  "done_reason": "stop",
+  "output_dir": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_1e3b8fba040b4197aed07afbde9334f2\\hermes",
+  "error_message": ""
+}
+
+## Previous document audit warnings
+
+### [Hermes Audit Execution Metrics v1.1.1]
+| Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed | Done Reason | Run ID |
+|---|---|---|---|---|---|---|---|
+| C:\dev\kintai\scripts\..\docs\audit_runs\preflight_f99c7739c6b64ba0bfeb8b423f4b0cfb\input_bundle | qwen27b:latest (IQ3_M) | 35.43s | 10056 tokens | 1203 tokens | 41.4 tokens/s | stop | 20261114_005138_3485208b |
+
+| Finding ID | Audit Item | Severity (P0/P1/P2/Info) | Verdict (PASS / WARN / FAIL / N/A) | Code & Test Evidence | Detailed Analysis & Recommendation |
+|---|---|---|---|---|---|
+| F-01 | RTM R-14 Status Consistency | P1 | WARN | RTM Row R-14 vs. Checklist `R-14` | **Mismatch:** RTM Row R-14 lists status as `REVIEW_PENDING (final document cross-check)`, while the Checklist lists status as `VERIFIED_DOCUMENT_SCOPE`. The Handoff and Evidence sections confirm the cross-check was completed and reconciled. The RTM row appears stale relative to the final checklist state. |
+| F-02 | Full Regression Test Count (Day 13 vs. Final) | P2 | WARN | Korean/Japanese Evidence vs. Handoff/Checklist | **Discrepancy:** The "Day 13 Final Verdict" section in both Korean and Japanese evidence cites a full regression of **83 PASS** (DB `kintai_full_test_9f4b67f66b64`). However, the "Final Residual Verification" section, Handoff, and Checklist cite the final full regression as **92 PASS** (DB `kintai_full_test_d4124a317ed0`). While chronologically consistent (83 was an earlier run, 92 is the final), the "Day 13 Final Verdict" header in the evidence files is misleading if it implies the 83-count is the ultimate final state for the project closure, whereas the RTM/Handoff treats 92 as the definitive final regression. Clarification is recommended to distinguish "Day 13 Snapshot" from "Final Project Regression". |
+| F-03 | Qwen Audit Run ID & Hash Consistency | P0 | PASS | RTM R-10, R-11, R-12, R-14 vs. Metadata | **Consistent:** All references to the final source audit align. <br>- Run ID: `20261114_004900_46049b14` (Matches Metadata). <br>- Input SHA-256: `46049b14...` (Matches Metadata `target_sha256`). <br>- Report SHA-256: `b1ae1c9d...` (Consistent across RTM R-14, Handoff, and Evidence). <br>- Findings: 12/12 PASS (Matches Metadata/Checklist). |
+| F-04 | R-02 Owner Decision Status | P1 | PASS | RTM R-02, Checklist, Handoff | **Consistent:** All documents correctly identify R-02 as technically verified but **pending owner decision** for business policy adoption. No document claims the policy was accepted. Status `PENDING_OWNER_DECISION` in Checklist matches `VERIFIED (기술 검증)` with pending policy note in RTM. |
+| F-05 | R-05 Docker Blocker Status | P1 | PASS | RTM R-05, Checklist, Handoff | **Consistent:** All documents correctly identify R-05 as **BLOCKED/DEFERRED** due to missing Docker/Podman. The blocker is preserved accurately. Revisit date (Jan 2027) is consistent across RTM, Handoff, and Evidence. |
+| F-06 | Day 12 Deferral Status | P1 | PASS | Checklist, Handoff, Evidence | **Consistent:** Day 12 cloud deployment is consistently marked as **DEFERRED** and not executed. No unauthorized external deployment is claimed. |
+| F-07 | Bilingual Parity (Korean/Japanese) | P2 | PASS | Korean vs. Japanese Evidence Sections | **Consistent:** Key numeric values (83/92 tests, 12/12 Qwen findings, 6/6 targeted tests), hashes (SHA-256), and status verdicts (PASS/DEFERRED/BLOCKED) match exactly between the Korean and Japanese closing sections. Specific details like Excel file size (5,092 bytes) and DB names are identical. |
+| F-08 | Targeted Test Count Consistency | P2 | PASS | RTM R-11/R-12, Handoff, Metadata | **Consistent:** The targeted annual integration test run (`kintai_day11_test_01f4cb1439e6`) is consistently reported as **6 PASS** across RTM, Handoff, and the `Targeted annual regression summary` JSON. |
+| F-09 | Qwen Model & Endpoint Consistency | P2 | PASS | Metadata, Handoff, Evidence | **Consistent:** All references use `http://100.111.193.94:11434` and `qwen27b:latest` (27.3B, IQ3_M). Digest `23c3820b...` matches across Metadata and Evidence sections. |
+| F-10 | Database Isolation Policy | P2 | PASS | Handoff, Checklist, Evidence | **Consistent:** All documents confirm that only isolated test databases were used (`kintai_full_test_d4124a317ed0`, etc.) and the operational DB (`kintai_db`) was not modified or used for these specific verification runs. |
+
+## MySQL 8.4 probe
+
+PowerShell environment probe (2026-11-14 KST)
+Command: docker info --format {{.ServerVersion}}
+Docker command result: not recognized as a cmdlet, function, script file, or executable program.
+C:\Program Files\Docker\Docker\resources\bin\docker.exe exists=False
+C:\ProgramData\DockerDesktop\version-bin\docker.exe exists=False
+C:\Program Files\Podman\podman.exe exists=False
+C:\Program Files\RedHat\Podman\podman.exe exists=False
+Docker/Testcontainers run was not attempted because no runtime executable was available. No software was downloaded or installed.

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="シフト予定 vs 打刻実績 リアルタイム対照エンジン検証" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-13T23:12:17.950Z" hostname="BK" time="0.078">
+  <properties/>
+  <testcase name="境界値・例外検証: 店舗IDがnullの場合はIllegalArgumentExceptionをスローすること" classname="com.example.kintai.domain.shift.service.ShiftServiceTest$ShiftComparisonEngineTest" time="0.065"/>
+  <testcase name="予定開始時刻から5分を超過して出勤した場合はLATEと判定されること" classname="com.example.kintai.domain.shift.service.ShiftServiceTest$ShiftComparisonEngineTest" time="0.004"/>
+  <testcase name="予定終了時刻より5分以上早く退勤した場合はEARLY_LEAVEと判定されること" classname="com.example.kintai.domain.shift.service.ShiftServiceTest$ShiftComparisonEngineTest" time="0.003"/>
+  <testcase name="確定シフトが存在しないスタッフの打刻実績はUNSCHEDULEDと判定されること" classname="com.example.kintai.domain.shift.service.ShiftServiceTest$ShiftComparisonEngineTest" time="0.003"/>
+  <testcase name="予定通りの出勤・退勤（許容誤差5分以内）の場合はNORMALと判定されること" classname="com.example.kintai.domain.shift.service.ShiftServiceTest$ShiftComparisonEngineTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

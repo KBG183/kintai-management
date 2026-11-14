@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "run_id": "20261114_094320",
+  "generated_at_utc": "2026-11-14T00:43:36.3605004Z",
+  "algorithm": "SHA-256",
+  "files": [
+    {
+      "path": "gradle_console.log",
+      "bytes": 1601,
+      "sha256": "097b583b06a2b96eb2f2a5070be030cf8e910c19845e30dc2d217ca17371ecd0"
+    }
+  ]
+}

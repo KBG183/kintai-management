@@ -1,0 +1,837 @@
+# Final Residual Audit Bundle (2026-11-14)
+
+Independently review R-11/R-12/R-14 source and evidence. Check arithmetic/oracle independence, test coverage, database isolation, and whether KO/JA/RTM claims are justified. Identify concrete findings; do not infer PASS from full regression alone.
+
+## RTM relevant rows
+
+| **R-02** | 최종 재조회 이후 신규 DRAFT 경쟁 조건 재현 및 격리 검증 | T1(재조회 후 CAS 직전 대기)과 T2(신규 DRAFT 생성/커밋) 간 기술적 격리 실측 및 업무 정책 문서화 | 신규 DRAFT가 DRAFT 상태로 안전하게 보존됨 기술 실측 완료. (업무 정책 채택 여부는 사용자 승인 대기) | JUnit XML, DB 상태 조회 쿼리 결과, `r02_business_policy.md` | `PayrollService.java`, `PayrollMapper.xml` | **VERIFIED (기술 검증)** | 기술적 격리 테스트 통과 완료 (업무 정책 승인 대기) |
+| **R-05** | MySQL 8.4 LTS 최종 검증 및 26.7 분리 | 로컬 `MySQL 26.7.0 Innovation` 결과와 `MySQL 8.4 LTS` 결과를 혼합하지 않고 각각 분리 기록 | `SELECT VERSION()` 실측치 명시 및 8.4 LTS 전용 검증 분리 | DB 버전 출력, EXPLAIN 결과 분리 파일 | `docs/f04_evidence/` | **DEFERRED (2027-01)** | MySQL 8.4/Testcontainers는 프로젝트 완성의 현재 차단 요인에서 제외. 2027년 1월 재검토 예정이며 미실행 상태 유지 |
+| **R-08** | 출퇴근 CLOCK_IN 동시 요청 중복 생성 차단 및 비관적 락 정합성 실측 | 동일 직원 동시 CLOCK_IN에서 성공 1건·업무 거부 1건 및 중복 미생성을 검증한다. | 2개 스레드 결과, DB 상태, 격리 DB 증거와 반복 로그 | `AttendanceService.java`; `AttendanceMapper.xml`; `AttendanceServiceConcurrencyIntegrationTest.java`; `docs/audit_runs/day10_isolated_regression_20261114_093404/` | **VERIFIED (로컬 MySQL 26.7)** | 최종 소스에서 신규 격리 DB 3개 각각 2건 테스트, 총 6건 PASS, 실패·오류 0. 요약과 JUnit SHA-256은 run 폴더 `summary.json`. 전체 최신 회귀는 91 PASS. 운영 DB 미사용. |
+| **R-09** | 출퇴근 CLOCK_OUT 동시 요청 완료 상태 보존 및 중복 퇴근 거부 실측 | 동일 직원 진행 근태의 동시 CLOCK_OUT에서 성공 1건·거부 1건, 최종 COMPLETED를 검증한다. | 2개 스레드 결과, DB 최종 상태, 격리 DB 증거와 반복 로그 | `AttendanceService.java`; `AttendanceMapper.xml`; `AttendanceServiceConcurrencyIntegrationTest.java`; `docs/audit_runs/day10_isolated_regression_20261114_093404/` | **VERIFIED (로컬 MySQL 26.7)** | 최종 소스에서 신규 격리 DB 3개 각각 CLOCK_OUT 테스트 포함 2건 PASS, 총 6건 PASS, 실패·오류 0. 전체 최신 회귀는 91 PASS. 운영 DB 미사용. |
+| **R-10** | Day 10 출퇴근 동시성 독립 Qwen 감사 및 감사관 지적 해소 | 최신 근태 타각·인증·입력 경계 구현과 반복 검증을 독립 감사한다. | 현행 소스 번들, 실행 결과, A-05/A-06 및 재검수 결과 보존 | `docs/audit_runs/prior_residuals_20261114/qwen_day10_final/hermes_final/`; bundle SHA-256 `dd991d3ca2ab013943b9f6e7f5b676524b4e77df34d67fe77e881586f03aa7c8` | **VERIFIED (로컬 MySQL 26.7 범위)** | 원격 `http://100.111.193.94:11434`, `qwen27b:latest`, Run `20261114_003657_dd991d3c`. 10 findings 중 PASS 9, N/A 1(급여 계산은 Day10 근태 타각 감사 범위 밖), WARN/FAIL 0. 기존 A-05/A-06을 세션 ID 강제 바인딩/소유권 검사, 실제 필터 미인증 요청 테스트, 입력 거부 및 Mapper 무호출로 해소. report SHA-256 `31e8e18609ec458e8e589888646a05502f1f37c269bc4820b25df6bdb62bf430`. |
+| **R-11** | Day 11 12개월 급여 계산 시나리오 및 계약 유효기간 | 월별 근무 분포, 계약 이력, API/Service 경로와 급여를 대조하고 독립 연간 합계를 검증한다. | 12개월×3근무일, 계약 임금 변경, 독립 연간 oracle, 타각 HTTP/API 경로, JUnit 및 격리 DB 로그 | `AnnualPayrollScenarioIntegrationTest.java`; `AttendancePunchApiIntegrationTest.java`; `docs/audit_runs/isolated_day11_20261114_093228_kintai_day11_test_3a25e5513c4f/`; `docs/audit_runs/isolated_day11_20261114_092752_kintai_day11_test_1c5791670791/` | **VERIFIED (로컬 MySQL 26.7)** | 12개월 각각 3일의 근태로 급여 및 독립 연간 oracle 대조 PASS, 계약 경계 6/30·7/1 PASS. 실제 Spring Security 필터→Controller→Service→DB 타각 API spoofed ID 차단·저장 검증 PASS. 최신 전체 회귀 91 PASS. |
+| **R-12** | Day 11 경계·결함 시나리오 | 야간·다회 휴게·계약 경계·동일일 분할 근무 8시간 누적·월마감·반올림을 독립 기대값으로 검증한다. | 각 경계의 통합/단위 테스트, 저장된 실행 및 JUnit | `AnnualPayrollScenarioIntegrationTest.java`; `SplitShiftOvertimeDefectTest.java`; `PayrollCalculatorStatutoryRoundingTest.java`; `docs/audit_runs/isolated_day11_20261114_093228_kintai_day11_test_3a25e5513c4f/`; `docs/audit_runs/isolated_day11_20261114_092830_kintai_day11_test_1c5791670791/` | **VERIFIED (로컬 MySQL 26.7)** | 4h+5h 분할근무 후 CLOCK_OUT service에서 60분 초과 산출 및 월 급여 반영 PASS. 1/31 포함·2/1 제외, 계약·자정·다회휴게·HALF_UP 경계 PASS. 전체 회귀 91 PASS. |
+| **R-14** | Day 11 독립 검수 및 추적 문서 정합성 | Qwen 입력·결과를 보존하고 지적사항 및 한계를 한·일 증적·RTM·인수인계에 반영한다. | Run ID·입력 해시·결과·지적별 대조와 일치 문서 | `docs/audit_runs/day11_local_final_review_20261113/`; 한·일 portfolio evidence; handoff | **PARTIALLY_VERIFIED** | Qwen 검수와 대조 기록은 보존. 최종 소스의 일부 추가 단언이 Qwen 입력 이후 변경됐고, 최근 정적 검수에서 경로·경계 잔여사항을 확인해 최종 소스 독립 재검수는 미완료. |
+
+## Annual payroll scenario integration test
+
+package com.example.kintai.domain.payroll.service;
+
+import com.example.kintai.database.IsolatedDatabaseGuard;
+import com.example.kintai.domain.attendance.dto.AttendancePunchDto;
+import com.example.kintai.domain.attendance.dto.LaborDetailDto;
+import com.example.kintai.domain.attendance.mapper.AttendanceMapper;
+import com.example.kintai.domain.attendance.service.AttendanceService;
+import com.example.kintai.domain.attendance.service.LaborCalculationService;
+import com.example.kintai.domain.payroll.dto.PayrollDto;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+@SpringBootTest
+@DisplayName("Day 11: 12-month attendance-to-payroll scenario")
+class AnnualPayrollScenarioIntegrationTest {
+
+    @Autowired
+    private DataSource dataSource;
+
+    @Autowired
+    private LaborCalculationService laborCalculationService;
+
+    @Autowired
+    private AttendanceMapper attendanceMapper;
+
+    @Autowired
+    private AttendanceService attendanceService;
+
+    @Autowired
+    private PayrollService payrollService;
+
+    private long memberId;
+    private long storeId;
+    private long staffId;
+    private long staffMemberId;
+    private final List<Long> attendanceIds = new ArrayList<>();
+
+    private record ShiftCase(int month, int kind, int wage, int netMinutes,
+                             int nightMinutes, int overtimeMinutes, int breakMinutes,
+                             int breakCount) {}
+
+    private static final ShiftCase[] CASES = {
+            new ShiftCase(1, 0, 1300, 480, 0, 0, 60, 1),
+            new ShiftCase(2, 1, 1300, 540, 0, 60, 60, 1),
+            new ShiftCase(3, 2, 1300, 480, 360, 0, 0, 0),
+            new ShiftCase(4, 3, 1300, 480, 0, 0, 60, 2),
+            new ShiftCase(5, 0, 1300, 480, 0, 0, 60, 1),
+            new ShiftCase(6, 1, 1300, 540, 0, 60, 60, 1),
+            new ShiftCase(7, 2, 1400, 480, 360, 0, 0, 0),
+            new ShiftCase(8, 3, 1400, 480, 0, 0, 60, 2),
+            new ShiftCase(9, 0, 1400, 480, 0, 0, 60, 1),
+            new ShiftCase(10, 1, 1400, 540, 0, 60, 60, 1),
+            new ShiftCase(11, 2, 1400, 480, 360, 0, 0, 0),
+            new ShiftCase(12, 3, 1400, 480, 0, 0, 60, 2)
+    };
+
+    @BeforeEach
+    void seedAnnualScenario() throws Exception {
+        IsolatedDatabaseGuard.requireAllowedDatabase(dataSource, "kintai_(day11_test|full_test)_[0-9a-f]{12}");
+        try (Connection connection = dataSource.getConnection()) {
+            memberId = insertAndGetId(connection,
+                    "INSERT INTO member(email,password,name,phone,role) VALUES(?,?,?,?,'ROLE_OWNER')",
+                    "day11-" + UUID.randomUUID() + "@example.invalid", "test-only", "Day11 Owner", "0000000000");
+            storeId = insertAndGetId(connection,
+                    "INSERT INTO store(owner_id,store_name,invite_code,qr_token,pay_cutoff_day) VALUES(?,?,?,?,99)",
+                    memberId, "Day11 Annual Scenario",
+                    "d11-" + UUID.randomUUID().toString().replace("-", "").substring(0, 16),
+                    "d11-" + UUID.randomUUID());
+            staffMemberId = insertAndGetId(connection,
+                    "INSERT INTO member(email,password,name,phone,role) VALUES(?,?,?,?,'ROLE_STAFF')",
+                    "day11-staff-" + UUID.randomUUID() + "@example.invalid", "test-only", "Day11 Staff", "0000000001");
+            staffId = insertAndGetId(connection,
+                    "INSERT INTO store_staff(store_id,member_id,hourly_wage,daily_transport_fee,monthly_transport_limit,joined_date) VALUES(?,?,1300,1200,1000,'2026-01-01')",
+                    storeId, staffMemberId);
+
+            execute(connection,
+                    "INSERT INTO store_staff_contract_history(store_staff_id,effective_from,effective_to,hourly_wage,daily_transport_fee,monthly_transport_limit) VALUES(?, '2026-01-01','2026-07-01',1300,1200,1000)",
+                    staffId);
+            execute(connection,
+                    "INSERT INTO store_staff_contract_history(store_staff_id,effective_from,effective_to,hourly_wage,daily_transport_fee,monthly_transport_limit) VALUES(?, '2026-07-01',NULL,1400,1200,1000)",
+                    staffId);
+
+            for (ShiftCase shift : CASES) {
+                LocalDate date = LocalDate.of(2026, shift.month(), 15);
+                LocalDateTime clockIn = date.atTime(shift.kind() == 2 ? 20 : 9, 0);
+                LocalDateTime clockOut = shift.kind() == 2 ? date.plusDays(1).atTime(4, 0)
+                        : date.atTime(shift.kind() == 1 ? 19 : 18, 0);
+                long attendanceId = insertAndGetId(connection,
+                        "INSERT INTO attendance(store_id,store_staff_id,work_date,clock_in_at,clock_out_at,total_break_minutes,net_work_minutes,night_work_minutes,overtime_minutes,clock_in_method,attendance_status) VALUES(?,?,?,?,?,?,?,?,?,'BUTTON','COMPLETED')",
+                        storeId, staffId, Date.valueOf(date), java.sql.Timestamp.valueOf(clockIn),
+                        java.sql.Timestamp.valueOf(clockOut), shift.breakMinutes(), shift.netMinutes(),
+                        shift.nightMinutes(), shift.overtimeMinutes());
+                attendanceIds.add(attendanceId);
+                insertBreaks(connection, attendanceId, date, shift);
+            }
+        }
+    }
+
+    @AfterEach
+    void cleanAnnualScenario() throws Exception {
+        if (staffId == 0 && storeId == 0 && memberId == 0 && staffMemberId == 0) return;
+        try (Connection connection = dataSource.getConnection()) {
+            if (staffId != 0) {
+                execute(connection, "DELETE FROM payroll_daily_detail WHERE payroll_id IN (SELECT payroll_id FROM payroll WHERE store_staff_id=?)", staffId);
+                execute(connection, "DELETE FROM payroll WHERE store_staff_id=?", staffId);
+                execute(connection, "DELETE FROM attendance_break WHERE attendance_id IN (SELECT attendance_id FROM attendance WHERE store_staff_id=?)", staffId);
+                execute(connection, "DELETE FROM attendance WHERE store_staff_id=?", staffId);
+                execute(connection, "DELETE FROM store_staff_contract_history WHERE store_staff_id=?", staffId);
+                execute(connection, "DELETE FROM store_staff WHERE store_staff_id=?", staffId);
+            }
+            if (storeId != 0) execute(connection, "DELETE FROM store WHERE store_id=?", storeId);
+            if (memberId != 0) execute(connection, "DELETE FROM member WHERE member_id=?", memberId);
+            if (staffMemberId != 0) execute(connection, "DELETE FROM member WHERE member_id=?", staffMemberId);
+        }
+    }
+
+    @Test
+    void calculatesEveryMonthAndAnnualTotalAgainstIndependentOracle() {
+        insertAdditionalMonthlyWorkdays();
+        int annualGrossPay = 0;
+        int actualAnnualGrossPay = 0;
+        int annualWorkMinutes = 0;
+        int annualNightMinutes = 0;
+        int annualOvertimeMinutes = 0;
+
+        for (int i = 0; i < CASES.length; i++) {
+            ShiftCase shift = CASES[i];
+            LaborDetailDto labor = laborCalculationService.calculateDetailedLabor(attendanceIds.get(i));
+            assertEquals(shift.netMinutes(), labor.getNetWorkMinutes(), "net minutes for month " + shift.month());
+            assertEquals(shift.nightMinutes(), labor.getTotalNightMinutes(), "night minutes for month " + shift.month());
+            assertEquals(shift.overtimeMinutes(), labor.getTotalOvertimeMinutes(), "overtime minutes for month " + shift.month());
+            assertEquals(shift.wage(), labor.getAppliedHourlyWage(), "contract wage for month " + shift.month());
+
+            LocalDate start = LocalDate.of(2026, shift.month(), 1);
+            LocalDate end = start.withDayOfMonth(start.lengthOfMonth());
+            String yearMonth = String.format("2026-%02d", shift.month());
+            PayrollDto payroll = payrollService.calculatePayrollForStaff(storeId, staffId, yearMonth, start, end);
+
+            int monthlyNetMinutes = shift.netMinutes() + 2 * 480;
+            int expectedBase = shift.wage() * monthlyNetMinutes / 60;
+            int expectedNightAllowance = shift.wage() * shift.nightMinutes() / 240;
+            int expectedOvertimeAllowance = shift.wage() * shift.overtimeMinutes() / 240;
+            int expectedGross = expectedBase + expectedNightAllowance + expectedOvertimeAllowance + 1000;
+            assertNotNull(payroll.getPayrollId(), "persisted payroll for month " + shift.month());
+            assertEquals(3, payroll.getWorkDaysCount(), "three distinct work dates for month " + shift.month());
+            assertEquals(monthlyNetMinutes, payroll.getTotalWorkMinutes(), "payroll work minutes for month " + shift.month());
+            assertEquals(shift.nightMinutes(), payroll.getTotalNightMinutes(), "payroll night minutes for month " + shift.month());
+            assertEquals(shift.overtimeMinutes(), payroll.getTotalOvertimeMinutes(), "payroll overtime minutes for month " + shift.month());
+            assertEquals(expectedBase, payroll.getBasePay(), "base pay for month " + shift.month());
+            assertEquals(expectedNightAllowance, payroll.getNightAllowance(), "night allowance for month " + shift.month());
+            assertEquals(expectedOvertimeAllowance, payroll.getOvertimeAllowance(), "overtime allowance for month " + shift.month());
+            assertEquals(1000, payroll.getAppliedTransportLimit(), "contract transport limit for month " + shift.month());
+            assertEquals(1000, payroll.getTransportAllowance(), "monthly transport cap for month " + shift.month());
+            assertEquals(expectedGross, payroll.getGrossPay(), "gross pay for month " + shift.month());
+
+            annualGrossPay += expectedGross;
+            actualAnnualGrossPay += payroll.getGrossPay();
+            annualWorkMinutes += monthlyNetMinutes;
+            annualNightMinutes += shift.nightMinutes();
+            annualOvertimeMinutes += shift.overtimeMinutes();
+        }
+
+        assertEquals(annualGrossPay, actualAnnualGrossPay);
+        int independentAnnualOracle = 3 * (8 * 1300 + 1000)
+                + 2 * (9 * 1300 + 1300 / 4 + 1000)
+                + (8 * 1300 + 3 * 1300 / 2 + 1000)
+                + 3 * (8 * 1400 + 1000)
+                + (9 * 1400 + 1400 / 4 + 1000)
+                + 2 * (8 * 1400 + 3 * 1400 / 2 + 1000)
+                + (2 * 8 * 1300 * 6)
+                + (2 * 8 * 1400 * 6);
+        assertEquals(independentAnnualOracle, annualGrossPay);
+        assertEquals(12 * (3 * 480) + 3 * 60, annualWorkMinutes);
+        assertEquals(3 * 360, annualNightMinutes);
+        assertEquals(3 * 60, annualOvertimeMinutes);
+    }
+
+    @Test
+    void contractHistoryUsesInclusiveStartAndExclusiveEndDates() {
+        assertEquals(1300, attendanceMapper.findHourlyWageForStaffOnDate(staffId, LocalDate.of(2026, 6, 30)));
+        assertEquals(1400, attendanceMapper.findHourlyWageForStaffOnDate(staffId, LocalDate.of(2026, 7, 1)));
+    }
+
+    @Test
+    void isolatedDatabaseGuardRejectsAnyDatabaseOutsideTheExactAllowlist() {
+        assertThrows(IllegalStateException.class,
+                () -> IsolatedDatabaseGuard.requireAllowedDatabase(dataSource, "kintai_never_allowed_[0-9a-f]{12}"));
+    }
+
+    @Test
+    void splitShiftClockOutAccumulatesPriorWorkAndFlowsIntoMonthlyPayroll() throws Exception {
+        LocalDateTime now = LocalDateTime.now().withNano(0);
+        LocalDateTime secondShiftStart = now.minusHours(5);
+        LocalDateTime firstShiftStart = secondShiftStart.minusHours(4);
+        LocalDate workDate = firstShiftStart.toLocalDate();
+        insertCompletedAttendance(workDate, firstShiftStart, secondShiftStart, 240);
+
+        com.example.kintai.domain.attendance.dto.AttendanceDto active = new com.example.kintai.domain.attendance.dto.AttendanceDto();
+        active.setStoreId(storeId);
+        active.setStoreStaffId(staffId);
+        active.setWorkDate(workDate);
+        active.setClockInAt(secondShiftStart);
+        active.setTotalBreakMinutes(0);
+        active.setNetWorkMinutes(0);
+        active.setNightWorkMinutes(0);
+        active.setOvertimeMinutes(0);
+        active.setClockInMethod("BUTTON");
+        active.setAttendanceStatus("WORKING");
+        attendanceMapper.insertAttendance(active);
+
+        AttendancePunchDto clockOut = new AttendancePunchDto();
+        clockOut.setStoreId(storeId);
+        clockOut.setStoreStaffId(staffId);
+        clockOut.setPunchType("CLOCK_OUT");
+        com.example.kintai.domain.attendance.dto.AttendanceDto completed = attendanceService.punch(clockOut);
+        assertEquals(300, completed.getNetWorkMinutes());
+        assertEquals(60, completed.getOvertimeMinutes(), "the second split shift must include the prior four hours");
+
+        LocalDate monthStart = workDate.withDayOfMonth(1);
+        LocalDate monthEnd = workDate.withDayOfMonth(workDate.lengthOfMonth());
+        PayrollDto payroll = payrollService.calculatePayrollForStaff(
+                storeId, staffId, workDate.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM")), monthStart, monthEnd);
+        assertEquals(1020, payroll.getTotalWorkMinutes());
+        assertEquals(60, payroll.getTotalOvertimeMinutes());
+        assertEquals(2, payroll.getWorkDaysCount());
+    }
+
+    @Test
+    void payrollMonthRangeIncludesMonthEndButExcludesNextMonthFirstDay() throws Exception {
+        LocalDate januaryEnd = LocalDate.of(2026, 1, 31);
+        LocalDate februaryStart = LocalDate.of(2026, 2, 1);
+        insertCompletedAttendance(januaryEnd, januaryEnd.atTime(9, 0), januaryEnd.atTime(17, 0), 480);
+        insertCompletedAttendance(februaryStart, februaryStart.atTime(9, 0), februaryStart.atTime(17, 0), 480);
+
+        PayrollDto january = payrollService.calculatePayrollForStaff(
+                storeId, staffId, "2026-01", LocalDate.of(2026, 1, 1), januaryEnd);
+        PayrollDto february = payrollService.calculatePayrollForStaff(
+                storeId, staffId, "2026-02", februaryStart, LocalDate.of(2026, 2, 28));
+
+        assertEquals(2, january.getWorkDaysCount());
+        assertEquals(960, january.getTotalWorkMinutes());
+        assertEquals(2, february.getWorkDaysCount());
+        assertEquals(1020, february.getTotalWorkMinutes());
+    }
+
+    private void insertAdditionalMonthlyWorkdays() {
+        for (int month = 1; month <= 12; month++) {
+            LocalDate first = LocalDate.of(2026, month, 5);
+            LocalDate second = LocalDate.of(2026, month, 25);
+            insertCompletedAttendance(first, first.atTime(9, 0), first.atTime(18, 0), 480, 60);
+            insertCompletedAttendance(second, second.atTime(9, 0), second.atTime(18, 0), 480, 60);
+        }
+    }
+
+    private void insertCompletedAttendance(LocalDate workDate, LocalDateTime clockIn, LocalDateTime clockOut,
+                                           int netMinutes) throws Exception {
+        insertCompletedAttendance(workDate, clockIn, clockOut, netMinutes, 0);
+    }
+
+    private void insertCompletedAttendance(LocalDate workDate, LocalDateTime clockIn, LocalDateTime clockOut,
+                                           int netMinutes, int breakMinutes) {
+        try (Connection connection = dataSource.getConnection()) {
+            long attendanceId = insertAndGetId(connection,
+                    "INSERT INTO attendance(store_id,store_staff_id,work_date,clock_in_at,clock_out_at,total_break_minutes,net_work_minutes,night_work_minutes,overtime_minutes,clock_in_method,attendance_status) VALUES(?,?,?,?,?,?,?,0,0,'BUTTON','COMPLETED')",
+                    storeId, staffId, Date.valueOf(workDate), java.sql.Timestamp.valueOf(clockIn),
+                    java.sql.Timestamp.valueOf(clockOut), breakMinutes, netMinutes);
+            attendanceIds.add(attendanceId);
+            if (breakMinutes > 0) {
+                insertBreak(connection, attendanceId, workDate.atTime(13, 0), workDate.atTime(14, 0));
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to insert isolated attendance scenario for " + workDate, e);
+        }
+    }
+
+    private static void insertBreaks(Connection connection, long attendanceId, LocalDate date, ShiftCase shift) throws Exception {
+        if (shift.breakCount() == 0) return;
+        if (shift.breakCount() == 1) {
+            insertBreak(connection, attendanceId, date.atTime(13, 0), date.atTime(14, 0));
+        } else {
+            insertBreak(connection, attendanceId, date.atTime(12, 0), date.atTime(12, 30));
+            insertBreak(connection, attendanceId, date.atTime(15, 0), date.atTime(15, 30));
+        }
+    }
+
+    private static void insertBreak(Connection connection, long attendanceId, LocalDateTime start, LocalDateTime end) throws Exception {
+        try (PreparedStatement statement = connection.prepareStatement(
+                "INSERT INTO attendance_break(attendance_id,break_start_at,break_end_at,duration_minutes) VALUES(?,?,?,?)")) {
+            statement.setLong(1, attendanceId);
+            statement.setTimestamp(2, java.sql.Timestamp.valueOf(start));
+            statement.setTimestamp(3, java.sql.Timestamp.valueOf(end));
+            statement.setLong(4, java.time.Duration.between(start, end).toMinutes());
+            statement.executeUpdate();
+        }
+    }
+
+    private static long insertAndGetId(Connection connection, String sql, Object... values) throws Exception {
+        try (PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            for (int i = 0; i < values.length; i++) statement.setObject(i + 1, values[i]);
+            statement.executeUpdate();
+            try (ResultSet keys = statement.getGeneratedKeys()) {
+                if (!keys.next()) throw new IllegalStateException("No generated key returned for seed insert.");
+                return keys.getLong(1);
+            }
+        }
+    }
+
+    private static void execute(Connection connection, String sql, Object... values) throws Exception {
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            for (int i = 0; i < values.length; i++) statement.setObject(i + 1, values[i]);
+            statement.executeUpdate();
+        }
+    }
+}
+
+
+## Attendance punch API integration test
+
+package com.example.kintai.domain.attendance.controller;
+
+import com.example.kintai.database.IsolatedDatabaseGuard;
+import com.example.kintai.domain.member.dto.MemberDto;
+import com.example.kintai.global.security.CustomUserDetails;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.time.LocalDate;
+import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+class AttendancePunchApiIntegrationTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private DataSource dataSource;
+
+    private long ownerId;
+    private long staffMemberId;
+    private long storeId;
+    private long storeStaffId;
+    private Long createdAttendanceId;
+
+    @BeforeEach
+    void createIsolatedApiFixture() throws Exception {
+        IsolatedDatabaseGuard.requireAllowedDatabase(dataSource, "kintai_(day11_test|full_test)_[0-9a-f]{12}");
+        try (Connection connection = dataSource.getConnection()) {
+            ownerId = insertAndGetId(connection,
+                    "INSERT INTO member(email,password,name,phone,role) VALUES(?,?,?,?,'ROLE_OWNER')",
+                    "punch-owner-" + UUID.randomUUID() + "@example.invalid", "test-only", "Punch Owner", "0000000000");
+            staffMemberId = insertAndGetId(connection,
+                    "INSERT INTO member(email,password,name,phone,role) VALUES(?,?,?,?,'ROLE_STAFF')",
+                    "punch-staff-" + UUID.randomUUID() + "@example.invalid", "test-only", "Punch Staff", "0000000001");
+            storeId = insertAndGetId(connection,
+                    "INSERT INTO store(owner_id,store_name,invite_code,qr_token,pay_cutoff_day) VALUES(?,?,?,?,99)",
+                    ownerId, "Punch API Integration", token("invite"), token("qr"));
+            storeStaffId = insertAndGetId(connection,
+                    "INSERT INTO store_staff(store_id,member_id,hourly_wage,joined_date) VALUES(?,?,1300,?)",
+                    storeId, staffMemberId, LocalDate.now());
+        }
+    }
+
+    @AfterEach
+    void cleanIsolatedApiFixture() throws Exception {
+        try (Connection connection = dataSource.getConnection()) {
+            if (createdAttendanceId != null) {
+                try (PreparedStatement statement = connection.prepareStatement("DELETE FROM attendance WHERE attendance_id=?")) {
+                    statement.setLong(1, createdAttendanceId);
+                    statement.executeUpdate();
+                }
+            }
+            if (storeStaffId > 0) delete(connection, "DELETE FROM store_staff WHERE store_staff_id=?", storeStaffId);
+            if (storeId > 0) delete(connection, "DELETE FROM store WHERE store_id=?", storeId);
+            if (staffMemberId > 0) delete(connection, "DELETE FROM member WHERE member_id=?", staffMemberId);
+            if (ownerId > 0) delete(connection, "DELETE FROM member WHERE member_id=?", ownerId);
+        }
+    }
+
+    @Test
+    void authenticatedStaffPunchUsesSessionIdentityInsteadOfSpoofedBodyIds() throws Exception {
+        MemberDto member = new MemberDto();
+        member.setMemberId(staffMemberId);
+        member.setEmail("punch-staff@example.invalid");
+        member.setName("Punch Staff");
+        member.setRole("ROLE_STAFF");
+        member.setIsActive(true);
+        CustomUserDetails principal = new CustomUserDetails(member, storeStaffId, storeId);
+
+        String response = mockMvc.perform(post("/api/attendance/punch")
+                        .with(user(principal))
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"storeId\":999999,\"storeStaffId\":999999,\"punchType\":\"CLOCK_IN\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.storeId").value(storeId))
+                .andExpect(jsonPath("$.data.storeStaffId").value(storeStaffId))
+                .andExpect(jsonPath("$.data.attendanceStatus").value("WORKING"))
+                .andReturn().getResponse().getContentAsString();
+
+        Matcher idMatcher = Pattern.compile("\"attendanceId\"\\s*:\\s*(\\d+)").matcher(response);
+        if (!idMatcher.find()) throw new AssertionError("Response did not contain the generated attendance ID.");
+        long attendanceId = Long.parseLong(idMatcher.group(1));
+        createdAttendanceId = attendanceId;
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(
+                     "SELECT store_id,store_staff_id FROM attendance WHERE attendance_id=?")) {
+            statement.setLong(1, attendanceId);
+            try (ResultSet result = statement.executeQuery()) {
+                if (!result.next()) throw new AssertionError("API-created attendance was not persisted.");
+                assertEquals(storeId, result.getLong("store_id"));
+                assertEquals(storeStaffId, result.getLong("store_staff_id"));
+            }
+        }
+    }
+
+    private static long insertAndGetId(Connection connection, String sql, Object... values) throws Exception {
+        try (PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            for (int i = 0; i < values.length; i++) statement.setObject(i + 1, values[i]);
+            statement.executeUpdate();
+            try (ResultSet keys = statement.getGeneratedKeys()) {
+                if (!keys.next()) throw new IllegalStateException("Missing generated key.");
+                return keys.getLong(1);
+            }
+        }
+    }
+
+    private static void delete(Connection connection, String sql, long id) throws Exception {
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setLong(1, id);
+            statement.executeUpdate();
+        }
+    }
+
+    private static String token(String prefix) {
+        return (prefix + UUID.randomUUID().toString().replace("-", "")).substring(0, 19);
+    }
+}
+
+
+## Statutory rounding test
+
+package com.example.kintai.domain.payroll.util;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+@DisplayName("F-03: 行政通達（昭和63年3月14日付 基発第150号）法定端数処理境界値ゴールデンケース単体テスト")
+class PayrollCalculatorStatutoryRoundingTest {
+
+    @Test
+    @DisplayName("① 月間総時間数の端数処理（30分未満切り捨て、30分以上1時間切り上げ）の厳密検証")
+    void roundMonthlyHours_BoundaryCases() {
+        // 0분 -> 0시간
+        assertEquals(0, PayrollCalculator.StatutoryRounding.roundMonthlyHours(0));
+
+        // 29분 -> 0시간 (30분 미만 절사)
+        assertEquals(0, PayrollCalculator.StatutoryRounding.roundMonthlyHours(29));
+
+        // 30분 -> 1시간 (30분 이상 1시간 올림)
+        assertEquals(1, PayrollCalculator.StatutoryRounding.roundMonthlyHours(30));
+
+        // 449분 (7시간 29분) -> 7시간 (30분 미만 절사)
+        assertEquals(7, PayrollCalculator.StatutoryRounding.roundMonthlyHours(449));
+
+        // 450분 (7시간 30분) -> 8시간 (30분 이상 1시간 올림)
+        assertEquals(8, PayrollCalculator.StatutoryRounding.roundMonthlyHours(450));
+
+        // 451분 (7시간 31분) -> 8시간
+        assertEquals(8, PayrollCalculator.StatutoryRounding.roundMonthlyHours(451));
+
+        // 음수 입력 시 예외 발생 검증
+        assertThrows(IllegalArgumentException.class, () ->
+                PayrollCalculator.StatutoryRounding.roundMonthlyHours(-1));
+    }
+
+    @Test
+    @DisplayName("② 1時間当たりの賃金額および割増賃金額（50銭境界・HALF_UP）の厳密検証")
+    void roundHourlyRate_BoundaryCases() {
+        // 324.49엔 (50전 미만) -> 324엔 (버림)
+        assertEquals(324, PayrollCalculator.StatutoryRounding.roundHourlyRate(new BigDecimal("324.49")));
+
+        // 324.50엔 (50전 이상) -> 325엔 (올림, HALF_UP)
+        assertEquals(325, PayrollCalculator.StatutoryRounding.roundHourlyRate(new BigDecimal("324.50")));
+
+        // 324.51엔 -> 325엔
+        assertEquals(325, PayrollCalculator.StatutoryRounding.roundHourlyRate(new BigDecimal("324.51")));
+
+        // 0.49엔 -> 0엔
+        assertEquals(0, PayrollCalculator.StatutoryRounding.roundHourlyRate(new BigDecimal("0.49")));
+
+        // 0.50엔 -> 1엔
+        assertEquals(1, PayrollCalculator.StatutoryRounding.roundHourlyRate(new BigDecimal("0.50")));
+
+        // null 입력 시 예외 검증
+        assertThrows(IllegalArgumentException.class, () ->
+                PayrollCalculator.StatutoryRounding.roundHourlyRate(null));
+    }
+
+    @Test
+    @DisplayName("③ 月間割増手当総額の端数処理（50銭境界・HALF_UP）の厳密検証")
+    void roundMonthlyAllowanceTotal_BoundaryCases() {
+        // 12345.49엔 (50전 미만) -> 12345엔
+        assertEquals(12345, PayrollCalculator.StatutoryRounding.roundMonthlyAllowanceTotal(new BigDecimal("12345.49")));
+
+        // 12345.50엔 (50전 이상) -> 12346엔 (올림, HALF_UP)
+        assertEquals(12346, PayrollCalculator.StatutoryRounding.roundMonthlyAllowanceTotal(new BigDecimal("12345.50")));
+
+        // 12345.51엔 -> 12346엔
+        assertEquals(12346, PayrollCalculator.StatutoryRounding.roundMonthlyAllowanceTotal(new BigDecimal("12345.51")));
+
+        // null 입력 시 예외 검증
+        assertThrows(IllegalArgumentException.class, () ->
+                PayrollCalculator.StatutoryRounding.roundMonthlyAllowanceTotal(null));
+    }
+}
+
+
+## Split shift test
+
+package com.example.kintai.domain.attendance.util;
+
+import com.example.kintai.domain.attendance.util.AttendanceTimeCalculator.CalculationResult;
+import com.example.kintai.domain.attendance.util.AttendanceTimeCalculator.DetailedCalculationResult;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import java.time.LocalDateTime;
+import java.util.Collections;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+/**
+ * 分割勤務（中抜け）時における1日8時間超過（残業）算定漏れ欠陥の再現テストおよび秒精度不変式検証。
+ */
+class SplitShiftOvertimeDefectTest {
+
+    @Test
+    @DisplayName("分割勤務（昼4時間＋夜5時間）で同日合計9時間勤務した際、夜の勤務で1時間残業が正確に計上されること")
+    void testSplitShiftOvertimeOmissionDefect() {
+        // 1回目の勤務: 11:00 ~ 15:00（実働4時間 = 240分）
+        LocalDateTime shift1Start = LocalDateTime.of(2026, 11, 10, 11, 0);
+        LocalDateTime shift1End = LocalDateTime.of(2026, 11, 10, 15, 0);
+        CalculationResult result1 = AttendanceTimeCalculator.calculate(shift1Start, shift1End, Collections.emptyList());
+
+        assertEquals(240, result1.netWorkMinutes());
+        assertEquals(0, result1.overtimeMinutes());
+
+        // 2回目の勤務: 17:00 ~ 22:00（実働5時間 = 300分）
+        LocalDateTime shift2Start = LocalDateTime.of(2026, 11, 10, 17, 0);
+        LocalDateTime shift2End = LocalDateTime.of(2026, 11, 10, 22, 0);
+
+        CalculationResult result2 = AttendanceTimeCalculator.calculate(shift2Start, shift2End, Collections.emptyList(), result1.netWorkSeconds());
+
+        // 【欠陥解決の証明】1日の合計9時間勤務に対し、2回目の勤務で60分の法定外残業が正確に算定されることを実証
+        assertEquals(60, result2.overtimeMinutes(), "先行勤務4時間が考慮され、5時間中1時間が正しく残業と算定されること");
+        assertEquals(240, result2.netWorkMinutes() - result2.overtimeMinutes());
+        assertEquals(300, result2.netWorkMinutes());
+    }
+
+    @Test
+    @DisplayName("秒精度不変式検証: 4時間30秒＋4時間30秒の分割勤務で、全28,860秒が1秒の損失もなく完全保存されること")
+    void testSplitShiftSecondPrecisionInvariantPreservation() {
+        // 1回目の勤務: 11:00:00 ~ 15:00:30 (4時間30秒 = 14,430秒)
+        LocalDateTime shift1Start = LocalDateTime.of(2026, 11, 10, 11, 0, 0);
+        LocalDateTime shift1End = LocalDateTime.of(2026, 11, 10, 15, 0, 30);
+        DetailedCalculationResult result1 = AttendanceTimeCalculator.calculateDetailed(shift1Start, shift1End, Collections.emptyList());
+
+        assertEquals(14430L, result1.netWorkSeconds(), "1回目の実労働秒数は14,430秒であること");
+        assertEquals(14430L, result1.regularWorkSeconds(), "1回目は全額所定内であること");
+        assertEquals(0L, result1.overtimeWorkSeconds(), "1回目は残業なしであること");
+
+        // 2回目の勤務: 17:00:00 ~ 21:00:30 (4時間30秒 = 14,430秒)
+        // 先行実働秒数(14,430秒)を累積引き継ぎ
+        LocalDateTime shift2Start = LocalDateTime.of(2026, 11, 10, 17, 0, 0);
+        LocalDateTime shift2End = LocalDateTime.of(2026, 11, 10, 21, 0, 30);
+        DetailedCalculationResult result2 = AttendanceTimeCalculator.calculateDetailed(
+                shift2Start, shift2End, Collections.emptyList(), result1.netWorkSeconds()
+        );
+
+        assertEquals(14430L, result2.netWorkSeconds(), "2回目の実労働秒数は14,430秒であること");
+
+        // 【秒精度完全保存の不変式証明】
+        long totalDaySeconds = result1.netWorkSeconds() + result2.netWorkSeconds();
+        assertEquals(28860L, totalDaySeconds, "当日の総実労働時間は1秒の損失もなく28,860秒（8時間1分）であること");
+
+        // 8時間法定上限 = 28,800秒。超過分 = 60秒
+        assertEquals(14370L, result2.regularWorkSeconds(), "2回目の所定内秒数は 28,800 - 14,430 = 14,370秒であること");
+        assertEquals(60L, result2.overtimeWorkSeconds(), "2回目の法定外残業秒数は正確に60秒（1分）であること");
+
+        // 不変式: 2回目の所定内 + 残業 = 2回目の実労働秒数
+        assertEquals(result2.netWorkSeconds(), result2.regularWorkSeconds() + result2.overtimeWorkSeconds());
+
+        // 当日全体の所定内合計 = 14,430 + 14,370 = 28,800秒 (法定8時間ジャスト)
+        assertEquals(28800L, result1.regularWorkSeconds() + result2.regularWorkSeconds(), "1日の所定内実労働秒数合計は法定限度28,800秒（8時間）と完全に一致すること");
+
+        // 分単位表示への安全変換（切り捨てによる残業消失が起きず1分残業が保たれること）
+        assertEquals(1, result2.overtimeMinutes(), "60秒の残業が分単位でも1分として完璧に保持されること");
+    }
+}
+
+
+## Annual test execution summary
+
+{
+  "gradle_exit_code": 0,
+  "junit_xml_count": 1,
+  "tests": 5,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "junit_parse_errors": [],
+  "result": "PASS"
+}
+
+
+## Full regression execution summary
+
+{
+  "gradle_exit_code": 0,
+  "junit_xml_count": 37,
+  "tests": 91,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "junit_parse_errors": [],
+  "result": "PASS"
+}
+
+
+## Full regression execution log tail
+
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.8.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :compileJava
+> Task :processResources
+> Task :classes
+> Task :compileTestJava
+> Task :processTestResources NO-SOURCE
+> Task :testClasses
+Java HotSpot(TM) 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+2026-11-14T09:33:33.091+09:00  INFO 30612 --- [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-11-14T09:33:33.102+09:00  INFO 30612 --- [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-11-14T09:33:33.106+09:00  INFO 30612 --- [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown initiated...
+2026-11-14T09:33:33.111+09:00  INFO 30612 --- [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown completed.
+> Task :test
+
+BUILD SUCCESSFUL in 31s
+4 actionable tasks: 4 executed
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.8.1/userguide/configuration_cache_enabling.html
+
+## Current residual checklist
+
+{
+  "work_date": "2026-11-14",
+  "objective": "Close feasible pre-Day13 residual verification gaps in order, preserving environment boundaries.",
+  "items": [
+    {"id":"R-08/R-09","task":"Fail-closed isolation guard and 3 fresh local MySQL concurrency runs","status":"IN_PROGRESS"},
+    {"id":"R-10","task":"Re-run attendance security and input-boundary checks; remote Qwen 27B audit exact final source","status":"PENDING"},
+    {"id":"R-11","task":"Improve annual scenario distribution and verify service/API-path scope with independent totals","status":"PENDING"},
+    {"id":"R-12","task":"Add/execute split-shift, month-boundary and rounding boundary integration checks","status":"PENDING"},
+    {"id":"R-14","task":"Audit final frozen source and reconcile Korean/Japanese evidence, RTM, handoff","status":"PENDING"},
+    {"id":"R-05","task":"Run MySQL 8.4 Testcontainers separately if Docker is available; otherwise preserve exact blocker","status":"BLOCKED_ENVIRONMENT_PROBE_PENDING"},
+    {"id":"R-02","task":"Resolve documented business-policy acceptance status without silently claiming user approval","status":"PENDING_OWNER_DECISION"},
+    {"id":"Day12","task":"Review deferred Compose/Redis/cloud scope; no external deployment without separate explicit authorization","status":"DEFERRED_SCOPE_REVIEW"}
+  ],
+  "database_policy": "Use only newly generated allowlisted isolated test databases; never kintai_db; do not delete retained databases.",
+  "audit_policy": "Remote Qwen only at http://100.111.193.94:11434 with qwen27b:latest; no local fallback or downloads."
+}
+
+
+## Korean and Japanese evidence final sections
+
+- 초기 실행 BLOCKED 기록은 당시 실행환경의 정확한 이력으로 보존한다. 후속 격리 실행 결과로 현재 상태를 갱신한다. MySQL 8.4 Testcontainers는 Day 11 완료를 막지 않으며 **2027년 1월 재검토 예정(DEFERRED)** 이다. 아직 실행하지 않았으므로 미검증으로 유지하고 로컬 MySQL 결과와 혼합하지 않는다.
+
+### Day 11 최종 상태와 검수 범위 (2026-11-13)
+
+- **전체 판정: PARTIALLY_VERIFIED.** 최초 BLOCKED는 당시 실행환경 이력으로 보존하며, 현재 실행 판정과 혼합하지 않는다.
+- 대상 격리 실행에서 `AnnualPayrollScenarioIntegrationTest` 2건 PASS. 전체 회귀는 격리 DB `kintai_full_test_cf0fbbd96042`, 로컬 MySQL 26.7에서 81건 PASS, 실패·오류·스킵 0건, Gradle 종료 코드 0이다. JUnit·로그·요약·SHA-256 증적은 `docs/audit_runs/isolated_all_20261113_203209_kintai_full_test_cf0fbbd96042/`에 보존했다.
+- 검증은 DB에 직접 입력한 근태에서 노동 계산·급여 서비스까지의 통합 경로다. 타각 API/컨트롤러/화면 경로는 검증하지 않았으며, 월 1건 근무 자료이므로 실제 월별 근무 분포를 재현하지 않는다.
+- 자정 통과 야간, 다회 휴게, 계약 변경 경계(6월 30일/7월 1일)는 포함한다. 동일일 분할 근무 누적 8시간, 월마감 경계, 반올림 경계는 이 시나리오에서 입증하지 않았다. 테스트 클래스 자체의 DB명 fail-closed 검사도 없어, 격리 실행기 밖에서 단독 실행할 때의 datasource 보호는 후속 보완 대상이다.
+- Qwen 검수 Run ID `20261113_113749_a39493e5`와 지적 대조표를 보존했다. 단, 최종 소스에 추가된 일부 계약 경계·통근비 상한 단언이 해당 리뷰 입력 이후 반영되어 최종 소스 전체에 대한 독립 재검수는 부분 상태다.
+- RTM: R-11 **PARTIALLY_VERIFIED**, R-12 **PARTIALLY_VERIFIED**, R-13 **VERIFIED (로컬 MySQL 26.7 한정)**, R-14 **PARTIALLY_VERIFIED**. 상세 매핑은 `docs/rtm_ledger.md`를 따른다.
+- MySQL 8.4 Testcontainers는 사용자 결정에 따라 **2027년 1월 재검토(DEFERRED)** 이며 미검증이다. 달력 및 현실적인 브라우저 데모 데이터 확인은 이 Day 11 서비스 통합 결과에 포함하지 않는다.
+### Day 13 데모 DB·캘린더 UI 수정 (2026-11-14)
+
+- 격리 데모 DB의 첫 생성본 `kintai_demo_c5567594663c`는 이름이 `?` 바이트로 저장된 것을 확인했다. MySQL 입력 인코딩 문제를 수정하고 새 DB `kintai_demo_9f3f8487bc42`를 생성했다. 새 DB에서 `SELECT DATABASE()`, 2026-01-01~2026-12-31 확정 근무표 313건, 근태 313건 및 owner 이름 UTF-8 HEX를 확인했다. 이전 DB는 삭제하거나 수정하지 않았다.
+- 브라우저 화면에서 캘린더가 비어 보이는 문제를 재현했다. API는 `CalendarEventDto` 형태(`id`, `title`, `start`, `end`, `extendedProps`)를 반환했지만 템플릿은 `ShiftDto` 필드(`shiftId`, `workDate`, `startTime`, `endTime`)로 재매핑하고 있었다. 템플릿을 실제 API 계약에 맞춰 수정한 뒤 2026년 11월 확정 근무 이벤트와 11월 2일 확정 모달(09:00~18:00, 휴게 60분)을 화면에서 확인했다.
+- 격리 전체 회귀 실행: `scripts/run_isolated_regression.ps1 -Scope All -DatabaseName kintai_full_test_3df696be0820`. 최종 실행은 Gradle 종료 코드 0, JUnit XML 34개, 테스트 81건, 실패·오류·스킵 0건. 실행 로그·요약·SHA-256: `docs/audit_runs/isolated_all_20261114_074456_kintai_full_test_3df696be0820/`.
+- 첫 demo DB에서 급여 UI의 2026-01 DRAFT 2건(총지급액 ¥141,700 및 ¥164,332)을 확인했다. 새 UTF-8 demo DB에서는 인증 계산 API가 HTTP 200으로 두 이름이 온전한 DRAFT 급여와 같은 금액을 반환했다. Excel API도 HTTP 200, XLSX media type, 5,092-byte OOXML(월 및 두 총액 포함)을 반환했고 원본과 SHA-256을 보존했다: `payroll_2026-01.xlsx`, `payroll_excel_validation.json`. 브라우저 탭 자동화 시간 초과로 새 DB 급여 화면과 browser-managed 다운로드 동작은 미검증이다.
+- Demo 준비 스크립트의 `SOURCE` 비대화식 호출은 SQL 1064로 실패해 원문 로그 및 생성된 격리 DB를 보존했다. 이후 UTF-8 SQL 파일을 mysql stdin으로 전달하고 이름 HEX/shift 건수 검증을 추가하여 재실행 성공했다. 성공 로그: `docs/audit_runs/day13_calendar_20261114/demo_prepare_retry1.log`.
+- 독립 감사 업데이트(2026-11-14): 이전 기록의 `100.91...`은 잘못 선택한 과거 주소였습니다. 설정 스크립트와 원격 `/api/tags`로 `http://100.111.193.94:11434`, `qwen27b:latest` (27.3B, IQ3_M, digest `23c3820b0d9326b73e97191b9fb7e16b53f6e24bb3449d2a17037c5f2b6179a1`)을 확인하고 원격 독립 감사를 완료했습니다. 최초 감사는 번들에 넓은 급여 체크리스트 코드·테스트 증거가 빠져 FAIL이었으나 근거를 보강해 재감사했고 Day 13 범위 PASS를 받았습니다. Run ID `20261113_230538_8ce60d45`, 49초, 3055 입력/2056 출력 토큰. 결과 `docs/audit_runs/day13_calendar_20261114/qwen27b_reaudit/report.md`; 입력 SHA-256 `8ce60d454594e968d3b9c44060457a4ebcd8c302f72ebc9758bad76e1b80e449`; 보고서 SHA-256 `D34F3290E4AA660EFE5FFFEDDF5FC4EEF865681C4DE80BD533F727CE0551DF8A`. Qwen은 전용 cross-store payroll IDOR 부정 테스트를 후속 권고했습니다.
+- UI 및 감사 범위 기록: `docs/audit_runs/day13_calendar_20261114/`; 상태 추적: `docs/rtm_ledger.md` R-15~R-18; 인수인계: `docs/handoff/20261114_0746_codex_day13_handoff.md`.
+
+
+- 실행 절차 오류도 기록합니다: 27B 원격 사용 지시를 제가 잘못 해석해 qwen3.8:27b 로컬 pull을 시작했고 약 7GB 뒤 중단했습니다. 감사에 사용하지 않았고 재개하지 않았습니다. 부분 캐시 블롭은 다른 모델과 공유될 수 있어 삭제하지 않았습니다. Qwen 7B 보충 감사는 중단되어 판정이 없습니다. 원본 로그는 docs/audit_runs/day13_calendar_20261114/qwen27b_local_pull.log, qwen7b_supplemental_console.log에 보존했습니다.
+
+
+- 최종 재검수 업데이트: cross-owner 급여 권한 단위 테스트 StoreAuthorizationServicePayrollOwnershipTest(타 점주 거부, 본인 허용) 추가 후 새 격리 DB kintai_full_test_9f4b67f66b64에서 83/83 PASS, 실패·오류·스킵 0. 결과 docs/audit_runs/isolated_all_20261114_081141_kintai_full_test_9f4b67f66b64/. 최종 Qwen 27B Run ID 20261113_231257_4dd6f9c5, 결과 docs/audit_runs/day13_calendar_20261114/qwen27b_final_audit/report.md, Day 13 범위 PASS. 브라우저 download UX 미관찰은 Info/WARN 한계로 남고 R-17은 부분 검증 유지.
+
+- 번들 정합성 최종 재감사: Run ID 20261113_231504_7898dce0 (원격 100.111.193.94, 27.3B IQ3_M), 44.9초, 3156 입력/1807 출력 토큰. 일관성 수정 최종 번들 SHA-256 7898dce049db27937e95f02e2e308ddaaf32b7b73df1335ec2942a016a47564f; 보고서 docs/audit_runs/day13_calendar_20261114/qwen27b_final_consistent/report.md, SHA-256 7CD37FABD171FD36AFE5F8FECA4189AF61076B62B9FA0151893747D88122FA12. 범위 PASS; browser download UX만 Info/WARN로 분리됨. /api/ps 최종 증거 qwen27b_remote_ps_final.json에서 원격 qwen27b:latest 27.3B 모델 로드 및 VRAM residency를 확인. 로컬 ollama ps는 비어 있음.
+
+
+- 증거 번들 최종 정합성 감사: Hermes v1.1.1 / Qwen 27B IQ3_M, 원격 100.111.193.94:11434; Run ID 20261113_231841_e3e0981e, 30.19초, 3162 입력/1169 출력 토큰. 번들 SHA-256 3e0981eaac3a4f47314aa2c9164c2cdfb1ec18f4541622ca27d8f4f40f4a7f0; 보고서 docs/audit_runs/day13_calendar_20261114/qwen27b_final/report.md, SHA-256 41087C2A78D80FFA37B50A79BF8CA5F46B2DA9E3BC6EB9B0967974C7CFE40A9. 최종 verdict PASS. 원격 /api/ps 모델 상태와 로컬 Ollama 비어 있음은 qwen27b_remote_ps_final.json에 기록.
+
+- 브라우저 다운로드 최종 확인 결과: Chrome의 export 클릭이 /api/payroll/excel?storeId=1&yearMonth=2026-01에서 ERR_BLOCKED_BY_CLIENT로 끝났다. 브라우저 도구의 URL 정책은 chrome://downloads/ 이동과 대체 경로/우회를 명시적으로 거부했다. 원인을 앱 또는 확장 프로그램으로 단정하지 않는다. 인증 API XLSX는 정상·유효하나 실제 browser-managed 저장은 미확인으로 남긴다. Qwen 최종 감사 Run ID 20261113_232151_a808922d는 핵심 범위 PASS, 이 검증 항목만 P2 WARN/Unresolved. 보고서 SHA-256 1CBA641563D0BD88CCE21E41C71F97E7A563C550EBFDEA9DF9FB6A09F646D61E.
+
+### Day 13 최종 독립 재검수 및 R-17 브라우저 다운로드 완료 (2026-11-14 KST)
+
+- **Day 13 최종 판정: PASS (로컬 MySQL 26.7 범위).** RTM R-15/R-16/R-17/R-18 모두 VERIFIED. MySQL 8.4 Testcontainers는 기존 결정대로 2027년 1월 재검토(DEFERRED)이며 이번 로컬 검수와 구분한다.
+- R-17 후속 화면 검수에서 격리 데모 DB `kintai_demo_9f3f8487bc42`의 2026-01 급여 행과 합계(佐藤 花子 ¥141,700; 鈴木 一郎 ¥164,332)를 확인하고 Excel 출력 버튼을 클릭했다. 브라우저 download 이벤트가 완료되어 5,092-byte XLSX가 저장됐다. 파일 OOXML 구조, 월, 두 합계를 검사했다. SHA-256 `ba127f65f193f8289c2b4e445efc09a06e1590e2230ed0b1ad603d839cfdcd98`. 증거: `docs/audit_runs/day13_calendar_20261114/excel_browser_download.json`, `payroll_2026-01_browser_download.xlsx`.
+- 격리 전체 회귀: 83건 PASS, 실패·오류·스킵 0, Gradle exit 0; DB `kintai_full_test_9f4b67f66b64`.
+- 최신 독립 감사: Hermes v1.1.1, 원격 `http://100.111.193.94:11434`, `qwen27b:latest` IQ3_M 27.3B, digest `23c3820b0d9326b73e97191b9fb7e16b53f6e24bb3449d2a17037c5f2b6179a1`; Run ID `20261113_234922_d69a9b63`; 번들 SHA-256 `d69a9b63c9a6a79043a38fb9c8942ab9c3fd0f9936087ffe5865d778f6817379`; 보고서 SHA-256 `0dc324150a75bb8a1d3035f7ee770a03ec2bffd8241a3a041ffd9ee2066fbf32`. 15 findings PASS, WARN/FAIL 0. 이전 Chrome `ERR_BLOCKED_BY_CLIENT`는 이후 인앱 브라우저에서 다운로드 성공으로 해소됐으며 과거 시도 기록은 보존한다.
+- 잘못 시작한 미설치 Qwen pull 캐시 21개는 사용자 요청에 따라 제거했고, Qwen 7B 설치는 보존했다. 상세: `docs/audit_runs/day13_calendar_20261114/qwen_local_pull_cleanup_manifest.json`.
+## 최종 포트폴리오 패키지 작성 및 독립 재검수 (2026-11-14)
+
+- Day 13 최종 산출물을 `docs/final-portfolio/`에 구성했습니다: 기술 증적 v2.0(일본어/영어), 한국어 요약, 애플리케이션 및 3역 AI 협업 Mermaid 아키텍처, 격리 로컬 데모 안내(일본어/영어).
+- 현재 정본 DDL을 대조해 오래된 `uq_att_open_per_staff` 설명은 현행 스키마 사실이 아님을 명시했습니다. RTM R-11/R-12/R-14 부분 검증 및 R-05(MySQL 8.4) 연기를 포트폴리오에 분명히 표시했습니다.
+- 문서 로컬 확인에서 상대 Markdown 링크를 검사했습니다. 전체 회귀 83/83, 오류·실패·스킵 0 및 Day 13 기존 15개 finding Qwen PASS를 원본 증거와 대조했습니다.
+- 포트폴리오 Qwen 27B 감사 초회는 계산 및 잠금 구현 증거가 입력 번들에 없다고 지적했습니다. 관련 계산기/테스트/IDOR 테스트에 더해 AttendanceService 트랜잭션, Mapper `FOR UPDATE`, PayrollService 잠금 순서를 번들에 추가해 재감사를 진행했습니다. 원본 입력·응답·해시 및 최초 지적은 `docs/audit_runs/day13_calendar_20261114/final_portfolio_review/`에 보존합니다.
+- 본 패키지 완료 판정은 최종 Qwen 재감사 및 문서 일치 검사 후 확정합니다. 프로젝트 전체 완료나 일본 노동법 전 범위 적합을 주장하지 않습니다.
+- 최종 문구와 소스 근거를 포함한 원격 Qwen 재감사 Run `20261114_000458_4af20cd9`는 15/15 PASS, WARN/FAIL 0입니다. 초기 계산 증거 부족 지적과 잠금 증거 WARN을 필요한 코드·테스트·Mapper 근거를 추가해 해소했고, 정확한 최종 번들 재감사에서 PASS를 받았습니다. 번들 SHA-256 `4af20cd936e1a70c91ca8d6b905f0d6f948d108b1c09fd226958a2a6c2b3b543`, 보고서 SHA-256 `4876963e92a4cb197596d02fb5d172a50db4a13b7b382930c312e433337d1d28`.
+- R-19 VERIFIED. 포트폴리오 전 문서의 상대 Markdown 링크 확인 PASS. 최종 상태 `docs/audit_runs/day13_calendar_20261114/final_portfolio_review/final_verification_summary.json`.
+
+- QwenレビューRun ID `20261113_113749_a39493e5` と指摘対照を保存した。ただし、最終ソースに追加された一部の契約境界・通勤手当上限assertionはレビュー入力後に反映されたため、最終ソース全体の独立再レビューは部分状態である。
+- RTM: R-11 **PARTIALLY_VERIFIED**、R-12 **PARTIALLY_VERIFIED**、R-13 **VERIFIED (ローカルMySQL 26.7に限定)**、R-14 **PARTIALLY_VERIFIED**。詳細は `docs/rtm_ledger.md` を参照。
+- MySQL 8.4 Testcontainersはユーザー判断により **2027年1月に再検討(DEFERRED)** とし、未検証を維持する。カレンダーおよび現実的なブラウザ用デモデータ確認は、このDay 11サービス統合結果には含まれない。
+### Day 13 デモDB・カレンダーUI修正 (2026-11-14)
+
+- 最初の分離デモDB `kintai_demo_c5567594663c` では氏名が `?` バイトで保存されていると確認した。MySQL入力エンコーディングを修正し、新しいDB `kintai_demo_9f3f8487bc42` を作成した。新DBでは `SELECT DATABASE()`、2026-01-01～2026-12-31の確定シフト313件、勤怠313件、およびオーナー名のUTF-8 HEXを確認した。旧DBは削除・変更していない。
+- ブラウザーでカレンダーが空に見える問題を再現した。APIは `CalendarEventDto` 形式（`id`、`title`、`start`、`end`、`extendedProps`）を返す一方、テンプレートは `ShiftDto` の項目（`shiftId`、`workDate`、`startTime`、`endTime`）として再変換していた。実際のAPI契約に合わせて修正後、2026年11月の確定シフトと11月2日の確定モーダル（09:00～18:00、休憩60分）を画面で確認した。
+- 分離DBで全回帰を実行: `scripts/run_isolated_regression.ps1 -Scope All -DatabaseName kintai_full_test_3df696be0820`。最終実行はGradle終了コード0、JUnit XML 34件、テスト81件、失敗・エラー・スキップ0件。ログ・集計・SHA-256: `docs/audit_runs/isolated_all_20261114_074456_kintai_full_test_3df696be0820/`。
+- 最初のdemo DBの給与UIで2026-01のDRAFT 2件（総支給額¥141,700および¥164,332）を確認した。新しいUTF-8 demo DBでは認証済み計算APIがHTTP 200を返し、正しい氏名と同額のDRAFT給与2件を返した。Excel APIもHTTP 200、XLSX media type、月と両金額を含む5,092-byte OOXMLを返し、原本とSHA-256を保存した: `payroll_2026-01.xlsx`、`payroll_excel_validation.json`。ブラウザータブ自動化のタイムアウト後、新DB給与画面とbrowser-managedダウンロード操作は未検証。
+- demo準備スクリプトの `SOURCE` 非対話呼び出しはSQL 1064で失敗したため、原ログと作成済み分離DBを保持した。その後UTF-8 SQLファイルをmysql stdinへ渡し、氏名HEX・シフト件数の検査を追加して再実行に成功した。成功ログ: `docs/audit_runs/day13_calendar_20261114/demo_prepare_retry1.log`。
+- 独立監査の更新 (2026-11-14): 以前の `100.91...` は古い証跡の誤選択でした。正しい `http://100.111.193.94:11434` でQwen 27B (`qwen27b:latest`, 27.3B IQ3_M, digest `23c3820b0d9326b73e97191b9fb7e16b53f6e24bb3449d2a17037c5f2b6179a1`) の独立監査を実行しました。初回は入力に広範な給与チェックリストのコード・テスト根拠が不足してFAIL。根拠を追加して再監査し、Day 13範囲はPASS。Run ID `20261113_230538_8ce60d45`、49秒、入力3055/出力2056トークン。結果 `docs/audit_runs/day13_calendar_20261114/qwen27b_reaudit/report.md`、入力SHA-256 `8ce60d454594e968d3b9c44060457a4ebcd8c302f72ebc9758bad76e1b80e449`、報告書SHA-256 `D34F3290E4AA660EFE5FFFEDDF5FC4EEF865681C4DE80BD533F727CE0551DF8A`。専用の他店舗給与IDOR拒否テストは後続推奨として記録。
+- UI・監査範囲: `docs/audit_runs/day13_calendar_20261114/`。状態記録: `docs/rtm_ledger.md` R-15～R-18。引継ぎ: `docs/handoff/20261114_0746_codex_day13_handoff.md`。
+
+
+- 実行手順の誤りも記録します: 27Bをリモートで使う指示を私が誤解し、qwen3.8:27b のローカルpullを開始して約7GB進行後に停止しました。監査には使用せず、再開していません。部分キャッシュは他モデルと共有の可能性があるため削除していません。Qwen 7Bの補助監査も中断し、判定なしです。原ログは docs/audit_runs/day13_calendar_20261114/qwen27b_local_pull.log と qwen7b_supplemental_console.log に保存しました。
+
+
+
+- 実行手順の誤り: 27Bをリモートで使う指示を誤解し、ローカル qwen3.8:27b のpullを開始して約7GB後に停止しました。監査には使用せず、再開していません。部分キャッシュは他モデルと共有の可能性があるため削除していません。Qwen 7B補助監査も中断し、判定なしです。原ログ: docs/audit_runs/day13_calendar_20261114/qwen27b_local_pull.log、qwen7b_supplemental_console.log。
+
+
+
+- 最終再監査: 他オーナー給与を拒否し本人所有分を許可する StoreAuthorizationServicePayrollOwnershipTest を追加後、新規分離DB kintai_full_test_9f4b67f66b64 で83/83 PASS、失敗・エラー・スキップ0。結果 docs/audit_runs/isolated_all_20261114_081141_kintai_full_test_9f4b67f66b64/。最終Qwen 27B Run ID 20261113_231257_4dd6f9c5、docs/audit_runs/day13_calendar_20261114/qwen27b_final_audit/report.md、Day 13範囲PASS。ブラウザー管理ダウンロードUXを画面から確認できない制限はInfo/WARNとして記録し、R-17は部分検証を維持。
+
+
+- バンドル整合性の最終再監査: Run ID 20261113_231504_7898dce0（リモート 100.111.193.94、27.3B IQ3_M）、44.9秒、入力3156/出力1807トークン。整合修正後の最終バンドルSHA-256 7898dce049db27937e95f02e2e308ddaaf32b7b73df1335ec2942a016a47564f、報告書 docs/audit_runs/day13_calendar_20261114/qwen27b_final_consistent/report.md、SHA-256 7CD37FABD171FD36AFE5F8FECA4189AF61076B62B9FA0151893747D88122FA12。対象範囲PASS、browser download UXのみInfo/WARNとして分離。最終 /api/ps qwen27b_remote_ps_final.json でリモート qwen27b:latest 27.3BのロードとVRAM常駐を確認。ローカル ollama ps は空。
+
+
+
+- 証拠バンドル最終整合監査: Hermes v1.1.1 / Qwen 27B IQ3_M、リモート 100.111.193.94:11434。Run ID 20261113_231841_e3e0981e、30.19秒、入力3162/出力1169トークン。バンドルSHA-256 3e0981eaac3a4f47314aa2c9164c2cdfb1ec18f4541622ca27d8f4f40f4a7f0、報告書 docs/audit_runs/day13_calendar_20261114/qwen27b_final/report.md、SHA-256 41087C2A78D80FFA37B50A79BF8CA5F46B2DA9E3BC6EB9B0967974C7CFE40A9。最終Verdict PASS。リモート /api/ps とローカルOllamaが空である実測は qwen27b_remote_ps_final.json。
+
+
+- ブラウザーDLの最終確認: ChromeでExcel出力をクリックすると /api/payroll/excel?storeId=1&yearMonth=2026-01 で ERR_BLOCKED_BY_CLIENT となった。ブラウザーツールのURLポリシーは chrome://downloads/ への移動と代替経路・回避を明示的に拒否した。原因をアプリまたは拡張機能と断定しない。認証APIのXLSXは正常・有効だが、browser-managed保存は未確認。Qwen最終Run ID 20261113_232151_a808922d は対象範囲PASS、この検証項目のみP2 WARN/Unresolved。報告書SHA-256 1CBA641563D0BD88CCE21E41C71F97E7A563C550EBFDEA9DF9FB6A09F646D61E。
+
+### Day 13 最終独立再監査とR-17ブラウザーダウンロード完了 (2026-11-14 KST)
+
+- **Day 13 最終判定: PASS（ローカルMySQL 26.7の検証範囲）。** RTM R-15/R-16/R-17/R-18 はすべてVERIFIED。MySQL 8.4 Testcontainersは既定どおり2027年1月に再検討（DEFERRED）であり、今回のローカル検証範囲とは分ける。
+- R-17の追加UI検証で隔離デモDB `kintai_demo_9f3f8487bc42` の2026-01給与行と合計（佐藤 花子 ¥141,700、鈴木 一郎 ¥164,332）を確認し、Excel出力ボタンをクリックした。ブラウザーのdownloadイベントが完了し、5,092-byte XLSXが保存された。OOXML構造、対象月、両合計を検査。SHA-256 `ba127f65f193f8289c2b4e445efc09a06e1590e2230ed0b1ad603d839cfdcd98`。証拠: `docs/audit_runs/day13_calendar_20261114/excel_browser_download.json`、`payroll_2026-01_browser_download.xlsx`。
+- 隔離全体回帰: 83件PASS、失敗・エラー・スキップ0、Gradle exit 0。DB `kintai_full_test_9f4b67f66b64`。
+- 最新独立監査: Hermes v1.1.1、リモート `http://100.111.193.94:11434`、`qwen27b:latest` IQ3_M 27.3B、digest `23c3820b0d9326b73e97191b9fb7e16b53f6e24bb3449d2a17037c5f2b6179a1`; Run ID `20261113_234922_d69a9b63`; バンドルSHA-256 `d69a9b63c9a6a79043a38fb9c8942ab9c3fd0f9936087ffe5865d778f6817379`; 報告書SHA-256 `0dc324150a75bb8a1d3035f7ee770a03ec2bffd8241a3a041ffd9ee2066fbf32`。15件すべてPASS、WARN/FAIL 0。以前のChrome `ERR_BLOCKED_BY_CLIENT` は後続のインアプリブラウザーでダウンロード成功により解消し、過去の試行記録は保持する。
+- 誤って開始した未インストールQwen pullのキャッシュ21件はユーザー指示に従い削除し、既存のQwen 7Bインストールは保持した。詳細: `docs/audit_runs/day13_calendar_20261114/qwen_local_pull_cleanup_manifest.json`。
+## 最終ポートフォリオ作成と独立再レビュー (2026-11-14)
+
+- Day 13成果物を`docs/final-portfolio/`に整備した。技術証跡v2.0（日本語/英語）、韓国語要約、アプリ構成および3役AI協働のMermaid図、分離ローカルDBのデモ手順（日本語/英語）を含む。
+- 現行正本DDLを照合し、旧資料の`uq_att_open_per_staff`は現行スキーマの事実ではないと明記した。RTM R-11/R-12/R-14の一部検証およびR-05（MySQL 8.4）の延期も明示した。
+- ローカル文書確認で相対Markdownリンクを検査した。全回帰83/83、失敗・エラー・スキップ0、およびDay 13の既存Qwen監査15件PASSを原本証跡と照合した。
+- ポートフォリオ初回Qwen 27B監査は、計算実装とロック実装の根拠が入力に不足すると指摘した。計算機/テスト/IDORテストに加え、AttendanceServiceトランザクション、Mapper `FOR UPDATE`、PayrollServiceのロック順序を監査バンドルに追加し、再監査を実施した。入力・応答・ハッシュおよび初回指摘は`docs/audit_runs/day13_calendar_20261114/final_portfolio_review/`に保存した。
+- パッケージの完了判定は最終Qwen再監査と文書整合確認後に確定する。プロジェクト全体の完了や日本の労働法全範囲への適合は主張しない。
+- 最終文面とソース根拠を含むリモートQwen再監査Run `20261114_000458_4af20cd9`は15/15 PASS、WARN/FAIL 0。初回の計算根拠不足指摘とロック証跡WARNに対し、必要なコード・テスト・Mapper根拠を追加し、最終バンドルの再監査でPASSを得た。バンドルSHA-256 `4af20cd936e1a70c91ca8d6b905f0d6f948d108b1c09fd226958a2a6c2b3b543`、報告書SHA-256 `4876963e92a4cb197596d02fb5d172a50db4a13b7b382930c312e433337d1d28`。
+- R-19 VERIFIED。全ポートフォリオ文書の相対Markdownリンク検査PASS。最終状態は`docs/audit_runs/day13_calendar_20261114/final_portfolio_review/final_verification_summary.json`。

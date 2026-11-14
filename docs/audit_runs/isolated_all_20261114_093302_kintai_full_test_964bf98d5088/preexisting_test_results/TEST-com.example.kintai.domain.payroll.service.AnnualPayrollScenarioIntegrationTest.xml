@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Day 11: 12-month attendance-to-payroll scenario" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-14T00:32:45.976Z" hostname="BK" time="6.077">
+  <properties/>
+  <testcase name="splitShiftClockOutAccumulatesPriorWorkAndFlowsIntoMonthlyPayroll()" classname="com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest" time="1.328"/>
+  <testcase name="isolatedDatabaseGuardRejectsAnyDatabaseOutsideTheExactAllowlist()" classname="com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest" time="0.083"/>
+  <testcase name="calculatesEveryMonthAndAnnualTotalAgainstIndependentOracle()" classname="com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest" time="0.347"/>
+  <testcase name="contractHistoryUsesInclusiveStartAndExclusiveEndDates()" classname="com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest" time="0.053"/>
+  <testcase name="payrollMonthRangeIncludesMonthEndButExcludesNextMonthFirstDay()" classname="com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest" time="0.075"/>
+  <system-out><![CDATA[09:32:46.168 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest]: AnnualPayrollScenarioIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+09:32:46.325 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest
+09:32:46.414 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest]: AnnualPayrollScenarioIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+09:32:46.415 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-11-14T09:32:46.813+09:00  INFO 29784 --- [    Test worker] p.s.AnnualPayrollScenarioIntegrationTest : Starting AnnualPayrollScenarioIntegrationTest using Java 17.0.12 with PID 29784 (started by klad3 in C:\dev\kintai)
+2026-11-14T09:32:46.815+09:00  INFO 29784 --- [    Test worker] p.s.AnnualPayrollScenarioIntegrationTest : No active profile set, falling back to 1 default profile: "default"
+2026-11-14T09:32:49.032+09:00  INFO 29784 --- [    Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-11-14T09:32:50.116+09:00  INFO 29784 --- [    Test worker] p.s.AnnualPayrollScenarioIntegrationTest : Started AnnualPayrollScenarioIntegrationTest in 3.615 seconds (process running for 5.119)
+2026-11-14T09:32:50.927+09:00  INFO 29784 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-11-14T09:32:51.214+09:00  INFO 29784 --- [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@3d195d15
+2026-11-14T09:32:51.217+09:00  INFO 29784 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

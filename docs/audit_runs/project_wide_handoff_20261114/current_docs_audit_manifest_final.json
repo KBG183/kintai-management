@@ -1,0 +1,67 @@
+{
+  "schema_version": "1.0",
+  "target_day": "2026-11-14 final current project documentation handoff review",
+  "bundle_path": "C:\\dev\\kintai\\docs\\audit_runs\\project_wide_handoff_20261114\\current_docs_audit_bundle_final.md",
+  "bundle_sha256": "cd7cd20d12ba7771fb8ceb01dcd95181bfe39c924b8a595aa5e6fb91fdf649b8",
+  "requirements": [
+    "Latest local execution totals and database identity match evidence",
+    "KO/JA status and scope exclusions agree",
+    "B-04/B-09 complete, B-05/B-06 open, B-01/B-07 deferred",
+    "Current docs audit failure is not called PASS; script fails closed",
+    "No old model/address or operating DB instruction is operational"
+  ],
+  "rtm_items": [
+    "R-02",
+    "R-05",
+    "R-08",
+    "R-09",
+    "R-10",
+    "R-11",
+    "R-12",
+    "R-13",
+    "R-14",
+    "R-15",
+    "R-16",
+    "R-17",
+    "R-18",
+    "R-19",
+    "B-01",
+    "B-02",
+    "B-03",
+    "B-04",
+    "B-05",
+    "B-06",
+    "B-07",
+    "B-08",
+    "B-09"
+  ],
+  "test_ids": [
+    "full regression 92 tests",
+    "annual target 6 tests",
+    "B-09 failure-path test exit 1/no report",
+    "prior source audit 12 findings",
+    "prior frozen document audit 10 findings"
+  ],
+  "execution_logs": [
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_094427_kintai_full_test_d4124a317ed0\\exit_summary.json",
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_094427_kintai_full_test_d4124a317ed0\\gradle_console.log",
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_day11_20261114_094349_kintai_day11_test_01f4cb1439e6\\exit_summary.json",
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_day11_20261114_094349_kintai_day11_test_01f4cb1439e6\\gradle_console.log",
+    "C:\\dev\\kintai\\docs\\audit_runs\\project_wide_handoff_20261114\\fail_closed_retest_console.log"
+  ],
+  "junit_xml": [
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_094427_kintai_full_test_d4124a317ed0\\TEST-com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest.xml",
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_094427_kintai_full_test_d4124a317ed0\\TEST-com.example.kintai.domain.attendance.controller.AttendancePunchApiIntegrationTest.xml"
+  ],
+  "environment": "Windows; isolated local MySQL 26.7 evidence; only permitted remote Qwen qwen27b:latest at http://100.111.193.94:11434",
+  "known_constraints": [
+    "R-05 and Day 12 excluded",
+    "B-05/B-06 open for Antigravity implementation",
+    "B-01/B-07 milestone deferred",
+    "Latest docs audit from Codex host blocked; no report",
+    "No operating DB, fallback model, alternate endpoint, or download"
+  ],
+  "unverified_items": [
+    "Independent Qwen review of this exact bundle"
+  ]
+}

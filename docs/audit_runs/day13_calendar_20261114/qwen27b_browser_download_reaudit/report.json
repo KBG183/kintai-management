@@ -1,0 +1,70 @@
+﻿{
+    "run_id":  "20261113_234705_5c3c1901",
+    "generated_at":  "2026-11-14T08:47:38.8947064+09:00",
+    "findings":  [
+                     {
+                         "finding_id":  "F-01",
+                         "audit_item":  "Japanese Labor Standards Act Art 37: Night Work \u0026 Overtime Premiums",
+                         "severity":  "P0",
+                         "verdict":  "PASS",
+                         "evidence":  "`LaborCalculationEngineTest.java` (13:00-01:00 overlap test), `PayrollCalculator.java` (125%/150% logic)",
+                         "analysis":  "The code correctly implements the statutory premiums: 25% for night work/overtime and 50% for the concurrent overlap (22:00-05:00 + \u003e8h). The test `LaborCalculationEngineTest` explicitly verifies the 150% rate for the overlap period and ensures break times within the night window are deducted from night work hours before calculation."
+                     },
+                     {
+                         "finding_id":  "F-02",
+                         "audit_item":  "Payroll Math \u0026 Rounding (HALF_UP)",
+                         "severity":  "P1",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollCalculatorStatutoryRoundingTest.java`, `PayrollCalculator.yenRound()`",
+                         "analysis":  "The implementation uses `BigDecimal` with `RoundingMode.HALF_UP` to prevent floating-point errors and 1-yen discrepancies. The dedicated test class verifies boundary conditions (e.g., 324.49 → 324, 324.50 → 325), ensuring compliance with standard financial rounding practices required for payroll accuracy."
+                     },
+                     {
+                         "finding_id":  "F-03",
+                         "audit_item":  "Concurrency \u0026 Security: Pessimistic Locking",
+                         "severity":  "P1",
+                         "verdict":  "PASS",
+                         "evidence":  "`PayrollMapper.xml` (`FOR UPDATE`), `PayrollServiceConcurrentExecutionIntegrationTest.java`",
+                         "analysis":  "The `PayrollMapper.xml` explicitly uses `SELECT ... FOR UPDATE` on critical rows (payroll ID, staff/month, store staff) to prevent race conditions during concurrent updates. Multiple integration tests (`PayrollServiceConcurrentExecutionIntegrationTest`, etc.) verify that concurrent confirmations do not result in data corruption or double-processing, although full MySQL 8.4 Testcontainers execution is deferred, the logic is present and unit-tested."
+                     },
+                     {
+                         "finding_id":  "F-04",
+                         "audit_item":  "Concurrency \u0026 Security: IDOR Vulnerability Prevention",
+                         "severity":  "P0",
+                         "verdict":  "PASS",
+                         "evidence":  "`StoreAuthorizationServicePayrollOwnershipTest.java`, `PayrollApiController.java`",
+                         "analysis":  "The `PayrollApiController` enforces strict ownership checks via `StoreAuthorizationService.validatePayrollOwnership` before accessing specific payroll records. The new regression test `StoreAuthorizationServicePayrollOwnershipTest` confirms that a user (Member 17) is denied access to another user\u0027s (Member 42) payroll, while the rightful owner is allowed, effectively mitigating Insecure Direct Object References (IDOR)."
+                     },
+                     {
+                         "finding_id":  "F-05",
+                         "audit_item":  "Exception Handling \u0026 Boundary Validation",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`LaborCalculationEngineTest.java`, `PayrollCalculator.resolveDateRange()`",
+                         "analysis":  "The system handles edge cases such as `DateTimeParseException` by converting them to `IllegalArgumentException`, preventing 500 errors from malformed date inputs. Tests verify rejection of invalid time ranges (e.g., clock-out before clock-in) and negative hour values, ensuring robustness against malformed API inputs."
+                     },
+                     {
+                         "finding_id":  "F-06",
+                         "audit_item":  "Data Integrity: UTF-8 Encoding in Demo Data",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`prepare_local_demo_db.ps1`, `HEX(name)` verification",
+                         "analysis":  "The demo data ingestion script was corrected to feed UTF-8 SQL files via stdin to the MySQL client, avoiding PowerShell pipeline code-page corruption. Evidence confirms that Japanese names (e.g., 佐藤 花子) are stored correctly in the database (verified via `HEX` check showing valid UTF-8 bytes rather than `0x3F` question marks), ensuring accurate display in the UI and exports."
+                     },
+                     {
+                         "finding_id":  "F-07",
+                         "audit_item":  "UI/DTO Contract Alignment",
+                         "severity":  "P2",
+                         "verdict":  "PASS",
+                         "evidence":  "`CalendarEventDto.java`, `calendar.html`",
+                         "analysis":  "The frontend calendar template was updated to correctly map the `CalendarEventDto` fields (including `extendedProps` for status and break minutes) instead of the raw `ShiftDto`. This resolves the issue where the calendar appeared empty due to field mismatches. Browser evidence confirms that shift details (time, break, staff name) are correctly displayed in the modal."
+                     },
+                     {
+                         "finding_id":  "F-08",
+                         "audit_item":  "CSRF Protection \u0026 Security Headers",
+                         "severity":  "P1",
+                         "verdict":  "PASS",
+                         "evidence":  "`layout.html` (fetch interceptor), `CsrfCookieHeaderLifecycleIntegrationTest.java`",
+                         "analysis":  "The shared fetch interceptor correctly prioritizes the `XSRF-TOKEN` cookie for mutation requests, falling back to the meta tag if necessary. Integration tests (`CsrfSecurityIntegrationTest`) verify that CSRF tokens are properly generated, transmitted, and validated, protecting against cross-site request forgery attacks during payroll and shift updates."
+                     }
+                 ]
+}

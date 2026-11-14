@@ -1,0 +1,15 @@
+{
+  "model": "qwen27b:latest",
+  "endpoint": "http://100.111.193.94:11434",
+  "files": [
+    "docs/final-portfolio/README.md",
+    "docs/final-portfolio/README_KO.md",
+    "docs/final-portfolio/technical_evidence_v2.0.md",
+    "docs/final-portfolio/technical_evidence_v2.0_ja.md",
+    "docs/final-portfolio/architecture.md",
+    "docs/final-portfolio/architecture_ja.md",
+    "docs/final-portfolio/demo_guide.md",
+    "docs/final-portfolio/demo_guide_ja.md"
+  ],
+  "bundle_sha256": "4af20cd936e1a70c91ca8d6b905f0d6f948d108b1c09fd226958a2a6c2b3b543"
+}

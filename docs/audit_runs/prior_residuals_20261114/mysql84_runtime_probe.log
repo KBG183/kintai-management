@@ -1,0 +1,8 @@
+PowerShell environment probe (2026-11-14 KST)
+Command: docker info --format {{.ServerVersion}}
+Docker command result: not recognized as a cmdlet, function, script file, or executable program.
+C:\Program Files\Docker\Docker\resources\bin\docker.exe exists=False
+C:\ProgramData\DockerDesktop\version-bin\docker.exe exists=False
+C:\Program Files\Podman\podman.exe exists=False
+C:\Program Files\RedHat\Podman\podman.exe exists=False
+Docker/Testcontainers run was not attempted because no runtime executable was available. No software was downloaded or installed.

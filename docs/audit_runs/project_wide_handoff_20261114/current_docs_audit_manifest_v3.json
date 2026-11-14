@@ -1,0 +1,93 @@
+{
+  "schema_version": "1.0",
+  "target_day": "2026-11-14 frozen project handoff review v3",
+  "bundle_path": "C:\\dev\\kintai\\docs\\audit_runs\\project_wide_handoff_20261114\\current_docs_audit_bundle_v3.md",
+  "bundle_sha256": "e5eb79ca3ce99136f6a8acf22d69fb4f923c8934dad4405ca6ce1245184d0b58",
+  "source_sha256": {
+    "scripts/audit_config.json": "1ebaf50e6e54e97e87acc79fbf002d6a20d38743ac79961760e264742e4999db",
+    "scripts/audit_with_hermes.ps1": "6ec3f27b02f4973d697a7084186ca6c396400165d820b0408d483664934cde54",
+    "scripts/codex_hermes_bridge.ps1": "e28ec7fb146a2472acc59b773a50e65a17f8d1a536c5e1a763f1ca7b610719dd",
+    "docs/handoff/20261114_antigravity_project_wide_handoff.md": "fa10392c1f68f80a364b4cb26fe52daaca171b4cfcbe872ef8062fa60a5ebbc1",
+    "docs/rtm_ledger.md": "73234fcad7ed7f4d83a58cf8910a612ab2832437784d407b51b6823dce353aaf",
+    "docs/workflow/pipeline_improvement_backlog.md": "52a3011ccf5b7957655c803c06770bec6468871019c51d5f2d55f4bcc866aef8",
+    "docs/workflow/project_paths.md": "84e7e618d45b15259af5d6083859316c5a7fa85016b4042026092bac4fa797f6",
+    "docs/final-portfolio/README_KO.md": "7819c346a2323dd7812e1ad9ef2500ebe07c8a80276d22fbbac678b6f0a502b6",
+    "docs/final-portfolio/README.md": "942365effac87d8d9de33fb4044eddb281c7af381292829afdd796b821a5b65d",
+    "docs/final-portfolio/technical_evidence_v2.1.md": "040ab2092c9943b7dc6e1aacd6957027215b4bef0de2cbb441e548d2c042f98c",
+    "docs/final-portfolio/technical_evidence_v2.1_ja.md": "73c62b800639d96788df0594e4944f7b77109ec51e112f22dc213bf96d199c75",
+    "docs/audit_runs/isolated_all_20261114_094427_kintai_full_test_d4124a317ed0/exit_summary.json": "92905fcc9bc4f52fc11c05c02b76d4d47d72bafe18bc77a71ed2c0bd42bbc873",
+    "docs/audit_runs/isolated_day11_20261114_094349_kintai_day11_test_01f4cb1439e6/exit_summary.json": "8d4d973a11c710ca4032894f9eabc14be69961bcf487a5b42cd66f16be033799",
+    "docs/audit_runs/project_wide_handoff_20261114/remote_audit_blocked_outcome.json": "8594afcc260801afae452e0d87bde844c5c13e7d424ecda0a5ea597478276cff",
+    "docs/audit_runs/project_wide_handoff_20261114/fail_closed_retest_outcome.json": "1e4321fede8fa98be477577ad9d96882d22ab3d9514e03291cc9ec3524710e0b",
+    "docs/audit_runs/project_wide_handoff_20261114/qwen27b_current_docs_final_summary.json": "4c9a2d9092236a013c27a6d3b5f565b050dab572ff7ead6c6716094bfd114872",
+    "docs/audit_runs/20261114_014515_cd7cd20d/audit_run.json": "5d0427fe787d7a0a9d62cb6649c34930949235cf05bdcc3e772e9ba29fd26edc",
+    "docs/audit_runs/20261114_014515_cd7cd20d/report.md": "695bb5bd62735a192a13b95d7461c80805d2d88c5608742db3d76201ed94a86d",
+    "docs/audit_runs/project_wide_handoff_20261114/runner_validation_20261114_110800/runner_validation_summary.json": "4dd66f7cbccc7080c0bcc53d4b0624feb272fbf700751ec8faac4d98b37d715a"
+  },
+  "requirements": [
+    "Full regression 92/0/0/0 and annual target 6/6 match named isolated DB evidence",
+    "R-02, R-05, R-08..R-19 and B-01..B-09 statuses match RTM/backlog",
+    "B-05/B-06 open; B-01/B-07 milestone deferred; Day12/R-05 excluded",
+    "Exact remote endpoint/model; no operating DB or local model fallback; historical figures labeled",
+    "Audit script catches missing/empty/truncated/malformed responses; bridge uses remote HTTP by default",
+    "Prior connection failure, malformed exit-0 report, Qwen WARN and current script test logs represented accurately",
+    "No Japanese-law-wide compliance claim"
+  ],
+  "rtm_items": [
+    "R-02",
+    "R-05",
+    "R-08",
+    "R-09",
+    "R-10",
+    "R-11",
+    "R-12",
+    "R-13",
+    "R-14",
+    "R-15",
+    "R-16",
+    "R-17",
+    "R-18",
+    "R-19",
+    "B-01",
+    "B-02",
+    "B-03",
+    "B-04",
+    "B-05",
+    "B-06",
+    "B-07",
+    "B-08",
+    "B-09"
+  ],
+  "test_ids": [
+    "isolated full regression 92 tests",
+    "Day 11 annual target 6 tests",
+    "response contract rejects empty/missing-terminal/truncated/context-overrun/header-only/invalid-verdict/prompt-echo and accepts PASS/WARN",
+    "bridge Http/Auto route previews use configured remote and inference options",
+    "Qwen input validator unit cases",
+    "preflight wrapper mock success/failure/nonzero"
+  ],
+  "execution_logs": [
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_094427_kintai_full_test_d4124a317ed0\\gradle_console.log",
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_day11_20261114_094349_kintai_day11_test_01f4cb1439e6\\gradle_console.log",
+    "C:\\dev\\kintai\\docs\\audit_runs\\project_wide_handoff_20261114\\runner_validation_20261114_110800\\response_validation.log",
+    "C:\\dev\\kintai\\docs\\audit_runs\\project_wide_handoff_20261114\\runner_validation_20261114_110800\\bridge_routing.log",
+    "C:\\dev\\kintai\\docs\\audit_runs\\project_wide_handoff_20261114\\runner_validation_20261114_110800\\preflight_validation.log",
+    "C:\\dev\\kintai\\docs\\audit_runs\\project_wide_handoff_20261114\\runner_validation_20261114_110800\\wrapper_mock.log"
+  ],
+  "junit_xml": [
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_094427_kintai_full_test_d4124a317ed0\\TEST-com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest.xml",
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_day11_20261114_094349_kintai_day11_test_01f4cb1439e6\\TEST-com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest.xml"
+  ],
+  "environment": "Windows; app regression on isolated local MySQL 26.7; remote Qwen 27B only at the configured Tailscale endpoint",
+  "known_constraints": [
+    "R-05 and Day 12 excluded until scheduled date",
+    "B-05/B-06 remain open for Anti implementation",
+    "B-01/B-07 milestone deferred",
+    "The prior exact bundle audit was WARN; not a PASS",
+    "No operating DB; no local Qwen fallback, alternate IP, or download"
+  ],
+  "unverified_items": [
+    "B-05/B-06 implementation and tests",
+    "Independent Qwen verdict for this exact v3 bundle"
+  ]
+}

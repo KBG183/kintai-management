@@ -1,0 +1,22 @@
+[
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_9d64cfdb39ea40bea6b71f4ecba0df43\\input_bundle",
+    "Hash": "DDF2E268521DFAAAD01CC3978A6FD0C78AC135649D29BA5F1B0D260C69CFC639",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_9d64cfdb39ea40bea6b71f4ecba0df43\\input_manifest.json",
+    "Hash": "3723E0E4BBEE592855416BF67C8DCBE0CC0E2749133D43BE052B94A3919977E8",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_9d64cfdb39ea40bea6b71f4ecba0df43\\preflight_result.json",
+    "Hash": "0F5ED96CF06ED52EB07534732CAD1287C9C0BAE3A30E5DB79CACE0E6984CB59E",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\prior_residuals_20261114\\qwen_day10_final\\hermes\\bundle.manifest.json",
+    "Hash": "540390771AB3782D3B88DA35D4346868E6815D21D0F321544DA59F6B8B6E2D6C",
+    "Algorithm": "SHA256"
+  }
+]

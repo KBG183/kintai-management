@@ -1,0 +1,86 @@
+﻿{
+  "run_id": "20261114_000350_944089b0",
+  "generated_at": "2026-11-14T09:04:29.8207756+09:00",
+  "findings": [
+    {
+      "finding_id": "F-01",
+      "audit_item": "Japanese Labor Standards Act Art 37: Night work (22:00~05:00) +25% extra pay",
+      "severity": "P0",
+      "verdict": "PASS",
+      "evidence": "`AttendanceTimeCalculator.java` (lines 195-255), `PayrollCalculator.java` (lines 110-150), `LaborCalculationEngineTest.java`",
+      "analysis": "The code correctly identifies night hours (22:00-05:00) and applies a 1.25x multiplier (25% extra) for regular night work. The `PayrollCalculator` calculates `regularNightPay` as `hourlyWage * 5 * minutes / 240`, which is mathematically equivalent to `hourlyWage * 1.25 * minutes / 60`. Tests verify this logic."
+    },
+    {
+      "finding_id": "F-02",
+      "audit_item": "Japanese Labor Standards Act Art 37: Daily overtime (>8h/day) +25% extra pay",
+      "severity": "P0",
+      "verdict": "PASS",
+      "evidence": "`AttendanceTimeCalculator.java` (lines 195-255), `PayrollCalculator.java` (lines 110-150)",
+      "analysis": "The `AttendanceTimeCalculator` tracks cumulative net seconds against a `STATUTORY_LIMIT_SECONDS` of 28,800 (8 hours). Hours exceeding this limit are categorized as `overtimeWorkSeconds`. The `PayrollCalculator` applies a 1.25x multiplier to `overtimeWorkMinutes`."
+    },
+    {
+      "finding_id": "F-03",
+      "audit_item": "Japanese Labor Standards Act Art 37: Night + Overtime concurrent overlap +50% combined extra pay",
+      "severity": "P0",
+      "verdict": "PASS",
+      "evidence": "`AttendanceTimeCalculator.java` (lines 195-255), `PayrollCalculator.java` (lines 110-150), `LaborCalculationEngineTest.java` (lines 70-105)",
+      "analysis": "The calculator correctly identifies slices that are both within the night window (22:00-05:00) AND beyond the 8-hour daily limit. These are categorized as `nightOvertimeWorkSeconds`. The `PayrollCalculator` applies a 1.50x multiplier (50% extra) to `nightOvertimeWorkMinutes` via `hourlyWage * 3 * minutes / 120`. The test `overlappingNightOvertime_ShouldCalculateDoubleAdditionCorrectly` verifies a 13:00-01:00 shift results in 180 minutes of night overtime."
+    },
+    {
+      "finding_id": "F-04",
+      "audit_item": "Concurrency & Security: Pessimistic Locking & Transactional Integrity",
+      "severity": "P1",
+      "verdict": "PASS",
+      "evidence": "`AttendanceService.java` (lines 17-47), `AttendanceMapper.xml` (lines 143-151), `PayrollService.java` (lines 18-43, 279-303), `PayrollMapper.xml` (lines 80-96)",
+      "analysis": "**Resolved.** The previous warning is resolved. `AttendanceService.punch` is annotated with `@Transactional` and explicitly calls `attendanceMapper.lockStoreStaffForUpdate`, which executes `SELECT ... FOR UPDATE` on the `store_staff` table. Similarly, `PayrollService.confirmPayroll` uses a two-step locking strategy: first locking the parent `store_staff` row, then the child `payroll` row with `findByIdForUpdate` (`SELECT ... FOR UPDATE`). This prevents race conditions and ensures data consistency during concurrent updates. The lock ordering (parent then child) also mitigates deadlock risks."
+    },
+    {
+      "finding_id": "F-05",
+      "audit_item": "Payroll Math & Rounding: RoundingMode.HALF_UP logic",
+      "severity": "P1",
+      "verdict": "PASS",
+      "evidence": "`PayrollCalculator.java` (lines 110-150), `PayrollCalculatorStatutoryRoundingTest.java` (lines 30-80)",
+      "analysis": "The `yenRound` method in `PayrollCalculator` explicitly uses `RoundingMode.HALF_UP`. The test `PayrollCalculatorStatutoryRoundingTest` verifies boundary conditions: 324.49 rounds down to 324, and 324.50 rounds up to 325. This prevents 1-yen discrepancies and complies with standard Japanese payroll rounding practices."
+    },
+    {
+      "finding_id": "F-06",
+      "audit_item": "Concurrency & Security: IDOR Vulnerabilities & Authorization",
+      "severity": "P1",
+      "verdict": "PASS",
+      "evidence": "`AttendanceApiSecurityTest.java` (lines 100-175), `StoreAuthorizationServicePayrollOwnershipTest.java` (lines 1-60)",
+      "analysis": "The application effectively prevents IDOR vulnerabilities. `AttendanceApiSecurityTest` verifies that even if a client spoofs a `storeId` or `storeStaffId`, the server forces the binding to the authenticated user's actual store/staff context. If a user attempts to access another store's staff, an `AccessDeniedException` is thrown (HTTP 403). `StoreAuthorizationServicePayrollOwnershipTest` confirms that payroll records are strictly validated against the owner's store ID."
+    },
+    {
+      "finding_id": "F-07",
+      "audit_item": "Exception Handling & Boundary Validation",
+      "severity": "P2",
+      "verdict": "PASS",
+      "evidence": "`PayrollCalculatorStatutoryRoundingTest.java` (lines 30-80), `AttendanceTimeCalculator.java` (lines 195-255)",
+      "analysis": "The code handles edge cases such as null inputs (throwing `IllegalArgumentException` in rounding tests) and negative hours (throwing `IllegalArgumentException` in `roundMonthlyHours`). The `AttendanceTimeCalculator` uses `Math.max(0L, priorNetWorkSeconds)` to prevent negative cumulative time, ensuring robustness against invalid prior states."
+    },
+    {
+      "finding_id": "F-08",
+      "audit_item": "Schema & Data Integrity",
+      "severity": "P2",
+      "verdict": "PASS",
+      "evidence": "`canonical attendance DDL`",
+      "analysis": "The `attendance` table schema includes appropriate indexes (`idx_att_store_date`, `idx_att_staff_date`) for performance and foreign keys to ensure referential integrity. Check constraints (`chk_attendance_minutes`) ensure that minute fields are non-negative, preventing data corruption at the database level."
+    },
+    {
+      "finding_id": "F-09",
+      "audit_item": "Factual Consistency & Documentation",
+      "severity": "Info",
+      "verdict": "PASS",
+      "evidence": "`docs/final-portfolio/README.md`, `technical_evidence_v2.0.md`, `architecture.md`",
+      "analysis": "The documentation accurately reflects the codebase. It correctly states that the `uq_att_open_per_staff` constraint is **not** present in the current schema, aligning with the provided DDL. The \"three-tier AI\" description is correctly clarified as a workflow role (Implementation, Review, Human Decision) rather than an architectural layer. The demo guide and technical evidence consistently report the same test results (83 passed, 0 failed) and database isolation details."
+    },
+    {
+      "finding_id": "F-10",
+      "audit_item": "Demo DB Isolation & Security",
+      "severity": "P2",
+      "verdict": "PASS",
+      "evidence": "`docs/final-portfolio/demo_guide.md`, `technical_evidence_v2.0.md`",
+      "analysis": "The demo guide explicitly instructs users to use an isolated database (`kintai_demo_9f3f8487bc42`) and never the operating database. It emphasizes passing the password via environment variables (`KINTAI_DB_PASSWORD`) rather than hardcoding it, which is a secure practice for local demonstrations."
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+[
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_e4163dcfce484018b8f1b866aa48012b\\input_bundle",
+    "Hash": "4DD6F9C52058BAEC225BAB1DCFEA89F2E347FD5E0BCCF73634A58C7E34877F11",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_e4163dcfce484018b8f1b866aa48012b\\input_manifest.json",
+    "Hash": "1719C26BFE35EC0B22A2736D8BBF8249881096EC28D05E7B8295594485EA160F",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_e4163dcfce484018b8f1b866aa48012b\\preflight_result.json",
+    "Hash": "AFE7E4929BB8F813B7D5DB589F9EC5FE8C90EAE1C8AD61DC5E2A6AC48CA21B47",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\day13_calendar_20261114\\qwen27b_final_audit\\.done",
+    "Hash": "DAD9D02D505BF57DCB6E9307AE596308FE77180C3E64C312EB6001E130491E12",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\day13_calendar_20261114\\qwen27b_final_audit\\audit_run.json",
+    "Hash": "66B7D4914A3F2CA87D3AD88BBEBD9F295CC5DF400C21016420397BD164FD28A3",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\day13_calendar_20261114\\qwen27b_final_audit\\bundle.manifest.json",
+    "Hash": "01B3EE789CECD44D3312F58BBACE2CBD4634FFF16B40BA7BEF226997DD132D97",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\day13_calendar_20261114\\qwen27b_final_audit\\raw_response.txt",
+    "Hash": "FFFD73584A5C58CFA3C11B6261E3F01912110481077D167C7152FEA2A3F5A445",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\day13_calendar_20261114\\qwen27b_final_audit\\report.json",
+    "Hash": "93104EE798FC04F6DDBDBC3D70CF4C0FEEE604B4AF39076616A7DB6C27A7A8D8",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\day13_calendar_20261114\\qwen27b_final_audit\\report.md",
+    "Hash": "293899ED1A72D4FC2EB173C15DD7E46AC7A0E3138217D5C83549D372D6E28CE5",
+    "Algorithm": "SHA256"
+  },
+  {
+    "Path": "C:\\dev\\kintai\\docs\\audit_runs\\day13_calendar_20261114\\qwen27b_final_audit_report.md",
+    "Hash": "293899ED1A72D4FC2EB173C15DD7E46AC7A0E3138217D5C83549D372D6E28CE5",
+    "Algorithm": "SHA256"
+  }
+]

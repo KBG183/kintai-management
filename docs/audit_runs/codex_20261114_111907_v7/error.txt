@@ -1,0 +1,7 @@
+Write-Error: C:\dev\kintai\scripts\audit_with_hermes.ps1:364
+Line |
+ 364 |  …   $resObj = Call-HermesApi -ContentToAudit $rawText -HeaderTitle $Tar …
+     |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | Ollama Hermes API call failed: Cannot bind argument to parameter 'Content' because it is an empty string.
+
+

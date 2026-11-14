@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "run_id": "20261114_092038",
+  "generated_at_utc": "2026-11-14T00:21:01.7184924Z",
+  "algorithm": "SHA-256",
+  "files": [
+    {
+      "path": "gradle_console.log",
+      "bytes": 782,
+      "sha256": "d12c47be05e6a6da62086003ad016da02836d61a4a6b35f0b94813052503d30d"
+    },
+    {
+      "path": "TEST-com.-S3U06U8UAHCCA.kintai.domain.attendance.controller.AttendanceApiSecurityTest$ReviewModificationSecurityTest.xml",
+      "bytes": 1893,
+      "sha256": "b3ca522cf50ebaa45f6e158f6f78ee12e51fe8ff66ef772977efdb134c1c8244"
+    },
+    {
+      "path": "TEST-com.exa-7QLIAK9JQ1EHK.kintai.domain.attendance.controller.AttendanceApiSecurityTest$UnauthenticatedSecurityTest.xml",
+      "bytes": 1981,
+      "sha256": "f4340a10e98e662190f038fd03e39f9f51ab633167efb6fccd8e5bd2e71fac07"
+    },
+    {
+      "path": "TEST-com.example.kintai.domain.attendance.controller.AttendanceApiSecurityTest$ModRequestSecurityTest.xml",
+      "bytes": 2540,
+      "sha256": "b2e5860676db8a2b3091802cc60f6eec71164563105bb0cf1f0c2a6ee7fbbac3"
+    },
+    {
+      "path": "TEST-com.example.kintai.domain.attendance.controller.AttendanceApiSecurityTest$PunchSecurityTest.xml",
+      "bytes": 2650,
+      "sha256": "43b627de2cf85cb3a461b38c27f70ffeca1fe6f5398245dafd35e7f7c8791243"
+    }
+  ]
+}

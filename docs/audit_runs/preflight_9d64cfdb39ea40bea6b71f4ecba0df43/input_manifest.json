@@ -1,0 +1,35 @@
+{
+  "target_day": "Residual R-08/R-09/R-10 final source security and concurrency audit",
+  "requirements": [
+    "exactly one concurrent CLOCK_IN succeeds",
+    "exactly one concurrent CLOCK_OUT succeeds and final state remains COMPLETED",
+    "anonymous punch rejected by actual security filter",
+    "staff session identity overrides spoofed request IDs",
+    "invalid punch inputs rejected before mapper access",
+    "isolated database fail-closed guard"
+  ],
+  "rtm_items": [
+    "R-08",
+    "R-09",
+    "R-10"
+  ],
+  "test_ids": [
+    "AttendanceServiceConcurrencyIntegrationTest: 2 tests x 3 isolated DBs",
+    "AttendanceApiSecurityTest",
+    "CsrfSecurityIntegrationTest anonymous valid-CSRF punch",
+    "AttendancePunchApiIntegrationTest actual filter-controller-service-DB",
+    "AttendanceServicePunchValidationTest",
+    "91-test full regression"
+  ],
+  "execution_logs": [
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_093302_kintai_full_test_964bf98d5088\\gradle_console.log",
+    "docs/audit_runs/day10_isolated_regression_20261114_093404/summary.json"
+  ],
+  "junit_xml": [
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_093302_kintai_full_test_964bf98d5088\\TEST-com.example.kintai.config.CsrfSecurityIntegrationTest.xml",
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_093302_kintai_full_test_964bf98d5088\\TEST-com.example.kintai.domain.attendance.controller.AttendancePunchApiIntegrationTest.xml",
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_093302_kintai_full_test_964bf98d5088\\TEST-com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest.xml"
+  ],
+  "environment": "Windows local MySQL 26.7 isolated databases only; independent reviewer remote Qwen 27B",
+  "bundle_sha256": "ddf2e268521dfaaad01cc3978a6fd0c78ac135649d29ba5f1b0d260c69cfc639"
+}

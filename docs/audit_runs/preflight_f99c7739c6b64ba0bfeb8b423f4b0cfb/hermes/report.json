@@ -1,0 +1,86 @@
+﻿{
+  "run_id": "20261114_005138_3485208b",
+  "generated_at": "2026-11-14T09:52:14.0469981+09:00",
+  "findings": [
+    {
+      "finding_id": "F-01",
+      "audit_item": "RTM R-14 Status Consistency",
+      "severity": "P1",
+      "verdict": "WARN",
+      "evidence": "RTM Row R-14 vs. Checklist `R-14`",
+      "analysis": "**Mismatch:** RTM Row R-14 lists status as `REVIEW_PENDING (final document cross-check)`, while the Checklist lists status as `VERIFIED_DOCUMENT_SCOPE`. The Handoff and Evidence sections confirm the cross-check was completed and reconciled. The RTM row appears stale relative to the final checklist state."
+    },
+    {
+      "finding_id": "F-02",
+      "audit_item": "Full Regression Test Count (Day 13 vs. Final)",
+      "severity": "P2",
+      "verdict": "WARN",
+      "evidence": "Korean/Japanese Evidence vs. Handoff/Checklist",
+      "analysis": "**Discrepancy:** The \"Day 13 Final Verdict\" section in both Korean and Japanese evidence cites a full regression of **83 PASS** (DB `kintai_full_test_9f4b67f66b64`). However, the \"Final Residual Verification\" section, Handoff, and Checklist cite the final full regression as **92 PASS** (DB `kintai_full_test_d4124a317ed0`). While chronologically consistent (83 was an earlier run, 92 is the final), the \"Day 13 Final Verdict\" header in the evidence files is misleading if it implies the 83-count is the ultimate final state for the project closure, whereas the RTM/Handoff treats 92 as the definitive final regression. Clarification is recommended to distinguish \"Day 13 Snapshot\" from \"Final Project Regression\"."
+    },
+    {
+      "finding_id": "F-03",
+      "audit_item": "Qwen Audit Run ID & Hash Consistency",
+      "severity": "P0",
+      "verdict": "PASS",
+      "evidence": "RTM R-10, R-11, R-12, R-14 vs. Metadata",
+      "analysis": "**Consistent:** All references to the final source audit align. <br>- Run ID: `20261114_004900_46049b14` (Matches Metadata). <br>- Input SHA-256: `46049b14...` (Matches Metadata `target_sha256`). <br>- Report SHA-256: `b1ae1c9d...` (Consistent across RTM R-14, Handoff, and Evidence). <br>- Findings: 12/12 PASS (Matches Metadata/Checklist)."
+    },
+    {
+      "finding_id": "F-04",
+      "audit_item": "R-02 Owner Decision Status",
+      "severity": "P1",
+      "verdict": "PASS",
+      "evidence": "RTM R-02, Checklist, Handoff",
+      "analysis": "**Consistent:** All documents correctly identify R-02 as technically verified but **pending owner decision** for business policy adoption. No document claims the policy was accepted. Status `PENDING_OWNER_DECISION` in Checklist matches `VERIFIED (기술 검증)` with pending policy note in RTM."
+    },
+    {
+      "finding_id": "F-05",
+      "audit_item": "R-05 Docker Blocker Status",
+      "severity": "P1",
+      "verdict": "PASS",
+      "evidence": "RTM R-05, Checklist, Handoff",
+      "analysis": "**Consistent:** All documents correctly identify R-05 as **BLOCKED/DEFERRED** due to missing Docker/Podman. The blocker is preserved accurately. Revisit date (Jan 2027) is consistent across RTM, Handoff, and Evidence."
+    },
+    {
+      "finding_id": "F-06",
+      "audit_item": "Day 12 Deferral Status",
+      "severity": "P1",
+      "verdict": "PASS",
+      "evidence": "Checklist, Handoff, Evidence",
+      "analysis": "**Consistent:** Day 12 cloud deployment is consistently marked as **DEFERRED** and not executed. No unauthorized external deployment is claimed."
+    },
+    {
+      "finding_id": "F-07",
+      "audit_item": "Bilingual Parity (Korean/Japanese)",
+      "severity": "P2",
+      "verdict": "PASS",
+      "evidence": "Korean vs. Japanese Evidence Sections",
+      "analysis": "**Consistent:** Key numeric values (83/92 tests, 12/12 Qwen findings, 6/6 targeted tests), hashes (SHA-256), and status verdicts (PASS/DEFERRED/BLOCKED) match exactly between the Korean and Japanese closing sections. Specific details like Excel file size (5,092 bytes) and DB names are identical."
+    },
+    {
+      "finding_id": "F-08",
+      "audit_item": "Targeted Test Count Consistency",
+      "severity": "P2",
+      "verdict": "PASS",
+      "evidence": "RTM R-11/R-12, Handoff, Metadata",
+      "analysis": "**Consistent:** The targeted annual integration test run (`kintai_day11_test_01f4cb1439e6`) is consistently reported as **6 PASS** across RTM, Handoff, and the `Targeted annual regression summary` JSON."
+    },
+    {
+      "finding_id": "F-09",
+      "audit_item": "Qwen Model & Endpoint Consistency",
+      "severity": "P2",
+      "verdict": "PASS",
+      "evidence": "Metadata, Handoff, Evidence",
+      "analysis": "**Consistent:** All references use `http://100.111.193.94:11434` and `qwen27b:latest` (27.3B, IQ3_M). Digest `23c3820b...` matches across Metadata and Evidence sections."
+    },
+    {
+      "finding_id": "F-10",
+      "audit_item": "Database Isolation Policy",
+      "severity": "P2",
+      "verdict": "PASS",
+      "evidence": "Handoff, Checklist, Evidence",
+      "analysis": "**Consistent:** All documents confirm that only isolated test databases were used (`kintai_full_test_d4124a317ed0`, etc.) and the operational DB (`kintai_db`) was not modified or used for these specific verification runs."
+    }
+  ]
+}

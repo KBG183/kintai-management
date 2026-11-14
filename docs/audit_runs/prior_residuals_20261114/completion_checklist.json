@@ -1,0 +1,76 @@
+{
+  "work_date": "2026-11-14",
+  "objective": "Close feasible pre-Day13 residual verification gaps; explicitly exclude R-05 and Day12 until scheduled review per user direction.",
+  "items": [
+    {
+      "id": "R-08/R-09",
+      "task": "Fail-closed isolation guard and 3 fresh local MySQL concurrency runs",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "R-10",
+      "task": "Re-run attendance security and input-boundary checks; remote Qwen 27B audit exact final source",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "R-11",
+      "task": "Improve annual scenario distribution and verify service/API-path scope with independent totals",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "R-12",
+      "task": "Add/execute split-shift, month-boundary and rounding boundary integration checks",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "R-14",
+      "task": "Audit final frozen source and reconcile Korean/Japanese evidence, RTM, handoff",
+      "status": "VERIFIED_DOCUMENT_SCOPE"
+    },
+    {
+      "id": "R-05",
+      "task": "Excluded from current scope per user until scheduled review; do not run MySQL 8.4 Testcontainers.",
+      "status": "EXCLUDED_BY_USER_UNTIL_SCHEDULED_REVIEW"
+    },
+    {
+      "id": "R-02",
+      "task": "Record user adoption and verify the previously implemented fail-fast snapshot policy.",
+      "status": "ACCEPTED_BY_USER_AND_VERIFIED"
+    },
+    {
+      "id": "Day12",
+      "task": "Excluded until the scheduled Day 12 work date per user.",
+      "status": "EXCLUDED_BY_USER_UNTIL_SCHEDULED_REVIEW"
+    }
+  ],
+  "database_policy": "Use only newly generated allowlisted isolated test databases; never kintai_db; do not delete retained databases.",
+  "audit_policy": "Remote Qwen only at http://100.111.193.94:11434 with qwen27b:latest; no local fallback or downloads.",
+  "evidence": {
+    "targeted_payroll_run": "isolated_day11_20261114_094349_kintai_day11_test_01f4cb1439e6",
+    "full_regression_run": "isolated_all_20261114_094427_kintai_full_test_d4124a317ed0",
+    "full_regression": "92 PASS, 0 failures, 0 errors, 0 skipped",
+    "qwen_run": "20261114_004900_46049b14",
+    "qwen_findings": "12 PASS, 0 WARN, 0 FAIL",
+    "qwen_endpoint": "http://100.111.193.94:11434",
+    "qwen_model": "qwen27b:latest",
+    "mysql84_probe": "docs/audit_runs/prior_residuals_20261114/mysql84_runtime_probe.log",
+    "final_document_audit": {
+      "run_id": "20261114_005527_76dc1c9f",
+      "findings": "10 PASS, 0 WARN, 0 FAIL",
+      "bundle_sha256": "76dc1c9f5b3750c9b38d0777bd302893d4ea4dbe3783a0b8ef107edf37312d93",
+      "report_sha256": "dee296cda885e4bdc8208c9145ab61757d6a5323ecd6f7c9b21016b2cfc6b124",
+      "first_audit_warnings_corrected": [
+        "R-14 status synchronized",
+        "historic 83-test Day13 checkpoint distinguished from latest 92-test residual regression"
+      ]
+    },
+    "r02_business_policy_acceptance": {
+      "decision": "ACCEPTED",
+      "decision_date": "2026-11-14",
+      "policy": "Snapshot scope; late DRAFT remains DRAFT; abort and rollback entire batch if a late DRAFT is detected",
+      "verification_database": "kintai_full_test_d4124a317ed0",
+      "test_class": "PayrollMonthlyConfirmPostQueryRaceConditionIntegrationTest",
+      "tests": "2 PASS, 0 failures, 0 errors"
+    }
+  }
+}

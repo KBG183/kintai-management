@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "run_id": "20261114_092417",
+  "generated_at_utc": "2026-11-14T00:24:36.4782179Z",
+  "algorithm": "SHA-256",
+  "files": [
+    {
+      "path": "gradle_console.log",
+      "bytes": 782,
+      "sha256": "161b40a318255bfca775948e22350991778d3e4ab1c99274223942d5b3579d87"
+    },
+    {
+      "path": "TEST-com.example.kintai.domain.attendance.service.AttendanceServicePunchValidationTest.xml",
+      "bytes": 918,
+      "sha256": "c2ebc7562384820b413dfcd9309feb23a989000e206dd78b1ab0698d9a1bc839"
+    }
+  ]
+}

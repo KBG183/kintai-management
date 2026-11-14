@@ -1,6 +1,6 @@
 # ローカルAI監査プロンプトおよび点検基準仕様書 (Audit Prompt & Checklist Spec)
 
-本書は、`kintai` プロジェクトのローカル監査CLIスクリプト（`%USERPROFILE%\.gemini\scripts\audit_with_hermes.ps1`）に組み込まれているシステムプロンプトの全文、パラメータ設定、および全45項目の点検基準一覧を定義した公式仕様書である。
+本書は旧監査プロンプト仕様のスナップショットです。現在の実行時モデルと接続先は `scripts/audit_config.json` および実際の監査実行記録を正本とし、本書に残る旧モデル名・接続先は使用しないでください。現行基準はリモート `http://100.111.193.94:11434` の `qwen27b:latest` です。
 
 ---
 
@@ -39,16 +39,16 @@ Output the audit strictly as a Markdown table in English:
 
 | パラメータ | 設定値 | 技術的選定理由 |
 |---|---|---|
-| **Endpoint** | `POST http://100.91.26.xx:11434/api/chat` | Tailscale VPN暗号化トンネルバインド（外部パブリックポート非開放） |
-| **Model** | `qwen3.8:27b` | Ollama独自ビルドタグ（Qwen3.8-27Bベース / IQ3_M量子化、Digest: `09cc8d...`） |
+| **Endpoint (current)** | `POST http://100.111.193.94:11434/api/chat` | 現在のプロジェクト設定。監査ごとの実使用先は実行記録で確認 |
+| **Model (current)** | `qwen27b:latest` | `scripts/audit_config.json` の実行タグ。確認済みDigestは実行証跡を参照 |
 | **Temperature** | `0.1` | 確率的揺らぎを抑制し、決定的・定型的なチェックリスト判定を固定化 |
 | **Context Length (`num_ctx`)** | `24576` | 数千行のJavaソースコードおよびDDLを全文コンテキストに一度に収容 |
 | **Stop Tokens** | `<\|im_start\|>`, `<\|im_end\|>` | Qwen ChatMLテンプレートの終端トークン制御 |
-| **Streaming** | `true` (5초 단위 진행률 출력) | 长時間推論時のタイムアウト防止およびリアルタイムトークン生成監視 |
+| **Streaming** | `true` (5초 단위 진행률 출력) | 長時間推論時のタイムアウト防止およびリアルタイムトークン生成監視 |
 
 ---
 
 ## 3. 全45項目 ドメイン・セキュリティ点検基準一覧 (Target Checklist v2.0)
 
 付録Aに収録されている全45項目（Phase 1 コア監査 1〜17番、Phase 2 拡張監査 18〜45番）を点検対象とする。
-詳細な点検内容およびシステム反映状況は `portfolio_audit_evidence.md` 付録Aを参照のこと。
+詳細な点検内容およびシステム反映状況は `docs/portfolio_audit_evidence.md` 付録Aを参照のこと。

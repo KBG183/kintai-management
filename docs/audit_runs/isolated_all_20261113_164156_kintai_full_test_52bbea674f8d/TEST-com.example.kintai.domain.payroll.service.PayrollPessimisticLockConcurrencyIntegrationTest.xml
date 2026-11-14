@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="F-04: 멀티 세션 비관적 락(SELECT ... FOR UPDATE) 동시성 경합 및 반복 타이밍 안정성 검증" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-13T07:42:24.797Z" hostname="BK" time="0.98">
+  <properties/>
+  <testcase name="repetition 1 of 3" classname="com.example.kintai.domain.payroll.service.PayrollPessimisticLockConcurrencyIntegrationTest" time="0.315"/>
+  <testcase name="repetition 2 of 3" classname="com.example.kintai.domain.payroll.service.PayrollPessimisticLockConcurrencyIntegrationTest" time="0.309"/>
+  <testcase name="repetition 3 of 3" classname="com.example.kintai.domain.payroll.service.PayrollPessimisticLockConcurrencyIntegrationTest" time="0.317"/>
+  <system-out><![CDATA[2026-11-13T16:42:24.799+09:00  INFO 24580 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.PayrollPessimisticLockConcurrencyIntegrationTest]: PayrollPessimisticLockConcurrencyIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-13T16:42:24.799+09:00  INFO 24580 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.PayrollPessimisticLockConcurrencyIntegrationTest
+2026-11-13T16:42:24.799+09:00  INFO 24580 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.PayrollPessimisticLockConcurrencyIntegrationTest]: PayrollPessimisticLockConcurrencyIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-13T16:42:24.799+09:00  INFO 24580 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.PayrollPessimisticLockConcurrencyIntegrationTest
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,86 @@
+﻿{
+  "run_id": "20261113_235857_77734dbc",
+  "generated_at": "2026-11-14T08:59:49.1702618+09:00",
+  "findings": [
+    {
+      "finding_id": "F-001",
+      "audit_item": "Japanese Labor Standards Act Art 37: Night Work Premium Calculation",
+      "severity": "P0",
+      "verdict": "FAIL",
+      "evidence": "`attendance` DDL: `night_work_minutes INT NOT NULL DEFAULT 0`; `technical_evidence_v2.0.md` Section 4 (Payroll UI/API results); `demo_guide.md` Step 4 (Expected gross totals).",
+      "analysis": "**Critical Logic Gap:** The provided DDL stores `night_work_minutes` and `overtime_minutes` as separate integer fields. However, the documentation claims \"PASS\" for payroll calculation without providing the calculation logic or test evidence that verifies the **concurrent overlap** rule (Art 37). Under Japanese Labor Standards Act, if night work (22:00-05:00) overlaps with overtime (>8h/day), the premium rate must be 50% (25% night + 25% overtime), not additive or separate. The documentation lists specific yen amounts (¥141,700, ¥164,332) but provides no evidence that the backend logic correctly handles the `night_work_minutes` vs `overtime_minutes` intersection for premium calculation. Without code evidence of the calculation engine or specific unit tests for the 50% overlap scenario, the \"PASS\" claim for labor law compliance is unsupported."
+    },
+    {
+      "finding_id": "F-002",
+      "audit_item": "Payroll Math & Rounding: 1-Yen Discrepancy Prevention",
+      "severity": "P1",
+      "verdict": "WARN",
+      "evidence": "`technical_evidence_v2.0.md` Section 4 (Payroll UI/API); `demo_guide.md` Step 4.",
+      "analysis": "**Insufficient Evidence:** The documentation cites specific yen totals (¥141,700, ¥164,332) which implies integer arithmetic or precise rounding. However, there is no explicit mention of `RoundingMode.HALF_UP` or similar logic in the provided text or DDL. While the DDL uses `INT` for minutes, the conversion to currency (likely `DECIMAL` or `BIGINT` in the payroll table, not shown) requires strict rounding control. The \"PASS\" verdict relies on the assumption that the hidden code handles this correctly. Recommendation: Explicitly cite the `RoundingMode` configuration in the payroll service layer or provide unit tests demonstrating that fractional minutes/hours do not cause cumulative rounding errors across the 313 attendance rows."
+    },
+    {
+      "finding_id": "F-003",
+      "audit_item": "Concurrency & Security: Pessimistic Locking & IDOR",
+      "severity": "P1",
+      "verdict": "WARN",
+      "evidence": "`technical_evidence_v2.0.md` Section 3 (\"Critical service paths use transactions and mapper row locks\"); `architecture.md` (Service layer description).",
+      "analysis": "**Unverified Claim:** The documentation states that \"mapper row locks\" are used and that controllers validate session-scoped access. However, no SQL evidence (e.g., `SELECT ... FOR UPDATE` in MyBatis XML) or security test evidence (e.g., IDOR penetration test results) is provided in the bundle. The DDL shows standard InnoDB tables, which support row locking, but the application logic must explicitly request it. Without seeing the MyBatis mapper XML or security filter configuration, the claim that concurrency and IDOR vulnerabilities are mitigated is an assertion, not a verified fact. The \"PASS\" status for security/concurrency is therefore weakly supported."
+    },
+    {
+      "finding_id": "F-004",
+      "audit_item": "Exception Handling & Boundary Validation",
+      "severity": "P2",
+      "verdict": "WARN",
+      "evidence": "`attendance` DDL: `CHECK` constraints on minutes and status; `technical_evidence_v2.0.md` Section 5 (RTM R-11/R-12/R-14 PARTIALLY_VERIFIED).",
+      "analysis": "**Partial Coverage:** The DDL includes `CHECK` constraints ensuring `night_work_minutes >= 0` and valid statuses, which is good for data integrity. However, the documentation admits that RTM R-11, R-12, and R-14 are only \"PARTIALLY_VERIFIED,\" citing gaps in \"annual boundary cases\" and \"attendance API path coverage.\" This directly contradicts a blanket \"PASS\" for robustness. The documentation correctly flags these as limits, but the overall \"Day 13 PASS\" verdict in the README is misleading if it implies full boundary validation. The \"PASS\" should be strictly scoped to the \"measured local MySQL 26.7 scope\" as stated, but the risk of unhandled `DateTimeParseException` or negative hour edge cases in the unverified paths remains."
+    },
+    {
+      "finding_id": "F-005",
+      "audit_item": "Factual Consistency: Schema vs. Historical Claims",
+      "severity": "P2",
+      "verdict": "PASS",
+      "evidence": "`technical_evidence_v2.0.md` Section 3; `architecture.md` Database Integrity Note; `attendance` DDL.",
+      "analysis": "**Consistent:** The documentation explicitly corrects a historical inaccuracy. It states that the current canonical DDL does **not** define the `uq_att_open_per_staff` generated-column unique constraint found in older notes. The provided DDL confirms this: it only has `INDEX idx_att_store_date` and `INDEX idx_att_staff_date`, plus foreign keys and checks, but no unique constraint on open attendance per staff. The documentation successfully prevents the propagation of this false claim."
+    },
+    {
+      "finding_id": "F-006",
+      "audit_item": "Factual Consistency: Qwen Endpoint & Model",
+      "severity": "P2",
+      "verdict": "PASS",
+      "evidence": "`technical_evidence_v2.0.md` Section 2 & 4; `architecture.md`; `README.md`.",
+      "analysis": "**Consistent:** All documents consistently identify the independent review model as `qwen27b:latest` at `http://100.111.193.94:11434`. The README, Technical Evidence, and Architecture docs all align on this detail. The Technical Evidence section 4 provides specific SHA-256 hashes for the input and report, adding credibility to the \"15 findings PASS\" claim. No contradictions found."
+    },
+    {
+      "finding_id": "F-007",
+      "audit_item": "Factual Consistency: Demo DB Safety & Expected Values",
+      "severity": "P2",
+      "verdict": "PASS",
+      "evidence": "`demo_guide.md`; `technical_evidence_v2.0.md` Section 4; `README.md`.",
+      "analysis": "**Consistent:** The demo guide specifies an isolated DB `kintai_demo_9f3f8487bc42` and expected values (313 shifts, ¥141,700, ¥164,332, 5,092 bytes XLSX). The Technical Evidence section 4 confirms these exact values and links to the specific JSON logs (`payroll_api_list.json`, `excel_browser_download.json`). The safety instruction to use `KINTAI_DB_PASSWORD` and avoid the operating DB is consistent across the guide and evidence."
+    },
+    {
+      "finding_id": "F-008",
+      "audit_item": "Scope & Completion Claims: \"PASS\" vs. \"Partial Verification\"",
+      "severity": "P1",
+      "verdict": "WARN",
+      "evidence": "`README.md` (Judgment section); `technical_evidence_v2.0.md` Section 5.",
+      "analysis": "**Misleading Nuance:** The README states \"Day 13 is ... PASS\" but immediately qualifies it with \"limited to the measured local MySQL 26.7 scope\" and \"does not mean completion of all project requirements.\" However, the Technical Evidence section 5 explicitly lists RTM R-11, R-12, and R-14 as \"PARTIALLY_VERIFIED\" and R-05 as \"DEFERRED.\" A reader skimming the README might interpret \"PASS\" as full acceptance. The documentation *does* mitigate this by explicitly stating the limits, but the severity of the \"Partial\" status (missing annual boundary cases) is significant for a payroll app. The \"PASS\" is technically accurate for the *tested* scope but risky as a portfolio headline without the \"Partial\" caveats being more prominent."
+    },
+    {
+      "finding_id": "F-009",
+      "audit_item": "Missing Deliverables: Calculation Logic Code",
+      "severity": "P1",
+      "verdict": "FAIL",
+      "evidence": "`technical_evidence_v2.0.md` Section 1 (Stack: Spring Boot, MyBatis); `attendance` DDL.",
+      "analysis": "**Critical Omission:** The portfolio claims to verify \"monthly payroll calculation\" and provides specific yen outputs. However, the bundle does not include the actual Java service code or MyBatis SQL that performs the calculation. For a code audit, verifying the *result* (¥141,700) without the *logic* (how minutes convert to yen, how premiums are applied) is insufficient to prove correctness, especially given the complex Japanese labor law rules (F-001). The \"PASS\" relies entirely on the trustworthiness of the black-box test results. For a rigorous audit, the calculation algorithm or its unit tests must be part of the evidence bundle."
+    },
+    {
+      "finding_id": "F-010",
+      "audit_item": "Internal Contradiction: \"Zero Failures\" vs. \"Partial Verification\"",
+      "severity": "P2",
+      "verdict": "WARN",
+      "evidence": "`README.md` (83 passed, 0 failed); `technical_evidence_v2.0.md` Section 5 (R-11/R-12/R-14 PARTIALLY_VERIFIED).",
+      "analysis": "**Logical Tension:** The regression suite reported \"83 passed, 0 failed.\" However, the RTM indicates that certain requirements (R-11, R-12, R-14) are only \"PARTIALLY_VERIFIED.\" This implies that the test suite did not cover the full scope of those requirements (e.g., missing annual boundary tests). Therefore, \"0 failures\" is accurate for the *executed* tests, but it does not equate to \"0 defects\" or \"full compliance.\" The documentation handles this by separating \"Test Results\" from \"Requirement Status,\" which is correct, but the overall \"PASS\" verdict in the README could be interpreted as \"All Requirements Met,\" which is false. The distinction is maintained but requires careful reading."
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest" tests="2" skipped="0" failures="2" errors="0" timestamp="2026-11-14T02:47:50.005Z" hostname="BK" time="0.234">
+  <properties/>
+  <testcase name="listCalculateConfirmAndExcelRejectInvalidYearMonthWithHttp400()" classname="com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest" time="0.098">
+    <failure message="java.sql.SQLSyntaxErrorException: Unknown column 'status' in 'field list'" type="java.sql.SQLSyntaxErrorException">java.sql.SQLSyntaxErrorException: Unknown column 'status' in 'field list'
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:112)
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:114)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeInternal(ClientPreparedStatement.java:988)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdateInternal(ClientPreparedStatement.java:1166)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdateInternal(ClientPreparedStatement.java:1101)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeLargeUpdate(ClientPreparedStatement.java:1448)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdate(ClientPreparedStatement.java:1084)
+	at com.zaxxer.hikari.pool.ProxyPreparedStatement.executeUpdate(ProxyPreparedStatement.java:61)
+	at com.zaxxer.hikari.pool.HikariProxyPreparedStatement.executeUpdate(HikariProxyPreparedStatement.java)
+	at com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest.insertAndGetId(PayrollApiValidationAndSerializationIntegrationTest.java:222)
+	at com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest.setUpIsolatedFixture(PayrollApiValidationAndSerializationIntegrationTest.java:74)
+</failure>
+  </testcase>
+  <testcase name="payrollDetailJsonSerializationExcludesSensitiveFieldsAndMatchesAllowlist()" classname="com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest" time="0.034">
+    <failure message="java.sql.SQLSyntaxErrorException: Unknown column 'status' in 'field list'" type="java.sql.SQLSyntaxErrorException">java.sql.SQLSyntaxErrorException: Unknown column 'status' in 'field list'
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:112)
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:114)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeInternal(ClientPreparedStatement.java:988)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdateInternal(ClientPreparedStatement.java:1166)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdateInternal(ClientPreparedStatement.java:1101)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeLargeUpdate(ClientPreparedStatement.java:1448)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdate(ClientPreparedStatement.java:1084)
+	at com.zaxxer.hikari.pool.ProxyPreparedStatement.executeUpdate(ProxyPreparedStatement.java:61)
+	at com.zaxxer.hikari.pool.HikariProxyPreparedStatement.executeUpdate(HikariProxyPreparedStatement.java)
+	at com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest.insertAndGetId(PayrollApiValidationAndSerializationIntegrationTest.java:222)
+	at com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest.setUpIsolatedFixture(PayrollApiValidationAndSerializationIntegrationTest.java:74)
+</failure>
+  </testcase>
+  <system-out><![CDATA[2026-11-14T11:47:50.007+09:00  INFO 18908 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest]: PayrollApiValidationAndSerializationIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-14T11:47:50.094+09:00  INFO 18908 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest
+2026-11-14T11:47:50.096+09:00  INFO 18908 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest]: PayrollApiValidationAndSerializationIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-14T11:47:50.100+09:00  INFO 18908 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

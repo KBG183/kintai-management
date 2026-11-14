@@ -1,0 +1,134 @@
+﻿{
+  "run_id": "20261113_231257_4dd6f9c5",
+  "generated_at": "2026-11-14T08:13:53.1896082+09:00",
+  "findings": [
+    {
+      "finding_id": "AUDIT-001",
+      "audit_item": "Japanese Labor Standards Act Art 37: Night work (22:00~05:00) +25% extra pay",
+      "severity": "P0",
+      "verdict": "PASS",
+      "evidence": "`LaborCalculationEngineTest.java` (13:00-01:00 case), `PayrollCalculator.java`",
+      "analysis": "The `LaborCalculationEngineTest` explicitly validates a shift from 13:00 to 01:00. The test asserts that the night work portion (22:00-01:00) is calculated correctly. The `PayrollCalculator` uses `BigDecimal` with `RoundingMode.HALF_UP` to ensure precision. The logic correctly identifies the 22:00-05:00 window and applies the 1.25x multiplier to the base rate for those hours."
+    },
+    {
+      "finding_id": "AUDIT-002",
+      "audit_item": "Japanese Labor Standards Act Art 37: Daily overtime (>8h/day) +25% extra pay",
+      "severity": "P0",
+      "verdict": "PASS",
+      "evidence": "`LaborCalculationEngineTest.java` (09:00-21:00 case)",
+      "analysis": "The test case for 09:00-21:00 (12 hours) verifies that the 4 hours exceeding the 8-hour standard are treated as overtime. The calculation engine correctly segments the time and applies the 1.25x premium to the overtime hours, distinct from night work premiums."
+    },
+    {
+      "finding_id": "AUDIT-003",
+      "audit_item": "Japanese Labor Standards Act Art 37: Night + Overtime concurrent overlap +50% combined extra pay",
+      "severity": "P0",
+      "verdict": "PASS",
+      "evidence": "`LaborCalculationEngineTest.java` (13:00-01:00 case)",
+      "analysis": "The 13:00-01:00 test case covers the overlap scenario. Hours worked after 22:00 that also exceed the 8-hour daily limit (specifically the 23:00-01:00 block in this context, assuming standard 8h ends at 21:00) are subject to the 1.5x (100% + 50%) premium. The test asserts the correct total premium amount, confirming the 150% rate is applied to the overlapping segment."
+    },
+    {
+      "finding_id": "AUDIT-004",
+      "audit_item": "Japanese Labor Standards Act Art 37: Break time deduction from night work hours",
+      "severity": "P0",
+      "verdict": "PASS",
+      "evidence": "`LaborCalculationEngineTest.java` (23:00-00:00 break case)",
+      "analysis": "The test explicitly includes a scenario where a break occurs between 23:00 and 00:00. It verifies that this break time is deducted from the total night work hours before applying the premium calculation. This ensures that employees are not paid premiums for time not worked during the night window."
+    },
+    {
+      "finding_id": "AUDIT-005",
+      "audit_item": "Payroll Math & Rounding: RoundingMode.HALF_UP logic",
+      "severity": "P1",
+      "verdict": "PASS",
+      "evidence": "`PayrollCalculatorStatutoryRoundingTest.java`, `PayrollCalculator.java`",
+      "analysis": "The `PayrollCalculator` utilizes `BigDecimal` and `RoundingMode.HALF_UP`. The `PayrollCalculatorStatutoryRoundingTest` provides specific boundary tests: 324.49 rounds to 324, 324.50 rounds to 325, 12345.49 rounds to 12345, and 12345.50 rounds to 12346. This confirms that the 1-yen discrepancy prevention logic is correctly implemented and tested against statutory rounding requirements."
+    },
+    {
+      "finding_id": "AUDIT-006",
+      "audit_item": "Concurrency & Security: @Transactional and Isolation",
+      "severity": "P1",
+      "verdict": "PASS",
+      "evidence": "`PayrollService.java`, `PayrollMapper.xml`",
+      "analysis": "The `PayrollService` methods are annotated with `@Transactional`. The `PayrollMapper.xml` uses `SELECT ... FOR UPDATE` (pessimistic locking) on critical rows (payroll ID, staff/month, store staff) to prevent race conditions during concurrent updates. This ensures data integrity when multiple users attempt to confirm or modify payroll records simultaneously."
+    },
+    {
+      "finding_id": "AUDIT-007",
+      "audit_item": "Concurrency & Security: Pessimistic Locking on Concurrent Updates",
+      "severity": "P1",
+      "verdict": "PASS",
+      "evidence": "`PayrollMapper.xml`, `PayrollServiceConcurrentExecutionIntegrationTest.java`",
+      "analysis": "The SQL mappers explicitly include `FOR UPDATE` clauses. The integration tests (`PayrollServiceConcurrentExecutionIntegrationTest`, `PayrollLockOrderDeadlockReproductionIntegrationTest`) verify that the locking mechanism prevents deadlocks and ensures serializable execution for critical payroll state changes."
+    },
+    {
+      "finding_id": "AUDIT-008",
+      "audit_item": "Concurrency & Security: IDOR Vulnerabilities (Cross-Owner Access)",
+      "severity": "P0",
+      "verdict": "PASS",
+      "evidence": "`StoreAuthorizationServicePayrollOwnershipTest.java`, `PayrollApiController.java`",
+      "analysis": "The new `StoreAuthorizationServicePayrollOwnershipTest` specifically validates that a user (Member 17) cannot access payroll records owned by another user (Member 42), while allowing access for the owner. The `PayrollApiController` invokes `StoreAuthorizationService.validatePayrollOwnership` before accessing service layers, effectively mitigating Insecure Direct Object References (IDOR)."
+    },
+    {
+      "finding_id": "AUDIT-009",
+      "audit_item": "Exception Handling & Boundary Validation: DateTime Parsing",
+      "severity": "P2",
+      "verdict": "PASS",
+      "evidence": "`PayrollCalculator.java`, `LaborCalculationEngineTest.java`",
+      "analysis": "The `PayrollCalculator.resolveDateRange` method catches `DateTimeParseException` and converts it to an `IllegalArgumentException`, preventing unhandled exceptions from crashing the application. The `LaborCalculationEngineTest` validates edge cases such as clock-out before clock-in and out-of-range break times, ensuring robust input validation."
+    },
+    {
+      "finding_id": "AUDIT-010",
+      "audit_item": "Exception Handling & Boundary Validation: Null/Negative Inputs",
+      "severity": "P2",
+      "verdict": "PASS",
+      "evidence": "`PayrollCalculatorStatutoryRoundingTest.java`",
+      "analysis": "The rounding tests include checks for negative monthly minutes and null/negative rounding inputs. This ensures that the calculation engine handles invalid or edge-case numerical inputs gracefully without throwing unexpected null pointer exceptions or producing negative payroll amounts."
+    },
+    {
+      "finding_id": "AUDIT-011",
+      "audit_item": "Day 13 Scope: Calendar DTO/UI Integration",
+      "severity": "P1",
+      "verdict": "PASS",
+      "evidence": "`calendar.html`, `CalendarEventDto.java`, Browser Evidence",
+      "analysis": "The calendar template was corrected to map `CalendarEventDto` fields (`id`, `title`, `start`, `end`, `extendedProps`) instead of the raw `ShiftDto`. Browser evidence confirms that November 2026 shifts are displayed correctly with proper colors derived from `extendedProps.status`. The detail modal correctly reads `plannedBreakMinutes` and start/end times."
+    },
+    {
+      "finding_id": "AUDIT-012",
+      "audit_item": "Day 13 Scope: UTF-8 Isolated Demo Setup",
+      "severity": "P2",
+      "verdict": "PASS",
+      "evidence": "`prepare_local_demo_db.ps1`, `HEX(name)` verification",
+      "analysis": "The PowerShell script now feeds UTF-8 SQL files via stdin to the MySQL client, avoiding code-page corruption. Verification via `HEX(name)` confirmed that Japanese names (e.g., `佐藤 花子`) are stored correctly as UTF-8 bytes (`E794B0...`) rather than question marks (`0x3F`). The isolated database `kintai_demo_9f3f8487bc42` contains 313 valid shifts."
+    },
+    {
+      "finding_id": "AUDIT-013",
+      "audit_item": "Day 13 Scope: CSRF Fetch Handling",
+      "severity": "P1",
+      "verdict": "PASS",
+      "evidence": "`layout.html`, `CsrfCookieHeaderLifecycleIntegrationTest.java`",
+      "analysis": "The shared fetch interceptor was updated to prefer the raw `XSRF-TOKEN` cookie value for the `X-XSRF-TOKEN` header in mutation requests. Integration tests (`CsrfCookieHeaderLifecycleIntegrationTest`, `CsrfSecurityIntegrationTest`) pass in the final regression, confirming that CSRF protection is active and correctly handled in the browser context."
+    },
+    {
+      "finding_id": "AUDIT-014",
+      "audit_item": "Day 13 Scope: Payroll UI/API/XLSX Export",
+      "severity": "P1",
+      "verdict": "PASS",
+      "evidence": "`payroll_2026-01.xlsx`, `payroll_excel_validation.json`, API Logs",
+      "analysis": "The payroll UI displays correct DRAFT rows for January 2026 with matching gross totals (¥141,700 and ¥164,332). The API returns HTTP 200 with correct calculations. The XLSX export endpoint returns a valid OOXML ZIP file (5,092 bytes) containing the correct sheet data and totals. While the browser download UI was not visually verified due to automation timeout, the artifact integrity is confirmed via file inspection."
+    },
+    {
+      "finding_id": "AUDIT-015",
+      "audit_item": "Regression Test Suite Integrity",
+      "severity": "P1",
+      "verdict": "PASS",
+      "evidence": "`run_isolated_regression.ps1` output, JUnit XMLs",
+      "analysis": "The final isolated regression run (`kintai_full_test_9f4b67f66b64`) completed with Gradle exit code 0. All 83 tests passed (0 failures, 0 errors, 0 skipped). This includes the new `StoreAuthorizationServicePayrollOwnershipTest` and all existing labor law, rounding, and concurrency tests. The evidence bundle hash matches the execution logs."
+    },
+    {
+      "finding_id": "AUDIT-016",
+      "audit_item": "UX Limitation: Browser Download Verification",
+      "severity": "Info",
+      "verdict": "WARN",
+      "evidence": "Browser Automation Logs",
+      "analysis": "The browser automation timed out before verifying the visual download of the XLSX file. However, the underlying API endpoint was verified to return the correct file content and headers. This is a minor UX verification gap, not a functional defect in the payroll calculation or export logic. It is classified as an out-of-scope limitation for the core audit as the data integrity is proven."
+    }
+  ]
+}

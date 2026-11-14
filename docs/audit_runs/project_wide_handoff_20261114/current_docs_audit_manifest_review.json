@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.0",
+  "target_day": "2026-11-14 current project-wide documentation handoff review",
+  "bundle_path": "C:\\dev\\kintai\\docs\\audit_runs\\project_wide_handoff_20261114\\current_docs_audit_bundle_review.md",
+  "bundle_sha256": "ae9e440bff9d9cf5582704bcfec9fd47503aa2006e80fc249b6a74410db186c0",
+  "requirements": [
+    "Latest execution totals and isolated DB identities agree across all current summaries",
+    "KO and JA current summaries match each other and primary records",
+    "Historical documents with obsolete endpoints/models/statuses are marked as non-operative snapshots",
+    "Antigravity handoff accurately defines remaining code work, scope exclusions, and safe DB procedure"
+  ],
+  "rtm_items": [
+    "R-02",
+    "R-05",
+    "R-08",
+    "R-09",
+    "R-10",
+    "R-11",
+    "R-12",
+    "R-13",
+    "R-14",
+    "R-15",
+    "R-16",
+    "R-17",
+    "R-18",
+    "R-19",
+    "B-01",
+    "B-02",
+    "B-03",
+    "B-04",
+    "B-05",
+    "B-06",
+    "B-07",
+    "B-08"
+  ],
+  "test_ids": [
+    "full isolated regression: 92 tests",
+    "annual payroll scenario: 6 tests",
+    "Qwen source audit prior run: 12 findings",
+    "previous frozen document audit: 10 findings"
+  ],
+  "execution_logs": [
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_094427_kintai_full_test_d4124a317ed0\\exit_summary.json",
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_094427_kintai_full_test_d4124a317ed0\\gradle_console.log",
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_day11_20261114_094349_kintai_day11_test_01f4cb1439e6\\exit_summary.json",
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_day11_20261114_094349_kintai_day11_test_01f4cb1439e6\\gradle_console.log"
+  ],
+  "junit_xml": [
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_094427_kintai_full_test_d4124a317ed0\\TEST-com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest.xml",
+    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_094427_kintai_full_test_d4124a317ed0\\TEST-com.example.kintai.domain.attendance.controller.AttendancePunchApiIntegrationTest.xml"
+  ],
+  "environment": "Windows; local MySQL 26.7 isolated databases; remote Qwen must be qwen27b:latest at http://100.111.193.94:11434",
+  "known_constraints": [
+    "R-05 and Day 12 excluded by user until scheduled review",
+    "B-05 and B-06 open for Antigravity code implementation",
+    "B-01 and B-07 deferred milestone process backlog",
+    "No operating DB used"
+  ],
+  "unverified_items": [
+    "Current documentation bundle needs an independent Qwen review"
+  ]
+}
