@@ -1,1 +1,168 @@
-<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>KINTAI 根拠資料</title><style>:root{--ink:#172d29;--muted:#63746b;--green:#286b58;--paper:#fbfaf3;--line:#dce3d8}*{box-sizing:border-box}body{margin:0;background:#e7ebe3;color:var(--ink);font-family:"Yu Gothic UI","Noto Sans JP",sans-serif}.shell{max-width:1280px;margin:auto;padding:24px 4vw 36px}.top{display:flex;justify-content:space-between;margin-bottom:18px}.logo{font-weight:900;letter-spacing:.2em}.back{color:var(--green);font-weight:800;text-decoration:none}.card{padding:clamp(24px,4vw,48px);border:1px solid #d2ddd1;border-radius:24px;background:var(--paper);box-shadow:0 18px 55px #294b3b18}.eyebrow{color:var(--green);font-size:11px;letter-spacing:.16em;font-weight:900}.title{margin:12px 0 14px;font-size:clamp(28px,4vw,52px);line-height:1.2}.purpose{max-width:900px;color:var(--muted);font-size:17px;line-height:1.75}.guide{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:26px 0}.guide div{padding:16px;border:1px solid var(--line);border-radius:14px;background:white}.guide b{display:block;margin-bottom:6px;color:var(--green);font-size:11px}.guide span{color:var(--muted);font-size:13px;line-height:1.6}.source{display:flex;justify-content:space-between;gap:12px;margin:20px 0 12px;padding:12px 14px;border-radius:10px;background:#f0f4eb;color:#52665c;font-size:12px;word-break:break-all}.source a{color:var(--green);font-weight:800}.viewer{height:min(68vh,720px);overflow:auto;border:1px solid var(--line);border-radius:16px;background:white}.viewer iframe{width:100%;height:100%;border:0}.viewer pre{margin:0;padding:20px;font-family:Consolas,"Courier New",monospace;font-size:12.5px;line-height:1.65;white-space:pre-wrap;word-break:break-word}.viewer .fallback-note{padding:10px 16px;border-bottom:1px solid var(--line);background:#fbf9f1;color:#7d5d2d;font-size:12px}.foot{margin-top:14px;color:#718077;font-size:12px;line-height:1.6}@media(max-width:720px){.guide{grid-template-columns:1fr}.viewer{height:62vh}}</style></head><body><main class="shell"><div class="top"><div class="logo">KINTAI<span style="color:#75a689">.</span></div><a id="back" class="back" href="index.html">← 発表に戻る</a></div><section class="card"><div class="eyebrow">EVIDENCE VIEWER</div><h1 id="title" class="title">根拠資料</h1><p id="purpose" class="purpose">確認する内容を読み込んでいます。</p><div class="guide"><div><b>この資料で見ること</b><span id="look">発表の主張を裏付ける原文の範囲を確認します。</span></div><div><b>注意する範囲</b><span id="limit">この資料だけでシステム全体の正常動作を意味するものではありません。</span></div></div><div class="source"><span id="sourceLabel">原本パス</span><a id="openSource" target="_blank" rel="noopener">新しいタブで原本を開く ↗</a></div><div class="viewer" id="viewer"><iframe id="frame" title="根拠原本"></iframe></div><p class="foot">発表スライド <span id="slideNo">-</span>から開いた資料です。ブラウザの戻るボタンを1回押すと、元の発表スライドに戻ります。</p></section></main><script>const q=new URLSearchParams(location.search),src=q.get("src")||"",title=q.get("title")||"根拠資料",purpose=q.get("purpose")||"確認する内容を読み込んでいます。",look=q.get("look")||purpose,slide=Number(q.get("slide")||0);document.title=title+" | KINTAI 根拠";document.querySelector("#title").textContent=title;document.querySelector("#purpose").textContent=purpose;document.querySelector("#look").textContent=look;document.querySelector("#sourceLabel").textContent=src||"原本パスなし";const viewer=document.querySelector("#viewer"),frame=document.querySelector("#frame"),source=document.querySelector("#openSource");source.href=src;document.querySelector("#slideNo").textContent=slide?String(slide).padStart(2,"0")+" / 20":"不明";const back=document.querySelector("#back");back.href="index.html#slide="+(slide||1);back.addEventListener("click",e=>{e.preventDefault();if(history.length>1)history.back();else location.href=back.href});if(src&&/\\.(md|json|xml|txt|log)$/i.test(src)){fetch(src).then(r=>{if(!r.ok)throw new Error(r.status);return r.text()}).then(text=>{const pre=document.createElement("pre");pre.textContent=text;viewer.innerHTML="";viewer.appendChild(pre)}).catch(()=>{const note=document.createElement("div");note.className="fallback-note";note.textContent="file://環境ではブラウザの制限によりプレビューできない場合があります。ローカルサーバーで開くか、右上の「新しいタブで原本を開く」を使用してください。";viewer.insertBefore(note,frame);frame.src=src})}else frame.src=src;</script></body></html>
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="robots" content="noindex">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; form-action 'none'; img-src 'self' data:; style-src 'unsafe-inline'; connect-src 'self'; script-src 'sha256-t67oTztJ8jkMJPVFa/8CFyrvLikfFqyH8F7bb2Vpv9c='">
+<title>KINTAI 根拠資料</title>
+<style>
+:root{--ink:#172d29;--muted:#566860;--green:#286b58;--paper:#fbfaf3;--line:#dce3d8;--warn:#7d5d2d}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:#e7ebe3;color:var(--ink);font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Meiryo","Noto Sans JP",sans-serif;line-height:1.6}
+:focus-visible{outline:3px solid var(--green);outline-offset:3px;border-radius:6px}
+.shell{max-width:1280px;margin:auto;padding:24px 4vw 36px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.logo{font-weight:900;letter-spacing:.2em}
+.logo i{font-style:normal;color:#75a689}
+.back{display:inline-flex;align-items:center;min-height:44px;padding:0 4px;color:var(--green);font-weight:800;text-decoration:none}
+.back:hover{text-decoration:underline}
+.card{padding:clamp(24px,4vw,48px);border:1px solid #d2ddd1;border-radius:24px;background:var(--paper);box-shadow:0 18px 55px #294b3b18}
+.eyebrow{display:flex;align-items:center;gap:10px;color:var(--green);font-size:12px;letter-spacing:.16em;font-weight:900}
+.type{padding:2px 9px;border:1px solid #b9cbbd;border-radius:99px;font-size:11px;letter-spacing:.08em}
+.title{margin:12px 0 14px;font-size:clamp(26px,4vw,48px);line-height:1.25;text-wrap:balance}
+.purpose{max-width:900px;margin:0;color:var(--muted);font-size:17px;line-height:1.75}
+.guide{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:26px 0}
+.guide div{padding:16px;border:1px solid var(--line);border-radius:14px;background:#fff}
+.guide b{display:block;margin-bottom:6px;color:var(--green);font-size:12px}
+.guide span{color:var(--muted);font-size:14px;line-height:1.7}
+.source{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:20px 0 12px;padding:12px 14px;border-radius:10px;background:#f0f4eb;color:var(--muted);font-size:13px;word-break:break-all}
+.source a{flex:0 0 auto;color:var(--green);font-weight:800}
+.viewer{height:min(68vh,720px);min-height:320px;overflow:auto;border:1px solid var(--line);border-radius:16px;background:#fff}
+.viewer pre{margin:0;padding:20px;font-family:Consolas,"Courier New",monospace;font-size:13px;line-height:1.7;tab-size:4;white-space:pre-wrap;word-break:break-word}
+.viewer .msg{margin:0;padding:18px 20px;color:var(--muted);font-size:14px}
+.viewer .msg.err{color:var(--warn)}
+.viewer .msg.note{border-bottom:1px solid var(--line);background:#fbf9f1;color:var(--warn);font-size:13px}
+.empty .guide,.empty .source,.empty .viewer,.empty .foot{display:none}
+.others{margin-top:24px}
+.others h2{margin:0 0 10px;color:var(--muted);font-size:13px;letter-spacing:.06em}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;list-style:none}
+.chips a{display:inline-block;padding:9px 14px;border:1px solid #b9cbbd;border-radius:99px;background:#fff;color:var(--green);font-size:13px;font-weight:700;text-decoration:none}
+.chips a:hover{background:#f0f4eb}
+.foot{margin:14px 0 0;color:var(--muted);font-size:13px;line-height:1.7}
+@media(max-width:720px){.guide{grid-template-columns:1fr}.source{flex-direction:column;align-items:flex-start}.viewer{height:62vh}}
+</style>
+</head>
+<body>
+<main class="shell">
+  <div class="top">
+    <div class="logo">KINTAI<i>.</i></div>
+    <a id="back" class="back" href="index.html">← 発表に戻る</a>
+  </div>
+  <section class="card" id="card">
+    <div class="eyebrow"><span>EVIDENCE VIEWER</span><span class="type" id="type" hidden></span></div>
+    <h1 id="title" class="title">根拠資料</h1>
+    <p id="purpose" class="purpose" aria-live="polite">読み込んでいます。</p>
+    <noscript><p class="purpose">この画面の表示にはJavaScriptが必要です。</p></noscript>
+    <div class="guide">
+      <div><b>この資料で見ること</b><span id="look"></span></div>
+      <div><b>注意する範囲</b><span id="limit"></span></div>
+    </div>
+    <div class="source">
+      <span id="sourceLabel"></span>
+      <a id="openSource" target="_blank" rel="noopener noreferrer">新しいタブで原本を開く ↗</a>
+    </div>
+    <div class="viewer" id="viewer" tabindex="0" role="region" aria-label="資料本文" aria-busy="true"><p class="msg">読み込み中…</p></div>
+    <nav class="others" id="others" aria-label="他の根拠資料" hidden>
+      <h2>他の根拠資料</h2>
+      <ul class="chips" id="chips"></ul>
+    </nav>
+    <p class="foot">発表スライド <span id="slideNo">-</span>から開いた資料です。ブラウザの戻るボタンを1回押すと、元の発表スライドに戻ります。</p>
+  </section>
+</main>
+<script>(()=>{"use strict";
+const SLIDES=20,MAX=600000;
+/* 開ける資料は、この一覧にあるものだけです（URLの src が一覧と一致しない場合は開きません）。 */
+const DOCS=[
+{src:"../final-portfolio/portfolio_summary_JA.md",type:"MD",title:"KINTAI プロジェクト要約本",
+ purpose:"プロジェクトの業務範囲、中核課題の解決、成果と限界を最初に確認する資料です。",
+ look:"KINTAIが何を解決し、94/94 PASSの範囲と限界がどこにあるかを俯瞰します。",
+ limit:"要約資料です。個々の数値の裏付けは、技術証跡書と各ログの原文で確認してください。"},
+{src:"../legacy_audit_reports/portfolio_audit_evidence_JA_cumulative_20261114.md",type:"MD",title:"日本語技術証跡書",
+ purpose:"KINTAIの実装・監査・改修・再検証の回次別履歴をまとめた技術文書です。",
+ look:"問題の原因、改修内容、テスト・監査判定、未検証・DEFERRED範囲を確認します。",
+ limit:"記載は実行記録のある回次に限ります。未検証・DEFERREDの範囲は完了として扱われていません。"},
+{src:"../f04_evidence/show_engine_innodb_status_deadlock.txt",type:"TXT",title:"MySQL InnoDB デッドロックログ原文",
+ purpose:"給与一括確定と個別再計算が相互の行ロックを待機した実際のDBログです。",
+ look:"Error 1213と2つのトランザクションが保持・待機していたロック情報を確認します。",
+ limit:"特定の競合シナリオのログ原文です。他の処理経路でデッドロックが起きないことまでは示しません。"},
+{src:"../audit_runs/isolated_all_20261114_114819_kintai_full_test_8a75679f5b1e/exit_summary.json",type:"JSON",title:"隔離環境 全体回帰集計結果",
+ purpose:"新規隔離DBで実行した全テストの集計生データです。",
+ look:"総テスト数94、失敗・エラー・スキップ数が0であることを確認します。",
+ limit:"94件の実行集計です。テスト対象外の機能や、未検証の環境（例: MySQL 8.4）での動作は示しません。"},
+{src:"../audit_runs/codex_20261114_112428_v10/hermes_report.md",type:"MD",title:"ローカルAI再監査レポート原文",
+ purpose:"Runner改修後にローカル27Bモデルが実際に点検した監査報告書です。",
+ look:"監査対象、判定テーブル、指摘範囲および最終OVERALL PASS条件を確認します。",
+ limit:"ローカルAIによる監査所見です。PASS判定だけで合格とはせず、テスト実行結果と併せて判断します。"}
+];
+const $=s=>document.querySelector(s);
+const q=new URLSearchParams(location.search);
+const slide=Math.min(SLIDES,Math.max(0,parseInt(q.get("slide"),10)||0));
+const doc=DOCS.find(d=>d.src===q.get("src"));
+
+/* 発表に戻る: 発表ページから来た場合だけ履歴を戻り、直接開いた場合は発表ページへ移動 */
+const back=$("#back");
+back.href="index.html#slide="+(slide||1);
+back.addEventListener("click",e=>{
+  let internal=false;
+  try{internal=history.length>1&&!!document.referrer&&new URL(document.referrer).origin===location.origin}catch(_){}
+  if(internal){e.preventDefault();history.back()}
+});
+$("#slideNo").textContent=slide?String(slide).padStart(2,"0")+" / "+SLIDES:"不明";
+
+/* 他の資料への切り替え（履歴を増やさないので、戻るボタン1回で発表に戻れる） */
+DOCS.filter(d=>d!==doc).forEach(d=>{
+  const li=document.createElement("li"),a=document.createElement("a");
+  a.textContent=d.title;
+  a.href="evidence.html?src="+encodeURIComponent(d.src)+(slide?"&slide="+slide:"");
+  a.addEventListener("click",e=>{
+    if(e.metaKey||e.ctrlKey||e.shiftKey||e.button)return;
+    e.preventDefault();location.replace(a.href);
+  });
+  li.appendChild(a);$("#chips").appendChild(li);
+});
+$("#others").hidden=false;
+
+if(!doc){
+  $("#card").classList.add("empty");
+  document.title="資料が見つかりません | KINTAI 根拠";
+  $("#title").textContent="資料を特定できません";
+  $("#purpose").textContent="指定された資料は一覧にありません。下の一覧から開いてください。";
+  return;
+}
+
+document.title=doc.title+" | KINTAI 根拠";
+$("#title").textContent=doc.title;
+$("#purpose").textContent=doc.purpose;
+$("#look").textContent=doc.look;
+$("#limit").textContent=doc.limit;
+const type=$("#type");type.textContent=doc.type;type.hidden=false;
+const url=new URL(doc.src,location.href);
+$("#sourceLabel").textContent=url.pathname;
+$("#openSource").href=url.href;
+
+const viewer=$("#viewer");
+const msg=(text,cls)=>{const p=document.createElement("p");p.className="msg"+(cls?" "+cls:"");p.textContent=text;return p};
+fetch(url.href,{credentials:"omit",cache:"no-cache"})
+  .then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.text()})
+  .then(text=>{
+    if(doc.type==="JSON"){try{text=JSON.stringify(JSON.parse(text),null,2)}catch(_){}}
+    const nodes=[];
+    if(text.length>MAX){
+      text=text.slice(0,MAX);
+      nodes.push(msg("大きいファイルのため、先頭"+MAX.toLocaleString("ja-JP")+"文字のみ表示しています。全文は「新しいタブで原本を開く」から確認してください。","note"));
+    }
+    const pre=document.createElement("pre");pre.textContent=text;nodes.push(pre);
+    viewer.replaceChildren(...nodes);
+  })
+  .catch(err=>{
+    viewer.replaceChildren(msg(location.protocol==="file:"
+      ?"file://環境ではブラウザの制限によりプレビューできません。ローカルサーバーで開くか、「新しいタブで原本を開く」を使用してください。"
+      :"原本を読み込めませんでした（"+err.message+"）。「新しいタブで原本を開く」から直接確認してください。","err"));
+  })
+  .finally(()=>viewer.setAttribute("aria-busy","false"));
+})();</script>
+</body>
+</html>

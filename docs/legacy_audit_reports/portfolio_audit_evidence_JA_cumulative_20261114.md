@@ -15,7 +15,7 @@
 > **文書の運用・進捗に関する注記**
 > - **通達の出典照合に関する注意（2026-11-13）:** 端数処理に関する `基発第150号` について、愛知労働局資料は1988年3月14日、厚生労働省Q&Aは1987年3月14日と表記している。以下の改訂履歴および本文の年号は、出典の相違が解消されるまで確定しない。前者は[労働局資料](https://jsite.mhlw.go.jp/aichi-roudoukyoku/var/rev0/0119/6636/hasuutoriatukai.pdf)、後者は[厚生労働省Q&A](https://www.check-roudou.mhlw.go.jp/qa/roudousya/chingin/q3.html)を参照。1988年の一般解釈例規通達の存在は[厚生労働省の改正通達](https://www.mhlw.go.jp/web/t_doc?dataId=00tb3991&dataType=1&pageNo=1)で確認できるが、それのみをもってQ&Aの1987年表記を誤記と断定しない。
 > - 追加照合: [島根労働局の端数処理案内](https://jsite.mhlw.go.jp/shimane-roudoukyoku/content/contents/001308250.pdf)も1988年と表記している。1988年表記を裏付けるものの、Q&Aの1987年表記との差異の原因までは確認できていない。この資料照合だけでプロジェクトの計算実装全体の法的適合性を判定しない。
-> - 本書は**2週間の開発スプリント中に更新するLiving Document**である。現時点の実行証跡はSprint Day 1からDay 10まで（2026-11-02から2026-11-13まで）であり、2週間プロジェクト全体の最終完了報告書ではない。
+> - 本書は**2週間の開発スプリント中に更新したLiving Document**である。Day 1〜Day 13、B-05/B-06、2026-11-14の最終残存検証・文書監査までを収録する。ただし、Day 12のクラウドデプロイとR-05のMySQL 8.4/TestcontainersはDEFERREDであり、完了範囲には含めない。
 > - 付録Aの45項目は**Phase 1（コア監査17項目）**と**Phase 2（ドメイン・セキュリティ拡張28項目）**からなる点検基準である。45項目すべてが各日に実際に監査され、実装・テストまで完了したことを意味しない。
 > - 表の状態は現時点の仕様・コード反映状況を示す。`実装・反映`は決定的な実行時テストの完了を意味しない。予定テストは実行後に日時・ログ・成功件数を追記する。
 > - PASS/WARNはLLMによる静的・論理レビュー結果である。最終リリース判断、法令適合性およびセキュリティ整合性は人間のレビューと決定的テストで別途確認し、未実施のテストを合格済みとして記載しない（第6章参照）。
@@ -37,6 +37,8 @@
 | **v1.08** | 2026-11-11 | 承認者 (開発者) | Sprint Day 8 月次給与一括確定バッチ・悲観的ロック(FOR UPDATE)および未解決勤怠二重ガード実装、2PLロック順序デッドロック(F-04)解消、72件単体テスト全数GREEN合格 | 419eddb |
 | **v1.09** | 2026-11-12 | 承認者 (開発者) | Sprint Day 9 Apache POI SXSSFWorkbookによる大容量給与台帳ストリーミング生成エンジンの実装、労働基準法第108条準拠帳票レイアウト、読取一貫性(readOnlyトランザクション)担保および大容量ウィンドウローリング単体テスト4件追加(計76件全数通過) | 33ea103 |
 | **v1.10** | 2026-11-13 | 承認者 (開発者) | Sprint Day 10 出退勤(CLOCK_IN / CLOCK_OUT)同時打刻競合防止および悲観的ロック(store_staff)整合性実測統合テスト実装、MyBatisマッパー戻り値型補正(4c711f4)、3回連続実行安定性検証(Exit Code 0)、Qwen 3.8 27B独立監査公式PASS、RTM(R-08, R-09, R-10)連動 | 4c711f4 (Step 1反映) |
+| **v2.0** | 2026-11-13 | 承認者 (開発者) | Day 11の年間給与・境界条件、Day 13のデモDB・カレンダー・給与画面・Excel出力、独立監査とポートフォリオ資料を追加。過去チェックポイントと最新回帰を分離 | day11 / day13 証跡 |
+| **v2.1** | 2026-11-14 | 承認者 (開発者) | B-05/B-06の入力境界・給与詳細JSON最小化、最新隔離DB94/94 PASS、B-09監査ランナー修正、最終文書再監査、DEFERRED範囲を反映 | 20261114 最終締め |
 
 ---
 
@@ -423,9 +425,9 @@ flowchart TD
   - indModBreaksByRequestIds（一括IN句クエリ）およびO(1)インメモリマッピングへ即時リファクタリングを断行し、2次再監査にて完全PASS（解消確認）を獲得。
 - **勤務時間帯の重複防御（R-03 / Overlapping Detection）の実装**:
   - 申請時および承認時の両段階において、同一従業員の他勤務記録との時間帯重複（countOverlappingAttendances）を厳格に検証・遮断。
-- **給与確定衝突防御及び悲観적・楽観的並行制御（CAS UPDATE & SELECT ... FOR UPDATE）**:
+- **給与確定衝突防御および悲観・楽観的並行制御（CAS UPDATE & SELECT ... FOR UPDATE）**:
   - 当該勤務日の月給与が既に確定（CONFIRMED/PAID）している場合は申請・承認を409 Conflict遮断。
-  - 審査処理開始時にstore_staff行を悲観적ロックし、さらに更新ステータスに対するCAS（条件付きUPDATE: WHERE status = 'PENDING' / 'SUBMITTED'）を導入し二重承認・競合を完全排除。
+  - 審査処理開始時にstore_staff行を悲観ロックし、さらに更新ステータスに対するCAS（条件付きUPDATE: WHERE status = 'PENDING' / 'SUBMITTED'）を導入し、二重承認・競合を防止。
 - **機密情報の徹底防御（P0 Security Hardening）**:
   - パスワードハッシュを含まないMemberResponseDtoを新設し、MemberDtoに@JsonIgnoreを付与してAPIレスポンスからの認証情報漏洩を遮断。
   - StoreAuthorizationServiceを構築し、店舗リソース操作時の所有権検証を強制（IDOR対策）。
@@ -531,7 +533,7 @@ flowchart TD
   - `PayrollService.java`（497行、店舗名取得および読取一貫性readOnlyトランザクション適用）
   - `PayrollApiController.java`（122行、対象年月正規表現検証およびRFC 5987エンコーディングダウンロード）
   - `PayrollMapper.java` / `PayrollMapper.xml`（店舗名取得 `findStoreNameById` クエリ）
-- **단위 테스트 코드**:
+- **単体テストコード**:
   - `PayrollExcelExporterTest.java`（162行、4テストケース全数通過）
 - **統合監査バンドル**:
   - `docs/audit_bundles/day9_payroll_excel_bundle.md`（215行、上流計算エンジン `PayrollCalculator` およびController・Service・TestのE2E統合バンドル）
@@ -556,7 +558,7 @@ flowchart TD
   - **指摘内容 (What)**: Controllerの `@RequestParam String yearMonth` に形式チェックがなく、不正文字列流入時にパース例外またはHTTP 500エラーを誘発するリスク。
   - **潜在リスク (Why Dangerous)**: 不正パラメータによるサーバー例外発生および破損シートのダウンロードによるユーザー体験毀損。
   - **是正措置 (How Fixed)**: `PayrollApiController` に `^\d{4}-(0[1-9]|1[0-2])$` 正規表現ガードを追加し、違反時は `IllegalArgumentException`（400 Bad Request）で即時遮断。
-  - **재검수 확인 (Re-Audit)**: 2次再検収にてF-006公式 **PASS** 獲得。
+  - **再監査確認 (Re-Audit)**: 2次再監査でF-006の **PASS** を確認。
 - **F-007 & F-008 (P1, P2 / Resource & Performance): SXSSFWorkbookメモリリーク防止およびディスクフラッシュ**:
   - **指摘内容 (What)**: 大量データ生成時のJVM Heap OOM防止およびディスク一時ファイル（Temp XML）の残留リスク検証。
   - **是正措置 (How Fixed)**: `ROW_ACCESS_WINDOW_SIZE = 100` によりメモリ常駐行を制限し、`finally` ブロックにて `workbook.dispose()` および `close()` を強制実行して一時ファイルを100%自動消去。

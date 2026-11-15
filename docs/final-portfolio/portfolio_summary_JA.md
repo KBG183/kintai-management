@@ -1,7 +1,7 @@
 # [技術成果報告書] 日本型勤怠・シフト・給与管理システム（`kintai`）構築および 3-Tier 品質検証結果
 
 - **報告日**: 2026-11-14 KST（`main` ブランチ・ローカル MySQL 26.7.0 隔離検証基準）
-- **詳細証跡原本（1,117行）**: [`portfolio_audit_evidence.md`](../portfolio_audit_evidence.md)
+- **日本語累積詳細証跡書**: [`portfolio_audit_evidence_JA_cumulative_20261114.md`](../legacy_audit_reports/portfolio_audit_evidence_JA_cumulative_20261114.md)
 - **技術詳細資料**: [アーキテクチャ](architecture_ja.md) · [ローカルデモ手順](demo_guide_ja.md) · [RTM 台帳](../rtm_ledger.md) · [アーカイブスナップショット(v2.0/v2.1)](../legacy_audit_reports/technical_evidence_v2.1_ja.md)
 
 ---
