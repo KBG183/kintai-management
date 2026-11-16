@@ -184,7 +184,7 @@ public class PayrollService {
 
         payrollMapper.upsertPayroll(payroll);
 
-        // upsert 후 payrollId 보장 (ON DUPLICATE KEY UPDATE 시 기존 레코드 ID 보존)
+        // upsert後にpayrollIdを保証（ON DUPLICATE KEY UPDATE時に既存レコードIDを保持）
         if (payroll.getPayrollId() == null) {
             PayrollDto persisted = payrollMapper.findByStaffAndMonth(staffId, targetYearMonth);
             if (persisted != null) {
@@ -277,13 +277,13 @@ public class PayrollService {
     ) {}
 
     /**
-     * 給与確定ロック処理（単一レコードの帳簿不変性を保証、排他悲観적ロック適用）
-     * 락 순서 역전(데드락) 방지를 위해 전역 락 계층(store_staff -> payroll)을 엄격 준수하고
-     * 무잠금 초기 조회와 잠금 후 재조회 간 storeStaffId 일치 여부를 2중 검증(Double-Checked Lock)하여 TOCTOU를 방어합니다.
+     * 給与確定ロック処理（単一レコードの帳簿不変性を保証、排他悲観的ロック適用）
+     * ロック順序逆転（デッドロック）防止のためグローバルロック階層（store_staff -> payroll）を厳格に遵守し、
+     * 非ロック初期照会とロック後再照会間のstoreStaffId一致検証（Double-Checked Lock）によりTOCTOUを防御する。
      */
     @Transactional
     public void confirmPayroll(Long payrollId, PayrollConfirmRequestDto confirmDto) {
-        // [Step 1] storeStaffId 및 storeId 파악을 위한 초기 무잠금 조회 (Non-locking Read)
+        // [Step 1] storeStaffIdおよびstoreId特定のための初期非ロック照会 (Non-locking Read)
         PayrollDto initial = payrollMapper.findById(payrollId);
         if (initial == null) {
             throw new IllegalArgumentException("存在しない給与データです。(ID: " + payrollId + ")");
@@ -291,16 +291,16 @@ public class PayrollService {
         Long initialStaffId = initial.getStoreStaffId();
         Long initialStoreId = initial.getStoreId();
 
-        // [Step 2] 전역 락 계층 1단계: store_staff 부모 행 배타적 락 선점 (Level 1 Lock)
+        // [Step 2] グローバルロック階層第1段階: store_staff親行の排他的ロック先取り (Level 1 Lock)
         payrollMapper.lockStoreStaffForUpdate(initialStaffId);
 
-        // [Step 3] 전역 락 계층 2단계: payroll 자식 행 배타적 락 획득 (Level 2 Lock)
+        // [Step 3] グローバルロック階層第2段階: payroll子行の排他的ロック獲得 (Level 2 Lock)
         PayrollDto existing = payrollMapper.findByIdForUpdate(payrollId);
         if (existing == null) {
             throw new IllegalArgumentException("存在しない給与データです。(ID: " + payrollId + ")");
         }
 
-        // [Step 3-1] TOCTOU 방어: 잠금 후 재조회한 storeStaffId 및 storeId가 초기 조회값과 일치하는지 엄밀 검증
+        // [Step 3-1] TOCTOU防御: ロック後再照会したstoreStaffIdおよびstoreIdが初期照会値と一致するか厳密検証
         if (!initialStaffId.equals(existing.getStoreStaffId())) {
             throw new IllegalStateException("給与レコードの職員所属情報が変更されたため、確定処理を中断しました。(初期: " +
                     initialStaffId + ", ロック後: " + existing.getStoreStaffId() + ")");
@@ -310,23 +310,23 @@ public class PayrollService {
                     initialStoreId + ", ロック後店舗: " + existing.getStoreId() + ")");
         }
 
-        // [Step 3-2] 급여 상태 재검증 (이미 다른 관리자에 의해 확정되었는지 여부)
+        // [Step 3-2] 給与ステータス再検証 (他の管理者により確定済みか否か)
         if (!"DRAFT".equals(existing.getPayrollStatus())) {
             throw new IllegalStateException("既に確定済みの給与データです。(現在の状態: " + existing.getPayrollStatus() + ")");
         }
 
-        // [Step 4] 정산 대상 기간 종료의 검증 (마감 기간 종료 전 조기 확정 방지)
+        // [Step 4] 清算対象期間終了の検証 (締め期間終了前の早期確定防止)
         if (!LocalDate.now().isAfter(existing.getRangeEndDate())) {
             throw new IllegalStateException("精算対象期間 (" + existing.getRangeEndDate() + ") が終了する前に給与を確定することはできません。");
         }
 
-        // [Step 5] 미처리 근태 확인 (수정 신청 대기 또는 타각 진행 중 차단)
+        // [Step 5] 未処理勤怠の確認 (修正申請待ちまたは打刻進行中を遮断)
         int unresolved = payrollMapper.countUnresolvedAttendance(existing.getStoreStaffId(), existing.getRangeStartDate(), existing.getRangeEndDate());
         if (unresolved > 0) {
             throw new IllegalStateException("未処理の勤怠修正申請または勤務中打刻が存在するため、確定できません。");
         }
 
-        // [Step 6] 최신 데이터 기반 재계산 (동일 트랜잭션 내 store_staff 락 재진입 안전)
+        // [Step 6] 最新データに基づく再計算 (同一トランザクション内store_staffロック再入安全)
         PayrollDto recalculated = calculatePayrollForStaff(
                 existing.getStoreId(),
                 existing.getStoreStaffId(),
@@ -335,7 +335,7 @@ public class PayrollService {
                 existing.getRangeEndDate()
         );
 
-        // [Step 7] 확인 금액과 재계산 금액 불일치 검증
+        // [Step 7] 確認金額と再計算金額の不一致検証
         if (confirmDto != null && confirmDto.getExpectedGrossPay() != null) {
             int expected = confirmDto.getExpectedGrossPay();
             int actual = recalculated.getGrossPay();
@@ -356,7 +356,7 @@ public class PayrollService {
      */
     @Transactional
     public int confirmMonthlyPayroll(Long storeId, String targetYearMonth) {
-        // [Step 1] 확정 대상 DRAFT 급여를 보유한 직원 ID 목록을 결정론적 오름차순으로 1차 선별
+        // [Step 1] 確定対象DRAFT給与を保持するスタッフID一覧を決定論的昇順で1次選別
         List<Long> draftStaffIds = payrollMapper.findDraftStaffIdsByStoreAndMonth(storeId, targetYearMonth);
         if (draftStaffIds == null || draftStaffIds.isEmpty()) {
             List<PayrollDto> allPayrolls = payrollMapper.findPayrollsByStoreAndMonth(storeId, targetYearMonth);
@@ -367,12 +367,12 @@ public class PayrollService {
             }
         }
 
-        // [Step 2] 전역 락 계층 1단계: 선별된 직원 부모 행(store_staff)들을 ID 오름차순으로 순차 선점 잠금 (Level 1 Lock)
+        // [Step 2] グローバルロック階層第1段階: 選別されたスタッフ親行(store_staff)をID昇順で順次先行ロック (Level 1 Lock)
         for (Long staffId : draftStaffIds) {
             payrollMapper.lockStoreStaffForUpdate(staffId);
         }
 
-        // [Step 3] 전역 락 계층 2단계: 부모 락이 확보된 안전 상태에서 점포의 당월 급여 행들을 배타 락(Level 2 Lock)으로 재조회
+        // [Step 3] グローバルロック階層第2段階: 親ロック確保済みの安全状態で店舗の当月給与行を排他的ロック(Level 2 Lock)で再照会
         List<PayrollDto> payrolls = payrollMapper.lockStorePayrollsForUpdate(storeId, targetYearMonth);
         if (payrolls == null || payrolls.isEmpty()) {
             throw new IllegalStateException("指定年月 (" + targetYearMonth + ") の給与データが存在しません。");
@@ -386,7 +386,7 @@ public class PayrollService {
             throw new IllegalStateException("指定年月 (" + targetYearMonth + ") の給与は全件確定済みです。");
         }
 
-        // [Step 3-1] 동시성 경계 검증: 부모 락을 잡지 않은 새로운 직원의 DRAFT가 그 사이에 추가되었는지 감지
+        // [Step 3-1] 並行性境界検証: 親ロックを取得していない新規スタッフのDRAFTがその間に追加されたかを検知
         for (PayrollDto p : draftPayrolls) {
             if (!draftStaffIds.contains(p.getStoreStaffId())) {
                 throw new IllegalStateException("月次確定処理中に新たな職員の給与が生成されました。(職員ID: " +

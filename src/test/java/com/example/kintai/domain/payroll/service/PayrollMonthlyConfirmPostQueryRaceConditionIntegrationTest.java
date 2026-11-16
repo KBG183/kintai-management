@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@DisplayName("F-04: confirmMonthlyPayroll 트랜잭션 동일성 및 최종 재조회 직후 신규 DRAFT 경쟁 조건 정밀 실측")
+@DisplayName("F-04: confirmMonthlyPayroll トランザクション同一性および最終再検索直後の新規DRAFT競合条件精密実測")
 class PayrollMonthlyConfirmPostQueryRaceConditionIntegrationTest {
 
     @Autowired
@@ -45,14 +45,14 @@ class PayrollMonthlyConfirmPostQueryRaceConditionIntegrationTest {
     private final Long storeId = 1L;
     private final String targetMonth = "2026-10";
 
-    // 동적 생성 고유 ID 추적 리스트
+    // 動的生成ユニーク ID 追跡リスト
     private final List<Long> createdMemberIds = new ArrayList<>();
     private final List<Long> createdStaffIds = new ArrayList<>();
     private final List<Long> createdPayrollIds = new ArrayList<>();
 
     @BeforeEach
     void setUp() throws Exception {
-        // 테스트 전용 고유 ID 생성 (50000번대)
+        // テスト専用ユニーク ID 生成（50000番台）
         long baseId = 50000L + System.currentTimeMillis() % 10000L;
         long m1 = baseId;
         long m2 = baseId + 1;
@@ -80,7 +80,7 @@ class PayrollMonthlyConfirmPostQueryRaceConditionIntegrationTest {
                     "(%d, 1, %d, 1400, '2026-10-01')",
                     m1, m1, m2, m2, m3, m3));
 
-            // 초기 DRAFT 급여는 직원 1, 2만 생성 (직원 3은 나중에 생성됨)
+            // 初期 DRAFT 給与は従業員 1, 2 のみ作成（従業員 3 は後から作成）
             st.executeUpdate(String.format("INSERT INTO payroll (store_id, store_staff_id, target_year_month, range_start_date, range_end_date, work_days_count, applied_hourly_wage, gross_pay, payroll_status) VALUES " +
                     "(1, %d, '2026-10', '2026-10-01', '2026-10-31', 1, 1300, 10000, 'DRAFT'), " +
                     "(1, %d, '2026-10', '2026-10-01', '2026-10-31', 1, 1350, 12000, 'DRAFT')",
@@ -102,7 +102,7 @@ class PayrollMonthlyConfirmPostQueryRaceConditionIntegrationTest {
     }
 
     @Test
-    @DisplayName("1. 실제 Spring 트랜잭션 활성 및 동일 DB Connection 하에서 전 단계가 실행되는지 증명")
+    @DisplayName("1. 実際の Spring トランザクション有効化および同一 DB Connection 下で全ステップが実行されることの実証")
     void verifyTransactionBoundary_SingleConnection() throws Exception {
         try (Connection conn = dataSource.getConnection()) {
             conn.setAutoCommit(false);
@@ -114,37 +114,37 @@ class PayrollMonthlyConfirmPostQueryRaceConditionIntegrationTest {
                 if (rs.next()) connIdBefore = rs.getLong(1);
             }
             assertNotNull(connIdBefore);
-            System.out.println("[Tx-Verification] 단일 Connection ID: " + connIdBefore);
+            System.out.println("[Tx-Verification] 単一 Connection ID: " + connIdBefore);
             conn.rollback();
         }
     }
 
     @Test
-    @DisplayName("2. 재조회 이후 신규 DRAFT 경쟁 시뮬레이션: 최종 UPDATE 대상이 초기 잠금한 직원 ID들로만 한정되어야 함을 실측")
+    @DisplayName("2. 再検索後の新規 DRAFT 競合シミュレーション：最終 UPDATE 対象が初期ロックした従業員 ID に限定されることの実測")
     void testLateDraftCreation_IsolationRisk() throws Exception {
         Long staff1 = createdStaffIds.get(0);
         Long staff2 = createdStaffIds.get(1);
         Long lateStaff3 = createdStaffIds.get(2);
 
-        // 월간 확정 정상 실행 (초기 대상 staff1, staff2)
+        // 月間確定の正常実行（初期対象 staff1, staff2）
         int updatedCount = payrollService.confirmMonthlyPayroll(storeId, targetMonth);
-        assertTrue(updatedCount >= 2, "최소 staff1, staff2 2건이 확정되어야 함");
+        assertTrue(updatedCount >= 2, "最低 staff1, staff2 の2件が確定されること");
 
         PayrollDto p1 = payrollMapper.findByStaffAndMonth(staff1, targetMonth);
         PayrollDto p2 = payrollMapper.findByStaffAndMonth(staff2, targetMonth);
         assertEquals("CONFIRMED", p1.getPayrollStatus());
         assertEquals("CONFIRMED", p2.getPayrollStatus());
 
-        // 뒤늦게 다른 직원의 DRAFT가 생성된 경우
+        // 後から別従業員の DRAFT が作成された場合
         try (Connection conn = dataSource.getConnection();
              Statement st = conn.createStatement()) {
             st.executeUpdate(String.format("INSERT INTO payroll (store_id, store_staff_id, target_year_month, range_start_date, range_end_date, work_days_count, applied_hourly_wage, gross_pay, payroll_status) VALUES " +
                     "(1, %d, '2026-10', '2026-10-01', '2026-10-31', 1, 1400, 15000, 'DRAFT')", lateStaff3));
         }
 
-        // 해당 신규 DRAFT는 월간 확정에 '조용히 포함'되지 않고 DRAFT 상태로 안전하게 남아있어야 함
+        // 対象の新規 DRAFT は月間確定に巻き込まれず、DRAFT 状態のまま安全に保持されること
         PayrollDto p3 = payrollMapper.findByStaffAndMonth(lateStaff3, targetMonth);
         assertNotNull(p3);
-        assertEquals("DRAFT", p3.getPayrollStatus(), "뒤늦게 생성된 급여는 CONFIRMED로 오염되지 않고 DRAFT로 안전하게 격리 보존되어야 함");
+        assertEquals("DRAFT", p3.getPayrollStatus(), "後から作成された給与は CONFIRMED に汚染されず、DRAFT として安全に隔離保持されること");
     }
 }

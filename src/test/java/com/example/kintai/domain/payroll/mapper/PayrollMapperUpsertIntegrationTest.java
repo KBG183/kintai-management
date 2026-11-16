@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
-@DisplayName("F-09: MySQL upsertPayroll useGeneratedKeys & LAST_INSERT_ID 세션 오염 분리 정밀 실측")
+@DisplayName("F-09: MySQL upsertPayroll useGeneratedKeys & LAST_INSERT_ID のセッション汚染分離に関する精密実測")
 class PayrollMapperUpsertIntegrationTest {
 
     @Autowired
@@ -32,9 +32,9 @@ class PayrollMapperUpsertIntegrationTest {
     private JdbcTemplate jdbcTemplate;
 
     @Test
-    @DisplayName("중간에 다른 AUTO_INCREMENT 발생으로 LAST_INSERT_ID 오염 시에도 DTO B에 원래 대상 PK가 정확히 전달되는지 검증")
+    @DisplayName("途中で別の AUTO_INCREMENT が発生して LAST_INSERT_ID が汚染された場合でも、DTO B に元の対象 PK が正確に渡されることを検証")
     void upsertPayroll_WhenLastInsertIdPolluted_ShouldStillReceiveTargetPayrollId() {
-        // 0. 초기 외래키용 Attendance 레코드 생성
+        // 0. 初期外部キー用 Attendance レコードを作成
         AttendanceDto attendance1 = new AttendanceDto();
         attendance1.setStoreId(1L);
         attendance1.setStoreStaffId(1L);
@@ -51,7 +51,7 @@ class PayrollMapperUpsertIntegrationTest {
         Long validAttendanceId = attendance1.getAttendanceId();
         assertNotNull(validAttendanceId);
 
-        // 1. DTO A (payrollId=null)로 신규 INSERT 실행
+        // 1. DTO A（payrollId=null）で新規 INSERT を実行
         PayrollDto dtoA = new PayrollDto();
         dtoA.setStoreId(1L);
         dtoA.setStoreStaffId(1L);
@@ -73,13 +73,13 @@ class PayrollMapperUpsertIntegrationTest {
 
         payrollMapper.upsertPayroll(dtoA);
         Long originalPayrollId = dtoA.getPayrollId();
-        assertNotNull(originalPayrollId, "DTO A에 payrollId가 채번되어야 함");
+        assertNotNull(originalPayrollId, "DTO A に payrollId が採番されなければならない");
 
         Long sessionLastIdAfterA = jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Long.class);
-        System.out.println("[단계 1] DTO A INSERT 후 - 채번 ID: " + originalPayrollId + ", 세션 LAST_INSERT_ID(): " + sessionLastIdAfterA);
-        assertEquals(originalPayrollId, sessionLastIdAfterA, "DTO A INSERT 직후 세션 LAST_INSERT_ID는 originalPayrollId와 일치함");
+        System.out.println("[ステップ1] DTO A INSERT 後 - 採番 ID: " + originalPayrollId + ", セッション LAST_INSERT_ID(): " + sessionLastIdAfterA);
+        assertEquals(originalPayrollId, sessionLastIdAfterA, "DTO A の INSERT 直後のセッション LAST_INSERT_ID は originalPayrollId と一致する");
 
-        // 2. 일별 상세 1건 등록 (originalPayrollId 참조)
+        // 2. 日別明細を1件登録（originalPayrollId を参照）
         PayrollDailyDetailDto detail = new PayrollDailyDetailDto();
         detail.setPayrollId(originalPayrollId);
         detail.setAttendanceId(validAttendanceId);
@@ -95,7 +95,7 @@ class PayrollMapperUpsertIntegrationTest {
         detail.setTransportAmount(500);
         payrollMapper.insertPayrollDailyDetail(detail);
 
-        // 3. 【오염 통제 단계】동일 세션에서 완전히 다른 테이블에 AUTO_INCREMENT 행을 다수 생성하여 세션 LAST_INSERT_ID를 다른 값으로 고의 변경
+        // 3. 【汚染制御ステップ】同一セッションでまったく別のテーブルに AUTO_INCREMENT 行を複数作成し、セッション LAST_INSERT_ID を意図的に別の値へ変更
         AttendanceDto attendancePolluter = new AttendanceDto();
         attendancePolluter.setStoreId(1L);
         attendancePolluter.setStoreStaffId(1L);
@@ -112,11 +112,11 @@ class PayrollMapperUpsertIntegrationTest {
         Long pollutedAttendanceId = attendancePolluter.getAttendanceId();
 
         Long sessionLastIdPolluted = jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Long.class);
-        System.out.println("[단계 2: 오염 유발] Attendance 삽입 후 - attendance_id: " + pollutedAttendanceId + ", 세션 LAST_INSERT_ID(): " + sessionLastIdPolluted);
-        assertNotEquals(originalPayrollId, sessionLastIdPolluted, "세션 LAST_INSERT_ID가 급여 ID와 다른 값으로 오염되었음을 확인");
-        assertEquals(pollutedAttendanceId, sessionLastIdPolluted, "세션 LAST_INSERT_ID는 최근 삽입된 attendanceId로 변경됨");
+        System.out.println("[ステップ2：汚染発生] Attendance 挿入後 - attendance_id: " + pollutedAttendanceId + ", セッション LAST_INSERT_ID(): " + sessionLastIdPolluted);
+        assertNotEquals(originalPayrollId, sessionLastIdPolluted, "セッション LAST_INSERT_ID が給与 ID と異なる値に汚染されたことを確認");
+        assertEquals(pollutedAttendanceId, sessionLastIdPolluted, "セッション LAST_INSERT_ID が直近に挿入された attendanceId に変更された");
 
-        // 4. 새로운 인스턴스 DTO B (payrollId=null)로 동일 유니크 키 중복 UPDATE 실행
+        // 4. 新しいインスタンスの DTO B（payrollId=null）で同一ユニークキーに対する重複 UPDATE を実行
         PayrollDto dtoB = new PayrollDto();
         dtoB.setStoreId(1L);
         dtoB.setStoreStaffId(1L);
@@ -135,29 +135,29 @@ class PayrollMapperUpsertIntegrationTest {
         dtoB.setTransportAllowance(3000);
         dtoB.setGrossPay(67675);
         dtoB.setPayrollStatus("DRAFT");
-        assertNull(dtoB.getPayrollId(), "UPDATE 실행 전 DTO B의 payrollId는 null");
+        assertNull(dtoB.getPayrollId(), "UPDATE 実行前の DTO B の payrollId は null である");
 
-        // When: DTO B로 중복 UPDATE (ON DUPLICATE KEY UPDATE) 실행
+        // When: DTO B で重複 UPDATE（ON DUPLICATE KEY UPDATE）を実行
         payrollMapper.upsertPayroll(dtoB);
         Long idInDtoB = dtoB.getPayrollId();
         Long sessionLastIdAfterUpdate = jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Long.class);
 
         System.out.println("==================================================================");
-        System.out.println("[F-09 세션 오염 분리 정밀 결과]");
-        System.out.println("1. 원래 대상 급여 ID (Target)     : " + originalPayrollId);
-        System.out.println("2. 중간 오염된 세션 ID (Polluted) : " + sessionLastIdPolluted);
-        System.out.println("3. DTO B에 바인딩된 최종 ID        : " + idInDtoB);
-        System.out.println("4. 중복 UPDATE 후 세션 LAST_INSERT_ID: " + sessionLastIdAfterUpdate);
+        System.out.println("[F-09 セッション汚染分離の精密実測結果]");
+        System.out.println("1. 元の対象給与 ID（Target）     : " + originalPayrollId);
+        System.out.println("2. 途中で汚染されたセッション ID（Polluted）: " + sessionLastIdPolluted);
+        System.out.println("3. DTO B にバインドされた最終 ID        : " + idInDtoB);
+        System.out.println("4. 重複 UPDATE 後のセッション LAST_INSERT_ID: " + sessionLastIdAfterUpdate);
         System.out.println("==================================================================");
 
-        // Then: DTO B에 바인딩된 ID가 오염된 ID(pollutedAttendanceId)가 아니라 원래 급여 ID(originalPayrollId)인지 검증
-        assertNotNull(idInDtoB, "DTO B의 payrollId는 null이 아니어야 함");
-        assertNotEquals(sessionLastIdPolluted, idInDtoB, "[CRITICAL CHECK] DTO B에 오염된 세션 ID가 들어가지 않아야 함");
-        assertEquals(originalPayrollId, idInDtoB, "[CRITICAL CHECK] DTO B에는 반드시 원래 대상 급여 레코드의 PK가 바인딩되어야 함");
+        // Then: DTO B にバインドされた ID が汚染された ID（pollutedAttendanceId）ではなく、元の給与 ID（originalPayrollId）であることを検証
+        assertNotNull(idInDtoB, "DTO B の payrollId は null であってはならない");
+        assertNotEquals(sessionLastIdPolluted, idInDtoB, "[CRITICAL CHECK] DTO B に汚染されたセッション ID が設定されてはならない");
+        assertEquals(originalPayrollId, idInDtoB, "[CRITICAL CHECK] DTO B には必ず元の対象給与レコードの PK がバインドされなければならない");
 
-        // 5. 바인딩된 ID로 후속 상세 삭제 정상 동작 확인
+        // 5. バインドされた ID による後続明細削除が正常に動作することを確認
         payrollMapper.deleteDailyDetailsByPayrollId(dtoB.getPayrollId());
         List<PayrollDailyDetailDto> detailsAfter = payrollMapper.findDailyDetailsByPayrollId(originalPayrollId);
-        assertEquals(0, detailsAfter.size(), "기존 상세 레코드가 정확히 삭제되어야 함");
+        assertEquals(0, detailsAfter.size(), "既存の明細レコードが正確に削除されなければならない");
     }
 }

@@ -16,14 +16,14 @@ import java.util.concurrent.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
-@DisplayName("F-04: performance_schema.data_locks 실측 검증")
+@DisplayName("F-04: performance_schema.data_locks 実測検証")
 class PerformanceSchemaDataLocksIntegrationTest {
 
     @Autowired
     private DataSource dataSource;
 
     @Test
-    @DisplayName("독립 커넥션에서 lockStorePayrollsForUpdate 실행 시 performance_schema.data_locks의 락 모드 및 인덱스 실측")
+    @DisplayName("独立コネクションにおける lockStorePayrollsForUpdate 実行時の performance_schema.data_locks ロックモードおよびインデックス実測")
     void observeDataLocks() throws Exception {
         String targetSchema = currentDatabaseName();
         CountDownLatch lockAcquired = new CountDownLatch(1);
@@ -31,7 +31,7 @@ class PerformanceSchemaDataLocksIntegrationTest {
 
         ExecutorService executor = Executors.newFixedThreadPool(2);
 
-        // Session 1: lockStorePayrollsForUpdate 실행 후 락 점유 유지
+        // Session 1: lockStorePayrollsForUpdate 実行後ロック保持
         Future<?> f1 = executor.submit(() -> {
             try (Connection c1 = dataSource.getConnection()) {
                 c1.setAutoCommit(false);
@@ -40,7 +40,7 @@ class PerformanceSchemaDataLocksIntegrationTest {
                 try (Statement st = c1.createStatement()) {
                     st.executeQuery("SELECT payroll_id, store_id, store_staff_id, target_year_month FROM payroll WHERE store_id = 1 AND target_year_month = '2026-10' ORDER BY store_staff_id ASC, payroll_id ASC FOR UPDATE");
                 }
-                System.out.println("[Session 1] lockStorePayrollsForUpdate FOR UPDATE 락 획득 완료");
+                System.out.println("[Session 1] lockStorePayrollsForUpdate FOR UPDATE ロック取得完了");
                 lockAcquired.countDown();
 
                 releaseLock.await(5, TimeUnit.SECONDS);
@@ -50,7 +50,7 @@ class PerformanceSchemaDataLocksIntegrationTest {
             }
         });
 
-        // Session 2: performance_schema.data_locks 조회
+        // Session 2: performance_schema.data_locks 検索
         Future<?> f2 = executor.submit(() -> {
             try {
                 lockAcquired.await(5, TimeUnit.SECONDS);
@@ -62,7 +62,7 @@ class PerformanceSchemaDataLocksIntegrationTest {
                     st.setString(1, targetSchema);
                     try (ResultSet rs = st.executeQuery()) {
 
-                    System.out.println("==================== [performance_schema.data_locks 실측] ====================");
+                    System.out.println("==================== [performance_schema.data_locks 実測] ====================");
                     int count = 0;
                     while (rs.next()) {
                         count++;
@@ -76,7 +76,7 @@ class PerformanceSchemaDataLocksIntegrationTest {
                         );
                     }
                     System.out.println("===============================================================================");
-                    assertTrue(count > 0, "실제 활성 데이터 락이 performance_schema에 감지되어야 함");
+                    assertTrue(count > 0, "実際のアクティブなデータロックが performance_schema で検知されること");
                     }
                 } finally {
                     releaseLock.countDown();

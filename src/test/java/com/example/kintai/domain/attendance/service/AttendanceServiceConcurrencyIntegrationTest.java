@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 @SpringBootTest
-@DisplayName("Day 10: AttendanceService 동시 출퇴근 타각 검증")
+@DisplayName("Day 10: AttendanceService 同時出退勤打刻の排他検証")
 class AttendanceServiceConcurrencyIntegrationTest {
 
     private static final long TARGET_STORE_ID = 1L;
@@ -70,7 +70,7 @@ class AttendanceServiceConcurrencyIntegrationTest {
     }
 
     @Test
-    @DisplayName("동시 CLOCK_IN 요청은 하나만 성공하고 중복 근무 행을 만들지 않는다")
+    @DisplayName("同時CLOCK_INリクエストは1件のみ成功し重複勤務レコードを作成しない")
     void concurrentClockIn_ExactlyOneSucceeds() throws Exception {
         ExecutorService executor = Executors.newFixedThreadPool(2);
         CountDownLatch ready = new CountDownLatch(2);
@@ -103,14 +103,14 @@ class AttendanceServiceConcurrencyIntegrationTest {
         }
         executor.shutdownNow();
 
-        assertNull(unexpectedError.get(), "예상하지 않은 예외가 발생하면 안 됩니다");
-        assertEquals(1, successCount.get(), "동시 CLOCK_IN은 정확히 하나만 성공해야 합니다");
-        assertEquals(1, rejectedCount.get(), "나머지 요청은 중복 타각으로 거부되어야 합니다");
+        assertNull(unexpectedError.get(), "予期せぬ例外が発生してはならない");
+        assertEquals(1, successCount.get(), "同時CLOCK_INは正確に1件のみ成功しなければならない");
+        assertEquals(1, rejectedCount.get(), "残りのリクエストは重複打刻として拒否されなければならない");
         assertNotNull(attendanceMapper.findActiveAttendance(TARGET_STAFF_ID));
     }
 
     @Test
-    @DisplayName("동시 CLOCK_OUT 요청은 하나만 성공하고 완료 상태를 보존한다")
+    @DisplayName("同時CLOCK_OUTリクエストは1件のみ成功し完了状態を保持する")
     void concurrentClockOut_ExactlyOneSucceeds() throws Exception {
         AttendanceDto working = createWorkingAttendance();
 
@@ -144,9 +144,9 @@ class AttendanceServiceConcurrencyIntegrationTest {
         }
         executor.shutdownNow();
 
-        assertNull(unexpectedError.get(), "예상하지 않은 예외가 발생하면 안 됩니다");
-        assertEquals(1, successCount.get(), "동시 CLOCK_OUT은 정확히 하나만 성공해야 합니다");
-        assertEquals(1, rejectedCount.get(), "나머지 요청은 이미 종료된 근무로 거부되어야 합니다");
+        assertNull(unexpectedError.get(), "予期せぬ例外が発生してはならない");
+        assertEquals(1, successCount.get(), "同時CLOCK_OUTは正確に1件のみ成功しなければならない");
+        assertEquals(1, rejectedCount.get(), "残りのリクエストは既に終了した勤務として拒否されなければならない");
 
         AttendanceDto completed = attendanceMapper.findById(working.getAttendanceId());
         assertNotNull(completed);

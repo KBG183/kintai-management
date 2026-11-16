@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@DisplayName("F-04: confirmPayroll 동시성 정밀 경합 및 동시 중복 확정(CAS) 검증")
+@DisplayName("F-04: confirmPayroll 同時実行競合および同時重複確定(CAS)検証")
 class PayrollServiceConfirmConcurrencyDetailedIntegrationTest {
 
     @Autowired
@@ -118,7 +118,7 @@ class PayrollServiceConfirmConcurrencyDetailedIntegrationTest {
     }
 
     @Test
-    @DisplayName("동일 급여에 대한 2개 관리자 세션 동시 중복 확정 시도 시 정확히 1건만 성공하고 1건은 상태 차단 검증")
+    @DisplayName("同一給与に対する2つの管理者セッションによる同時重複確定試行時、正確に1件のみ成功し1件はステータス遮断されることの検証")
     void concurrentDuplicateConfirm_ExactlyOneSucceeds() throws Exception {
         ExecutorService executor = Executors.newFixedThreadPool(2);
         CountDownLatch readyLatch = new CountDownLatch(2);
@@ -135,20 +135,20 @@ class PayrollServiceConfirmConcurrencyDetailedIntegrationTest {
                 long startMs = System.currentTimeMillis();
                 try (Connection conn = dataSource.getConnection()) {
                     Long connId = getConnectionId(conn);
-                    System.out.println("[" + Thread.currentThread().getName() + "] ConnectionID=" + connId + " 확정 시도 시작 at " + startMs);
+                    System.out.println("[" + Thread.currentThread().getName() + "] ConnectionID=" + connId + " 確定試行開始 at " + startMs);
                 }
 
                 PayrollConfirmRequestDto req = new PayrollConfirmRequestDto();
-                // 10/5 하루 8시간 1350원 = 기본급 10800 + 교통비 600 = 11400 (계산 엔진 일치)
+                // 10/5 8時間 1350円 = 基本給 10800 + 交通費 600 = 11400（計算エンジン準拠）
                 req.setExpectedGrossPay(11400);
                 payrollService.confirmPayroll(testPayrollId, req);
 
                 long endMs = System.currentTimeMillis();
-                System.out.println("[" + Thread.currentThread().getName() + "] 확정 성공 완료 at " + endMs);
+                System.out.println("[" + Thread.currentThread().getName() + "] 確定成功完了 at " + endMs);
                 successCount.incrementAndGet();
             } catch (IllegalStateException e) {
                 if (e.getMessage() != null && e.getMessage().contains("既に確定済みの給与データです")) {
-                    System.out.println("[" + Thread.currentThread().getName() + "] 2중 확정 안전 차단 포착: " + e.getMessage());
+                    System.out.println("[" + Thread.currentThread().getName() + "] 二重確定の安全遮断を捕捉: " + e.getMessage());
                     alreadyConfirmedCount.incrementAndGet();
                 } else {
                     otherError.set(e);
@@ -161,19 +161,19 @@ class PayrollServiceConfirmConcurrencyDetailedIntegrationTest {
         Future<?> f1 = executor.submit(task);
         Future<?> f2 = executor.submit(task);
 
-        assertTrue(readyLatch.await(5, TimeUnit.SECONDS), "두 스레드가 준비되어야 함");
+        assertTrue(readyLatch.await(5, TimeUnit.SECONDS), "両スレッドが準備されること");
         startLatch.countDown();
 
         f1.get(10, TimeUnit.SECONDS);
         f2.get(10, TimeUnit.SECONDS);
         executor.shutdown();
 
-        assertNull(otherError.get(), "예상치 못한 기타 예외가 없어야 함: " + (otherError.get() != null ? otherError.get().getMessage() : ""));
-        assertEquals(1, successCount.get(), "동시 확정 시도 중 정확히 1건만 성공해야 함");
-        assertEquals(1, alreadyConfirmedCount.get(), "나머지 1건은 이미 확정됨(상태 전이 차단) 예외가 발생해야 함");
+        assertNull(otherError.get(), "予期しないその他例外が発生しないこと: " + (otherError.get() != null ? otherError.get().getMessage() : ""));
+        assertEquals(1, successCount.get(), "同時確定試行のうち正確に1件のみ成功すること");
+        assertEquals(1, alreadyConfirmedCount.get(), "残りの1件はすでに確定済み（状態遷移遮断）例外が発生すること");
 
         PayrollDto finalPayroll = payrollMapper.findById(testPayrollId);
         assertNotNull(finalPayroll);
-        assertEquals("CONFIRMED", finalPayroll.getPayrollStatus(), "최종 상태는 CONFIRMED여야 함");
+        assertEquals("CONFIRMED", finalPayroll.getPayrollStatus(), "最終状態は CONFIRMED であること");
     }
 }

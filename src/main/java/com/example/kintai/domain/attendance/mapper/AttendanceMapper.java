@@ -18,7 +18,7 @@ public interface AttendanceMapper {
 
     AttendanceDto findById(@Param("attendanceId") Long attendanceId);
 
-    /** 지정 직원·근무일의 수정 대상 완료 근태를 조회한다. */
+    /** 指定した従業員・勤務日の修正対象となる確定済み勤怠を取得する。 */
     AttendanceDto findCompletedAttendanceByStaffAndDate(
             @Param("storeStaffId") Long storeStaffId,
             @Param("workDate") LocalDate workDate

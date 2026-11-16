@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@DisplayName("F-04: 멀티 세션 비관적 락(SELECT ... FOR UPDATE) 동시성 경합 및 반복 타이밍 안정성 검증")
+@DisplayName("F-04: マルチセッション悲観的ロック(SELECT ... FOR UPDATE)同時実行競合および反復タイミング安定性検証")
 class PayrollPessimisticLockConcurrencyIntegrationTest {
 
     @Autowired
@@ -27,7 +27,7 @@ class PayrollPessimisticLockConcurrencyIntegrationTest {
     private PayrollMapper payrollMapper;
 
     @RepeatedTest(3)
-    @DisplayName("트랜잭션 1이 store_staff 행 락을 점유 중일 때, 트랜잭션 2가 동일 행에 락을 요청하면 대기하며 커밋 후 정상 획득되는지 반복 실측 (3회 연속)")
+    @DisplayName("トランザクション1が store_staff 行ロックを占有中、トランザクション2が同一行にロックを要求すると待機し、コミット後に正常取得されることを反復実測（3回連続）")
     void pessimisticLock_ConcurrentSessions_ShouldBlockUntilCommitted_Repeated() throws Exception {
         Long targetStaffId = 1L;
 
@@ -38,7 +38,7 @@ class PayrollPessimisticLockConcurrencyIntegrationTest {
         AtomicBoolean tx2AcquiredLock = new AtomicBoolean(false);
         ExecutorService executor = Executors.newFixedThreadPool(2);
 
-        // Session 1: store_staff 행에 FOR UPDATE 락 획득 후 대기
+        // Session 1: store_staff 行に FOR UPDATE ロック取得後待機
         Future<?> tx1Future = executor.submit(() -> {
             DefaultTransactionDefinition def1 = new DefaultTransactionDefinition();
             def1.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
@@ -49,7 +49,7 @@ class PayrollPessimisticLockConcurrencyIntegrationTest {
                 payrollMapper.lockStoreStaffForUpdate(targetStaffId);
                 tx1LockAcquired.countDown();
 
-                // Tx-2가 진입하여 블로킹 상태가 될 때까지 대기
+                // Tx-2 が進入しブロッキング状態になるまで待機
                 boolean signaled = tx1CanCommit.await(5, TimeUnit.SECONDS);
                 assertTrue(signaled, "Tx-1 commit signal timed out");
                 transactionManager.commit(status1);
@@ -59,7 +59,7 @@ class PayrollPessimisticLockConcurrencyIntegrationTest {
             }
         });
 
-        // Session 2: 동일 행에 대해 별도 트랜잭션으로 FOR UPDATE 시도 (Tx-1 점유로 인해 블로킹 대기해야 함)
+        // Session 2: 同一行に対し別トランザクションで FOR UPDATE を試行（Tx-1 占有のため待機）
         Future<?> tx2Future = executor.submit(() -> {
             try {
                 boolean acquired = tx1LockAcquired.await(5, TimeUnit.SECONDS);
@@ -73,7 +73,7 @@ class PayrollPessimisticLockConcurrencyIntegrationTest {
                 try {
                     tx2Started.countDown();
                     
-                    // Tx-1이 커밋하기 전까지 여기서 블로킹 대기 발생
+                    // Tx-1 がコミットするまでここでブロッキング待機発生
                     payrollMapper.lockStoreStaffForUpdate(targetStaffId);
                     
                     tx2AcquiredLock.set(true);
@@ -87,23 +87,23 @@ class PayrollPessimisticLockConcurrencyIntegrationTest {
             }
         });
 
-        // Tx-2가 락 획득 시도에 진입했는지 대기
+        // Tx-2 がロック取得試行に進入したかを待機
         boolean tx2Ready = tx2Started.await(3, TimeUnit.SECONDS);
         assertTrue(tx2Ready, "Tx-2 did not start in time");
-        Thread.sleep(300); // 300ms 동안 Tx-2가 블로킹 상태인지 확인
+        Thread.sleep(300); // 300ms 間 Tx-2 がブロッキング状態であることを確認
 
-        // 검증 1: Tx-1이 아직 커밋하지 않았으므로 Tx-2는 락을 획득하지 못하고 대기 중이어야 함
-        assertFalse(tx2AcquiredLock.get(), "[F-04 CONCURRENCY GUARD] Tx-1 점유 중 Tx-2 블로킹 대기 유지 확인");
+        // 検証1: Tx-1 が未コミットのため Tx-2 はロックを取得できず待機中であること
+        assertFalse(tx2AcquiredLock.get(), "[F-04 CONCURRENCY GUARD] Tx-1 占有中の Tx-2 ブロッキング待機維持を確認");
 
-        // Tx-1 커밋 신호 방출
+        // Tx-1 コミットシグナル送出
         tx1CanCommit.countDown();
 
-        // 양측 스레드 완료 대기
+        // 両スレッド完了待機
         tx1Future.get(5, TimeUnit.SECONDS);
         tx2Future.get(5, TimeUnit.SECONDS);
 
-        // 검증 2: Tx-1 커밋 후 Tx-2가 락을 정상 획득하고 완료되었는지 확인
-        assertTrue(tx2AcquiredLock.get(), "[F-04 CONCURRENCY GUARD] Tx-1 커밋 후 Tx-2 락 획득 완료 확인");
+        // 検証2: Tx-1 コミット後に Tx-2 がロックを正常取得し完了したことを確認
+        assertTrue(tx2AcquiredLock.get(), "[F-04 CONCURRENCY GUARD] Tx-1 コミット後の Tx-2 ロック取得完了を確認");
 
         executor.shutdown();
     }

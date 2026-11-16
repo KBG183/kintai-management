@@ -13,6 +13,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.Statement;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,8 +23,8 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-// ★핵심: 테스트 메서드 레벨의 @Transactional을 명시적으로 제거하여 테스트 프레임워크 롤백 착시를 100% 원천 배제
-@DisplayName("F-08: PayrollService 내부 호출 시 실제 DB 변경 및 트랜잭션 전체 롤백 원자성 정밀 실측")
+// ★重要: テストメソッドレベルの @Transactional を明示的に排除し、テストフレームワークのロールバック偽陽性を完全に防止
+@DisplayName("F-08: PayrollService内部呼出時の実DB変更およびトランザクション全体ロールバックの原子性精密実測")
 class PayrollServiceTransactionRollbackIntegrationTest {
 
     @Autowired
@@ -33,13 +36,23 @@ class PayrollServiceTransactionRollbackIntegrationTest {
     @Autowired
     private AttendanceMapper attendanceMapper;
 
+    @Autowired
+    private DataSource dataSource;
+
     private Long testPayrollId;
     private Long testAttendanceId1;
     private Long testAttendanceId2;
 
     @BeforeEach
     void setUp() {
-        // 테스트 시작 전: 실제 DB에 초기 DRAFT 급여와 1건의 근태/상세 데이터를 물리적으로 INSERT & COMMIT
+        try (Connection conn = dataSource.getConnection();
+             Statement st = conn.createStatement()) {
+            st.executeUpdate("DELETE FROM payroll_daily_detail WHERE payroll_id IN (SELECT payroll_id FROM payroll WHERE store_staff_id = 1 AND target_year_month = '2026-10')");
+            st.executeUpdate("DELETE FROM payroll WHERE store_staff_id = 1 AND target_year_month = '2026-10'");
+            st.executeUpdate("DELETE FROM attendance WHERE store_staff_id = 1 AND work_date IN ('2026-10-15', '2026-10-16')");
+        } catch (Exception ignored) {}
+
+        // テスト開始前: 実際の DB に初期 DRAFT 給与と1件の勤怠/明細データを物理的に INSERT & COMMIT
         String targetMonth = "2026-10";
         LocalDate start = LocalDate.of(2026, 10, 1);
         LocalDate end = LocalDate.of(2026, 10, 31);
@@ -98,17 +111,17 @@ class PayrollServiceTransactionRollbackIntegrationTest {
 
     @AfterEach
     void tearDown() {
-        // 테스트 종료 후 DB 클린업
+        // テスト終了後の DB クリーンアップ
         if (testPayrollId != null) {
             payrollMapper.deleteDailyDetailsByPayrollId(testPayrollId);
         }
     }
 
     @Test
-    @DisplayName("내부 재계산(calculatePayrollForStaff)으로 금액/상세 변경 도중 예외 발생 시, 실제 DB가 초기 상태로 100% 롤백되는지 실측")
+    @DisplayName("内部再計算(calculatePayrollForStaff)による金額/明細変更中に例外発生時、実DBが初期状態へ100%ロールバックされることの実測")
     void confirmPayroll_WhenInnerValidationFails_ShouldRollbackActualDbMutations() {
-        // Given: 중간에 근태 데이터가 1건 추가되어 재계산 시 금액과 상세 레코드가 실제로 대폭 변경되는 환경 조성
-        // (재계산 시 workDaysCount=2, totalWorkMinutes=960, grossPay=21800으로 변경 대상이 됨)
+        // Given: 勤怠データが1件追加され、再計算時に金額と明細レコードが大幅に変更される環境を構築
+        // (再計算時: workDaysCount=2, totalWorkMinutes=960, grossPay=21800 へ変更対象)
         AttendanceDto att2 = new AttendanceDto();
         att2.setStoreId(1L);
         att2.setStoreStaffId(1L);
@@ -124,43 +137,43 @@ class PayrollServiceTransactionRollbackIntegrationTest {
         attendanceMapper.insertAttendance(att2);
         testAttendanceId2 = att2.getAttendanceId();
 
-        // 초기 상태 재확인 (총 1건, 총지급액 10,900엔)
+        // 初期状態の再確認（計1件、総支給額10,900円）
         PayrollDto beforeCall = payrollMapper.findById(testPayrollId);
         List<PayrollDailyDetailDto> detailsBeforeCall = payrollMapper.findDailyDetailsByPayrollId(testPayrollId);
-        assertEquals(10900, beforeCall.getGrossPay(), "초기 총지급액은 10900엔이어야 함");
-        assertEquals(1, detailsBeforeCall.size(), "초기 상세 레코드는 1건이어야 함");
+        assertEquals(10900, beforeCall.getGrossPay(), "初期総支給額は10900円であること");
+        assertEquals(1, detailsBeforeCall.size(), "初期明細レコードは1件であること");
 
-        // 점주 확인 예상 금액을 고의로 불일치하게 전송 (예: 999999엔 != 재계산액 21800엔)
-        // confirmPayroll 내부에서 calculatePayrollForStaff(upsert + delete + 2건 insert)가 완전히 실행된 후
-        // 'expected != actual' 검증에 걸려 IllegalStateException이 터짐
+        // 店舗確認予想金額を意図的に不一致として送信（例: 999999円 != 再計算額21800円）
+        // confirmPayroll 内部で calculatePayrollForStaff（upsert + delete + 2件 insert）が完了した後
+        // 'expected != actual' 検証により IllegalStateException が発生
         PayrollConfirmRequestDto mismatchDto = new PayrollConfirmRequestDto();
         mismatchDto.setExpectedGrossPay(999999);
 
-        // When: confirmPayroll 호출
+        // When: confirmPayroll 呼び出し
         IllegalStateException thrown = assertThrows(IllegalStateException.class, () -> {
             payrollService.confirmPayroll(testPayrollId, mismatchDto);
         });
-        System.out.println("[F-08 검증 예외 포착]: " + thrown.getMessage());
+        System.out.println("[F-08 検証例外捕捉]: " + thrown.getMessage());
         assertTrue(thrown.getMessage().contains("確認時と金額が一致しません"));
 
-        // Then: 서비스 트랜잭션 종료 후 별도 쿼리로 실제 DB 데이터 조회
-        // 내부 calculatePayrollForStaff가 DB에 실행했던 upsert(21800엔) 및 상세 2건 삽입이
-        // 서비스 @Transactional에 의해 완전히 롤백되어 초기 10900엔과 상세 1건으로 보존되었는지 검증!
+        // Then: サービストランザクション終了後、別クエリで実際の DB データを取得
+        // 内部 calculatePayrollForStaff が DB に対して実行した upsert（21800円）および明細2件挿入が
+        // サービスの @Transactional により完全にロールバックされ、初期10900円および明細1件に保持されたことを検証
         PayrollDto afterRollback = payrollMapper.findById(testPayrollId);
         List<PayrollDailyDetailDto> detailsAfterRollback = payrollMapper.findDailyDetailsByPayrollId(testPayrollId);
 
         System.out.println("==================================================================");
-        System.out.println("[F-08 엄밀 실측 검증 결과 (테스트 레벨 @Transactional 없음)]");
-        System.out.println("1. 롤백 후 GrossPay      (기대값: 10900, 실측값: " + afterRollback.getGrossPay() + ")");
-        System.out.println("2. 롤백 후 WorkDaysCount (기대값: 1,     실측값: " + afterRollback.getWorkDaysCount() + ")");
-        System.out.println("3. 롤백 후 상세 레코드 수 (기대값: 1,     실측값: " + detailsAfterRollback.size() + ")");
-        System.out.println("4. 롤백 후 상태          (기대값: DRAFT, 실측값: " + afterRollback.getPayrollStatus() + ")");
+        System.out.println("[F-08 厳密実測検証結果（テストレベル @Transactional なし）]");
+        System.out.println("1. ロールバック後 GrossPay      (期待値: 10900, 実測値: " + afterRollback.getGrossPay() + ")");
+        System.out.println("2. ロールバック後 WorkDaysCount (期待値: 1,     実測値: " + afterRollback.getWorkDaysCount() + ")");
+        System.out.println("3. ロールバック後 明細レコード数 (期待値: 1,     実測値: " + detailsAfterRollback.size() + ")");
+        System.out.println("4. ロールバック後 ステータス   (期待値: DRAFT, 実測値: " + afterRollback.getPayrollStatus() + ")");
         System.out.println("==================================================================");
 
-        assertEquals(10900, afterRollback.getGrossPay(), "[CRITICAL F-08] 내부 calculatePayrollForStaff의 upsert(21800)가 원복되어야 함");
-        assertEquals(1, afterRollback.getWorkDaysCount(), "[CRITICAL F-08] 출근일수(2일) 변경이 1일로 롤백되어야 함");
-        assertEquals(1, detailsAfterRollback.size(), "[CRITICAL F-08] 일별 상세 2건 삽입이 롤백되어 원래 1건만 유지되어야 함");
-        assertEquals("DRAFT", afterRollback.getPayrollStatus(), "상태는 DRAFT여야 함");
-        assertNull(afterRollback.getConfirmedAt(), "confirmed_at 필드는 null이어야 함");
+        assertEquals(10900, afterRollback.getGrossPay(), "[CRITICAL F-08] 内部 calculatePayrollForStaff の upsert(21800) が復元されること");
+        assertEquals(1, afterRollback.getWorkDaysCount(), "[CRITICAL F-08] 出勤日数（2日）の変更が1日へロールバックされること");
+        assertEquals(1, detailsAfterRollback.size(), "[CRITICAL F-08] 日別明細2件挿入がロールバックされ、元の1件のみ保持されること");
+        assertEquals("DRAFT", afterRollback.getPayrollStatus(), "ステータスは DRAFT であること");
+        assertNull(afterRollback.getConfirmedAt(), "confirmed_at フィールドは null であること");
     }
 }

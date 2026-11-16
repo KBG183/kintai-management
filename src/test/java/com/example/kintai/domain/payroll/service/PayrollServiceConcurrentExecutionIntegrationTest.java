@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@DisplayName("F-04: 실제 PayrollService 경로 동시 실행 시 락 순서 일치에 따른 데드락 소멸 및 직렬화 검증")
+@DisplayName("F-04: 実際のPayrollService経路の同時実行におけるロック順序統一によるデッドロック解消および直列化検証")
 class PayrollServiceConcurrentExecutionIntegrationTest {
 
     @Autowired
@@ -42,13 +42,13 @@ class PayrollServiceConcurrentExecutionIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        // 기존 테스트 데이터 정리
+        // 既存テストデータのクリーンアップ
         PayrollDto old = payrollMapper.findByStaffAndMonth(targetStaffId, targetMonth);
         if (old != null) {
             payrollMapper.deleteDailyDetailsByPayrollId(old.getPayrollId());
         }
 
-        // 유효한 출근 데이터 확보 (10월 5일)
+        // 有効な出勤データの確保（10月5日）
         AttendanceDto att = new AttendanceDto();
         att.setStoreId(targetStoreId);
         att.setStoreStaffId(targetStaffId);
@@ -63,7 +63,7 @@ class PayrollServiceConcurrentExecutionIntegrationTest {
         att.setAttendanceStatus("COMPLETED");
         attendanceMapper.insertAttendance(att);
 
-        // DRAFT 급여 원장 생성
+        // DRAFT 給与元帳の作成
         PayrollDto draft = new PayrollDto();
         draft.setStoreId(targetStoreId);
         draft.setStoreStaffId(targetStaffId);
@@ -94,7 +94,7 @@ class PayrollServiceConcurrentExecutionIntegrationTest {
     }
 
     @Test
-    @DisplayName("동일 직원에 대해 calculatePayrollForStaff와 confirmPayroll 동시 실행 시 데드락 없이 순차 실행 완료 검증")
+    @DisplayName("同一従業員に対し calculatePayrollForStaff と confirmPayroll を同時実行した際、デッドロックなく順次実行完了することの検証")
     void concurrentExecution_NoDeadlock_SerializedSuccessfully() throws Exception {
         ExecutorService executor = Executors.newFixedThreadPool(2);
         CountDownLatch readyLatch = new CountDownLatch(2);
@@ -117,7 +117,7 @@ class PayrollServiceConcurrentExecutionIntegrationTest {
             }
         });
 
-        // Thread 2: confirmPayroll (store_staff -> payroll 통일)
+        // Thread 2: confirmPayroll（store_staff -> payroll 順序統一）
         Future<?> f2 = executor.submit(() -> {
             readyLatch.countDown();
             try {
@@ -131,8 +131,8 @@ class PayrollServiceConcurrentExecutionIntegrationTest {
             }
         });
 
-        assertTrue(readyLatch.await(5, TimeUnit.SECONDS), "두 스레드가 준비 상태에 도달해야 함");
-        startLatch.countDown(); // 동시 시작!
+        assertTrue(readyLatch.await(5, TimeUnit.SECONDS), "両スレッドが準備状態に到達すること");
+        startLatch.countDown(); // 同時開始
 
         f1.get(10, TimeUnit.SECONDS);
         f2.get(10, TimeUnit.SECONDS);
@@ -142,12 +142,12 @@ class PayrollServiceConcurrentExecutionIntegrationTest {
         Throwable e2 = confirmError.get();
 
         System.out.println("==================================================================");
-        System.out.println("[실제 서비스 경로 동시 실행 결과]");
+        System.out.println("[実サービス経路の同時実行結果]");
         System.out.println("Thread 1 (calculatePayrollForStaff) Exception: " + (e1 != null ? e1.getMessage() : "SUCCESS"));
         System.out.println("Thread 2 (confirmPayroll) Exception: " + (e2 != null ? e2.getMessage() : "SUCCESS"));
         System.out.println("==================================================================");
 
-        // 핵심 판정 1: 데드락(1213 / CannotAcquireLockException / DeadlockLoserDataAccessException)이 전혀 발생하지 않아야 함
+        // 判定1: デッドロック（1213 / CannotAcquireLockException / DeadlockLoserDataAccessException）が一切発生しないこと
         boolean deadlockOccurred = false;
         if (e1 != null) {
             deadlockOccurred |= e1.getMessage().contains("Deadlock") || e1.getMessage().contains("1213");
@@ -155,11 +155,11 @@ class PayrollServiceConcurrentExecutionIntegrationTest {
         if (e2 != null) {
             deadlockOccurred |= e2.getMessage().contains("Deadlock") || e2.getMessage().contains("1213");
         }
-        assertFalse(deadlockOccurred, "[CRITICAL F-04] 실제 서비스 경로 동시 실행 시 1213 데드락이 발생하지 않아야 함!");
+        assertFalse(deadlockOccurred, "[CRITICAL F-04] 実サービス経路の同時実行時に1213デッドロックが発生しないこと");
 
-        // 핵심 판정 2: 최종 급여 상태는 정상 확정(CONFIRMED)되거나 정합성이 보존되어야 함
+        // 判定2: 最終給与ステータスが正常確定（CONFIRMED）または整合性が保持されること
         PayrollDto finalPayroll = payrollMapper.findById(testPayrollId);
         assertNotNull(finalPayroll);
-        System.out.println("최종 급여 상태: " + finalPayroll.getPayrollStatus() + ", 총지급액: " + finalPayroll.getGrossPay());
+        System.out.println("最終給与ステータス: " + finalPayroll.getPayrollStatus() + ", 総支給額: " + finalPayroll.getGrossPay());
     }
 }
