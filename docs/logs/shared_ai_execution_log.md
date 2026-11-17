@@ -15,7 +15,7 @@
 
 | ID | 단계 | 문제 또는 작업 | 조치·결과 | 증적 |
 |---|---|---|---|---|
-| AI-001 | Codex 직접 호출 | ChatGPT Codex 샌드박스에서 Tailscale `100.111.193.94:11434` 소켓 접근 거부 | 직접 호출 불가 확인. Windows 파일 큐 중계 방식으로 전환 | `docs/codex_to_antigravity_remote_qwen_handoff.md` |
+| AI-001 | Codex 직접 호출 | ChatGPT Codex 샌드박스에서 Tailscale `<TAILSCALE_OLLAMA_HOST>:11434` 소켓 접근 거부 | 직접 호출 불가 확인. Windows 파일 큐 중계 방식으로 전환 | `docs/codex_to_antigravity_remote_qwen_handoff.md` |
 | AI-002 | 큐 1차 테스트 | `raw_response.json` 저장 전 바이트와 기록 SHA-256 불일치 | 디스크 저장 후 실제 파일을 다시 해시하도록 수정 | `docs/codex_queue/completed/codex_test_remote_ok/` |
 | AI-003 | 큐 1차 테스트 | `result.md`에 Qwen `<think>` 흔적 노출 | 결과 저장 전 사고 과정 태그 제거 | 동일 경로 `result.md` |
 | AI-004 | 실패 처리 | 잘못된 JSON·localhost·로컬 7B 요청의 실패 원장 누락 위험 | `failed/<request-id>/request.json`, `error.txt`, `manifest.json` 강제 생성 | `docs/codex_queue/failed/` |

@@ -71,7 +71,7 @@
   "$schema": "./audit_config.schema.json",
   "primary_auditor": {
     "network_type": "Tailscale Overlay Network",
-    "endpoint": "http://100.111.193.94:11434",
+    "endpoint": "http://<TAILSCALE_OLLAMA_HOST>:11434",
     "model_tag": "qwen27b:latest",
     "model_digest": "23c3820b0d9326b73e97191b9fb7e16b53f6e24bb3449d2a17037c5f2b6179a1",
     "think": false,
@@ -85,7 +85,7 @@
   "fallback_auditor": {
     "enabled": false,
     "network_type": "Tailscale Overlay Network",
-    "endpoint": "http://100.111.193.94:11434",
+    "endpoint": "http://<TAILSCALE_OLLAMA_HOST>:11434",
     "model_tag": "qwen27b:latest",
     "model_digest": "23c3820b0d9326b73e97191b9fb7e16b53f6e24bb3449d2a17037c5f2b6179a1",
     "think": false,
@@ -111,7 +111,7 @@ param(
     [string]$CustomPrompt = "",
     [string]$OutputFile = "hermes_audit_report.md",
     [string]$Model = "qwen27b:latest",
-    [string]$HostUrl = "http://100.111.193.94:11434",
+    [string]$HostUrl = "http://<TAILSCALE_OLLAMA_HOST>:11434",
     [string]$SectionFilter = "",
     [string]$LineRange = "",
     [string]$InputManifestPath = "",
@@ -561,7 +561,7 @@ $env:KINTAI_DB_PASSWORD = "<ローカルDBパスワード>"
 | **R-07** | 최종 독립 감사 및 11대 포맷 종합 보고 | R-01~R-06 결과를 대조하여 누락 없는지 독립 검수 후 11대 규격 보고서 출력 | 11개 항목을 누락 없이 순서대로 팩트 기술 | 최종 보고서 본문 | 본 세션 응답 | **VERIFIED** | 11대 표준 보고서 출력 완료 |
 | **R-08** | 출퇴근 CLOCK_IN 동시 요청 중복 생성 차단 및 비관적 락 정합성 실측 | 동일 직원 동시 CLOCK_IN에서 성공 1건·업무 거부 1건 및 중복 미생성을 검증한다. | 2개 스레드 결과, DB 상태, 격리 DB 증거와 반복 로그 | `AttendanceService.java`; `AttendanceMapper.xml`; `AttendanceServiceConcurrencyIntegrationTest.java`; `docs/audit_runs/day10_isolated_regression_20261114_093404/` | **VERIFIED (로컬 MySQL 26.7)** | 최종 소스에서 신규 격리 DB 3개 각각 2건 테스트, 총 6건 PASS, 실패·오류 0. 요약과 JUnit SHA-256은 run 폴더 `summary.json`. 최신 전체 회귀(2026-11-14)는 92 PASS. 운영 DB 미사용. |
 | **R-09** | 출퇴근 CLOCK_OUT 동시 요청 완료 상태 보존 및 중복 퇴근 거부 실측 | 동일 직원 진행 근태의 동시 CLOCK_OUT에서 성공 1건·거부 1건, 최종 COMPLETED를 검증한다. | 2개 스레드 결과, DB 최종 상태, 격리 DB 증거와 반복 로그 | `AttendanceService.java`; `AttendanceMapper.xml`; `AttendanceServiceConcurrencyIntegrationTest.java`; `docs/audit_runs/day10_isolated_regression_20261114_093404/` | **VERIFIED (로컬 MySQL 26.7)** | 최종 소스에서 신규 격리 DB 3개 각각 CLOCK_OUT 테스트 포함 2건 PASS, 총 6건 PASS, 실패·오류 0. 최신 전체 회귀(2026-11-14)는 92 PASS. 운영 DB 미사용. |
-| **R-10** | Day 10 출퇴근 동시성 독립 Qwen 감사 및 감사관 지적 해소 | 최신 근태 타각·인증·입력 경계 구현과 반복 검증을 독립 감사한다. | 현행 소스 번들, 실행 결과, A-05/A-06 및 재검수 결과 보존 | `docs/audit_runs/prior_residuals_20261114/qwen_day10_final/hermes_final/`; bundle SHA-256 `dd991d3ca2ab013943b9f6e7f5b676524b4e77df34d67fe77e881586f03aa7c8` | **VERIFIED (로컬 MySQL 26.7 범위)** | 원격 `http://100.111.193.94:11434`, `qwen27b:latest`, Run `20261114_003657_dd991d3c`. 10 findings 중 PASS 9, N/A 1(급여 계산은 Day10 근태 타각 감사 범위 밖), WARN/FAIL 0. 기존 A-05/A-06을 세션 ID 강제 바인딩/소유권 검사, 실제 필터 미인증 요청 테스트, 입력 거부 및 Mapper 무호출로 해소. report SHA-256 `31e8e18609ec458e8e589888646a05502f1f37c269bc4820b25df6bdb62bf430`. |
+| **R-10** | Day 10 출퇴근 동시성 독립 Qwen 감사 및 감사관 지적 해소 | 최신 근태 타각·인증·입력 경계 구현과 반복 검증을 독립 감사한다. | 현행 소스 번들, 실행 결과, A-05/A-06 및 재검수 결과 보존 | `docs/audit_runs/prior_residuals_20261114/qwen_day10_final/hermes_final/`; bundle SHA-256 `dd991d3ca2ab013943b9f6e7f5b676524b4e77df34d67fe77e881586f03aa7c8` | **VERIFIED (로컬 MySQL 26.7 범위)** | 원격 `http://<TAILSCALE_OLLAMA_HOST>:11434`, `qwen27b:latest`, Run `20261114_003657_dd991d3c`. 10 findings 중 PASS 9, N/A 1(급여 계산은 Day10 근태 타각 감사 범위 밖), WARN/FAIL 0. 기존 A-05/A-06을 세션 ID 강제 바인딩/소유권 검사, 실제 필터 미인증 요청 테스트, 입력 거부 및 Mapper 무호출로 해소. report SHA-256 `31e8e18609ec458e8e589888646a05502f1f37c269bc4820b25df6bdb62bf430`. |
 | **R-11** | Day 11 12개월 급여 계산 시나리오 및 계약 유효기간 | 월별 근무 분포, 계약 이력, API/Service 경로와 급여를 대조하고 독립 연간 합계를 검증한다. | 12개월×3근무일, 계약 임금 변경, 독립 연간 oracle, 타각 HTTP/API 경로, JUnit 및 격리 DB 로그 | `AnnualPayrollScenarioIntegrationTest.java`; `AttendancePunchApiIntegrationTest.java`; `docs/audit_runs/isolated_day11_20261114_093228_kintai_day11_test_3a25e5513c4f/`; `docs/audit_runs/isolated_all_20261114_094427_kintai_full_test_d4124a317ed0/`; remote Qwen Run `20261114_004900_46049b14` | **VERIFIED (로컬 MySQL 26.7)** | 12개월 각각 3일의 근태 및 독립 연간 oracle 대조 PASS, 계약 경계 6/30·7/1 PASS. 실제 Spring Security 필터→Controller→Service→DB 타각 API spoofed ID 차단·저장 검증 PASS(전용 통합 테스트 및 R-10 재감사 증적 참조). 최신 전체 회귀 92 PASS. Qwen R-11/R-12 소스 감사 12/12 PASS, WARN/FAIL 0. |
 | **R-12** | Day 11 경계·결함 시나리오 | 야간·다회 휴게·계약 경계·동일일 분할 근무 8시간 누적·월마감·반올림을 독립 기대값으로 검증한다. | 각 경계의 통합/단위 테스트, 저장된 실행 및 JUnit | `AnnualPayrollScenarioIntegrationTest.java`; `LaborCalculationEngineTest.java`; `SplitShiftOvertimeDefectTest.java`; `PayrollCalculatorStatutoryRoundingTest.java`; `docs/audit_runs/isolated_day11_20261114_094349_kintai_day11_test_01f4cb1439e6/`; `docs/audit_runs/isolated_all_20261114_094427_kintai_full_test_d4124a317ed0/` | **VERIFIED (로컬 MySQL 26.7)** | 4h+5h 분할근무 후 CLOCK_OUT service에서 60분 초과 산출 및 월 급여 반영 PASS. 20:00~05:00 야간 420분 중 연장 60분 중첩의 25%+25%=50% 프리미엄 및 급여 합계 PASS. 1/31 포함·2/1 제외, 계약·자정·다회휴게·야간휴게 차감·HALF_UP 경계 PASS. Qwen Run `20261114_004900_46049b14` 12 findings PASS, WARN/FAIL 0. 전체 회귀 92 PASS. |
 | **R-13** | Day 11 격리 실행 및 회귀 증거 무결성 | 새 격리 DB에서 대상 테스트와 전체 회귀를 실행하고 로그·JUnit·요약·해시를 보존한다. | 대상 테스트 및 전체 회귀 종료 코드 0, 격리 DB 및 매니페스트 대조 | `docs/audit_runs/isolated_day11_20261114_094349_kintai_day11_test_01f4cb1439e6/`; `docs/audit_runs/isolated_all_20261114_094427_kintai_full_test_d4124a317ed0/` | **VERIFIED (로컬 MySQL 26.7)** | 최신 대상 연간·경계 테스트 6 PASS, 전체 회귀 92 PASS, 실패·오류·스킵 0, Gradle exit 0. 이전 81건 결과는 당시 스냅샷으로 보존. MySQL 8.4 Testcontainers 결과로 일반화하지 않음. |
@@ -569,7 +569,7 @@ $env:KINTAI_DB_PASSWORD = "<ローカルDBパスワード>"
 | **R-15** | Day 13 격리 데모 데이터 생성 및 연간 분포 | 2026년 synthetic schedule/attendance fixture를 신규 격리 demo DB에 적재하고 DB 식별자·기간·행 수·UTF-8 샘플명을 대조한다. | `SELECT DATABASE()` 및 기간/건수/문자 인코딩 확인, 화면에서 해당 데이터 조회 | `scripts/prepare_local_demo_db.ps1`; `scripts/local_demo_attendance.sql`; `docs/audit_runs/day13_calendar_20261114/` | **VERIFIED (로컬 MySQL 26.7)** | 최종 DB `kintai_demo_9f3f8487bc42`: confirmed shift 313건과 attendance 313건, 2026-01-01~2026-12-31, owner-name UTF-8 HEX 확인. 초기 DB의 손상된 이름은 보존하고 새 DB로 대체. 운영 DB 사용 안 함. |
 | **R-16** | Day 13 캘린더 API DTO와 브라우저 표시·상세 정합성 | CalendarEventDto 응답을 그대로 표시하고 상세/확정 모달에서 이벤트 기간·휴게 시간을 사용한다. | 독립 API 응답과 브라우저 월간 이벤트·상세 모달 실측, 전체 회귀 | `calendar.html`; `CalendarEventDto.java`; `docs/audit_runs/isolated_all_20261114_074456_kintai_full_test_3df696be0820/` | **VERIFIED (로컬 브라우저·MySQL 26.7)** | API 필드명과 화면 매핑 불일치를 수정. November 2026 confirmed events 및 11/02 상세 모달(09:00~18:00, 60분) 화면 확인. |
 | **R-17** | Day 13 급여 데모 및 Excel 다운로드 확인 | 격리 데이터에서 급여 계산과 UI 표시를 확인하고 Excel 산출을 검증한다. | 화면 급여 값·이름·상태, API/XLSX 산출, 실제 브라우저 다운로드 이벤트 및 저장 파일 검사, 회귀 | `docs/audit_runs/day13_calendar_20261114/ui_review_record.md`; `payroll_api_list.json`; `payroll_2026-01_browser_download.xlsx`; `excel_browser_download.json`; `payroll_excel_validation.json` | **VERIFIED (로컬 MySQL 26.7)** | 격리 DB 급여 UI에서 두 DRAFT 행과 급여액을 확인하고 Excel 출력을 실행했다. 브라우저 다운로드 이벤트가 완료되어 5,092-byte 파일을 확보, OOXML·월·¥141,700·¥164,332를 검증했다. 파일 SHA-256 `ba127f65f193f8289c2b4e445efc09a06e1590e2230ed0b1ad603d839cfdcd98`. Chrome 과거 차단은 이력으로 보존한다.
-| **R-18** | Day 13 독립 Qwen 감사 및 증적 추적 | 갱신된 번들·실행 결과·UI 증거를 포함해 Hermes Qwen 27B 독립 감사를 수행하고 지적을 반영한다. | 유효 입력 manifest, 독립 결과 원문/해시, 지적과 조치·재검수 일치 | `docs/audit_runs/day13_calendar_20261114/qwen27b_day13_final/report.md`; `qwen27b_day13_final/audit_run.json`; bundle SHA-256 `d69a9b63c9a6a79043a38fb9c8942ab9c3fd0f9936087ffe5865d778f6817379` | **VERIFIED (로컬 MySQL 26.7 범위)** | 원격 `http://100.111.193.94:11434`, `qwen27b:latest` IQ3_M 27.3B, digest `23c3820b0d9326b73e97191b9fb7e16b53f6e24bb3449d2a17037c5f2b6179a1`; Run ID `20261113_234922_d69a9b63`; report SHA-256 `0dc324150a75bb8a1d3035f7ee770a03ec2bffd8241a3a041ffd9ee2066fbf32`. 최신 번들 15개 감사 finding 모두 PASS, WARN/FAIL 0. R-17 브라우저 다운로드 이벤트와 저장 XLSX 내용 검증을 포함한다. MySQL 8.4는 2027-01 DEFERRED.
+| **R-18** | Day 13 독립 Qwen 감사 및 증적 추적 | 갱신된 번들·실행 결과·UI 증거를 포함해 Hermes Qwen 27B 독립 감사를 수행하고 지적을 반영한다. | 유효 입력 manifest, 독립 결과 원문/해시, 지적과 조치·재검수 일치 | `docs/audit_runs/day13_calendar_20261114/qwen27b_day13_final/report.md`; `qwen27b_day13_final/audit_run.json`; bundle SHA-256 `d69a9b63c9a6a79043a38fb9c8942ab9c3fd0f9936087ffe5865d778f6817379` | **VERIFIED (로컬 MySQL 26.7 범위)** | 원격 `http://<TAILSCALE_OLLAMA_HOST>:11434`, `qwen27b:latest` IQ3_M 27.3B, digest `23c3820b0d9326b73e97191b9fb7e16b53f6e24bb3449d2a17037c5f2b6179a1`; Run ID `20261113_234922_d69a9b63`; report SHA-256 `0dc324150a75bb8a1d3035f7ee770a03ec2bffd8241a3a041ffd9ee2066fbf32`. 최신 번들 15개 감사 finding 모두 PASS, WARN/FAIL 0. R-17 브라우저 다운로드 이벤트와 저장 XLSX 내용 검증을 포함한다. MySQL 8.4는 2027-01 DEFERRED.
 | **R-19** | Day 13 최종 포트폴리오 패키지 | 기술 증적, 아키텍처 그림, 데모 안내 및 한·일 요약을 실제 결과에 맞게 작성한다. | 문서·링크·상태·수치를 RTM/원본 증거와 대조하고 로컬 문서 검사 및 독립 감사를 보존한다. | `docs/final-portfolio/`; `docs/audit_runs/day13_calendar_20261114/final_portfolio_review/hermes_final_snapshot/` | **VERIFIED** | 상대 Markdown 링크 검사 PASS. 원격 Qwen 27B Run `20261114_000458_4af20cd9`, 15 finding PASS, WARN/FAIL 0. 번들 SHA-256 `4af20cd936e1a70c91ca8d6b905f0d6f948d108b1c09fd226958a2a6c2b3b543`; report SHA-256 `4876963e92a4cb197596d02fb5d172a50db4a13b7b382930c312e433337d1d28`. 최초 감사 WARN는 Mapper/Service 잠금 증거를 추가해 해소하고 재검수 PASS. |
 
 > **R-08부터 R-10 후속 증적 재평가 (2026-11-13):** 위 상태는 당시 기록을 보존한다. 현재 XML은 동시성 2건 실패 0건이나, 과거 3회 각각의 로그와 기존 기록의 JUnit 해시에 일치하는 원본은 미확인이다. 감사 원문 A-05와 A-06은 WARN이므로 R-10의 지적 해소 전체는 `PARTIALLY_VERIFIED`로 재평가한다. A-05는 직원 세션 ID 바인딩과 점주 소유권 검사가 코드에 있으나 해당 보안 테스트의 이번 재실행은 Gradle 환경 제한으로 미실행이다. A-06은 입력 경계 검증이 남았다. `/punch`의 인증 객체 부재는 컨트롤러 자체 차단이 아니라 보안 필터 설정에 의존하므로 실제 경계 검증이 필요하다. 격리 DB 부재와 소켓 권한 제한으로 동시성 재실행은 `BLOCKED`, MySQL 8.4는 별도로 `BLOCKED`를 유지한다. 당시 감사 번들은 `docs/audit_runs/20261113_030041_19b587c7/reconstructed_input_bundle.md`에 해시 일치 재구성본을 보존한다.
@@ -893,7 +893,7 @@ Kintai is a Japanese shift, attendance, and monthly payroll application. The ver
 The portfolio's “three-tier AI cooperation” describes three decision roles, not three web-service tiers:
 
 1. **Implementation agent:** Antigravity performs implementation and prepares test evidence under the project instructions.
-2. **Independent AI reviewer:** Hermes invokes the remote `qwen27b:latest` model at `http://100.111.193.94:11434` to review a frozen evidence bundle. The audit is advisory and cannot replace execution tests or human acceptance.
+2. **Independent AI reviewer:** Hermes invokes the remote `qwen27b:latest` model at `http://<TAILSCALE_OLLAMA_HOST>:11434` to review a frozen evidence bundle. The audit is advisory and cannot replace execution tests or human acceptance.
 3. **Human decision owner:** the user determines scope, accepts or rejects recommendations, and owns final product decisions.
 
 Codex is a user-directed collaborator in this workflow; it is not silently substituted for the implementation or independent review role. No local Qwen fallback or model download was used for the final Day 13 audit.
@@ -952,7 +952,7 @@ Kintaiは日本向けシフト・勤怠・月次給与アプリです。確認�
 2. **独立AIレビュー担当:** Hermesが凍結した証跡バンドルを、リモート`qwen27b:latest`でレビュー。監査は助言であり、実行テスト・人間の受入判断を代替しません。
 3. **人間の決定者:** ユーザーが範囲、提案の採否、最終判断を決定。
 
-最終Day 13監査先は `http://100.111.193.94:11434`。ローカルQwenへの代替やモデルのダウンロードはしていません。これはアプリの3層構造ではなく、監査・判断の役割分担です。
+最終Day 13監査先は `http://<TAILSCALE_OLLAMA_HOST>:11434`。ローカルQwenへの代替やモデルのダウンロードはしていません。これはアプリの3層構造ではなく、監査・判断の役割分担です。
 
 ## 実測結果
 
@@ -1050,7 +1050,7 @@ Codex가 2026-11-14 기준 저장소·증적·잔여 작업을 대조한 인수�
 
 1. R-05(MySQL 8.4 Testcontainers) 및 Day 12 작업은 사용자 지시에 따라 예정일까지 제외합니다. 지금 실행하지 마세요.
 2. 운영 DB는 사용 금지. 대상/전체 테스트와 시연마다 새 allowlisted 격리 DB를 사용하고 DB명을 증거로 확인하세요. 기존 격리 DB도 삭제하지 마세요.
-3. 원격 Qwen 감사는 `http://100.111.193.94:11434`, `qwen27b:latest`만 사용하세요. `scripts/audit_config.json` 및 `scripts/audit_with_hermes.ps1`을 확인하세요. 로컬 7B 대체, 다른 IP, 모델 pull/download/install 금지. 연결 실패 시 원본 주소와 오류를 보존하고 미검증으로 남기세요.
+3. 원격 Qwen 감사는 `http://<TAILSCALE_OLLAMA_HOST>:11434`, `qwen27b:latest`만 사용하세요. `scripts/audit_config.json` 및 `scripts/audit_with_hermes.ps1`을 확인하세요. 로컬 7B 대체, 다른 IP, 모델 pull/download/install 금지. 연결 실패 시 원본 주소와 오류를 보존하고 미검증으로 남기세요.
 4. 외부 배포, 원격 Git 반영, 메시지 전송은 하지 마세요. 해당 작업은 사용자 지시가 별도로 필요합니다.
 5. 기존 실패 로그와 증거는 덮어쓰거나 삭제하지 말고 새 실행 디렉터리에 보존하세요.
 
@@ -1097,7 +1097,7 @@ Codex가 2026-11-14 기준 저장소·증적·잔여 작업을 대조한 인수�
 - RTM R-08/R-09/R-10/R-11/R-12/R-14는 이 날짜 최종 증거 기준으로 VERIFIED입니다. 이전 날짜의 `PARTIALLY_VERIFIED` 및 테스트 개수는 당시 이력으로 보존하며, 현재 상태는 `docs/rtm_ledger.md`를 따릅니다.
 - 급여 통합 경계 테스트에서 20:00~다음 날 05:00 근무(총 540분), 야간 420분, 일일 연장 60분을 구성했습니다. 급여에 야간 25%와 연장 25%가 각각 가산되어 겹친 시간의 합산 50% 프리미엄이 반영되는 것을 확인했습니다. 야간 휴게 차감은 `LaborCalculationEngineTest`의 야간 시간대 휴게 사례로 검증했습니다.
 - 새 격리 DB `kintai_day11_test_01f4cb1439e6`에서 `AnnualPayrollScenarioIntegrationTest` 6/6 PASS. 이후 전체 회귀는 새 격리 DB `kintai_full_test_d4124a317ed0`에서 92/92 PASS, 실패·오류·스킵 0, Gradle exit 0입니다. 운영 DB `kintai_db`에는 연결하거나 데이터를 변경하지 않았습니다.
-- 수정 뒤 원격 독립 검수는 지정 주소 `http://100.111.193.94:11434`, `qwen27b:latest` (27.3B, IQ3_M)에서 실행했습니다. Run `20261114_004900_46049b14`; 12 findings PASS, WARN/FAIL 0. 입력 SHA-256 `46049b14578b32462a6f105966643d658919d5ed658faaf885796e2e1cd2c4b8`; 결과 SHA-256 `b1ae1c9d7844d92b6ab4b47bf5e5c66dbb0f1f3f916549688e3c83ea56798f10`. 실행 증거는 `docs/audit_runs/preflight_1e3b8fba040b4197aed07afbde9334f2/hermes/`입니다.
+- 수정 뒤 원격 독립 검수는 지정 주소 `http://<TAILSCALE_OLLAMA_HOST>:11434`, `qwen27b:latest` (27.3B, IQ3_M)에서 실행했습니다. Run `20261114_004900_46049b14`; 12 findings PASS, WARN/FAIL 0. 입력 SHA-256 `46049b14578b32462a6f105966643d658919d5ed658faaf885796e2e1cd2c4b8`; 결과 SHA-256 `b1ae1c9d7844d92b6ab4b47bf5e5c66dbb0f1f3f916549688e3c83ea56798f10`. 실행 증거는 `docs/audit_runs/preflight_1e3b8fba040b4197aed07afbde9334f2/hermes/`입니다.
 - R-05 MySQL 8.4/Testcontainers는 사용자 지시에 따라 예정된 검토일까지 이번 업무에서 제외합니다. Docker/Podman 미설치 확인 기록은 보존했으며 소프트웨어를 설치·다운로드하지 않았습니다.
 - R-02 업무정책은 사용자가 2026-11-14 채택했습니다. 정책 문서와 RTM에 반영했고 기술 검증은 격리 전체 회귀에서 통과했습니다. Day12는 예정일 전까지 제외하며 외부 AWS/클라우드 변경은 실행하지 않았습니다.
 - 체크리스트 및 실행 요약: `docs/audit_runs/prior_residuals_20261114/completion_checklist.json`; 인수인계: `docs/handoff/20261114_residuals_handoff.md`.
@@ -1123,7 +1123,7 @@ Codex가 2026-11-14 기준 저장소·증적·잔여 작업을 대조한 인수�
 - Antigravity 실행 순서, 분리 DB 금지선, Qwen 원격 주소와 제외 작업은 `docs/handoff/20261114_antigravity_project_wide_handoff.md`에 정리했습니다.
 ### 원격 감사 모델 표기 정정 (2026-11-14)
 
-- 과거 부록의 `qwen3.8:27b` 태그 표기와 `100.91` 마스킹 주소는 현재 실행 설정이 아닙니다. 실제 사용 태그는 `qwen27b:latest`, 주소는 `http://100.111.193.94:11434`입니다. 과거 기록은 감사 이력으로 보존하되 현재 실행 설정으로 재사용하지 않습니다. 정본: `scripts/audit_config.json`, `scripts/audit_with_hermes.ps1`.
+- 과거 부록의 `qwen3.8:27b` 태그 표기와 `100.91` 마스킹 주소는 현재 실행 설정이 아닙니다. 실제 사용 태그는 `qwen27b:latest`, 주소는 `http://<TAILSCALE_OLLAMA_HOST>:11434`입니다. 과거 기록은 감사 이력으로 보존하되 현재 실행 설정으로 재사용하지 않습니다. 정본: `scripts/audit_config.json`, `scripts/audit_with_hermes.ps1`.
 
 ---
 
@@ -1134,7 +1134,7 @@ Codex가 2026-11-14 기준 저장소·증적·잔여 작업을 대조한 인수�
 - RTM R-08/R-09/R-10/R-11/R-12/R-14は、この日付の最終証拠に基づきVERIFIEDです。過去日の`PARTIALLY_VERIFIED`およびテスト件数は当時の履歴として保持し、現在の状態は`docs/rtm_ledger.md`に従います。
 - 給与統合境界テストで20:00から翌05:00までの勤務（合計540分）、深夜420分、日次時間外60分を設定しました。深夜25%と時間外25%が個別に加算され、重複時間に合計50%の割増が反映されることを確認しました。深夜休憩の控除は`LaborCalculationEngineTest`の深夜帯休憩ケースで検証しました。
 - 新規隔離DB `kintai_day11_test_01f4cb1439e6`で`AnnualPayrollScenarioIntegrationTest`は6/6 PASS。その後、新規隔離DB `kintai_full_test_d4124a317ed0`で全回帰92/92 PASS、失敗・エラー・スキップ0、Gradle exit 0です。運用DB `kintai_db`には接続せず、データ変更もしていません。
-- 修正後のリモート独立監査は指定先`http://100.111.193.94:11434`、`qwen27b:latest`（27.3B、IQ3_M）で実行しました。Run `20261114_004900_46049b14`、12 findings PASS、WARN/FAIL 0。入力SHA-256 `46049b14578b32462a6f105966643d658919d5ed658faaf885796e2e1cd2c4b8`、結果SHA-256 `b1ae1c9d7844d92b6ab4b47bf5e5c66dbb0f1f3f916549688e3c83ea56798f10`。実行証拠は`docs/audit_runs/preflight_1e3b8fba040b4197aed07afbde9334f2/hermes/`です。
+- 修正後のリモート独立監査は指定先`http://<TAILSCALE_OLLAMA_HOST>:11434`、`qwen27b:latest`（27.3B、IQ3_M）で実行しました。Run `20261114_004900_46049b14`、12 findings PASS、WARN/FAIL 0。入力SHA-256 `46049b14578b32462a6f105966643d658919d5ed658faaf885796e2e1cd2c4b8`、結果SHA-256 `b1ae1c9d7844d92b6ab4b47bf5e5c66dbb0f1f3f916549688e3c83ea56798f10`。実行証拠は`docs/audit_runs/preflight_1e3b8fba040b4197aed07afbde9334f2/hermes/`です。
 - R-05 MySQL 8.4/Testcontainersはユーザーの指示により、予定されたレビュー日まで今回の作業対象から除外します。Docker/Podman未導入の確認記録を保持し、ソフトウェアのインストール・ダウンロードは行っていません。
 - R-02業務方針はユーザーが2026-11-14に採用しました。方針文書とRTMに反映し、隔離全回帰で技術検証済みです。Day12は予定日まで対象外とし、AWS/クラウド変更は実施していません。
 - チェックリストと実行サマリー: `docs/audit_runs/prior_residuals_20261114/completion_checklist.json`; 引継ぎ: `docs/handoff/20261114_residuals_handoff.md`。
@@ -1159,14 +1159,14 @@ Codex가 2026-11-14 기준 저장소·증적·잔여 작업을 대조한 인수�
 - Antigravityの実行順、分離DBの安全条件、Qwenの指定先と除外作業は`docs/handoff/20261114_antigravity_project_wide_handoff.md`に記載しました。
 ### リモート監査モデル表記の訂正 (2026-11-14)
 
-- 過去の付録にある`qwen3.8:27b`タグおよび`100.91`のマスク済みアドレスは、現在の実行設定ではありません。現在のモデルタグは`qwen27b:latest`、接続先は`http://100.111.193.94:11434`です。過去の記録は監査履歴として保持し、現行設定として再利用しません。正本は`scripts/audit_config.json`と`scripts/audit_with_hermes.ps1`です。
+- 過去の付録にある`qwen3.8:27b`タグおよび`100.91`のマスク済みアドレスは、現在の実行設定ではありません。現在のモデルタグは`qwen27b:latest`、接続先は`http://<TAILSCALE_OLLAMA_HOST>:11434`です。過去の記録は監査履歴として保持し、現行設定として再利用しません。正本は`scripts/audit_config.json`と`scripts/audit_with_hermes.ps1`です。
 
 ---
 
 # SOURCE: legacy audit prompt current correction
 # ローカルAI監査プロンプトおよび点検基準仕様書 (Audit Prompt & Checklist Spec)
 
-本書は旧監査プロンプト仕様のスナップショットです。現在の実行時モデルと接続先は `scripts/audit_config.json` および実際の監査実行記録を正本とし、本書に残る旧モデル名・接続先は使用しないでください。現行基準はリモート `http://100.111.193.94:11434` の `qwen27b:latest` です。
+本書は旧監査プロンプト仕様のスナップショットです。現在の実行時モデルと接続先は `scripts/audit_config.json` および実際の監査実行記録を正本とし、本書に残る旧モデル名・接続先は使用しないでください。現行基準はリモート `http://<TAILSCALE_OLLAMA_HOST>:11434` の `qwen27b:latest` です。
 
 ---
 
@@ -1205,7 +1205,7 @@ Output the audit strictly as a Markdown table in English:
 
 | パラメータ | 設定値 | 技術的選定理由 |
 |---|---|---|
-| **Endpoint (current)** | `POST http://100.111.193.94:11434/api/chat` | 現在のプロジェクト設定。監査ごとの実使用先は実行記録で確認 |
+| **Endpoint (current)** | `POST http://<TAILSCALE_OLLAMA_HOST>:11434/api/chat` | 現在のプロジェクト設定。監査ごとの実使用先は実行記録で確認 |
 | **Model (current)** | `qwen27b:latest` | `scripts/audit_config.json` の実行タグ。確認済みDigestは実行証跡を参照 |
 | **Temperature** | `0.1` | 確率的揺らぎを抑制し、決定的・定型的なチェックリスト判定を固定化 |
 | **Context Length (`num_ctx`)** | `24576` | 数千行のJavaソースコードおよびDDLを全文コンテキストに一度に収容 |
@@ -1254,7 +1254,7 @@ Output the audit strictly as a Markdown table in English:
 
 ## Current-state correction (2026-11-14)
 
-F-03 records a historical source snapshot and is superseded: the active project script `scripts/audit_with_hermes.ps1` now defaults to `http://100.111.193.94:11434`, matching `scripts/audit_config.json`; both specify `qwen27b:latest`. This was confirmed by direct file inspection. Do not use the obsolete 100.91 address from this report. F-01/F-02 and the remaining recommendations above are review findings from the original snapshot and are not assertions that current configuration remains unchanged; compare against current files before acting.
+F-03 records a historical source snapshot and is superseded: the active project script `scripts/audit_with_hermes.ps1` now defaults to `http://<TAILSCALE_OLLAMA_HOST>:11434`, matching `scripts/audit_config.json`; both specify `qwen27b:latest`. This was confirmed by direct file inspection. Do not use the obsolete 100.91 address from this report. F-01/F-02 and the remaining recommendations above are review findings from the original snapshot and are not assertions that current configuration remains unchanged; compare against current files before acting.
 
 ---
 

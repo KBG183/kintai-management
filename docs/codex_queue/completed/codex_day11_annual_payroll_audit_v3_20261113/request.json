@@ -1,7 +1,7 @@
 {
   "request_id": "codex_day11_annual_payroll_audit_v3_20261113",
   "model": "qwen27b:latest",
-  "endpoint": "http://100.111.193.94:11434",
+  "endpoint": "http://<TAILSCALE_OLLAMA_HOST>:11434",
   "prompt_file": "docs/audit_bundles/day11_annual_payroll_qwen_audit.md",
   "prompt": "Output only the requested audit table and one-sentence verdict, no analysis.",
   "options": {

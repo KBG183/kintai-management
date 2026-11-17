@@ -7,7 +7,7 @@
     Codex -> Antigravity Remote Qwen 27B Queue Processor.
 .DESCRIPTION
     Monitors docs/codex_queue/pending/ for audit/generation requests from Codex,
-    calls the Tailscale remote Ollama host (http://100.111.193.94:11434),
+    calls the Tailscale remote Ollama host (http://<TAILSCALE_OLLAMA_HOST>:11434),
     and saves results into docs/codex_queue/completed/<request-id>/ or failed/<safe-id>/.
     Strictly forbids fallback to local Ollama (qwen2.5:7b).
     Enforces SSRF endpoint whitelist, path traversal protection, and strict request_id regex validation.
@@ -20,7 +20,7 @@ param(
     [int]$MaxRequests = 0,
     [int]$TimeoutSec = 180,
     [string]$DefaultModel = "qwen27b:latest",
-    [string]$DefaultEndpoint = "http://100.111.193.94:11434"
+    [string]$DefaultEndpoint = "http://<TAILSCALE_OLLAMA_HOST>:11434"
 )
 
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
@@ -38,8 +38,8 @@ $hermesLockDir = Join-Path $queueRoot ".hermes.lock"
 
 # Allowed Remote Endpoints Whitelist (SSRF Defense - AUDIT-004)
 $AllowedEndpoints = @(
-    "http://100.111.193.94:11434",
-    "http://100.111.193.94:11434/"
+    "http://<TAILSCALE_OLLAMA_HOST>:11434",
+    "http://<TAILSCALE_OLLAMA_HOST>:11434/"
 )
 
 # UTF-8 without BOM encoding instance
@@ -347,7 +347,7 @@ function Process-SingleRequest {
 {
     "request_id":  "codex_test_remote_ok",
     "status":  "SUCCESS",
-    "endpoint":  "http://100.111.193.94:11434",
+    "endpoint":  "http://<TAILSCALE_OLLAMA_HOST>:11434",
     "model":  "qwen27b:latest",
     "created_by":  "Codex",
     "started_at_local":  "2026-11-13T10:23:43.9624947+09:00",

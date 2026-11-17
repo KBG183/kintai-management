@@ -21,7 +21,7 @@
 
  :: Spring Boot ::                (v4.0.8)
 
-2026-11-14T09:44:07.414+09:00  INFO 16972 --- [    Test worker] p.s.AnnualPayrollScenarioIntegrationTest : Starting AnnualPayrollScenarioIntegrationTest using Java 17.0.12 with PID 16972 (started by klad3 in C:\dev\kintai)
+2026-11-14T09:44:07.414+09:00  INFO 16972 --- [    Test worker] p.s.AnnualPayrollScenarioIntegrationTest : Starting AnnualPayrollScenarioIntegrationTest using Java 17.0.12 with PID 16972 (started by <LOCAL_USER> in C:\dev\kintai)
 2026-11-14T09:44:07.415+09:00  INFO 16972 --- [    Test worker] p.s.AnnualPayrollScenarioIntegrationTest : No active profile set, falling back to 1 default profile: "default"
 2026-11-14T09:44:09.696+09:00  INFO 16972 --- [    Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
 2026-11-14T09:44:10.829+09:00  INFO 16972 --- [    Test worker] p.s.AnnualPayrollScenarioIntegrationTest : Started AnnualPayrollScenarioIntegrationTest in 3.744 seconds (process running for 5.218)

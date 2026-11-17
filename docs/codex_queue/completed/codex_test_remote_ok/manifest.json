@@ -1,7 +1,7 @@
 {
     "request_id":  "codex_test_remote_ok",
     "status":  "SUCCESS",
-    "endpoint":  "http://100.111.193.94:11434",
+    "endpoint":  "http://<TAILSCALE_OLLAMA_HOST>:11434",
     "model":  "qwen27b:latest",
     "created_by":  "Codex",
     "started_at_local":  "2026-11-13T10:23:43.9624947+09:00",

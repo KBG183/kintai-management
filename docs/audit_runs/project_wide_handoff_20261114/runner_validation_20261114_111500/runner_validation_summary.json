@@ -1,7 +1,7 @@
 {
   "run_id": "runner_validation_20261114_111500",
   "checked_at": "2026-11-14T11:05:42.2734636+09:00",
-  "endpoint": "http://100.111.193.94:11434",
+  "endpoint": "http://<TAILSCALE_OLLAMA_HOST>:11434",
   "model": "qwen27b:latest",
   "parser": [
     {

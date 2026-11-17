@@ -10,7 +10,7 @@
     "model_digest":  "UNKNOWN",
     "model_quantization":  "UNKNOWN",
     "model_parameter_size":  "UNKNOWN",
-    "host_url":  "http://100.111.193.94:9999",
+    "host_url":  "http://<TAILSCALE_OLLAMA_HOST>:9999",
     "num_ctx":  24576,
     "seed":  42,
     "temperature":  0.1,

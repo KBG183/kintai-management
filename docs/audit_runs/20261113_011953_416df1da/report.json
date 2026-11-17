@@ -32,7 +32,7 @@
                          "severity":  "P0",
                          "verdict":  "PASS",
                          "evidence":  "`Validate-Endpoint` function; `$AllowedEndpoints` array",
-                         "analysis":  "**Analysis:** The script strictly validates the endpoint against a hardcoded whitelist (`http://100.111.193.94:11434`). It prevents requests to arbitrary URLs, mitigating Server-Side Request Forgery (SSRF) risks. The check `if (-not $matchFound) { throw ... }` ensures only whitelisted endpoints are used. This is a strong security control."
+                         "analysis":  "**Analysis:** The script strictly validates the endpoint against a hardcoded whitelist (`http://<TAILSCALE_OLLAMA_HOST>:11434`). It prevents requests to arbitrary URLs, mitigating Server-Side Request Forgery (SSRF) risks. The check `if (-not $matchFound) { throw ... }` ensures only whitelisted endpoints are used. This is a strong security control."
                      },
                      {
                          "finding_id":  "AUDIT-005",

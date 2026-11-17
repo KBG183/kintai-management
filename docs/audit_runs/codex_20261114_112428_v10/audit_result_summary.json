@@ -11,7 +11,7 @@
   "runner_sha256": "b055c1e01285e56684abd13b23644082b2208c8d50fdfae7a119d739d216987b",
   "config_path": "C:\\dev\\kintai\\scripts\\audit_config.json",
   "config_sha256": "1ebaf50e6e54e97e87acc79fbf002d6a20d38743ac79961760e264742e4999db",
-  "endpoint": "http://100.111.193.94:11434",
+  "endpoint": "http://<TAILSCALE_OLLAMA_HOST>:11434",
   "model": "qwen27b:latest",
   "inference_options": {
     "think": false,

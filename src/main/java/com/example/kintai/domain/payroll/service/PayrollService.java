@@ -6,6 +6,7 @@ import com.example.kintai.domain.payroll.dto.*;
 import com.example.kintai.domain.payroll.mapper.PayrollMapper;
 import com.example.kintai.domain.payroll.util.PayrollCalculator;
 import com.example.kintai.domain.payroll.util.PayrollExcelExporter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,9 @@ public class PayrollService {
     private final PayrollMapper payrollMapper;
     private final AttendanceMapper attendanceMapper;
     private final com.example.kintai.domain.store.service.StoreAuthorizationService storeAuthorizationService;
+
+    @Value("${kintai.legal.min-hourly-wage:1280}")
+    private int minHourlyWage = 1280;
 
     public PayrollService(PayrollMapper payrollMapper, AttendanceMapper attendanceMapper, com.example.kintai.domain.store.service.StoreAuthorizationService storeAuthorizationService) {
         this.payrollMapper = payrollMapper;
@@ -103,9 +107,9 @@ public class PayrollService {
             int hourlyWage = hourlyWageVal;
             uniqueWages.add(hourlyWage);
 
-            // 2026年東京都最低賃金 (1,280円) 割れを防止
-            if (hourlyWage < 1280) {
-                throw new IllegalStateException("契約時給 (" + hourlyWage + "円) が法定最低賃金 (1,280円) を下回っています。");
+            // 法定最低賃金割れを防止 (application.yaml の kintai.legal.min-hourly-wage 連動)
+            if (hourlyWage < minHourlyWage) {
+                throw new IllegalStateException("契約時給 (" + hourlyWage + "円) が法定最低賃金 (" + String.format("%,d", minHourlyWage) + "円) を下回っています。");
             }
 
             // 日別計算（端数は HALF_UP で厳密に丸め）
@@ -224,7 +228,7 @@ public class PayrollService {
         int roundedNightHours = PayrollCalculator.StatutoryRounding.roundMonthlyHours(payroll.getTotalNightMinutes());
         int roundedHolidayHours = PayrollCalculator.StatutoryRounding.roundMonthlyHours(Math.max(0, totalHolidayMinutes));
 
-        int hourlyWage = (payroll.getAppliedHourlyWage() != null) ? payroll.getAppliedHourlyWage() : 1280;
+        int hourlyWage = (payroll.getAppliedHourlyWage() != null) ? payroll.getAppliedHourlyWage() : minHourlyWage;
 
         // ② 1時間あたりの割増賃金額（50銭未満切り捨て、50銭以上1円切り上げ）
         // 時間外: 25%加算

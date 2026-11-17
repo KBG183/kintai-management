@@ -4,7 +4,7 @@
   "target_file": "C:\\dev\\kintai\\docs\\presentation-prototype\\index.html",
   "target_sha256": "0e6555fd76c7e08dfbe4007f96ee5dca3a3fcd7982a1c25cd0265f04d19365f3",
   "model": "qwen27b:latest",
-  "host_url": "http://100.111.193.94:11434",
+  "host_url": "http://<TAILSCALE_OLLAMA_HOST>:11434",
   "options": {
     "seed": 42,
     "temperature": 0.1,
@@ -20,7 +20,7 @@
   "custom_prompt_sha256": "5ff90a9637fab6596c2d1cefde8c80c182cf73ae9a642c2bdd8e497d5381e81d",
   "system_prompt_override_sha256": "9f576c9827416b702c6b0a2c783133e4c0ca6699419f525a110652513abc8300",
   "transport_requested": "Http",
-  "ollama_path": "C:\\Users\\klad3\\AppData\\Local\\Programs\\Ollama\\ollama.exe",
+  "ollama_path": "C:\\Users\\<LOCAL_USER>\\AppData\\Local\\Programs\\Ollama\\ollama.exe",
   "output_dir": "docs\\audit_runs\\codex_index_restructure_20261114_164500",
   "transport_used": "Http",
   "finished_at_local": "2026-11-14T14:36:02.2886179+09:00",

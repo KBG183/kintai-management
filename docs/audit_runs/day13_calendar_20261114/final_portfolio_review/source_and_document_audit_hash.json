@@ -1,6 +1,6 @@
 {
   "model": "qwen27b:latest",
-  "endpoint": "http://100.111.193.94:11434",
+  "endpoint": "http://<TAILSCALE_OLLAMA_HOST>:11434",
   "files": [
     "docs/final-portfolio/README.md",
     "docs/final-portfolio/README_KO.md",

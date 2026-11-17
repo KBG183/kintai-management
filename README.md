@@ -135,12 +135,14 @@ Apache POIによるExcel出力
 
 ### 分離デモDBを準備する
 
-運用DBを使わず、デモ用の新しいDBを作成します。
+運用DBを使わず、デモ用の新しいDBを作成します。本リポジトリに含まれる準備スクリプトで自動構築できます。
 
 ```powershell
 $env:KINTAI_DB_PASSWORD = "<ローカルMySQLパスワード>"
 .\scripts\prepare_local_demo_db.ps1
 ```
+
+※ PowerShell を使用しない場合は、新規データベース作成後に `src/main/resources/db/schema.sql`、`data.sql`、`scripts/local_demo_attendance.sql`、`scripts/local_video_demo_seed.sql` を順次インポートすることでも同等のデモ環境を再現可能です。
 
 スクリプトが出力するDB接続設定を使ってアプリを起動してください。詳しい画面操作と期待結果は、[日本語デモガイド](docs/final-portfolio/demo_guide_ja.md)を参照してください。
 

@@ -15,7 +15,7 @@
    - 근거: `docs/audit_runs/isolated_all_20261114_114819_kintai_full_test_8a75679f5b1e/exit_summary.json`
    - 실패 보존: `docs/audit_runs/isolated_all_20261114_114720_kintai_full_test_fa8f09444824` (테스트 픽스처 `status` -> `attendance_status` 수정 전 2건 실패 로그 보존)
 4. **원격 Qwen 27B 독립 감사**:
-   - Run ID: `b05_b06_20261114_c598266c` (`http://100.111.193.94:11434`, `qwen27b:latest`)
+   - Run ID: `b05_b06_20261114_c598266c` (`http://<TAILSCALE_OLLAMA_HOST>:11434`, `qwen27b:latest`)
    - 번들 SHA-256: `c598266c11ff2828bbf8da5f73d37a75470e3acde127ab430ecd9563bf2ea272`
    - 메트릭: 109.07s, 입력 8598 tokens, 출력 3920 tokens
    - 보고서: `docs/audit_runs/b05_b06_20261114_c598266c/hermes_report.md`

@@ -12,7 +12,7 @@ Kintai is a Japanese shift, attendance, and monthly payroll application. The ver
 The portfolio's “three-tier AI cooperation” describes three decision roles, not three web-service tiers:
 
 1. **Implementation agent:** Antigravity performs implementation and prepares test evidence under the project instructions.
-2. **Independent AI reviewer:** Hermes invokes the remote `qwen27b:latest` model at `http://100.111.193.94:11434` to review a frozen evidence bundle. The audit is advisory and cannot replace execution tests or human acceptance.
+2. **Independent AI reviewer:** Hermes invokes the remote `qwen27b:latest` model at `http://<TAILSCALE_OLLAMA_HOST>:11434` to review a frozen evidence bundle. The audit is advisory and cannot replace execution tests or human acceptance.
 3. **Human decision owner:** the user determines scope, accepts or rejects recommendations, and owns final product decisions.
 
 Codex is a user-directed collaborator in this workflow; it is not silently substituted for the implementation or independent review role. No local Qwen fallback or model download was used for the final Day 13 audit.

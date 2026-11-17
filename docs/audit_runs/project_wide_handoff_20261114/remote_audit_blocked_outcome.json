@@ -1,7 +1,7 @@
 {
   "attempted_at": "2026-11-14",
   "purpose": "Independent Qwen review of current project-wide documentation bundle",
-  "endpoint": "http://100.111.193.94:11434",
+  "endpoint": "http://<TAILSCALE_OLLAMA_HOST>:11434",
   "model": "qwen27b:latest",
   "preflight": "INPUT_READY",
   "original_error": "Exception calling GetRequestStream: Unable to connect to the remote server",

@@ -48,7 +48,7 @@
       "severity": "P2",
       "verdict": "PASS",
       "evidence": "`technical_evidence_v2.0.md` Section 2 & 4; `architecture.md`; `README.md`.",
-      "analysis": "**Consistent:** All documents consistently identify the independent review model as `qwen27b:latest` at `http://100.111.193.94:11434`. The README, Technical Evidence, and Architecture docs all align on this detail. The Technical Evidence section 4 provides specific SHA-256 hashes for the input and report, adding credibility to the \"15 findings PASS\" claim. No contradictions found."
+      "analysis": "**Consistent:** All documents consistently identify the independent review model as `qwen27b:latest` at `http://<TAILSCALE_OLLAMA_HOST>:11434`. The README, Technical Evidence, and Architecture docs all align on this detail. The Technical Evidence section 4 provides specific SHA-256 hashes for the input and report, adding credibility to the \"15 findings PASS\" claim. No contradictions found."
     },
     {
       "finding_id": "F-007",

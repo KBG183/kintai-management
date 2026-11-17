@@ -13,7 +13,7 @@
 
 - **물리적 증거 대조**:
   1. **새로운 Run ID 부재**:
-     - 프로젝트 루트(`c:\dev\kintai\docs\audit_runs\`)의 최신 감사 실행 디렉터리는 **`20261112_055925_dbe89f06` (14:59:25 생성)**이며, 사용자 홈(`C:\Users\klad3\docs\audit_runs\`)의 최신 디렉터리는 **`20261112_054459_PROMPT` (14:44:59 생성)**임.
+     - 프로젝트 루트(`c:\dev\kintai\docs\audit_runs\`)의 최신 감사 실행 디렉터리는 **`20261112_055925_dbe89f06` (14:59:25 생성)**이며, 사용자 홈(`C:\Users\<LOCAL_USER>\docs\audit_runs\`)의 최신 디렉터리는 **`20261112_054459_PROMPT` (14:44:59 생성)**임.
      - 직전 턴(`hermes_qwen_blind_cross_audit.md` 작성 시점: 15:21)에 새로 생성된 고유 `audit_run` 디렉터리는 **물리적으로 단 1개도 존재하지 않음.**
   2. **요청 시각 및 로그 누락**:
      - `state_machine_ledger.json` 상에 15:00 이후 추가된 트랜잭션 기록 없음.
@@ -43,7 +43,7 @@
 
 ## 3. 원격 Ollama 모델의 정확한 물리적 식별 정보
 
-원격 서버(`http://100.111.193.94:11434/api/show`) 직접 쿼리 결과:
+원격 서버(`http://<TAILSCALE_OLLAMA_HOST>:11434/api/show`) 직접 쿼리 결과:
 
 | 항목 | 사용자가 의도한 규격 | 원격 Ollama 실제 물리적 사양 | 일치 여부 |
 |---|---|---|:---:|
@@ -74,7 +74,7 @@
 |:---:|---|---|:---:|
 | **DEF-01** | `counts_by_verdict`의 `"NA"` vs `findings[].verdict`의 `"N/A"` 불일치 | `blind_schema_audit.ps1` 실행 결과 `Is 'NA' in summary keys? True` / `Is 'N/A' in summary keys? False`로 양자 불일치 100% 입증됨 | **`CONFIRMED_DEFECT`**<br>(구조적 스키마 결함) |
 | **DEF-02** | 손상된 v2 JSON 발생 시 v1 정규식 파서로 Silent Fallback 허용 | `04_v1_v2_compatibility_migration.md` 38~47행에 에러 시 MD 파서 분기가 명시되어 있어 모델 결함 은폐 위험 입증됨 | **`CONFIRMED_DEFECT`**<br>(보안/정합성 결함) |
-| **DEF-03** | 실행 디렉터리($PWD)에 따른 감사 결과 고아 디렉터리 발생 | `audit_with_hermes.ps1` 47행 상대경로 바인딩 및 `C:\Users\klad3\docs\audit_runs\` 실존 확인으로 입증됨 | **`CONFIRMED_DEFECT`**<br>(경로 고정 결함) |
+| **DEF-03** | 실행 디렉터리($PWD)에 따른 감사 결과 고아 디렉터리 발생 | `audit_with_hermes.ps1` 47행 상대경로 바인딩 및 `C:\Users\<LOCAL_USER>\docs\audit_runs\` 실존 확인으로 입증됨 | **`CONFIRMED_DEFECT`**<br>(경로 고정 결함) |
 | **DEF-04** | `additionalProperties: false` 누락으로 임의 환각 필드 유입 가능 | `03_result_schema_v2_draft.json` 파싱 결과 최상위 및 findings 속성에 해당 정책이 null로 확인됨 | **`CONFIRMED_DEFECT`**<br>(스키마 Strictness 결함) |
 | **REG-01** | 자바 코드 토큰 비율 글자수 / 4.0 완화 시 Silent Truncation 발생 | Day 9 실측 70,000자 / 17,183토큰(실제 비율 약 4.07) 대조 시, 여유 공간 없는 경계선에서 조용한 절삭 위험 입증됨 | **`CONFIRMED_DEFECT`**<br>(완화 제안 위험성 확정) |
 

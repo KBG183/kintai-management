@@ -80,7 +80,7 @@
     "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_094427_kintai_full_test_d4124a317ed0\\TEST-com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest.xml",
     "C:\\dev\\kintai\\docs\\audit_runs\\isolated_day11_20261114_094349_kintai_day11_test_01f4cb1439e6\\TEST-com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest.xml"
   ],
-  "environment": "Windows; isolated local MySQL 26.7 app evidence; remote Qwen only at http://100.111.193.94:11434 with qwen27b:latest",
+  "environment": "Windows; isolated local MySQL 26.7 app evidence; remote Qwen only at http://<TAILSCALE_OLLAMA_HOST>:11434 with qwen27b:latest",
   "known_constraints": [
     "R-05 and Day 12 excluded until scheduled date",
     "B-05/B-06 remain open for Antigravity implementation",

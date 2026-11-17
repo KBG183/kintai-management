@@ -4,7 +4,7 @@
   "target_file": "C:\\dev\\kintai\\scripts\\local_video_demo_seed.sql",
   "target_sha256": "35f9652c869350df90c774c46ee533fc344bd785ddec3b90caee1d82eed82ff9",
   "model": "qwen27b:latest",
-  "host_url": "http://100.111.193.94:11434",
+  "host_url": "http://<TAILSCALE_OLLAMA_HOST>:11434",
   "options": {
     "temperature": 0.1,
     "think": false,
@@ -20,7 +20,7 @@
   "custom_prompt_sha256": "ced120b7182e4ec5590a6421af9197d1693fc51ddf5bf6bed9935fffad878cf4",
   "system_prompt_override_sha256": "acf479acfc545765217a7d361ba8d63cd257f169c07521f6fb31d726029c2b5e",
   "transport_requested": "Http",
-  "ollama_path": "C:\\Users\\klad3\\AppData\\Local\\Programs\\Ollama\\ollama.exe",
+  "ollama_path": "C:\\Users\\<LOCAL_USER>\\AppData\\Local\\Programs\\Ollama\\ollama.exe",
   "output_dir": "docs\\audit_runs\\codex_video_demo_seed_20261114_170000",
   "transport_used": "Http",
   "finished_at_local": "2026-11-14T14:47:14.1704040+09:00",

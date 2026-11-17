@@ -3,7 +3,7 @@
 > **문서 번호**: `PROVENANCE-LIVE-RUN-20261112-004`  
 > **실행 일시**: 2026-11-12 15:26:24 ~ 15:27:16 (한국 표준시)  
 > **감사관 모델**: `qwen27b:latest` (Ollama v0.40.16, 자택 RTX 5070 Ti, Tailscale 원격 가속)  
-> **실행 파이프라인**: 공식 백로그 러너 `C:\Users\klad3\.gemini\scripts\audit_with_hermes.ps1`  
+> **실행 파이프라인**: 공식 백로그 러너 `C:\Users\<LOCAL_USER>\.gemini\scripts\audit_with_hermes.ps1`  
 > **출력 디렉터리**: `c:\dev\kintai\docs\hermes_v2_spec\qwen_blind_audit_runs\run_qwen_live_audit\`  
 > **검증 상태**: **`PROVENANCE_GATE_VERIFIED`** (실제 독립 로컬 모델 실행 100% 입증)
 

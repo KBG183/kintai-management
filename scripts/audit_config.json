@@ -1,0 +1,34 @@
+{
+  "$schema": "./audit_config.schema.json",
+  "primary_auditor": {
+    "network_type": "Tailscale Overlay Network",
+    "endpoint": "http://<TAILSCALE_OLLAMA_HOST>:11434",
+    "model_tag": "qwen27b:latest",
+    "model_digest": "23c3820b0d9326b73e97191b9fb7e16b53f6e24bb3449d2a17037c5f2b6179a1",
+    "think": false,
+    "options": {
+      "temperature": 0.1,
+      "num_ctx": 24576,
+      "seed": 42
+    },
+    "verdict_authority": "AUDIT_PASSED"
+  },
+  "fallback_auditor": {
+    "enabled": false,
+    "network_type": "Tailscale Overlay Network",
+    "endpoint": "http://<TAILSCALE_OLLAMA_HOST>:11434",
+    "model_tag": "qwen27b:latest",
+    "model_digest": "23c3820b0d9326b73e97191b9fb7e16b53f6e24bb3449d2a17037c5f2b6179a1",
+    "think": false,
+    "options": {
+      "temperature": 0.1
+    },
+    "verdict_authority": "PRELIMINARY_AUDIT"
+  },
+  "runtime_environment": {
+    "script_path": "scripts/codex_hermes_bridge.ps1 -> scripts/audit_with_hermes.ps1",
+    "timeout_ms": 600000,
+    "sync_wait_ms": 10000,
+    "heartbeat_interval_sec": 5
+  }
+}

@@ -19,7 +19,7 @@ Scope: compile the new integration test, then run it only against a newly create
 
 2. `.\gradlew.bat compileTestJava --no-daemon --console plain`
    - Result: BLOCKED before Gradle launched.
-   - Wrapper could not create/open `C:\Users\klad3\.gradle\wrapper\dists\gradle-9.8.1-bin\...\gradle-9.8.1-bin.zip.lck` (access denied).
+   - Wrapper could not create/open `C:\Users\<LOCAL_USER>\.gradle\wrapper\dists\gradle-9.8.1-bin\...\gradle-9.8.1-bin.zip.lck` (access denied).
 
 3. Direct installed Gradle 9.8.1 invocation with `GRADLE_USER_HOME` redirected to the writable task temp directory and the existing module cache configured read-only:
    - Task: `compileTestJava --no-daemon --console plain -Dorg.gradle.jvmargs=`

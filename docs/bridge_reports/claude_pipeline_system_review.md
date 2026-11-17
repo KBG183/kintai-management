@@ -1,4 +1,4 @@
-> **Historical architecture review:** This is a prior roadmap/review snapshot, not current execution configuration or current project status. Use the current `AGENTS.md`, `scripts/audit_config.json`, RTM, and the latest Antigravity handoff. Current remote Qwen is `qwen27b:latest` at `http://100.111.193.94:11434`; do not use older model/fallback instructions below as operational guidance. MySQL 8.4 and Day 12 remain excluded until their scheduled review.
+> **Historical architecture review:** This is a prior roadmap/review snapshot, not current execution configuration or current project status. Use the current `AGENTS.md`, `scripts/audit_config.json`, RTM, and the latest Antigravity handoff. Current remote Qwen is `qwen27b:latest` at `http://<TAILSCALE_OLLAMA_HOST>:11434`; do not use older model/fallback instructions below as operational guidance. MySQL 8.4 and Day 12 remain excluded until their scheduled review.
 
 # 🏛️ Architecture & Verification Review: Local AI - Antigravity 4-Tier Collaborative Audit Pipeline (v1.0)
 
@@ -139,14 +139,14 @@
 모든 워크스페이스 및 프로젝트에서 로컬 모델(Hermes/Ollama) 코드 감사 또는 정적 검수를 수행할 때는 **반드시 아래 전역 인프라 스펙을 1순위로 호출**한다. 자의적으로 로컬 7B 모델을 실행하는 행위를 엄격히 금지한다.
 
 - **메인 감사 모델 (1순위 / 상시)**: **`qwen3.8:27b` (Ollama 공식 규격 태그, Qwen 3.8 27B, 자택 데스크톱 NVIDIA GeForce RTX 5070 Ti, Tailscale 저지연 P2P 원격 가속)**
-- **원격 Ollama 엔드포인트**: `http://100.111.193.94:11434`
+- **원격 Ollama 엔드포인트**: `http://<TAILSCALE_OLLAMA_HOST>:11434`
 - **전역 공용 감사 스크립트 절대 경로**:
   ```powershell
-  powershell -ExecutionPolicy Bypass -File "C:\Users\klad3\.gemini\scripts\audit_with_hermes.ps1" -TargetFile "<검사할_파일_절대경로>" -OutputFile "<결과_리포트_경로>"
+  powershell -ExecutionPolicy Bypass -File "C:\Users\<LOCAL_USER>\.gemini\scripts\audit_with_hermes.ps1" -TargetFile "<검사할_파일_절대경로>" -OutputFile "<결과_리포트_경로>"
   ```
-  *(해당 스크립트는 내부적으로 `http://100.111.193.94:11434`와 `qwen3.8:27b`, `think: false` 런타임 최적화 및 5초 단위 실시간 토큰 스트리밍 하트비트가 기본 바인딩되어 있음)*
+  *(해당 스크립트는 내부적으로 `http://<TAILSCALE_OLLAMA_HOST>:11434`와 `qwen3.8:27b`, `think: false` 런타임 최적화 및 5초 단위 실시간 토큰 스트리밍 하트비트가 기본 바인딩되어 있음)*
 - **비상 폴백 (Fallback - 2순위)**:
-  - 오직 Tailscale 통신 장애나 자택 PC 전원 오프 등으로 `100.111.193.94:11434` 연결이 실패(`TcpTestSucceeded: False`)한 경우에 한해서만 노트북 내장 `qwen2.5:7b` (`http://127.0.0.1:11434`, RTX 3060 Laptop)로 자동 폴백한다.
+  - 오직 Tailscale 통신 장애나 자택 PC 전원 오프 등으로 `<TAILSCALE_OLLAMA_HOST>:11434` 연결이 실패(`TcpTestSucceeded: False`)한 경우에 한해서만 노트북 내장 `qwen2.5:7b` (`http://127.0.0.1:11434`, RTX 3060 Laptop)로 자동 폴백한다.
 
 ---
 
@@ -351,10 +351,10 @@
    - **[절대 수칙]**: Hermes가 1차에서 지적을 안 하거나 PASS 판정을 내렸더라도 날림으로 넘기지 않고, **독자적인 시니어 아키텍트 심층 스캔(False Negative 방어)**을 거쳐 숨은 결함을 직접 찾아내고 보완한다. 양측의 크로스 합의(Cross-Consensus)가 이루어져야만 승인한다.
 
 2. **Hermes (Local Ollama Auditor - `qwen3.8:27b` 메인 / `qwen2.5:7b` 폴백)**:
-   - 로컬 Ollama (`http://100.111.193.94:11434/api/chat`)에서 구동되는 독립 기술 감사관. (자택 데스크톱 RTX 5070 Ti 16GB VRAM, CUDA 가속, 초당 51 tokens/s)
+   - 로컬 Ollama (`http://<TAILSCALE_OLLAMA_HOST>:11434/api/chat`)에서 구동되는 독립 기술 감사관. (자택 데스크톱 RTX 5070 Ti 16GB VRAM, CUDA 가속, 초당 51 tokens/s)
    - **[언어/출력 규칙]**: 백그라운드 콘솔 깨짐 및 중국어 출력 방지를 위해 **100% Pure English(전문 개발자 영문 마크다운 표)**로만 감사 보고서를 생성한다.
    - 트랜잭션(@Transactional), IDOR 보안, 일본 노동기준법 37조(야간 25%, 연장 25%, 중복 50%), 동시성 비관적 락(SELECT ... FOR UPDATE), 경계값 예외 처리 검수를 담당한다.
-   - 실행 스크립트: `C:\Users\klad3\.gemini\scripts\audit_with_hermes.ps1` (options: temperature=0.1)
+   - 실행 스크립트: `C:\Users\<LOCAL_USER>\.gemini\scripts\audit_with_hermes.ps1` (options: temperature=0.1)
 
 3. **User (Domain Expert / Final Approver - 사람이 담당하는 몫)**:
    - 일본 노동기준법 37조(야간 22:00~05:00 25% 가산, 일 8시간 초과 연장 25% 가산, 심야 휴게시간 분리 차감 등) 도메인 로직 최종 승인.
@@ -375,7 +375,7 @@ flowchart LR
 ```
 
 - **1단계 (로컬 Hermes 27B 초벌 감사)**:
-  - `C:\Users\klad3\.gemini\scripts\audit_with_hermes.ps1`을 호출하여 100% 영문 마크다운 표로 초벌 결함/경고 목록을 추출한다.
+  - `C:\Users\<LOCAL_USER>\.gemini\scripts\audit_with_hermes.ps1`을 호출하여 100% 영문 마크다운 표로 초벌 결함/경고 목록을 추출한다.
 - **2단계 (Antigravity 팩트체크 & 독자 결함 스캔 & 코드 보완)**:
   - **Hermes 지적이 있을 때**: 정당성 팩트체크 후 진짜 결함은 즉시 코드를 뜯어고쳐 자가 보완한다. (환각/오판은 명확한 사유로 기각)
   - **Hermes 지적이 없을 때 (PASS 시)**: **절대 그냥 넘어가지 않는다!** Hermes가 놓친 엣지 케이스, 복합 트랜잭션 전파, DTO 매핑 누락이 없는지 Antigravity가 독자적으로 심층 스캔하여 결함을 발굴하고 보완한다.
@@ -428,7 +428,7 @@ param(
     [string]$SystemPromptOverride = "",
     [string]$OutputFile = "hermes_audit_report.md",
     [string]$Model = "qwen27b:latest",
-    [string]$HostUrl = "http://100.111.193.94:11434",
+    [string]$HostUrl = "http://<TAILSCALE_OLLAMA_HOST>:11434",
     [string]$SectionFilter = "",
     [string]$LineRange = "",
     [switch]$Chunk

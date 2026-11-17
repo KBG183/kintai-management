@@ -44,14 +44,14 @@
     }
   ],
   "database_policy": "Use only newly generated allowlisted isolated test databases; never kintai_db; do not delete retained databases.",
-  "audit_policy": "Remote Qwen only at http://100.111.193.94:11434 with qwen27b:latest; no local fallback or downloads.",
+  "audit_policy": "Remote Qwen only at http://<TAILSCALE_OLLAMA_HOST>:11434 with qwen27b:latest; no local fallback or downloads.",
   "evidence": {
     "targeted_payroll_run": "isolated_day11_20261114_094349_kintai_day11_test_01f4cb1439e6",
     "full_regression_run": "isolated_all_20261114_094427_kintai_full_test_d4124a317ed0",
     "full_regression": "92 PASS, 0 failures, 0 errors, 0 skipped",
     "qwen_run": "20261114_004900_46049b14",
     "qwen_findings": "12 PASS, 0 WARN, 0 FAIL",
-    "qwen_endpoint": "http://100.111.193.94:11434",
+    "qwen_endpoint": "http://<TAILSCALE_OLLAMA_HOST>:11434",
     "qwen_model": "qwen27b:latest",
     "mysql84_probe": "docs/audit_runs/prior_residuals_20261114/mysql84_runtime_probe.log",
     "final_document_audit": {

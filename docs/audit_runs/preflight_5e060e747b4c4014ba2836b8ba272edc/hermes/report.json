@@ -64,7 +64,7 @@
       "severity": "P2",
       "verdict": "PASS",
       "evidence": "`qwen_run: 20261114_004900_46049b14`",
-      "analysis": "The remote independent audit was performed using the specified endpoint (`http://100.111.193.94:11434`) and model (`qwen27b:latest`). The result was 12/12 PASS. The SHA-256 hashes for input and output are recorded and consistent across documents."
+      "analysis": "The remote independent audit was performed using the specified endpoint (`http://<TAILSCALE_OLLAMA_HOST>:11434`) and model (`qwen27b:latest`). The result was 12/12 PASS. The SHA-256 hashes for input and output are recorded and consistent across documents."
     }
   ]
 }

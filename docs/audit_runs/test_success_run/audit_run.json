@@ -6,7 +6,7 @@
     "exit_code":  0,
     "model_name":  "qwen27b:latest",
     "model_digest":  "23c3820b0d9326b73e97191b9fb7e16b53f6e24bb3449d2a17037c5f2b6179a1",
-    "host_url":  "http://100.111.193.94:11434",
+    "host_url":  "http://<TAILSCALE_OLLAMA_HOST>:11434",
     "num_ctx":  24576,
     "seed":  42,
     "temperature":  0.1,

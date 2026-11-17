@@ -2,7 +2,7 @@
 
 本書は、日本型勤怠・シフト・給与管理システム（kintai）の開発において、**コードレビュアー不在という1人開発特有の構造的限界と自己確証バイアスを緩和**するため、生成AI・ローカル監査AI・人間の承認者という3つの役割で運用した協働監査プロセスの実測記録とアーキテクチャ上の設計根拠を整理した技術証跡報告書である。ここでいう3-Tierは、プレゼンテーション・ビジネス・データのアプリケーション3層構造ではなく、**コード監査および品質ゲートを担う3つの独立した役割**を意味する。
 
-本書は日本語の技術証跡であり、現在の独立監査はリモート`qwen27b:latest`（`http://100.111.193.94:11434`）を基準とします。過去項目のモデルタグ・接続先・判定は当時の記録として保持し、現行設定として再利用しません。
+本書は日本語の技術証跡であり、現在の独立監査はリモート`qwen27b:latest`（`http://<TAILSCALE_OLLAMA_HOST>:11434`）を基準とします。過去項目のモデルタグ・接続先・判定は当時の記録として保持し、現行設定として再利用しません。
 
 > **プロジェクト第1次締め最終判定および役割分離要約（2026-11-14確定）**
 > - **実装（Antigravity / Codex）**: Day 1〜Day 11、Day 13機能・セキュリティ・UI・ポートフォリオ（`docs/final-portfolio/`）およびバックログ `B-04`, `B-05`, `B-06`, `B-09` 実装完了。ローカル MySQL 26.7 隔離DB `kintai_full_test_8a75679f5b1e` 基準で全体回帰 **94/94 PASS**（失敗 0、エラー 0、スキップ 0、Gradle exit 0）。
@@ -73,7 +73,7 @@
 ```mermaid
 flowchart LR
     A["<b>Role 1: 生成AI</b><br>Antigravity (AI開発プラットフォーム)<br>実際の選択モデルは実行ごとに記録"]
-    B["<b>Role 2: 監査AI</b><br>リモートOllama: qwen27b:latest<br>http://100.111.193.94:11434<br>ホスト: ユーザーデスクトップGPU"]
+    B["<b>Role 2: 監査AI</b><br>リモートOllama: qwen27b:latest<br>http://<TAILSCALE_OLLAMA_HOST>:11434<br>ホスト: ユーザーデスクトップGPU"]
     C["<b>Role 3: 人間の承認者</b><br>1人開発者<br>最終判断・リリースゲート"]
     A -->|"生成コードの引き渡し"| B
     B -->|"監査レポート返却"| C
@@ -865,18 +865,18 @@ Day 4以降の記録を追加する際は、既存の数値を上書きせず、
 - 確認範囲は単独スクリプトに限る。Hermes 呼出経路全体、実際の監査入力の意味的な完全性および遠隔 Qwen 呼出は今回未検証である。事前検証はマニフェスト指定時のみ実行される。
 - 追加確認: Hermes スクリプトに空のマニフェストを指定すると `QWEN_INPUT_BLOCKED` 例外となり、指定した出力ファイルは生成されなかった。正常入力による遠隔呼出は実施していない。
 - 運用文書の整理: 旧最上位文書を `docs/workflow/AGENTS_legacy_20261113.md` に保存し SHA-256 の一致を確認した後、`AGENTS.md` を簡潔化した。基準文書と移行表を参照し、旧キュー文書を履歴として明示した。モデルの接続先と設定ファイル間の差異は未解決である。
-- 呼出経路の追跡: Day 10 実行 `20261113_030041_19b587c7` のスクリプト SHA-256 は `C:\Users\klad3\.gemini\scripts\audit_with_hermes.ps1` の実測値と一致した。記録されたモデルは `qwen27b:latest` であり、プロジェクト内の同名スクリプトは既定設定が異なる別ファイルである。この確認は当該過去実行に限り、現在の全呼出経路を証明しない。
+- 呼出経路の追跡: Day 10 実行 `20261113_030041_19b587c7` のスクリプト SHA-256 は `C:\Users\<LOCAL_USER>\.gemini\scripts\audit_with_hermes.ps1` の実測値と一致した。記録されたモデルは `qwen27b:latest` であり、プロジェクト内の同名スクリプトは既定設定が異なる別ファイルである。この確認は当該過去実行に限り、現在の全呼出経路を証明しない。
 - `scripts/audit_hermes_preflight.ps1` を選択的な実行入口として追加した。空のマニフェストで `QWEN_INPUT_BLOCKED` を確認し、遠隔呼出は行っていない。既存の直接呼出には自動適用されず、正常入力による遠隔 E2E 実行は未検証である。
 - 追加対応: 選択的入口における接続先・モデルの既定値の重複を除去し、明示指定がなければ既存 Hermes の既定値を使用するよう変更した。2 本の PowerShell スクリプトの構文エラー 0 件と空入力の遮断を再確認した。正常入力による実呼出と Antigravity への自動接続は未検証である。
 - 呼出経路の追加調査: 過去の Antigravity 実行記録に、ユーザー領域の Hermes スクリプトを直接実行したコマンドを確認した。現在の全呼出経路とプロジェクト内で直接呼出を一括制御する箇所は未確認である。Codex 実行環境からの遠隔 `/api/tags` 取得はソケットのアクセス権限エラーで失敗したため、現在のモデル応答および遠隔 E2E 確認はブロック状態である。
-- 後続の原本照合: Antigravity の作業ログ `C:\Users\klad3\.gemini\antigravity\brain\dec02083-3d4e-4385-804d-989feec77d36\.system_generated\tasks\task-332.log` にて、`INPUT_READY`、モデル `qwen27b:latest`、実行 ID `20261113_060136_2facb695` および完了メッセージを確認した。当時の入力と結果は `docs/test_scratch/` に保存されたが、同ディレクトリが削除されたためバンドルと応答のハッシュは再計算できなかった。運用方針にラッパー使用と直接呼出による迂回可能性を明記した。
+- 後続の原本照合: Antigravity の作業ログ `C:\Users\<LOCAL_USER>\.gemini\antigravity\brain\dec02083-3d4e-4385-804d-989feec77d36\.system_generated\tasks\task-332.log` にて、`INPUT_READY`、モデル `qwen27b:latest`、実行 ID `20261113_060136_2facb695` および完了メッセージを確認した。当時の入力と結果は `docs/test_scratch/` に保存されたが、同ディレクトリが削除されたためバンドルと応答のハッシュは再計算できなかった。運用方針にラッパー使用と直接呼出による迂回可能性を明記した。
 - 追加補強: 実行単位で入力・マニフェストのコピー、事前検証結果およびハッシュを保存するようラッパーを変更した。空の証跡、不正な JUnit、失敗・エラー、全件スキップを拒否する検査を追加した。`scripts/test_qwen_preflight_validation.ps1` で正常 1 件と異常 6 件が期待する終了コードとなった。不完全入力の証跡を `docs/audit_runs/preflight_2827e2736064400a93cdae3851d19190/` に保存し、記録されたハッシュと実ファイルを照合した。変更後の正常な遠隔監査経路および監査品質ベンチマークは未実施であり、Docker コマンド不在により MySQL 8.4 の再検証は待機中である。
 - 模擬実行検証: `scripts/test_qwen_wrapper_mock.ps1` により、試験用実行器への入力コピーの受渡し、模擬結果の保存およびハッシュ一致を確認した。実行器の例外と終了コード 7 も失敗として伝播した。遠隔 Qwen 実行ではない。旧最上位規則の主要な詳細項目は `docs/workflow/AGENTS_migration_map.md` に照合し、未確定項目を残した。
 - 文書規格の確認: 韓国語・日本語証跡書の現在の版はともに `v1.10` であり、同一日付の `v1.03`、`v1.04` が履歴に存在する。Day と版を自動的に同一視せず、二桁表記と両言語の履歴同期を維持する方針を記録した。Day 10 監査原文の Finding ID・項目・重要度・判定・根拠・分析の表を確認した。
 - 運用点検の再実施: 模擬ラッパーの正常な受渡し・ハッシュ照合・例外・異常終了コード、および事前検証の正常 1 件と異常 6 件が期待どおり処理された。Codex 環境からの Qwen 接続はソケット権限エラーで失敗し、Docker コマンドは検出されなかった。模擬試験は実モデル監査または MySQL 8.4 テストではない。
 - Day 10 証跡の再照合: 監査実行記録のバンドル SHA-256 `19b587c7392d924af23aacd09cc6c898c373e7ee1d36e7f4d9e82ab1863a4425` と現在のバンドル `6f0b80bb7e7a842839dde56bf31c1c6addfa67c406f64b1ca15b0960558d5ba6` は一致しない。既存証跡の JUnit SHA-256 `423e6439ffa35447d656956985b5407ffe66ea348f1d5983ce24d372610327b1` と現在の XML `3d30805e4f07b5e237ecf6daacd600866c5b4c492c31242913b18fe7a7d7c2af` も一致しない。原因と当時のファイルの復元可否は未確認。現在の XML は 2 件・失敗 0 件だが、過去 3 回それぞれの実行ログは今回確認できなかった。Qwen 原文の A-05、A-06 は WARN であり、全項目 PASS を意味しない。
 - 後続照合: 現在のバンドルの変更されたパス表記のみを旧形式に戻し、別途保存した `docs/audit_runs/20261113_030041_19b587c7/reconstructed_input_bundle.md` の実測 SHA-256 は当時の入力記録 `19b587c7392d924af23aacd09cc6c898c373e7ee1d36e7f4d9e82ab1863a4425` と一致した。再構成結果と当時保存された原本は区別する。現在のマッパーとテストソースの SHA-256 も既存証跡と一致したが、当時の JUnit 原本と 3 回分それぞれのログは未発見である。
-- 追加の失敗履歴: Antigravity の作業ログ `task-46.log` に同時実行テスト 2 件の `AssertionFailedError`、`task-106.log` に誤ったセキュリティテストのパッケージ指定によるテスト未検出が記録されていた。両ログは `C:\Users\klad3\.gemini\antigravity\brain\dec02083-3d4e-4385-804d-989feec77d36\.system_generated\tasks\` にある。後続実行の成否とは別の失敗履歴である。テストは固定スタッフ ID 2 の進行中勤怠を事前削除するため、隔離 DB の確認前に既存 DB では再実行していない。Codex からローカル MySQL への接続はソケット権限エラーで失敗した。
+- 追加の失敗履歴: Antigravity の作業ログ `task-46.log` に同時実行テスト 2 件の `AssertionFailedError`、`task-106.log` に誤ったセキュリティテストのパッケージ指定によるテスト未検出が記録されていた。両ログは `C:\Users\<LOCAL_USER>\.gemini\antigravity\brain\dec02083-3d4e-4385-804d-989feec77d36\.system_generated\tasks\` にある。後続実行の成否とは別の失敗履歴である。テストは固定スタッフ ID 2 の進行中勤怠を事前削除するため、隔離 DB の確認前に既存 DB では再実行していない。Codex からローカル MySQL への接続はソケット権限エラーで失敗した。
 - セキュリティテストの再確認試行: 現在の JUnit XML を `docs/audit_runs/day10_security_recheck_20261113/preexisting_concurrency_junit.xml` に複写し、ハッシュを確認した。正しいクラス `com.example.kintai.domain.attendance.controller.AttendanceApiSecurityTest` の実行は Gradle wrapper のロックファイルへのアクセス拒否により開始できなかった。別の Gradle ユーザーディレクトリとオフライン実行も Gradle デーモンへの接続失敗によりテスト未実施となった。テストの合否とは判定しない。
 - A-05/A-06 の静的照合: スタッフのセッション ID の強制適用、オーナー所有権の確認および関連モックテストのソースは存在する。ただし当該テストの再実行は未完了であり、`/punch` で認証情報が存在しない場合はコントローラ自体の遮断ではなくセキュリティフィルター設定に依存する。`AttendancePunchDto` の入力境界に関する A-06 の検証も残る。R-10 の指摘事項全体の解消は `PARTIALLY_VERIFIED` として RTM の後続注記に記録した。
 - **2026-11-13 Day 10 改善・反復検証追加記録**: 既存証跡書の構造は維持し、今回確認した事実だけを追記する。分離DB準備スクリプトを、旧 `src/main/resources/schema.sql` ではなく現在のMapperと一致する `src/main/resources/db/schema.sql` rev.3を使用するよう補正した。初回失敗で確認された `break_id` と `attendance_break_id` のスキーマ不一致、およびWindows JDBC URLの `&` 伝達問題は失敗・補正履歴として保存した。その後、新規分離DB 3個で `AttendanceServiceConcurrencyIntegrationTest` を `--rerun-tasks` により強制実行し、計6件成功、失敗0件、エラー0件、Gradle終了コード0を確認した。詳細原本は `docs/audit_runs/day10_isolated_regression_20261113_154029/summary.json` と各回のJUnit・ログに保存する。Docker/Testcontainersと今回のQwen再監査は実施しておらず、既存の `BLOCKED` または未実施状態を維持する。
@@ -1015,7 +1015,7 @@ Day 4以降の記録を追加する際は、既存の数値を上書きせず、
 - 分離DBで全回帰を実行: `scripts/run_isolated_regression.ps1 -Scope All -DatabaseName kintai_full_test_3df696be0820`。最終実行はGradle終了コード0、JUnit XML 34件、テスト81件、失敗・エラー・スキップ0件。ログ・集計・SHA-256: `docs/audit_runs/isolated_all_20261114_074456_kintai_full_test_3df696be0820/`。
 - 最初のdemo DBの給与UIで2026-01のDRAFT 2件（総支給額¥141,700および¥164,332）を確認した。新しいUTF-8 demo DBでは認証済み計算APIがHTTP 200を返し、正しい氏名と同額のDRAFT給与2件を返した。Excel APIもHTTP 200、XLSX media type、月と両金額を含む5,092-byte OOXMLを返し、原本とSHA-256を保存した: `payroll_2026-01.xlsx`、`payroll_excel_validation.json`。ブラウザータブ自動化のタイムアウト後、新DB給与画面とbrowser-managedダウンロード操作は未検証。
 - demo準備スクリプトの `SOURCE` 非対話呼び出しはSQL 1064で失敗したため、原ログと作成済み分離DBを保持した。その後UTF-8 SQLファイルをmysql stdinへ渡し、氏名HEX・シフト件数の検査を追加して再実行に成功した。成功ログ: `docs/audit_runs/day13_calendar_20261114/demo_prepare_retry1.log`。
-- 独立監査の更新 (2026-11-14): 以前の `100.91...` は古い証跡の誤選択でした。正しい `http://100.111.193.94:11434` でQwen 27B (`qwen27b:latest`, 27.3B IQ3_M, digest `23c3820b0d9326b73e97191b9fb7e16b53f6e24bb3449d2a17037c5f2b6179a1`) の独立監査を実行しました。初回は入力に広範な給与チェックリストのコード・テスト根拠が不足してFAIL。根拠を追加して再監査し、Day 13範囲はPASS。Run ID `20261113_230538_8ce60d45`、49秒、入力3055/出力2056トークン。結果 `docs/audit_runs/day13_calendar_20261114/qwen27b_reaudit/report.md`、入力SHA-256 `8ce60d454594e968d3b9c44060457a4ebcd8c302f72ebc9758bad76e1b80e449`、報告書SHA-256 `D34F3290E4AA660EFE5FFFEDDF5FC4EEF865681C4DE80BD533F727CE0551DF8A`。専用の他店舗給与IDOR拒否テストは後続推奨として記録。
+- 独立監査の更新 (2026-11-14): 以前の `100.91...` は古い証跡の誤選択でした。正しい `http://<TAILSCALE_OLLAMA_HOST>:11434` でQwen 27B (`qwen27b:latest`, 27.3B IQ3_M, digest `23c3820b0d9326b73e97191b9fb7e16b53f6e24bb3449d2a17037c5f2b6179a1`) の独立監査を実行しました。初回は入力に広範な給与チェックリストのコード・テスト根拠が不足してFAIL。根拠を追加して再監査し、Day 13範囲はPASS。Run ID `20261113_230538_8ce60d45`、49秒、入力3055/出力2056トークン。結果 `docs/audit_runs/day13_calendar_20261114/qwen27b_reaudit/report.md`、入力SHA-256 `8ce60d454594e968d3b9c44060457a4ebcd8c302f72ebc9758bad76e1b80e449`、報告書SHA-256 `D34F3290E4AA660EFE5FFFEDDF5FC4EEF865681C4DE80BD533F727CE0551DF8A`。専用の他店舗給与IDOR拒否テストは後続推奨として記録。
 - UI・監査範囲: `docs/audit_runs/day13_calendar_20261114/`。状態記録: `docs/rtm_ledger.md` R-15～R-18。引継ぎ: `docs/handoff/20261114_0746_codex_day13_handoff.md`。
 
 
@@ -1030,11 +1030,11 @@ Day 4以降の記録を追加する際は、既存の数値を上書きせず、
 - 最終再監査: 他オーナー給与を拒否し本人所有分を許可する StoreAuthorizationServicePayrollOwnershipTest を追加後、新規分離DB kintai_full_test_9f4b67f66b64 で83/83 PASS、失敗・エラー・スキップ0。結果 docs/audit_runs/isolated_all_20261114_081141_kintai_full_test_9f4b67f66b64/。最終Qwen 27B Run ID 20261113_231257_4dd6f9c5、docs/audit_runs/day13_calendar_20261114/qwen27b_final_audit/report.md、Day 13範囲PASS。ブラウザー管理ダウンロードUXを画面から確認できない制限はInfo/WARNとして記録し、R-17は部分検証を維持。
 
 
-- バンドル整合性の最終再監査: Run ID 20261113_231504_7898dce0（リモート 100.111.193.94、27.3B IQ3_M）、44.9秒、入力3156/出力1807トークン。整合修正後の最終バンドルSHA-256 7898dce049db27937e95f02e2e308ddaaf32b7b73df1335ec2942a016a47564f、報告書 docs/audit_runs/day13_calendar_20261114/qwen27b_final_consistent/report.md、SHA-256 7CD37FABD171FD36AFE5F8FECA4189AF61076B62B9FA0151893747D88122FA12。対象範囲PASS、browser download UXのみInfo/WARNとして分離。最終 /api/ps qwen27b_remote_ps_final.json でリモート qwen27b:latest 27.3BのロードとVRAM常駐を確認。ローカル ollama ps は空。
+- バンドル整合性の最終再監査: Run ID 20261113_231504_7898dce0（リモート <TAILSCALE_OLLAMA_HOST>、27.3B IQ3_M）、44.9秒、入力3156/出力1807トークン。整合修正後の最終バンドルSHA-256 7898dce049db27937e95f02e2e308ddaaf32b7b73df1335ec2942a016a47564f、報告書 docs/audit_runs/day13_calendar_20261114/qwen27b_final_consistent/report.md、SHA-256 7CD37FABD171FD36AFE5F8FECA4189AF61076B62B9FA0151893747D88122FA12。対象範囲PASS、browser download UXのみInfo/WARNとして分離。最終 /api/ps qwen27b_remote_ps_final.json でリモート qwen27b:latest 27.3BのロードとVRAM常駐を確認。ローカル ollama ps は空。
 
 
 
-- 証拠バンドル最終整合監査: Hermes v1.1.1 / Qwen 27B IQ3_M、リモート 100.111.193.94:11434。Run ID 20261113_231841_e3e0981e、30.19秒、入力3162/出力1169トークン。バンドルSHA-256 3e0981eaac3a4f47314aa2c9164c2cdfb1ec18f4541622ca27d8f4f40f4a7f0、報告書 docs/audit_runs/day13_calendar_20261114/qwen27b_final/report.md、SHA-256 41087C2A78D80FFA37B50A79BF8CA5F46B2DA9E3BC6EB9B0967974C7CFE40A9。最終Verdict PASS。リモート /api/ps とローカルOllamaが空である実測は qwen27b_remote_ps_final.json。
+- 証拠バンドル最終整合監査: Hermes v1.1.1 / Qwen 27B IQ3_M、リモート <TAILSCALE_OLLAMA_HOST>:11434。Run ID 20261113_231841_e3e0981e、30.19秒、入力3162/出力1169トークン。バンドルSHA-256 3e0981eaac3a4f47314aa2c9164c2cdfb1ec18f4541622ca27d8f4f40f4a7f0、報告書 docs/audit_runs/day13_calendar_20261114/qwen27b_final/report.md、SHA-256 41087C2A78D80FFA37B50A79BF8CA5F46B2DA9E3BC6EB9B0967974C7CFE40A9。最終Verdict PASS。リモート /api/ps とローカルOllamaが空である実測は qwen27b_remote_ps_final.json。
 
 
 - ブラウザーDLの最終確認: ChromeでExcel出力をクリックすると /api/payroll/excel?storeId=1&yearMonth=2026-01 で ERR_BLOCKED_BY_CLIENT となった。ブラウザーツールのURLポリシーは chrome://downloads/ への移動と代替経路・回避を明示的に拒否した。原因をアプリまたは拡張機能と断定しない。認証APIのXLSXは正常・有効だが、browser-managed保存は未確認。Qwen最終Run ID 20261113_232151_a808922d は対象範囲PASS、この検証項目のみP2 WARN/Unresolved。報告書SHA-256 1CBA641563D0BD88CCE21E41C71F97E7A563C550EBFDEA9DF9FB6A09F646D61E。
@@ -1044,7 +1044,7 @@ Day 4以降の記録を追加する際は、既存の数値を上書きせず、
 - **Day 13 範囲スナップショット判定: PASS（当時点のローカルMySQL 26.7検証範囲）。** ここに記載した83件回帰はDay 13時点のチェックポイント結果です。その後の残存検証終了時点における最新の全回帰は、別の隔離DBで92件PASSです。下記の残存検証更新を現在の最終回帰結果として扱います。 RTM R-15/R-16/R-17/R-18 はすべてVERIFIED。MySQL 8.4 Testcontainersは既定どおり2027年1月に再検討（DEFERRED）であり、今回のローカル検証範囲とは分ける。
 - R-17の追加UI検証で隔離デモDB `kintai_demo_9f3f8487bc42` の2026-01給与行と合計（佐藤 花子 ¥141,700、鈴木 一郎 ¥164,332）を確認し、Excel出力ボタンをクリックした。ブラウザーのdownloadイベントが完了し、5,092-byte XLSXが保存された。OOXML構造、対象月、両合計を検査。SHA-256 `ba127f65f193f8289c2b4e445efc09a06e1590e2230ed0b1ad603d839cfdcd98`。証拠: `docs/audit_runs/day13_calendar_20261114/excel_browser_download.json`、`payroll_2026-01_browser_download.xlsx`。
 - 隔離全体回帰: 83件PASS、失敗・エラー・スキップ0、Gradle exit 0。DB `kintai_full_test_9f4b67f66b64`。
-- 最新独立監査: Hermes v1.1.1、リモート `http://100.111.193.94:11434`、`qwen27b:latest` IQ3_M 27.3B、digest `23c3820b0d9326b73e97191b9fb7e16b53f6e24bb3449d2a17037c5f2b6179a1`; Run ID `20261113_234922_d69a9b63`; バンドルSHA-256 `d69a9b63c9a6a79043a38fb9c8942ab9c3fd0f9936087ffe5865d778f6817379`; 報告書SHA-256 `0dc324150a75bb8a1d3035f7ee770a03ec2bffd8241a3a041ffd9ee2066fbf32`。15件すべてPASS、WARN/FAIL 0。以前のChrome `ERR_BLOCKED_BY_CLIENT` は後続のインアプリブラウザーでダウンロード成功により解消し、過去の試行記録は保持する。
+- 最新独立監査: Hermes v1.1.1、リモート `http://<TAILSCALE_OLLAMA_HOST>:11434`、`qwen27b:latest` IQ3_M 27.3B、digest `23c3820b0d9326b73e97191b9fb7e16b53f6e24bb3449d2a17037c5f2b6179a1`; Run ID `20261113_234922_d69a9b63`; バンドルSHA-256 `d69a9b63c9a6a79043a38fb9c8942ab9c3fd0f9936087ffe5865d778f6817379`; 報告書SHA-256 `0dc324150a75bb8a1d3035f7ee770a03ec2bffd8241a3a041ffd9ee2066fbf32`。15件すべてPASS、WARN/FAIL 0。以前のChrome `ERR_BLOCKED_BY_CLIENT` は後続のインアプリブラウザーでダウンロード成功により解消し、過去の試行記録は保持する。
 - 誤って開始した未インストールQwen pullのキャッシュ21件はユーザー指示に従い削除し、既存のQwen 7Bインストールは保持した。詳細: `docs/audit_runs/day13_calendar_20261114/qwen_local_pull_cleanup_manifest.json`。
 ## 最終ポートフォリオ作成と独立再レビュー (2026-11-14)
 
@@ -1061,7 +1061,7 @@ Day 4以降の記録を追加する際は、既存の数値を上書きせず、
 - RTM R-08/R-09/R-10/R-11/R-12/R-14は、この日付の最終証拠に基づきVERIFIEDです。過去日の`PARTIALLY_VERIFIED`およびテスト件数は当時の履歴として保持し、現在の状態は`docs/rtm_ledger.md`に従います。
 - 給与統合境界テストで20:00から翌05:00までの勤務（合計540分）、深夜420分、日次時間外60分を設定しました。深夜25%と時間外25%が個別に加算され、重複時間に合計50%の割増が反映されることを確認しました。深夜休憩の控除は`LaborCalculationEngineTest`の深夜帯休憩ケースで検証しました。
 - 新規隔離DB `kintai_day11_test_01f4cb1439e6`で`AnnualPayrollScenarioIntegrationTest`は6/6 PASS。その後、新規隔離DB `kintai_full_test_d4124a317ed0`で全回帰92/92 PASS、失敗・エラー・スキップ0、Gradle exit 0です。運用DB `kintai_db`には接続せず、データ変更もしていません。
-- 修正後のリモート独立監査は指定先`http://100.111.193.94:11434`、`qwen27b:latest`（27.3B、IQ3_M）で実行しました。Run `20261114_004900_46049b14`、12 findings PASS、WARN/FAIL 0。入力SHA-256 `46049b14578b32462a6f105966643d658919d5ed658faaf885796e2e1cd2c4b8`、結果SHA-256 `b1ae1c9d7844d92b6ab4b47bf5e5c66dbb0f1f3f916549688e3c83ea56798f10`。実行証拠は`docs/audit_runs/preflight_1e3b8fba040b4197aed07afbde9334f2/hermes/`です。
+- 修正後のリモート独立監査は指定先`http://<TAILSCALE_OLLAMA_HOST>:11434`、`qwen27b:latest`（27.3B、IQ3_M）で実行しました。Run `20261114_004900_46049b14`、12 findings PASS、WARN/FAIL 0。入力SHA-256 `46049b14578b32462a6f105966643d658919d5ed658faaf885796e2e1cd2c4b8`、結果SHA-256 `b1ae1c9d7844d92b6ab4b47bf5e5c66dbb0f1f3f916549688e3c83ea56798f10`。実行証拠は`docs/audit_runs/preflight_1e3b8fba040b4197aed07afbde9334f2/hermes/`です。
 - R-05 MySQL 8.4/Testcontainersはユーザーの指示により、予定されたレビュー日まで今回の作業対象から除外します。Docker/Podman未導入の確認記録を保持し、ソフトウェアのインストール・ダウンロードは行っていません。
 - R-02業務方針はユーザーが2026-11-14に採用しました。方針文書とRTMに反映し、隔離全回帰で技術検証済みです。Day12は予定日まで対象外とし、AWS/クラウド変更は実施していません。
 - チェックリストと実行サマリー: `docs/audit_runs/prior_residuals_20261114/completion_checklist.json`; 引継ぎ: `docs/handoff/20261114_residuals_handoff.md`。
@@ -1086,10 +1086,10 @@ Day 4以降の記録を追加する際は、既存の数値を上書きせず、
 - Antigravityの実行順、分離DBの安全条件、Qwenの指定先と除外作業は`docs/handoff/20261114_antigravity_project_wide_handoff.md`に記載しました。
 ### リモート監査モデル表記の訂正 (2026-11-14)
 
-- 過去の付録にある`qwen3.8:27b`タグおよび`100.91`のマスク済みアドレスは、現在の実行設定ではありません。現在のモデルタグは`qwen27b:latest`、接続先は`http://100.111.193.94:11434`です。過去の記録は監査履歴として保持し、現行設定として再利用しません。正本は`scripts/audit_config.json`と`scripts/audit_with_hermes.ps1`です。
+- 過去の付録にある`qwen3.8:27b`タグおよび`100.91`のマスク済みアドレスは、現在の実行設定ではありません。現在のモデルタグは`qwen27b:latest`、接続先は`http://<TAILSCALE_OLLAMA_HOST>:11434`です。過去の記録は監査履歴として保持し、現行設定として再利用しません。正本は`scripts/audit_config.json`と`scripts/audit_with_hermes.ps1`です。
 ### 現行引き継ぎ文書の監査試行と監査スクリプトの修正 (2026-11-14)
 
-- 最初の文書バンドル呼び出しは指定先`http://100.111.193.94:11434`の`GetRequestStream`で`Unable to connect to the remote server`となり、レポートはありませんでした。その後、同じbundle SHA `cd7cd20d12ba7771fb8ceb01dcd95181bfe39c924b8a595aa5e6fb91fdf649b8`の呼び出しはexit 0で不正なレポートを生成しました。Qwen独立再監査Run `20261114_014515_cd7cd20d`はWARN 3件を返しました。これらはPASSではなく、以前の文書監査10/10 PASSは当時の固定bundleだけに適用します。
+- 最初の文書バンドル呼び出しは指定先`http://<TAILSCALE_OLLAMA_HOST>:11434`の`GetRequestStream`で`Unable to connect to the remote server`となり、レポートはありませんでした。その後、同じbundle SHA `cd7cd20d12ba7771fb8ceb01dcd95181bfe39c924b8a595aa5e6fb91fdf649b8`の呼び出しはexit 0で不正なレポートを生成しました。Qwen独立再監査Run `20261114_014515_cd7cd20d`はWARN 3件を返しました。これらはPASSではなく、以前の文書監査10/10 PASSは当時の固定bundleだけに適用します。
 - 指摘対応として、プロジェクト監査スクリプトにタスク別system prompt、入力context budget、応答終了chunk・空でない本文・verdict表の検証、無効対象・既存出力のnon-zero拒否を追加しました。Bridgeの既定およびAuto通信は設定済みリモートHTTPに固定し、モデルが未導入の場合は明示CLIでもpull/downloadを拒否します。重複run ID・出力上書きを防ぎ、manifestにrunner/config/inference/promptのSHA-256を記録します。
 - `runner_validation_20261114_112300`では空応答・終了chunkなし・切断・context超過・表ヘッダーのみ・未定義verdict・prompt反復を拒否し、有効なPASS/WARN表を受理しました。無効対象と既存出力はexit 2で拒否し、従来の証跡を保持します。PowerShell parser、Qwen入力検証、wrapper mock、HTTP/Autoのリモート既定値・inference設定hash・重複run ID拒否もPASSです。Qwen Run `codex_20261114_111907_v7`で設定の`think:false`がAPI本文に未送信で応答が空になる不具合を見つけ、設定転送と空文字列検証を修正しました。最新の独立監査結果は入力bundle SHAと一致する`docs/audit_runs/`実行フォルダーで確認してください。
 - 原本のログ、初回失敗、不正レポート、WARN再監査、新しいbundleは`docs/audit_runs/project_wide_handoff_20261114/`とハッシュ別実行フォルダーに保存しています。運用DB、ローカル7B、別IP、ダウンロードは使用していません。
@@ -1108,4 +1108,4 @@ Day 4以降の記録を追加する際は、既存の数値を上書きせず、
 - **B-05 (`YearMonth` 入力境界)**: `PayrollApiController.java` に共通 `validateYearMonth` 検証 (`^\d{4}-(0[1-9]|1[0-2])$`) を追加し、`/list`, `/calculate`, `/confirm-month`, `/excel` の全経路で `2026-13`, `2026-00`, `2026-1`, `not-a-month` 等の不正入力時に `GlobalExceptionHandler` を経由して一貫した HTTP 400 (`success: false`) を返すよう統一しました。(`/calculate`, `/confirm-month` の `requestDto == null` / `storeId == null` 防御を含む)
 - **B-06 (`PayrollDetailResponseDto` データ最小化シリアライズ検証)**: `PayrollApiValidationAndSerializationIntegrationTest.java` にて `GET /api/payroll/{payrollId}/detail` の実JSONシリアライズ応答を解析し、許可フィールド集合 (`payrollId`, `staffName`, `targetYearMonth`, `appliedHourlyWage`, `summary`, `dailyAttendances`) の一致および機微フィールド (`bankAccount`, `accountNumber`, `bankName`, `branchCode`, `myNumber`, `socialSecurityNumber`, `residentNumber`, `password`, `email`, `phone`) の非含有を検証しました。
 - **最新隔離全体回帰 (ローカル MySQL 26.7)**: 新規隔離 DB `kintai_full_test_8a75679f5b1e` にて **94件 PASS** (失敗 0, エラー 0, スキップ 0, JUnit XML 38件, Gradle exit 0)。根拠: `docs/audit_runs/isolated_all_20261114_114819_kintai_full_test_8a75679f5b1e/exit_summary.json`。(直前のカラム名誤記による失敗履歴 `isolated_all_20261114_114720_kintai_full_test_fa8f09444824` は修正前ログとして保存)
-- **リモート Qwen 27B 独立監査**: エンドポイント `http://100.111.193.94:11434`、モデル `qwen27b:latest`、Run ID `b05_b06_20261114_c598266c`、バンドル `docs/audit_runs/b05_b06_audit_20261114/b05_b06_audit_bundle.md` (575 lines, SHA-256 `c598266c11ff2828bbf8da5f73d37a75470e3acde127ab430ecd9563bf2ea272`)、所要 109.07s、入力 8598 tokens / 出力 3920 tokens。報告書: `docs/audit_runs/b05_b06_20261114_c598266c/hermes_report.md`。Controller・GlobalExceptionHandler・統合テスト・94件回帰要約セクションすべて PASS 確認 (単独 DTO セクションは 575行自動分割によりコントローラコード非含有に伴う文脈 WARN 3件あり、コントローラおよび統合テストセクションで解消確認済み)。
+- **リモート Qwen 27B 独立監査**: エンドポイント `http://<TAILSCALE_OLLAMA_HOST>:11434`、モデル `qwen27b:latest`、Run ID `b05_b06_20261114_c598266c`、バンドル `docs/audit_runs/b05_b06_audit_20261114/b05_b06_audit_bundle.md` (575 lines, SHA-256 `c598266c11ff2828bbf8da5f73d37a75470e3acde127ab430ecd9563bf2ea272`)、所要 109.07s、入力 8598 tokens / 出力 3920 tokens。報告書: `docs/audit_runs/b05_b06_20261114_c598266c/hermes_report.md`。Controller・GlobalExceptionHandler・統合テスト・94件回帰要約セクションすべて PASS 確認 (単独 DTO セクションは 575行自動分割によりコントローラコード非含有に伴う文脈 WARN 3件あり、コントローラおよび統合テストセクションで解消確認済み)。

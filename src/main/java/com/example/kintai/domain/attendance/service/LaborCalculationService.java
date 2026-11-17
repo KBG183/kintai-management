@@ -7,6 +7,7 @@ import com.example.kintai.domain.attendance.dto.LaborSimulationRequestDto;
 import com.example.kintai.domain.attendance.mapper.AttendanceMapper;
 import com.example.kintai.domain.attendance.util.AttendanceTimeCalculator;
 import com.example.kintai.domain.payroll.util.PayrollCalculator;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +22,9 @@ import java.util.List;
 public class LaborCalculationService {
 
     private final AttendanceMapper attendanceMapper;
+
+    @Value("${kintai.legal.min-hourly-wage:1280}")
+    private int minHourlyWage = 1280;
 
     public LaborCalculationService(AttendanceMapper attendanceMapper) {
         this.attendanceMapper = attendanceMapper;
@@ -61,7 +65,7 @@ public class LaborCalculationService {
                 attendance.getStoreStaffId(),
                 attendance.getWorkDate()
         );
-        int hourlyWage = (hourlyWageVal != null) ? hourlyWageVal : 1280;
+        int hourlyWage = (hourlyWageVal != null) ? hourlyWageVal : minHourlyWage;
 
         PayrollCalculator.DetailedDailyPayResult pay = PayrollCalculator.calculateDetailedDailyPay(hourlyWage, calc);
         String staffName = attendanceMapper.findStaffNameByStoreStaffId(attendance.getStoreStaffId());
@@ -79,7 +83,7 @@ public class LaborCalculationService {
 
         int hourlyWage = (request.getHourlyWage() != null && request.getHourlyWage() > 0)
                 ? request.getHourlyWage()
-                : 1280;
+                : minHourlyWage;
 
         List<AttendanceTimeCalculator.BreakInterval> breakIntervals = new ArrayList<>();
         if (request.getBreaks() != null) {

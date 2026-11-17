@@ -49,7 +49,7 @@ The first connection test must be run in a normal Windows PowerShell session on 
 
 ## File Queue Relay Bridge (Codex Sandbox Decoupled Mode)
 
-When running inside the ChatGPT Codex sandbox where direct network access to Tailscale (`100.111.193.94:11434`) is blocked by sandbox permissions, Codex creates a request JSON file in `docs\codex_queue\pending\`.
+When running inside the ChatGPT Codex sandbox where direct network access to Tailscale (`<TAILSCALE_OLLAMA_HOST>:11434`) is blocked by sandbox permissions, Codex creates a request JSON file in `docs\codex_queue\pending\`.
 
 ### 1. Request Structure (`docs\codex_queue\pending\<request-id>.json`)
 
@@ -57,7 +57,7 @@ When running inside the ChatGPT Codex sandbox where direct network access to Tai
 {
   "request_id": "codex_yyyyMMdd_HHmmss_xxxx",
   "model": "qwen27b:latest",
-  "endpoint": "http://100.111.193.94:11434",
+  "endpoint": "http://<TAILSCALE_OLLAMA_HOST>:11434",
   "prompt": "Reply with exactly REMOTE_OK",
   "created_by": "Codex",
   "status": "PENDING"
@@ -69,7 +69,7 @@ Or using an external prompt file:
 {
   "request_id": "codex_yyyyMMdd_HHmmss_xxxx",
   "model": "qwen27b:latest",
-  "endpoint": "http://100.111.193.94:11434",
+  "endpoint": "http://<TAILSCALE_OLLAMA_HOST>:11434",
   "prompt_file": "docs/audit_bundles/day9_bundle.md",
   "created_by": "Codex",
   "status": "PENDING"

@@ -12,7 +12,7 @@ Kintaiは日本向けシフト・勤怠・月次給与アプリです。確認�
 2. **独立AIレビュー担当:** Hermesが凍結した証跡バンドルを、リモート`qwen27b:latest`でレビュー。監査は助言であり、実行テスト・人間の受入判断を代替しません。
 3. **人間の決定者:** ユーザーが範囲、提案の採否、最終判断を決定。
 
-最終Day 13監査先は `http://100.111.193.94:11434`。ローカルQwenへの代替やモデルのダウンロードはしていません。これはアプリの3層構造ではなく、監査・判断の役割分担です。
+最終Day 13監査先は `http://<TAILSCALE_OLLAMA_HOST>:11434`。ローカルQwenへの代替やモデルのダウンロードはしていません。これはアプリの3層構造ではなく、監査・判断の役割分担です。
 
 ## 実測結果
 
@@ -35,7 +35,7 @@ Kintaiは日本向けシフト・勤怠・月次給与アプリです。確認�
 - RTM R-15〜R-18: ローカルMySQL 26.7の範囲でVERIFIED。
 - R-11、R-12、R-14: 記載したローカルMySQL 26.7範囲でVERIFIED。最新ソース監査はリモートQwen 27B Run `20261114_004900_46049b14`（12/12 PASS、WARN/FAIL 0）。全経路・全境界の網羅を意味しません。
 - R-02: ユーザーが2026-11-14にスナップショット/Fail-Fast方針を採用し、統合テスト2件が最新全回帰でPASSしました。
-- スナップショット後の文書監査履歴: `http://100.111.193.94:11434`への初回接続は`Unable to connect to the remote server`で失敗しました。その後、バンドルSHA `cd7cd20d12ba7771fb8ceb01dcd95181bfe39c924b8a595aa5e6fb91fdf649b8`への実行はexit 0でしたが、不正なレポートを生成しました。独立Qwen Run `20261114_014515_cd7cd20d`は具体的な指摘3件を返し、WARNです。Qwen Run `codex_20261114_111907_v7`では、設定された`think:false`がchat APIリクエストに渡されず、応答本文が空になる不具合を検出しました。設定値の転送と空応答検証を修正し、ローカル検証は`runner_validation_20261114_112300/`に保存しました。最終Qwen 27B独立監査Run `codex_20261114_112428_v10`はバンドルSHA `80311a3d1ff7aecb1cac5890e9519106b9ce6c0e557386163c85ce06ee0f9f0a`でPASSしました。報告書SHA `94f7f5bb0e263eec9adbb85400e4e0d254d905347a88ee5cf311f19b101030e8`、証拠`docs/audit_runs/codex_20261114_112428_v10/`。以前の10/10レビューは別の固定バンドルだけに適用します。監査ランナーは応答完了・context budget・verdict表を検証し、HTTPリモートを既定化、inference設定とprompt hashを記録します。exit 0のみで監査PASSとしません。
+- スナップショット後の文書監査履歴: `http://<TAILSCALE_OLLAMA_HOST>:11434`への初回接続は`Unable to connect to the remote server`で失敗しました。その後、バンドルSHA `cd7cd20d12ba7771fb8ceb01dcd95181bfe39c924b8a595aa5e6fb91fdf649b8`への実行はexit 0でしたが、不正なレポートを生成しました。独立Qwen Run `20261114_014515_cd7cd20d`は具体的な指摘3件を返し、WARNです。Qwen Run `codex_20261114_111907_v7`では、設定された`think:false`がchat APIリクエストに渡されず、応答本文が空になる不具合を検出しました。設定値の転送と空応答検証を修正し、ローカル検証は`runner_validation_20261114_112300/`に保存しました。最終Qwen 27B独立監査Run `codex_20261114_112428_v10`はバンドルSHA `80311a3d1ff7aecb1cac5890e9519106b9ce6c0e557386163c85ce06ee0f9f0a`でPASSしました。報告書SHA `94f7f5bb0e263eec9adbb85400e4e0d254d905347a88ee5cf311f19b101030e8`、証拠`docs/audit_runs/codex_20261114_112428_v10/`。以前の10/10レビューは別の固定バンドルだけに適用します。監査ランナーは応答完了・context budget・verdict表を検証し、HTTPリモートを既定化、inference設定とprompt hashを記録します。exit 0のみで監査PASSとしません。
 - B-04は完了です。B-05（YearMonth形式検証/HTTP 400テスト）とB-06（機微フィールドがJSONに含まれない回帰テスト）は次の実装サイクルに残っています。確認したDTOに機微情報の直接露出は見つかっていません。
 - R-05: ユーザーの指示により現在の作業から除外。Docker/Podmanがなく、MySQL 8.4の検証結果はありません。予定されたレビュー時に再確認します。
 - Day 12のCompose/Redis/クラウド作業は、ユーザーの指示により予定日まで除外しています。デプロイ済みとは主張しません。

@@ -13,7 +13,7 @@ Codex가 2026-11-14 기준 저장소·증적·잔여 작업을 대조한 인수�
 
 1. R-05(MySQL 8.4 Testcontainers) 및 Day 12 작업은 사용자 지시에 따라 예정일까지 제외합니다. 지금 실행하지 마세요.
 2. 운영 DB는 사용 금지. 대상/전체 테스트와 시연마다 새 allowlisted 격리 DB를 사용하고 DB명을 증거로 확인하세요. 기존 격리 DB도 삭제하지 마세요.
-3. 원격 Qwen 감사는 `http://100.111.193.94:11434`, `qwen27b:latest`만 사용하세요. 저장소 실행 진입점은 `scripts/codex_hermes_bridge.ps1`이며 HTTP 전송을 기본값으로 사용하고 `scripts/audit_config.json`에서 주소와 모델을 읽습니다. 문서 감사에는 `-SystemPromptOverride`로 작업에 맞는 지시를 지정하세요. 로컬 7B 대체, 다른 IP, 모델 pull/download/install 금지. 연결 실패 시 원본 주소와 오류를 보존하고 미검증으로 남기세요.
+3. 원격 Qwen 감사는 `http://<TAILSCALE_OLLAMA_HOST>:11434`, `qwen27b:latest`만 사용하세요. 저장소 실행 진입점은 `scripts/codex_hermes_bridge.ps1`이며 HTTP 전송을 기본값으로 사용하고 `scripts/audit_config.json`에서 주소와 모델을 읽습니다. 문서 감사에는 `-SystemPromptOverride`로 작업에 맞는 지시를 지정하세요. 로컬 7B 대체, 다른 IP, 모델 pull/download/install 금지. 연결 실패 시 원본 주소와 오류를 보존하고 미검증으로 남기세요.
 4. 외부 배포, 원격 Git 반영, 메시지 전송은 하지 마세요. 해당 작업은 사용자 지시가 별도로 필요합니다.
 5. 기존 실패 로그와 증거는 덮어쓰거나 삭제하지 말고 새 실행 디렉터리에 보존하세요.
 

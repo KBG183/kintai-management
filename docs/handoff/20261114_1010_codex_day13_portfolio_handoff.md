@@ -12,7 +12,7 @@
 - 정본 DDL에 `uq_att_open_per_staff`가 없음을 확인하여 역사적 문구를 현재 사실로 오인하지 않도록 표시했습니다.
 - 83건 회귀 및 기존 Day 13 Qwen 15항목 감사의 증거를 문서에 대조했습니다. 데모 DB, 313/313행, 캘린더 상세, 급여액, Excel 파일 결과를 기재했습니다.
 - 포트폴리오 내 상대 Markdown 링크 검사 PASS.
-- 지정 원격 `http://100.111.193.94:11434`, `qwen27b:latest` 최종 독립 감사 Run `20261114_000458_4af20cd9`: 15 PASS, WARN/FAIL 0.
+- 지정 원격 `http://<TAILSCALE_OLLAMA_HOST>:11434`, `qwen27b:latest` 최종 독립 감사 Run `20261114_000458_4af20cd9`: 15 PASS, WARN/FAIL 0.
 - 최초 감사에서 계산/잠금 구현 증거 부족을 지적받았습니다. 계산기·테스트·인증 코드와 Service 트랜잭션, Mapper `FOR UPDATE`를 감사 번들에 추가했고, 최종 스냅샷 재감사에서 모두 PASS했습니다.
 - 최종 입력 번들 SHA-256: `4af20cd936e1a70c91ca8d6b905f0d6f948d108b1c09fd226958a2a6c2b3b543`.
 - 최종 Qwen 보고서 SHA-256: `4876963e92a4cb197596d02fb5d172a50db4a13b7b382930c312e433337d1d28`.

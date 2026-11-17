@@ -2,7 +2,7 @@
 
 ## 準備と安全条件
 
-必ず新規の分離デモDBを使い、運用DBは使用しないでください。`AGENTS.md`と`scripts/prepare_local_demo_db.ps1`に従って作成し、`SELECT DATABASE()`で選択DBを確認します。実測DB名は`kintai_demo_9f3f8487bc42`です。パスワードは`KINTAI_DB_PASSWORD`環境変数から渡し、コマンドや証跡に保存しません。
+必ず新規の分離デモDBを使い、運用DBは使用しないでください。`scripts/prepare_local_demo_db.ps1`に従って作成し、`SELECT DATABASE()`で選択DBを確認します。実測DB名は`kintai_demo_9f3f8487bc42`です。パスワードは`KINTAI_DB_PASSWORD`環境変数から渡し、コマンドや証跡に保存しません。
 
 ## デモの流れ
 

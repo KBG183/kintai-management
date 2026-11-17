@@ -8,19 +8,19 @@ Antigravity에서 이미 사용 중인 Tailscale 원격 Ollama의 Qwen 27B를, C
 
 ## 현재 원격 모델 정보
 
-- Tailscale 원격 Ollama: `http://100.111.193.94:11434`
+- Tailscale 원격 Ollama: `http://<TAILSCALE_OLLAMA_HOST>:11434`
 - 모델: `qwen27b:latest`
 - 원격 PC의 Ollama API/TCP는 사용자 측에서 정상 사용 중
 - 이 PC의 로컬 Ollama에는 `qwen2.5:7b`만 있음
 - 로컬 `qwen2.5:7b`를 27B 대체 모델로 사용하면 안 됨
-- 이전 주소 `100.91.26.37`은 사용하지 않음(offline 상태 기록)
+- 이전 주소 `<TAILSCALE_OLLAMA_HOST>`은 사용하지 않음(offline 상태 기록)
 
 ## Codex에서 실제 발생한 호출 로그
 
 ### 요청
 
 ```text
-POST http://100.111.193.94:11434/api/generate
+POST http://<TAILSCALE_OLLAMA_HOST>:11434/api/generate
 Content-Type: application/json
 
 {
@@ -34,7 +34,7 @@ Content-Type: application/json
 
 ```text
 실패
-원인: 100.111.193.94:11434 소켓 접근 권한 거부
+원인: <TAILSCALE_OLLAMA_HOST>:11434 소켓 접근 권한 거부
 ```
 
 이 오류는 모델명이나 Ollama API 형식 오류가 아니라 **ChatGPT 내부 Codex 샌드박스의 Tailscale 네트워크 접근 차단**이다. Codex 코드만 수정해서 이 권한을 해제할 수 없다.
@@ -67,7 +67,7 @@ docs\codex_queue\pending\<request-id>.json
 {
   "request_id": "codex_yyyyMMdd_HHmmss_xxxx",
   "model": "qwen27b:latest",
-  "endpoint": "http://100.111.193.94:11434",
+  "endpoint": "http://<TAILSCALE_OLLAMA_HOST>:11434",
   "prompt_file": "...",
   "created_by": "Codex",
   "status": "PENDING"

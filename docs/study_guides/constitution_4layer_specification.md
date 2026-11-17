@@ -141,7 +141,7 @@
 # [Layer 3] 런타임 실행 환경 및 보안 명세 (`scripts/audit_config.json`)
 
 ## 제1조 (모델 태그 및 인프라 실측 팩트 - A-19 규명)
-- 자택 Ollama 서버(`http://100.111.193.94:11434`)의 실제 등록 태그는 **`qwen27b:latest`** (Digest: `23c3820b0d9326b73e97191b9fb7e16b53f6e24bb3449d2a17037c5f2b6179a1`, 27.3B, IQ3_M 양자화)임을 물리적으로 실측하여 SSOT로 확립함.
+- 자택 Ollama 서버(`http://<TAILSCALE_OLLAMA_HOST>:11434`)의 실제 등록 태그는 **`qwen27b:latest`** (Digest: `23c3820b0d9326b73e97191b9fb7e16b53f6e24bb3449d2a17037c5f2b6179a1`, 27.3B, IQ3_M 양자화)임을 물리적으로 실측하여 SSOT로 확립함.
 - 베이스 모델 파일명: `Qwen3.8-27B-Uncensored-HauhauCS-Aggressive-IQ3_M.gguf`.
 
 ## 제2조 (런타임 설정 스키마 및 이식성 - A-14 규명)
@@ -151,7 +151,7 @@
   "$schema": "./audit_config.schema.json",
   "primary_auditor": {
     "network_type": "Tailscale Overlay Network",
-    "endpoint": "http://100.111.193.94:11434",
+    "endpoint": "http://<TAILSCALE_OLLAMA_HOST>:11434",
     "model_tag": "qwen27b:latest",
     "model_digest": "23c3820b0d9326b73e97191b9fb7e16b53f6e24bb3449d2a17037c5f2b6179a1",
     "think": false,
@@ -183,7 +183,7 @@
 
 ## 제3조 (네트워크 연결 판정 및 보안 규칙 - A-12 규명)
 1. **정식 연결 기준**: ICMP Ping은 단순 보조 진단용으로만 사용하며, **정식 가용성 판단은 TCP 11434 포트 개방 및 `/api/tags` HTTP 200 응답**을 기준으로 판정한다.
-2. **보안 바인딩 정책**: Ollama 데스크톱은 Tailscale 가상 IP(`100.111.193.94`)에만 바인딩하며, `0.0.0.0` 공용 인터넷 노출을 엄격히 금지한다.
+2. **보안 바인딩 정책**: Ollama 데스크톱은 Tailscale 가상 IP(`<TAILSCALE_OLLAMA_HOST>`)에만 바인딩하며, `0.0.0.0` 공용 인터넷 노출을 엄격히 금지한다.
 3. **7B 폴백 격하 원칙**: 7B의 PASS는 절대 `AUDIT_PASSED`로 인정되지 않으며, 27B 복구 후 동일 번들에 대해 재감사를 거쳐야만 정식 승인이 가능하다.
 
 ## 제4조 (PowerShell 인코딩 및 BOM 정책 - A-23 명시)

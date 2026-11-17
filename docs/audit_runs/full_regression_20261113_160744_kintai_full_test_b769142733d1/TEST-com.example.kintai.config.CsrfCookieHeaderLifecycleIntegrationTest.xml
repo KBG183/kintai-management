@@ -19,7 +19,7 @@
 
  :: Spring Boot ::                (v4.0.8)
 
-2026-11-13T16:08:12.107+09:00  INFO 27236 --- [    Test worker] CsrfCookieHeaderLifecycleIntegrationTest : Starting CsrfCookieHeaderLifecycleIntegrationTest using Java 17.0.12 with PID 27236 (started by klad3 in C:\dev\kintai)
+2026-11-13T16:08:12.107+09:00  INFO 27236 --- [    Test worker] CsrfCookieHeaderLifecycleIntegrationTest : Starting CsrfCookieHeaderLifecycleIntegrationTest using Java 17.0.12 with PID 27236 (started by <LOCAL_USER> in C:\dev\kintai)
 2026-11-13T16:08:12.110+09:00  INFO 27236 --- [    Test worker] CsrfCookieHeaderLifecycleIntegrationTest : No active profile set, falling back to 1 default profile: "default"
 2026-11-13T16:08:13.887+09:00  INFO 27236 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
 2026-11-13T16:08:14.430+09:00  INFO 27236 --- [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@7a1ddbf1

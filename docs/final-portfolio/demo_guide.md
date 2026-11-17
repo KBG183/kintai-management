@@ -2,7 +2,7 @@
 
 ## Safety and preparation
 
-Use only a newly created isolated demo database, never the operating database. Follow `AGENTS.md` and `scripts/prepare_local_demo_db.ps1`; confirm the selected schema with `SELECT DATABASE()`. The verified DB was `kintai_demo_9f3f8487bc42`. Supply the database password through `KINTAI_DB_PASSWORD` and do not record it in commands or evidence.
+Use only a newly created isolated demo database, never the operating database. Follow `scripts/prepare_local_demo_db.ps1`; confirm the selected schema with `SELECT DATABASE()`. The verified DB was `kintai_demo_9f3f8487bc42`. Supply the database password through `KINTAI_DB_PASSWORD` and do not record it in commands or evidence.
 
 ## Walkthrough
 

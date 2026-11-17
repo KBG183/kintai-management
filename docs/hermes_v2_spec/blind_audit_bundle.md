@@ -13,7 +13,7 @@ Do not flatter or assume correctness. Identify all syntax errors, schema discrep
 {
   "primary_auditor": {
     "network_type": "Tailscale Overlay Network",
-    "endpoint": "http://100.111.193.94:11434",
+    "endpoint": "http://<TAILSCALE_OLLAMA_HOST>:11434",
     "model_tag": "qwen27b:latest",
     "model_digest": "23c3820b0d9326b73e97191b9fb7e16b53f6e24bb3449d2a17037c5f2b6179a1",
     "think": false,

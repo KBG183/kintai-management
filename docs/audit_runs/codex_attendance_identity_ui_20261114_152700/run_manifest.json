@@ -4,7 +4,7 @@
   "target_file": "C:\\dev\\kintai\\src\\main\\resources\\templates\\attendance\\punch.html",
   "target_sha256": "cea8f2ea74ab3bdc688f6916603cc29500af4d8da5aad44f416c92b7d8a9fe3e",
   "model": "qwen27b:latest",
-  "host_url": "http://100.111.193.94:11434",
+  "host_url": "http://<TAILSCALE_OLLAMA_HOST>:11434",
   "options": {
     "seed": 42,
     "temperature": 0.1,
@@ -20,7 +20,7 @@
   "custom_prompt_sha256": "7b2443a93722c7c5fae98a821eb03d363dece6644c3c69d6a9e6c064e0452012",
   "system_prompt_override_sha256": "DEFAULT_IN_RUNNER",
   "transport_requested": "Http",
-  "ollama_path": "C:\\Users\\klad3\\AppData\\Local\\Programs\\Ollama\\ollama.exe",
+  "ollama_path": "C:\\Users\\<LOCAL_USER>\\AppData\\Local\\Programs\\Ollama\\ollama.exe",
   "output_dir": ".\\docs\\audit_runs\\codex_attendance_identity_ui_20261114_152700",
   "transport_used": "Http",
   "finished_at_local": "2026-11-14T15:24:20.0897647+09:00",

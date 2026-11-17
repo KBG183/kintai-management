@@ -64,7 +64,7 @@
       "severity": "P2",
       "verdict": "PASS",
       "evidence": "`technical_evidence_v2.0.md` (Section 2), `architecture.md`",
-      "analysis": "**Analysis:** The documentation consistently states that the independent AI review used the remote endpoint `http://100.111.193.94:11434` with model `qwen27b:latest`. It explicitly states that no local Qwen fallback or model download was used. This aligns with the \"Three-role AI review workflow\" description. The consistency across English, Japanese, and Korean documents supports the claim."
+      "analysis": "**Analysis:** The documentation consistently states that the independent AI review used the remote endpoint `http://<TAILSCALE_OLLAMA_HOST>:11434` with model `qwen27b:latest`. It explicitly states that no local Qwen fallback or model download was used. This aligns with the \"Three-role AI review workflow\" description. The consistency across English, Japanese, and Korean documents supports the claim."
     },
     {
       "finding_id": "F-09",

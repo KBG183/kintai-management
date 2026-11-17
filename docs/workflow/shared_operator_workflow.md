@@ -34,7 +34,7 @@
 
 - 활성 오퍼레이터만 원본 파일을 수정한다.
 - Qwen 요청은 `docs\codex_queue\pending\`에 생성한다.
-- Windows 큐 워커는 원격 endpoint `http://100.111.193.94:11434`만 사용한다.
+- Windows 큐 워커는 원격 endpoint `http://<TAILSCALE_OLLAMA_HOST>:11434`만 사용한다.
 - 결과는 `completed` 또는 `failed`의 고유 request ID 폴더에 저장한다.
 - 기존 감사 결과를 새 감사 결과처럼 재사용하지 않는다.
 

@@ -48,7 +48,7 @@
 ### 2.3. [결함 C-03] 감사 런 원본 경로(User Home vs Project Root) 조사 오류
 - **위치**: `04_v1_v2_compatibility_migration.md` 27행
 - **불일치 내용**:
-  - 문서에 `docs/audit_runs/20261112_054459_PROMPT/report.md`를 예시로 들었으나, 실제 물리적 디스크 조사 결과 해당 디렉터리는 프로젝트 루트(`c:\dev\kintai\docs\audit_runs\`)가 아니라 **사용자 홈 디렉터리(`C:\Users\klad3\docs\audit_runs\`)**에 고아(Orphan) 상태로 생성되어 있었음.
+  - 문서에 `docs/audit_runs/20261112_054459_PROMPT/report.md`를 예시로 들었으나, 실제 물리적 디스크 조사 결과 해당 디렉터리는 프로젝트 루트(`c:\dev\kintai\docs\audit_runs\`)가 아니라 **사용자 홈 디렉터리(`C:\Users\<LOCAL_USER>\docs\audit_runs\`)**에 고아(Orphan) 상태로 생성되어 있었음.
   - 작업 실행 경로(`cwd`)에 따라 감사 리포트가 엉뚱한 위치에 저장되는 현행 v1 스크립트의 취약점을 간과하고 프로젝트 내 경로로 잘못 기술함.
 
 ---

@@ -28,7 +28,7 @@ flowchart LR
   Q -. advisory; does not replace tests .-> T
 ```
 
-“Three-tier AI cooperation” means implementation, independent review, and human decision roles. It is separate from the application's web layers. The final Day 13 audit used `http://100.111.193.94:11434`, model `qwen27b:latest`. No local 7B substitution was made.
+“Three-tier AI cooperation” means implementation, independent review, and human decision roles. It is separate from the application's web layers. The final Day 13 audit used `http://<TAILSCALE_OLLAMA_HOST>:11434`, model `qwen27b:latest`. No local 7B substitution was made.
 
 ## Database integrity note
 

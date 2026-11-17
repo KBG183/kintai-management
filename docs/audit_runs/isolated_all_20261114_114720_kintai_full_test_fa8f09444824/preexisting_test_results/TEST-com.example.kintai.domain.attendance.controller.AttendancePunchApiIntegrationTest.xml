@@ -16,7 +16,7 @@
 
  :: Spring Boot ::                (v4.0.8)
 
-2026-11-14T09:44:52.498+09:00  INFO 21400 --- [    Test worker] .d.a.c.AttendancePunchApiIntegrationTest : Starting AttendancePunchApiIntegrationTest using Java 17.0.12 with PID 21400 (started by klad3 in C:\dev\kintai)
+2026-11-14T09:44:52.498+09:00  INFO 21400 --- [    Test worker] .d.a.c.AttendancePunchApiIntegrationTest : Starting AttendancePunchApiIntegrationTest using Java 17.0.12 with PID 21400 (started by <LOCAL_USER> in C:\dev\kintai)
 2026-11-14T09:44:52.498+09:00  INFO 21400 --- [    Test worker] .d.a.c.AttendancePunchApiIntegrationTest : No active profile set, falling back to 1 default profile: "default"
 2026-11-14T09:44:53.239+09:00  INFO 21400 --- [    Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
 2026-11-14T09:44:53.490+09:00  INFO 21400 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''

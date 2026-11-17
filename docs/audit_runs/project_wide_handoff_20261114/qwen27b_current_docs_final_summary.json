@@ -1,6 +1,6 @@
 {
   "audit_exit_code": 0,
-  "endpoint": "http://100.111.193.94:11434",
+  "endpoint": "http://<TAILSCALE_OLLAMA_HOST>:11434",
   "model": "qwen27b:latest",
   "bundle_sha256": "cd7cd20d12ba7771fb8ceb01dcd95181bfe39c924b8a595aa5e6fb91fdf649b8",
   "report_exists": true,

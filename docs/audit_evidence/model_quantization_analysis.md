@@ -3,7 +3,7 @@
 ## 1. Issue Background
 - **문제 제기**: 과거 문서 기록에서는 Qwen 27B 모델이 `Q3_K_M` 양자화로 지칭되었으나, 실제 Ollama 런타임 실측 결과 `IQ3_M` (I-Quantization 3-bit Medium)으로 반환되어 양자화 스펙 차이의 진위 규명 필요.
 - **실측 시각**: `2026-11-11T17:05:11+09:00`
-- **조사 대상**: 자택 데스크톱 Ollama 호스트 (`http://100.111.193.94:11434`)
+- **조사 대상**: 자택 데스크톱 Ollama 호스트 (`http://<TAILSCALE_OLLAMA_HOST>:11434`)
 
 ---
 

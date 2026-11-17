@@ -73,14 +73,14 @@
 ### 3.3. [C-03] 감사 런 원본 경로(User Home vs Project Root) 조사 오류
 - **원래 주장**: `20261112_054459_PROMPT`가 프로젝트가 아닌 사용자 홈 디렉터리에 존재함.
 - **물리적 증거**:
-  - `C:\Users\klad3\.gemini\scripts\audit_with_hermes.ps1` 47행:
+  - `C:\Users\<LOCAL_USER>\.gemini\scripts\audit_with_hermes.ps1` 47행:
     ```powershell
     if (-not $OutputDir) {
         $OutputDir = Join-Path "docs/audit_runs" "${dirPrefix}${timestampStr}_${targetSha8}"
     }
     ```
   - **원인 규명**: `audit_with_hermes.ps1`의 상대경로 기본값이 현재 콘솔의 작업 디렉터리(`$PWD`)를 기준으로 `docs/audit_runs`를 생성함.
-  - 사용자가 `C:\Users\klad3`에서 명령을 실행하면 `C:\Users\klad3\docs\audit_runs\`에 저장되고, `c:\dev\kintai`에서 실행하면 `c:\dev\kintai\docs\audit_runs\`에 저장됨.
+  - 사용자가 `C:\Users\<LOCAL_USER>`에서 명령을 실행하면 `C:\Users\<LOCAL_USER>\docs\audit_runs\`에 저장되고, `c:\dev\kintai`에서 실행하면 `c:\dev\kintai\docs\audit_runs\`에 저장됨.
 - **최종 판정**: **`CONFIRMED_DEFECT`** (실행 경로 의존적 경로 고아 발생 결함 확인)
 
 ---

@@ -4,7 +4,7 @@
   "target_file": "C:\\dev\\kintai\\docs\\final-portfolio\\video_demo_error_ledger_KO.md",
   "target_sha256": "d73b4b330d7a5d3ce87b98dc365183e7f91ddac85252ee989bfb9879997fce79",
   "model": "qwen27b:latest",
-  "host_url": "http://100.111.193.94:11434",
+  "host_url": "http://<TAILSCALE_OLLAMA_HOST>:11434",
   "options": {
     "think": false,
     "num_ctx": 24576,
@@ -20,7 +20,7 @@
   "custom_prompt_sha256": "b1b67590b4956a22cab3262bc9093577021b867c1de873124857bd2b1a9b0a75",
   "system_prompt_override_sha256": "DEFAULT_IN_RUNNER",
   "transport_requested": "Http",
-  "ollama_path": "C:\\Users\\klad3\\AppData\\Local\\Programs\\Ollama\\ollama.exe",
+  "ollama_path": "C:\\Users\\<LOCAL_USER>\\AppData\\Local\\Programs\\Ollama\\ollama.exe",
   "output_dir": ".\\docs\\audit_runs\\codex_video_demo_error_ledger_20261114_164200",
   "transport_used": "Http",
   "finished_at_local": "2026-11-14T16:35:27.8393969+09:00",

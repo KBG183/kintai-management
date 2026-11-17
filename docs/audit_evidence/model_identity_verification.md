@@ -3,7 +3,7 @@
 ## 1. Overview & Fact Finding
 - **조사 배경**: 헌법 초기 문서상에 표기되었던 `qwen3.8:27b`와 실제 Ollama 인프라 실행 스크립트(`audit_with_hermes.ps1`)에 기본 설정된 `qwen27b:latest` 간의 표기 불일치 원인 규명.
 - **실제 물리적 원본 조회 시각**: `2026-11-11T08:05:11Z` (UTC) / `2026-11-11T17:05:11+09:00` (JST)
-- **대상 인프라**: `http://100.111.193.94:11434` (자택 데스크톱 NVIDIA GeForce RTX 5070 Ti, Tailscale Overlay Network)
+- **대상 인프라**: `http://<TAILSCALE_OLLAMA_HOST>:11434` (자택 데스크톱 NVIDIA GeForce RTX 5070 Ti, Tailscale Overlay Network)
 
 ---
 

@@ -14,7 +14,7 @@
 | 독립 감사 번들 | `C:\dev\kintai\docs\audit_bundles\` |
 | 최종 포트폴리오 | `C:\dev\kintai\docs\final-portfolio\` |
 | 감사 실행 결과 | `C:\dev\kintai\docs\audit_runs\` |
-| 역사적 Day 10 사용자 프로필 Hermes 스크립트 | `C:\Users\klad3\.gemini\scripts\audit_with_hermes.ps1` (과거 실행 해시 증거 전용; 현재 프로젝트 정본이 아님) |
+| 역사적 Day 10 사용자 프로필 Hermes 스크립트 | `C:\Users\<LOCAL_USER>\.gemini\scripts\audit_with_hermes.ps1` (과거 실행 해시 증거 전용; 현재 프로젝트 정본이 아님) |
 | 현재 프로젝트 감사 진입점 | `C:\dev\kintai\scripts\codex_hermes_bridge.ps1` → `scripts\audit_with_hermes.ps1` (설정 endpoint/model 사용, HTTP 기본값) |
 | 선택적 사전검증 진입점 | `C:\dev\kintai\scripts\audit_hermes_preflight.ps1` (프로젝트 감사 스크립트 실행 전 입력 검증) |
 | 보관 감사 문서 | `C:\dev\kintai\docs\legacy_audit_reports\` |

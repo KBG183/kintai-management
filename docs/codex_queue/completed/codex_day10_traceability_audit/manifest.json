@@ -1,7 +1,7 @@
 {
     "request_id":  "codex_day10_traceability_audit",
     "status":  "SUCCESS",
-    "endpoint":  "http://100.111.193.94:11434",
+    "endpoint":  "http://<TAILSCALE_OLLAMA_HOST>:11434",
     "model":  "qwen27b:latest",
     "created_by":  "Codex",
     "started_at_local":  "2026-11-13T11:49:47.1261793+09:00",

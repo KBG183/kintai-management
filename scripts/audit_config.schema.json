@@ -1,0 +1,53 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AuditConfig",
+  "type": "object",
+  "required": ["primary_auditor", "fallback_auditor", "runtime_environment"],
+  "properties": {
+    "primary_auditor": {
+      "type": "object",
+      "required": ["network_type", "endpoint", "model_tag", "model_digest", "think", "options", "verdict_authority"],
+      "properties": {
+        "network_type": { "type": "string" },
+        "endpoint": { "type": "string" },
+        "model_tag": { "type": "string" },
+        "model_digest": { "type": "string" },
+        "think": { "type": "boolean" },
+        "options": {
+          "type": "object",
+          "required": ["temperature", "num_ctx", "seed"],
+          "properties": {
+            "temperature": { "type": "number" },
+            "num_ctx": { "type": "integer" },
+            "seed": { "type": "integer" }
+          }
+        },
+        "verdict_authority": { "type": "string", "enum": ["AUDIT_PASSED"] }
+      }
+    },
+    "fallback_auditor": {
+      "type": "object",
+      "required": ["enabled", "network_type", "endpoint", "model_tag", "think", "options", "verdict_authority"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "network_type": { "type": "string" },
+        "endpoint": { "type": "string" },
+        "model_tag": { "type": "string" },
+        "model_digest": { "type": "string" },
+        "think": { "type": "boolean" },
+        "options": { "type": "object" },
+        "verdict_authority": { "type": "string", "enum": ["PRELIMINARY_AUDIT"] }
+      }
+    },
+    "runtime_environment": {
+      "type": "object",
+      "required": ["script_path", "timeout_ms", "sync_wait_ms", "heartbeat_interval_sec"],
+      "properties": {
+        "script_path": { "type": "string" },
+        "timeout_ms": { "type": "integer" },
+        "sync_wait_ms": { "type": "integer" },
+        "heartbeat_interval_sec": { "type": "integer" }
+      }
+    }
+  }
+}

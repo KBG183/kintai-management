@@ -72,7 +72,7 @@
       "severity": "P2",
       "verdict": "PASS",
       "evidence": "Metadata, Handoff, Evidence",
-      "analysis": "**Consistent:** All references use `http://100.111.193.94:11434` and `qwen27b:latest` (27.3B, IQ3_M). Digest `23c3820b...` matches across Metadata and Evidence sections."
+      "analysis": "**Consistent:** All references use `http://<TAILSCALE_OLLAMA_HOST>:11434` and `qwen27b:latest` (27.3B, IQ3_M). Digest `23c3820b...` matches across Metadata and Evidence sections."
     },
     {
       "finding_id": "F-10",

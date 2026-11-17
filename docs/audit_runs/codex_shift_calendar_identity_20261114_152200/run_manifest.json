@@ -4,7 +4,7 @@
   "target_file": "C:\\dev\\kintai\\src\\main\\resources\\templates\\shift\\calendar.html",
   "target_sha256": "f8d49d7f64dfd2a545f1002d36dd809b263345c4d3955b9cc972e4edb056fa96",
   "model": "qwen27b:latest",
-  "host_url": "http://100.111.193.94:11434",
+  "host_url": "http://<TAILSCALE_OLLAMA_HOST>:11434",
   "options": {
     "seed": 42,
     "num_ctx": 24576,
@@ -20,7 +20,7 @@
   "custom_prompt_sha256": "3dba32a41fe82a14a3a456abd29458ae64ab327e04989e4bf0a3b2ba8399474f",
   "system_prompt_override_sha256": "DEFAULT_IN_RUNNER",
   "transport_requested": "Http",
-  "ollama_path": "C:\\Users\\klad3\\AppData\\Local\\Programs\\Ollama\\ollama.exe",
+  "ollama_path": "C:\\Users\\<LOCAL_USER>\\AppData\\Local\\Programs\\Ollama\\ollama.exe",
   "output_dir": ".\\docs\\audit_runs\\codex_shift_calendar_identity_20261114_152200",
   "transport_used": "Http",
   "finished_at_local": "2026-11-14T15:21:14.6363266+09:00",

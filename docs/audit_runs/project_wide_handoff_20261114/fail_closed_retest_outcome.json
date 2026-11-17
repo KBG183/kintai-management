@@ -1,6 +1,6 @@
 {
   "test": "Hermes chunked audit failure is fail-closed",
-  "endpoint": "http://100.111.193.94:11434",
+  "endpoint": "http://<TAILSCALE_OLLAMA_HOST>:11434",
   "model": "qwen27b:latest",
   "powershell_parse_pass": true,
   "script_process_exit": 1,

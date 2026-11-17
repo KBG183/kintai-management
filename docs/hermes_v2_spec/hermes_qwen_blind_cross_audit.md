@@ -18,7 +18,7 @@
 | 항목 | 물리적 실측치 및 구성 정보 | 비고 |
 |---|---|---|
 | **감사 환경 OS** | Windows 10 Pro (x64, 10.0.26200.9711) | PowerShell 5.1 데스크톱 환경 |
-| **원격 감사 노드** | 자택 데스크톱 (NVIDIA GeForce RTX 5070 Ti 16GB, Tailscale P2P) | IP: `100.111.193.94:11434` |
+| **원격 감사 노드** | 자택 데스크톱 (NVIDIA GeForce RTX 5070 Ti 16GB, Tailscale P2P) | IP: `<TAILSCALE_OLLAMA_HOST>:11434` |
 | **운영 모델 식별자** | `qwen27b:latest` (Ollama v0.40.16) | Digest: `23c3820b0d93...`, Quant: `IQ3_M` |
 | **실측 추론 속도** | `47.8 ~ 51.7 tokens/s` (입력 17,183토큰, 출력 1,597토큰, 소요시간 47.03초) | `report.md` 실측 메트릭 기반 |
 | **컨텍스트 한도** | `num_ctx: 24576`, 사전 토큰 경보 한도: `22118` (90%) | `audit_with_hermes.ps1` 237행 |
@@ -27,7 +27,7 @@
 
 ## 2. 실제 조사한 물리적 파일 목록
 
-1. `C:\Users\klad3\.gemini\scripts\audit_with_hermes.ps1` (v1.1.1, 433행)
+1. `C:\Users\<LOCAL_USER>\.gemini\scripts\audit_with_hermes.ps1` (v1.1.1, 433행)
 2. `c:\dev\kintai\scripts\state_manager.ps1` (v3.0, 593행)
 3. `c:\dev\kintai\scripts\audit_config.json` 및 `audit_config.schema.json`
 4. `c:\dev\kintai\docs\constitution_4layer_specification.md` (v2.1)
@@ -66,11 +66,11 @@
 - **판정**: **`CONFIRMED_DEFECT`**
 
 ### DEF-03: 상대경로 기본값으로 인한 실행 위치 의존적 경로 고아 발생
-- **실제 파일 및 행**: `C:\Users\klad3\.gemini\scripts\audit_with_hermes.ps1` 47행
+- **실제 파일 및 행**: `C:\Users\<LOCAL_USER>\.gemini\scripts\audit_with_hermes.ps1` 47행
 - **증거**:
   - `$OutputDir = Join-Path "docs/audit_runs" "${dirPrefix}${timestampStr}_${targetSha8}"`로 상대경로 바인딩됨.
-  - 사용자가 `C:\Users\klad3`에서 실행할 경우 `C:\Users\klad3\docs\audit_runs\`에 저장되고, 프로젝트 루트(`c:\dev\kintai`)에서 실행할 경우 `c:\dev\kintai\docs\audit_runs\`에 저장됨.
-  - 실제로 디스크 조사 결과 `C:\Users\klad3\docs\audit_runs\20261112_054459_PROMPT`가 고아 디렉터리로 잔류하고 있음.
+  - 사용자가 `C:\Users\<LOCAL_USER>`에서 실행할 경우 `C:\Users\<LOCAL_USER>\docs\audit_runs\`에 저장되고, 프로젝트 루트(`c:\dev\kintai`)에서 실행할 경우 `c:\dev\kintai\docs\audit_runs\`에 저장됨.
+  - 실제로 디스크 조사 결과 `C:\Users\<LOCAL_USER>\docs\audit_runs\20261112_054459_PROMPT`가 고아 디렉터리로 잔류하고 있음.
 - **판정**: **`CONFIRMED_DEFECT`**
 
 ### DEF-04: JSON Schema Strictness 결핍 (`additionalProperties: false` 누락)

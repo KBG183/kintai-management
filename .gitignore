@@ -38,7 +38,17 @@ out/
 
 # docs/ is tracked for portfolio evidence
 audit_reports/
-scripts/
+scripts/*
+!scripts/*prepare_local_demo_db.ps1
+!scripts/*local_demo_attendance.sql
+!scripts/*local_video_demo_seed.sql
+!scripts/*patch_current_demo_shift_month.sql
+!scripts/*prepare_video_demo_state.sql
+!scripts/*run_isolated_regression.ps1
+!scripts/*cleanup_isolated_databases.ps1
+!scripts/*audit_with_hermes.ps1
+!scripts/*audit_config.json
+!scripts/*audit_config.schema.json
 AGENTS.md
 hermes_audit_report.md
 initial_db_schema.md

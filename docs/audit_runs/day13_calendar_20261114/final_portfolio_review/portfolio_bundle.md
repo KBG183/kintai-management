@@ -47,7 +47,7 @@ Kintai is a Japanese shift, attendance, and monthly payroll application. The ver
 The portfolio's “three-tier AI cooperation” describes three decision roles, not three web-service tiers:
 
 1. **Implementation agent:** Antigravity performs implementation and prepares test evidence under the project instructions.
-2. **Independent AI reviewer:** Hermes invokes the remote `qwen27b:latest` model at `http://100.111.193.94:11434` to review a frozen evidence bundle. The audit is advisory and cannot replace execution tests or human acceptance.
+2. **Independent AI reviewer:** Hermes invokes the remote `qwen27b:latest` model at `http://<TAILSCALE_OLLAMA_HOST>:11434` to review a frozen evidence bundle. The audit is advisory and cannot replace execution tests or human acceptance.
 3. **Human decision owner:** the user determines scope, accepts or rejects recommendations, and owns final product decisions.
 
 Codex is a user-directed collaborator in this workflow; it is not silently substituted for the implementation or independent review role. No local Qwen fallback or model download was used for the final Day 13 audit.
@@ -100,7 +100,7 @@ Kintaiは日本向けシフト・勤怠・月次給与アプリです。確認�
 2. **独立AIレビュー担当:** Hermesが凍結した証跡バンドルを、リモート`qwen27b:latest`でレビュー。監査は助言であり、実行テスト・人間の受入判断を代替しません。
 3. **人間の決定者:** ユーザーが範囲、提案の採否、最終判断を決定。
 
-最終Day 13監査先は `http://100.111.193.94:11434`。ローカルQwenへの代替やモデルのダウンロードはしていません。これはアプリの3層構造ではなく、監査・判断の役割分担です。
+最終Day 13監査先は `http://<TAILSCALE_OLLAMA_HOST>:11434`。ローカルQwenへの代替やモデルのダウンロードはしていません。これはアプリの3層構造ではなく、監査・判断の役割分担です。
 
 ## 実測結果
 
@@ -159,7 +159,7 @@ flowchart LR
   Q -. advisory; does not replace tests .-> T
 ```
 
-“Three-tier AI cooperation” means implementation, independent review, and human decision roles. It is separate from the application's web layers. The final Day 13 audit used `http://100.111.193.94:11434`, model `qwen27b:latest`. No local 7B substitution was made.
+“Three-tier AI cooperation” means implementation, independent review, and human decision roles. It is separate from the application's web layers. The final Day 13 audit used `http://<TAILSCALE_OLLAMA_HOST>:11434`, model `qwen27b:latest`. No local 7B substitution was made.
 
 ## Database integrity note
 
@@ -197,7 +197,7 @@ flowchart LR
   Q -. 助言でありテストの代替ではない .-> T
 ```
 
-これは監査・判断の役割分担です。アプリのWeb層構成とは異なります。最終Day 13監査は`http://100.111.193.94:11434`の`qwen27b:latest`で実行し、ローカル7Bを代替使用していません。
+これは監査・判断の役割分担です。アプリのWeb層構成とは異なります。最終Day 13監査は`http://<TAILSCALE_OLLAMA_HOST>:11434`の`qwen27b:latest`で実行し、ローカル7Bを代替使用していません。
 
 ## スキーマ上の注意
 

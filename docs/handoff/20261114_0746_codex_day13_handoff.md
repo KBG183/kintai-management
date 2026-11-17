@@ -26,7 +26,7 @@
 
 ## 독립 Qwen 27B 재검수
 
-- 올바른 원격 엔드포인트는 `http://100.111.193.94:11434`이며 `/api/tags`에서 `qwen27b:latest`, 27.3B, IQ3_M, digest `23c3820b0d9326b73e97191b9fb7e16b53f6e24bb3449d2a17037c5f2b6179a1`을 확인했습니다. `100.91...`은 과거 증적을 잘못 선택한 에이전트 오류였습니다.
+- 올바른 원격 엔드포인트는 `http://<TAILSCALE_OLLAMA_HOST>:11434`이며 `/api/tags`에서 `qwen27b:latest`, 27.3B, IQ3_M, digest `23c3820b0d9326b73e97191b9fb7e16b53f6e24bb3449d2a17037c5f2b6179a1`을 확인했습니다. `100.91...`은 과거 증적을 잘못 선택한 에이전트 오류였습니다.
 - 최초 시도는 지시를 오해해 로컬 `qwen3.8:27b` pull을 시작했다가 약 7GB에서 중단했으며 모델은 설치·감사에 사용되지 않았습니다. 사용자의 삭제 지시 후 미설치·미참조 blob 21개를 제거하고 기존 Qwen 7B 설치를 보존했습니다. 증거는 `qwen_local_pull_cleanup_manifest.json`입니다.
 - 최종 원격 감사는 Hermes v1.1.1, Qwen 27B IQ3_M, Run ID `20261113_232151_a808922d`, 42.59초, 3283 입력/1673 출력 토큰입니다. 최종 번들 SHA-256 `a808922ded9a6ea3cf62c981501967389e57215917c9bc1d156d9685c3923052`, 보고서 SHA-256 `1CBA641563D0BD88CCE21E41C71F97E7A563C550EBFDEA9DF9FB6A09F646D61E`. Qwen은 주요 Day 13 항목 PASS, Chrome 다운로드 검증을 P2 WARN/미해결로 판정했습니다. 전용 cross-owner 권한 테스트 추가 후 새 격리 DB 전체 회귀 83건이 통과했습니다. Chrome은 export URL에서 `ERR_BLOCKED_BY_CLIENT`를 표시했습니다. 브라우저 도구 정책이 `chrome://downloads/` 확인과 우회 시도를 차단해 저장 여부는 검증할 수 없습니다. 이는 다운로드 이벤트 재확인 전의 감사입니다. 후속 검증 파일을 추가한 뒤 R-18 재감사를 진행 중입니다.
 - 감사 보고서 `docs/audit_runs/day13_calendar_20261114/qwen27b_final/report.md`, 실행 원문·메타데이터 `qwen27b_final/`, 콘솔 `qwen27b_final_console.log`; 첫 감사와 중간 재감사도 별도 디렉터리에 원문 보존했습니다.
@@ -53,6 +53,6 @@
 
 - **Day 13 판정: PASS (로컬 MySQL 26.7 검증 범위).** R-15/R-16/R-17/R-18이 RTM에서 모두 VERIFIED입니다.
 - 전체 회귀는 격리 DB `kintai_full_test_9f4b67f66b64`에서 83/83 PASS, 실패·오류·스킵 0, Gradle exit 0입니다.
-- Qwen 27B 최종 재감사: Hermes v1.1.1, 원격 `http://100.111.193.94:11434`, `qwen27b:latest` 27.3B IQ3_M, digest `'+$audit.model_digest+'`; Run ID `'+$audit.run_id+'`; 입력 SHA-256 `'+$bundleHash+'`; report SHA-256 `'+$reportHash+'`. finding 15개 PASS, WARN/FAIL 0.
+- Qwen 27B 최종 재감사: Hermes v1.1.1, 원격 `http://<TAILSCALE_OLLAMA_HOST>:11434`, `qwen27b:latest` 27.3B IQ3_M, digest `'+$audit.model_digest+'`; Run ID `'+$audit.run_id+'`; 입력 SHA-256 `'+$bundleHash+'`; report SHA-256 `'+$reportHash+'`. finding 15개 PASS, WARN/FAIL 0.
 - 브라우저에서 실제 Excel 다운로드 이벤트와 파일을 검증했으며, 증거 `docs/audit_runs/day13_calendar_20261114/excel_browser_download.json` 및 최종 점검표 `docs/audit_runs/day13_calendar_20261114/day13_completion_checklist.json`입니다.
 - MySQL 8.4 Testcontainers는 기존 일정대로 2027-01 재검토(DEFERRED)이며 Day 13 로컬 검수 범위와 구분합니다.

@@ -88,7 +88,7 @@
       "severity": "P2",
       "verdict": "PASS",
       "evidence": "`docs/final-portfolio/technical_evidence_v2.0.md` (Section 2); `docs/final-portfolio/architecture.md`",
-      "analysis": "The documentation consistently states that the independent AI reviewer uses the remote `qwen27b:latest` model at `http://100.111.193.94:11434`. It explicitly states that no local Qwen fallback or model download was used. This matches the user's requirement for the exact remote model endpoint."
+      "analysis": "The documentation consistently states that the independent AI reviewer uses the remote `qwen27b:latest` model at `http://<TAILSCALE_OLLAMA_HOST>:11434`. It explicitly states that no local Qwen fallback or model download was used. This matches the user's requirement for the exact remote model endpoint."
     },
     {
       "finding_id": "F-12",

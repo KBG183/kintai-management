@@ -1,5 +1,5 @@
 ## Frozen audit scope (2026-11-14)
-Purpose: independently verify the current Antigravity handoff, project audit runner, claims, and primary execution evidence. Do not infer PASS from process exit code alone. Current remote Qwen is only http://100.111.193.94:11434 with qwen27b:latest.
+Purpose: independently verify the current Antigravity handoff, project audit runner, claims, and primary execution evidence. Do not infer PASS from process exit code alone. Current remote Qwen is only http://<TAILSCALE_OLLAMA_HOST>:11434 with qwen27b:latest.
 
 ## Audit configuration
 Source: scripts/audit_config.json
@@ -9,7 +9,7 @@ SHA-256: 1ebaf50e6e54e97e87acc79fbf002d6a20d38743ac79961760e264742e4999db
   "$schema": "./audit_config.schema.json",
   "primary_auditor": {
     "network_type": "Tailscale Overlay Network",
-    "endpoint": "http://100.111.193.94:11434",
+    "endpoint": "http://<TAILSCALE_OLLAMA_HOST>:11434",
     "model_tag": "qwen27b:latest",
     "model_digest": "23c3820b0d9326b73e97191b9fb7e16b53f6e24bb3449d2a17037c5f2b6179a1",
     "think": false,
@@ -23,7 +23,7 @@ SHA-256: 1ebaf50e6e54e97e87acc79fbf002d6a20d38743ac79961760e264742e4999db
   "fallback_auditor": {
     "enabled": false,
     "network_type": "Tailscale Overlay Network",
-    "endpoint": "http://100.111.193.94:11434",
+    "endpoint": "http://<TAILSCALE_OLLAMA_HOST>:11434",
     "model_tag": "qwen27b:latest",
     "model_digest": "23c3820b0d9326b73e97191b9fb7e16b53f6e24bb3449d2a17037c5f2b6179a1",
     "think": false,
@@ -112,7 +112,7 @@ param(
     [string]$SystemPromptOverride = "",
     [string]$OutputFile = "hermes_audit_report.md",
     [string]$Model = "qwen27b:latest",
-    [string]$HostUrl = "http://100.111.193.94:11434",
+    [string]$HostUrl = "http://<TAILSCALE_OLLAMA_HOST>:11434",
     [string]$SectionFilter = "",
     [string]$LineRange = "",
     [string]$InputManifestPath = "",
@@ -793,7 +793,7 @@ SHA-256: 84e7e618d45b15259af5d6083859316c5a7fa85016b4042026092bac4fa797f6
 | 독립 감사 번들 | `C:\dev\kintai\docs\audit_bundles\` |
 | 최종 포트폴리오 | `C:\dev\kintai\docs\final-portfolio\` |
 | 감사 실행 결과 | `C:\dev\kintai\docs\audit_runs\` |
-| 역사적 Day 10 사용자 프로필 Hermes 스크립트 | `C:\Users\klad3\.gemini\scripts\audit_with_hermes.ps1` (과거 실행 해시 증거 전용; 현재 프로젝트 정본이 아님) |
+| 역사적 Day 10 사용자 프로필 Hermes 스크립트 | `C:\Users\<LOCAL_USER>\.gemini\scripts\audit_with_hermes.ps1` (과거 실행 해시 증거 전용; 현재 프로젝트 정본이 아님) |
 | 현재 프로젝트 감사 진입점 | `C:\dev\kintai\scripts\codex_hermes_bridge.ps1` → `scripts\audit_with_hermes.ps1` (설정 endpoint/model 사용, HTTP 기본값) |
 | 선택적 사전검증 진입점 | `C:\dev\kintai\scripts\audit_hermes_preflight.ps1` (프로젝트 감사 스크립트 실행 전 입력 검증) |
 | 보관 감사 문서 | `C:\dev\kintai\docs\legacy_audit_reports\` |
@@ -828,7 +828,7 @@ Codex가 2026-11-14 기준 저장소·증적·잔여 작업을 대조한 인수�
 
 1. R-05(MySQL 8.4 Testcontainers) 및 Day 12 작업은 사용자 지시에 따라 예정일까지 제외합니다. 지금 실행하지 마세요.
 2. 운영 DB는 사용 금지. 대상/전체 테스트와 시연마다 새 allowlisted 격리 DB를 사용하고 DB명을 증거로 확인하세요. 기존 격리 DB도 삭제하지 마세요.
-3. 원격 Qwen 감사는 `http://100.111.193.94:11434`, `qwen27b:latest`만 사용하세요. 저장소 실행 진입점은 `scripts/codex_hermes_bridge.ps1`이며 HTTP 전송을 기본값으로 사용하고 `scripts/audit_config.json`에서 주소와 모델을 읽습니다. 문서 감사에는 `-SystemPromptOverride`로 작업에 맞는 지시를 지정하세요. 로컬 7B 대체, 다른 IP, 모델 pull/download/install 금지. 연결 실패 시 원본 주소와 오류를 보존하고 미검증으로 남기세요.
+3. 원격 Qwen 감사는 `http://<TAILSCALE_OLLAMA_HOST>:11434`, `qwen27b:latest`만 사용하세요. 저장소 실행 진입점은 `scripts/codex_hermes_bridge.ps1`이며 HTTP 전송을 기본값으로 사용하고 `scripts/audit_config.json`에서 주소와 모델을 읽습니다. 문서 감사에는 `-SystemPromptOverride`로 작업에 맞는 지시를 지정하세요. 로컬 7B 대체, 다른 IP, 모델 pull/download/install 금지. 연결 실패 시 원본 주소와 오류를 보존하고 미검증으로 남기세요.
 4. 외부 배포, 원격 Git 반영, 메시지 전송은 하지 마세요. 해당 작업은 사용자 지시가 별도로 필요합니다.
 5. 기존 실패 로그와 증거는 덮어쓰거나 삭제하지 말고 새 실행 디렉터리에 보존하세요.
 
@@ -885,7 +885,7 @@ Source: docs/rtm_ledger.md SHA-256: 73234fcad7ed7f4d83a58cf8910a612ab2832437784d
 | **R-05** | MySQL 8.4 LTS 최종 검증 및 26.7 분리 | 로컬 `MySQL 26.7.0 Innovation` 결과와 `MySQL 8.4 LTS` 결과를 혼합하지 않고 각각 분리 기록 | `SELECT VERSION()` 실측치 명시 및 8.4 LTS 전용 검증 분리 | DB 버전 출력, EXPLAIN 결과 분리 파일 | `docs/f04_evidence/` | **DEFERRED (2027-01)** | MySQL 8.4/Testcontainers는 사용자 지시에 따라 현재 작업 범위에서 제외. Docker/Podman 부재로 미실행 상태를 보존하고 예정된 재검토일에 다시 판단 |
 | **R-08** | 출퇴근 CLOCK_IN 동시 요청 중복 생성 차단 및 비관적 락 정합성 실측 | 동일 직원 동시 CLOCK_IN에서 성공 1건·업무 거부 1건 및 중복 미생성을 검증한다. | 2개 스레드 결과, DB 상태, 격리 DB 증거와 반복 로그 | `AttendanceService.java`; `AttendanceMapper.xml`; `AttendanceServiceConcurrencyIntegrationTest.java`; `docs/audit_runs/day10_isolated_regression_20261114_093404/` | **VERIFIED (로컬 MySQL 26.7)** | 최종 소스에서 신규 격리 DB 3개 각각 2건 테스트, 총 6건 PASS, 실패·오류 0. 요약과 JUnit SHA-256은 run 폴더 `summary.json`. 최신 전체 회귀(2026-11-14)는 92 PASS. 운영 DB 미사용. |
 | **R-09** | 출퇴근 CLOCK_OUT 동시 요청 완료 상태 보존 및 중복 퇴근 거부 실측 | 동일 직원 진행 근태의 동시 CLOCK_OUT에서 성공 1건·거부 1건, 최종 COMPLETED를 검증한다. | 2개 스레드 결과, DB 최종 상태, 격리 DB 증거와 반복 로그 | `AttendanceService.java`; `AttendanceMapper.xml`; `AttendanceServiceConcurrencyIntegrationTest.java`; `docs/audit_runs/day10_isolated_regression_20261114_093404/` | **VERIFIED (로컬 MySQL 26.7)** | 최종 소스에서 신규 격리 DB 3개 각각 CLOCK_OUT 테스트 포함 2건 PASS, 총 6건 PASS, 실패·오류 0. 최신 전체 회귀(2026-11-14)는 92 PASS. 운영 DB 미사용. |
-| **R-10** | Day 10 출퇴근 동시성 독립 Qwen 감사 및 감사관 지적 해소 | 최신 근태 타각·인증·입력 경계 구현과 반복 검증을 독립 감사한다. | 현행 소스 번들, 실행 결과, A-05/A-06 및 재검수 결과 보존 | `docs/audit_runs/prior_residuals_20261114/qwen_day10_final/hermes_final/`; bundle SHA-256 `dd991d3ca2ab013943b9f6e7f5b676524b4e77df34d67fe77e881586f03aa7c8` | **VERIFIED (로컬 MySQL 26.7 범위)** | 원격 `http://100.111.193.94:11434`, `qwen27b:latest`, Run `20261114_003657_dd991d3c`. 10 findings 중 PASS 9, N/A 1(급여 계산은 Day10 근태 타각 감사 범위 밖), WARN/FAIL 0. 기존 A-05/A-06을 세션 ID 강제 바인딩/소유권 검사, 실제 필터 미인증 요청 테스트, 입력 거부 및 Mapper 무호출로 해소. report SHA-256 `31e8e18609ec458e8e589888646a05502f1f37c269bc4820b25df6bdb62bf430`. |
+| **R-10** | Day 10 출퇴근 동시성 독립 Qwen 감사 및 감사관 지적 해소 | 최신 근태 타각·인증·입력 경계 구현과 반복 검증을 독립 감사한다. | 현행 소스 번들, 실행 결과, A-05/A-06 및 재검수 결과 보존 | `docs/audit_runs/prior_residuals_20261114/qwen_day10_final/hermes_final/`; bundle SHA-256 `dd991d3ca2ab013943b9f6e7f5b676524b4e77df34d67fe77e881586f03aa7c8` | **VERIFIED (로컬 MySQL 26.7 범위)** | 원격 `http://<TAILSCALE_OLLAMA_HOST>:11434`, `qwen27b:latest`, Run `20261114_003657_dd991d3c`. 10 findings 중 PASS 9, N/A 1(급여 계산은 Day10 근태 타각 감사 범위 밖), WARN/FAIL 0. 기존 A-05/A-06을 세션 ID 강제 바인딩/소유권 검사, 실제 필터 미인증 요청 테스트, 입력 거부 및 Mapper 무호출로 해소. report SHA-256 `31e8e18609ec458e8e589888646a05502f1f37c269bc4820b25df6bdb62bf430`. |
 | **R-11** | Day 11 12개월 급여 계산 시나리오 및 계약 유효기간 | 월별 근무 분포, 계약 이력, API/Service 경로와 급여를 대조하고 독립 연간 합계를 검증한다. | 12개월×3근무일, 계약 임금 변경, 독립 연간 oracle, 타각 HTTP/API 경로, JUnit 및 격리 DB 로그 | `AnnualPayrollScenarioIntegrationTest.java`; `AttendancePunchApiIntegrationTest.java`; `docs/audit_runs/isolated_day11_20261114_093228_kintai_day11_test_3a25e5513c4f/`; `docs/audit_runs/isolated_all_20261114_094427_kintai_full_test_d4124a317ed0/`; remote Qwen Run `20261114_004900_46049b14` | **VERIFIED (로컬 MySQL 26.7)** | 12개월 각각 3일의 근태 및 독립 연간 oracle 대조 PASS, 계약 경계 6/30·7/1 PASS. 실제 Spring Security 필터→Controller→Service→DB 타각 API spoofed ID 차단·저장 검증 PASS(전용 통합 테스트 및 R-10 재감사 증적 참조). 최신 전체 회귀 92 PASS. Qwen R-11/R-12 소스 감사 12/12 PASS, WARN/FAIL 0. |
 | **R-12** | Day 11 경계·결함 시나리오 | 야간·다회 휴게·계약 경계·동일일 분할 근무 8시간 누적·월마감·반올림을 독립 기대값으로 검증한다. | 각 경계의 통합/단위 테스트, 저장된 실행 및 JUnit | `AnnualPayrollScenarioIntegrationTest.java`; `LaborCalculationEngineTest.java`; `SplitShiftOvertimeDefectTest.java`; `PayrollCalculatorStatutoryRoundingTest.java`; `docs/audit_runs/isolated_day11_20261114_094349_kintai_day11_test_01f4cb1439e6/`; `docs/audit_runs/isolated_all_20261114_094427_kintai_full_test_d4124a317ed0/` | **VERIFIED (로컬 MySQL 26.7)** | 4h+5h 분할근무 후 CLOCK_OUT service에서 60분 초과 산출 및 월 급여 반영 PASS. 20:00~05:00 야간 420분 중 연장 60분 중첩의 25%+25%=50% 프리미엄 및 급여 합계 PASS. 1/31 포함·2/1 제외, 계약·자정·다회휴게·야간휴게 차감·HALF_UP 경계 PASS. Qwen Run `20261114_004900_46049b14` 12 findings PASS, WARN/FAIL 0. 전체 회귀 92 PASS. |
 | **R-13** | Day 11 격리 실행 및 회귀 증거 무결성 | 새 격리 DB에서 대상 테스트와 전체 회귀를 실행하고 로그·JUnit·요약·해시를 보존한다. | 대상 테스트 및 전체 회귀 종료 코드 0, 격리 DB 및 매니페스트 대조 | `docs/audit_runs/isolated_day11_20261114_094349_kintai_day11_test_01f4cb1439e6/`; `docs/audit_runs/isolated_all_20261114_094427_kintai_full_test_d4124a317ed0/` | **VERIFIED (로컬 MySQL 26.7)** | 최신 대상 연간·경계 테스트 6 PASS, 전체 회귀 92 PASS, 실패·오류·스킵 0, Gradle exit 0. 이전 81건 결과는 당시 스냅샷으로 보존. MySQL 8.4 Testcontainers 결과로 일반화하지 않음. |
@@ -893,7 +893,7 @@ Source: docs/rtm_ledger.md SHA-256: 73234fcad7ed7f4d83a58cf8910a612ab2832437784d
 | **R-15** | Day 13 격리 데모 데이터 생성 및 연간 분포 | 2026년 synthetic schedule/attendance fixture를 신규 격리 demo DB에 적재하고 DB 식별자·기간·행 수·UTF-8 샘플명을 대조한다. | `SELECT DATABASE()` 및 기간/건수/문자 인코딩 확인, 화면에서 해당 데이터 조회 | `scripts/prepare_local_demo_db.ps1`; `scripts/local_demo_attendance.sql`; `docs/audit_runs/day13_calendar_20261114/` | **VERIFIED (로컬 MySQL 26.7)** | 최종 DB `kintai_demo_9f3f8487bc42`: confirmed shift 313건과 attendance 313건, 2026-01-01~2026-12-31, owner-name UTF-8 HEX 확인. 초기 DB의 손상된 이름은 보존하고 새 DB로 대체. 운영 DB 사용 안 함. |
 | **R-16** | Day 13 캘린더 API DTO와 브라우저 표시·상세 정합성 | CalendarEventDto 응답을 그대로 표시하고 상세/확정 모달에서 이벤트 기간·휴게 시간을 사용한다. | 독립 API 응답과 브라우저 월간 이벤트·상세 모달 실측, 전체 회귀 | `calendar.html`; `CalendarEventDto.java`; `docs/audit_runs/isolated_all_20261114_074456_kintai_full_test_3df696be0820/` | **VERIFIED (로컬 브라우저·MySQL 26.7)** | API 필드명과 화면 매핑 불일치를 수정. November 2026 confirmed events 및 11/02 상세 모달(09:00~18:00, 60분) 화면 확인. |
 | **R-17** | Day 13 급여 데모 및 Excel 다운로드 확인 | 격리 데이터에서 급여 계산과 UI 표시를 확인하고 Excel 산출을 검증한다. | 화면 급여 값·이름·상태, API/XLSX 산출, 실제 브라우저 다운로드 이벤트 및 저장 파일 검사, 회귀 | `docs/audit_runs/day13_calendar_20261114/ui_review_record.md`; `payroll_api_list.json`; `payroll_2026-01_browser_download.xlsx`; `excel_browser_download.json`; `payroll_excel_validation.json` | **VERIFIED (로컬 MySQL 26.7)** | 격리 DB 급여 UI에서 두 DRAFT 행과 급여액을 확인하고 Excel 출력을 실행했다. 브라우저 다운로드 이벤트가 완료되어 5,092-byte 파일을 확보, OOXML·월·¥141,700·¥164,332를 검증했다. 파일 SHA-256 `ba127f65f193f8289c2b4e445efc09a06e1590e2230ed0b1ad603d839cfdcd98`. Chrome 과거 차단은 이력으로 보존한다.
-| **R-18** | Day 13 독립 Qwen 감사 및 증적 추적 | 갱신된 번들·실행 결과·UI 증거를 포함해 Hermes Qwen 27B 독립 감사를 수행하고 지적을 반영한다. | 유효 입력 manifest, 독립 결과 원문/해시, 지적과 조치·재검수 일치 | `docs/audit_runs/day13_calendar_20261114/qwen27b_day13_final/report.md`; `qwen27b_day13_final/audit_run.json`; bundle SHA-256 `d69a9b63c9a6a79043a38fb9c8942ab9c3fd0f9936087ffe5865d778f6817379` | **VERIFIED (로컬 MySQL 26.7 범위)** | 원격 `http://100.111.193.94:11434`, `qwen27b:latest` IQ3_M 27.3B, digest `23c3820b0d9326b73e97191b9fb7e16b53f6e24bb3449d2a17037c5f2b6179a1`; Run ID `20261113_234922_d69a9b63`; report SHA-256 `0dc324150a75bb8a1d3035f7ee770a03ec2bffd8241a3a041ffd9ee2066fbf32`. 최신 번들 15개 감사 finding 모두 PASS, WARN/FAIL 0. R-17 브라우저 다운로드 이벤트와 저장 XLSX 내용 검증을 포함한다. MySQL 8.4는 2027-01 DEFERRED.
+| **R-18** | Day 13 독립 Qwen 감사 및 증적 추적 | 갱신된 번들·실행 결과·UI 증거를 포함해 Hermes Qwen 27B 독립 감사를 수행하고 지적을 반영한다. | 유효 입력 manifest, 독립 결과 원문/해시, 지적과 조치·재검수 일치 | `docs/audit_runs/day13_calendar_20261114/qwen27b_day13_final/report.md`; `qwen27b_day13_final/audit_run.json`; bundle SHA-256 `d69a9b63c9a6a79043a38fb9c8942ab9c3fd0f9936087ffe5865d778f6817379` | **VERIFIED (로컬 MySQL 26.7 범위)** | 원격 `http://<TAILSCALE_OLLAMA_HOST>:11434`, `qwen27b:latest` IQ3_M 27.3B, digest `23c3820b0d9326b73e97191b9fb7e16b53f6e24bb3449d2a17037c5f2b6179a1`; Run ID `20261113_234922_d69a9b63`; report SHA-256 `0dc324150a75bb8a1d3035f7ee770a03ec2bffd8241a3a041ffd9ee2066fbf32`. 최신 번들 15개 감사 finding 모두 PASS, WARN/FAIL 0. R-17 브라우저 다운로드 이벤트와 저장 XLSX 내용 검증을 포함한다. MySQL 8.4는 2027-01 DEFERRED.
 | **R-19** | Day 13 최종 포트폴리오 패키지 | 기술 증적, 아키텍처 그림, 데모 안내 및 한·일 요약을 실제 결과에 맞게 작성한다. | 문서·링크·상태·수치를 RTM/원본 증거와 대조하고 로컬 문서 검사 및 독립 감사를 보존한다. | `docs/final-portfolio/`; `docs/audit_runs/day13_calendar_20261114/final_portfolio_review/hermes_final_snapshot/` | **VERIFIED** | 상대 Markdown 링크 검사 PASS. 원격 Qwen 27B Run `20261114_000458_4af20cd9`, 15 finding PASS, WARN/FAIL 0. 번들 SHA-256 `4af20cd936e1a70c91ca8d6b905f0d6f948d108b1c09fd226958a2a6c2b3b543`; report SHA-256 `4876963e92a4cb197596d02fb5d172a50db4a13b7b382930c312e433337d1d28`. 최초 감사 WARN는 Mapper/Service 잠금 증거를 추가해 해소하고 재검수 PASS. |
 ````
 
@@ -1002,14 +1002,14 @@ SHA-256: 942365effac87d8d9de33fb4044eddb281c7af381292829afdd796b821a5b65d
 ````text
 Source SHA-256: 040ab2092c9943b7dc6e1aacd6957027215b4bef0de2cbb441e548d2c042f98c
 | Latest full regression after residual fixes | 92 passed; failures 0, errors 0, skipped 0; Gradle exit 0; isolated DB `kintai_full_test_d4124a317ed0` | `docs/audit_runs/isolated_all_20261114_094427_kintai_full_test_d4124a317ed0/exit_summary.json` |
-- Post-snapshot documentation audit history: the first call to `http://100.111.193.94:11434` failed with `Unable to connect to the remote server`. A later attempt on bundle SHA `cd7cd20d12ba7771fb8ceb01dcd95181bfe39c924b8a595aa5e6fb91fdf649b8` exited 0 but produced an invalid report; independent Qwen Run `20261114_014515_cd7cd20d` returned WARN with three concrete findings. The earlier 10/10 review applies only to its separate frozen bundle. See `docs/audit_runs/project_wide_handoff_20261114/` and `docs/audit_runs/20261114_014515_cd7cd20d/`. The audit runner now has response/schema checks and a remote-only HTTP default; consult the run record matching the current bundle SHA for its verdict. Process exit 0 alone is not audit PASS.
+- Post-snapshot documentation audit history: the first call to `http://<TAILSCALE_OLLAMA_HOST>:11434` failed with `Unable to connect to the remote server`. A later attempt on bundle SHA `cd7cd20d12ba7771fb8ceb01dcd95181bfe39c924b8a595aa5e6fb91fdf649b8` exited 0 but produced an invalid report; independent Qwen Run `20261114_014515_cd7cd20d` returned WARN with three concrete findings. The earlier 10/10 review applies only to its separate frozen bundle. See `docs/audit_runs/project_wide_handoff_20261114/` and `docs/audit_runs/20261114_014515_cd7cd20d/`. The audit runner now has response/schema checks and a remote-only HTTP default; consult the run record matching the current bundle SHA for its verdict. Process exit 0 alone is not audit PASS.
 ````
 
 ## Verified excerpts: docs/final-portfolio/technical_evidence_v2.1_ja.md
 ````text
 Source SHA-256: 73c62b800639d96788df0594e4944f7b77109ec51e112f22dc213bf96d199c75
 | 残存修正後の最新全回帰 | 92件PASS、失敗・エラー・スキップ0、Gradle exit 0。分離DB `kintai_full_test_d4124a317ed0` | `docs/audit_runs/isolated_all_20261114_094427_kintai_full_test_d4124a317ed0/exit_summary.json` |
-- スナップショット後の文書監査履歴: `http://100.111.193.94:11434`への初回接続は`Unable to connect to the remote server`で失敗しました。その後、バンドルSHA `cd7cd20d12ba7771fb8ceb01dcd95181bfe39c924b8a595aa5e6fb91fdf649b8`への実行はexit 0でしたが、不正なレポートを生成しました。独立Qwen Run `20261114_014515_cd7cd20d`は具体的な指摘3件を返し、WARNです。以前の10/10レビューは別の固定バンドルだけに適用します。証拠: `docs/audit_runs/project_wide_handoff_20261114/`および`docs/audit_runs/20261114_014515_cd7cd20d/`。監査ランナーに応答・表形式検証とリモートHTTP既定値を追加しました。現行バンドルの判定は一致するSHAの実行記録で確認してください。exit 0のみで監査PASSとしません。
+- スナップショット後の文書監査履歴: `http://<TAILSCALE_OLLAMA_HOST>:11434`への初回接続は`Unable to connect to the remote server`で失敗しました。その後、バンドルSHA `cd7cd20d12ba7771fb8ceb01dcd95181bfe39c924b8a595aa5e6fb91fdf649b8`への実行はexit 0でしたが、不正なレポートを生成しました。独立Qwen Run `20261114_014515_cd7cd20d`は具体的な指摘3件を返し、WARNです。以前の10/10レビューは別の固定バンドルだけに適用します。証拠: `docs/audit_runs/project_wide_handoff_20261114/`および`docs/audit_runs/20261114_014515_cd7cd20d/`。監査ランナーに応答・表形式検証とリモートHTTP既定値を追加しました。現行バンドルの判定は一致するSHAの実行記録で確認してください。exit 0のみで監査PASSとしません。
 - Day 13の83件PASSと後続の92件PASSはいずれも未実行の境界・経路まで通過したことを意味しません。本証跡は日本の労働法全体または本番環境への完全適合を認証しません。
 데모는 반드시 새 분리 DB에서 실행하고 운영 DB를 사용하지 마십시오. 기준 기록: [완료 체크리스트](../audit_runs/day13_calendar_20261114/day13_completion_checklist.json), [RTM](../rtm_ledger.md), [인수인계](../handoff/20261114_0746_codex_day13_handoff.md).
 ````
@@ -1049,7 +1049,7 @@ Source SHA-256: 34c79429d45c06cb0a354a299f2a25da57070f507cb041808221cd4755fa0897
 - 새 격리 DB `kintai_day11_test_01f4cb1439e6`에서 `AnnualPayrollScenarioIntegrationTest` 6/6 PASS. 이후 전체 회귀는 새 격리 DB `kintai_full_test_d4124a317ed0`에서 92/92 PASS, 실패·오류·스킵 0, Gradle exit 0입니다. 운영 DB `kintai_db`에는 연결하거나 데이터를 변경하지 않았습니다.
 - 최종 문서 독립 검수: Qwen Run `20261114_005527_76dc1c9f`, 10/10 PASS, WARN/FAIL 0. 최초 문서 감사에서 나온 R-14 상태 불일치와 Day 13 83건 체크포인트 표기 모호성을 수정하고 재검수했습니다. 번들 SHA-256 `76dc1c9f5b3750c9b38d0777bd302893d4ea4dbe3783a0b8ef107edf37312d93`; 보고서 SHA-256 `dee296cda885e4bdc8208c9145ab61757d6a5323ecd6f7c9b21016b2cfc6b124`. 상세: `docs/audit_runs/preflight_b53be98f3682498f9de6243735ce89d2/hermes/`.
 - 전체 프로젝트 대조 결과, B-04 상태를 완료로 정정하고 RTM R-13과 Day 11 작업표의 최신 실행 수치를 92건 회귀 증거로 갱신했습니다. Day 13의 83건은 과거 체크포인트로 구분했습니다.
-- 첫 문서 bundle 호출은 지정 주소 `http://100.111.193.94:11434`의 `GetRequestStream`에서 `Unable to connect to the remote server`로 실패했고 보고서가 없었습니다. 이후 동일 bundle SHA `cd7cd20d12ba7771fb8ceb01dcd95181bfe39c924b8a595aa5e6fb91fdf649b8`에 대한 호출은 exit 0으로 잘못된 보고서를 생성했습니다. Qwen 독립 재감사 Run `20261114_014515_cd7cd20d`는 WARN 3건을 반환했습니다. 이 결과들은 PASS가 아니며, 이전 문서 감사 10/10 PASS는 당시 고정 bundle에만 적용됩니다.
+- 첫 문서 bundle 호출은 지정 주소 `http://<TAILSCALE_OLLAMA_HOST>:11434`의 `GetRequestStream`에서 `Unable to connect to the remote server`로 실패했고 보고서가 없었습니다. 이후 동일 bundle SHA `cd7cd20d12ba7771fb8ceb01dcd95181bfe39c924b8a595aa5e6fb91fdf649b8`에 대한 호출은 exit 0으로 잘못된 보고서를 생성했습니다. Qwen 독립 재감사 Run `20261114_014515_cd7cd20d`는 WARN 3건을 반환했습니다. 이 결과들은 PASS가 아니며, 이전 문서 감사 10/10 PASS는 당시 고정 bundle에만 적용됩니다.
 - 원본 실행 로그·요약, 최초 실패, 잘못된 보고서, WARN 재감사 및 새 번들은 `docs/audit_runs/project_wide_handoff_20261114/`와 해시별 실행 폴더에 append-only로 보존합니다. 운영 DB, 로컬 7B, 다른 IP, 다운로드는 사용하지 않았습니다.
 ````
 
@@ -1061,7 +1061,7 @@ Source SHA-256: 57312f69d2ddae6c4b1c4339ab791f2d81ffabd6cd51277777be055b3cabc101
 - 最終文書独立監査: Qwen Run `20261114_005527_76dc1c9f`、10/10 PASS、WARN/FAIL 0。初回文書監査のR-14状態不一致とDay 13の83件チェックポイント表記の曖昧さを修正し、再監査しました。バンドルSHA-256 `76dc1c9f5b3750c9b38d0777bd302893d4ea4dbe3783a0b8ef107edf37312d93`、報告書SHA-256 `dee296cda885e4bdc8208c9145ab61757d6a5323ecd6f7c9b21016b2cfc6b124`。詳細: `docs/audit_runs/preflight_b53be98f3682498f9de6243735ce89d2/hermes/`。
 - プロジェクト全体を照合し、B-04を完了に修正しました。RTM R-13とDay 11作業表の最新実行値を92件回帰証跡に合わせ、Day 13の83件は過去チェックポイントとして区別しました。
 - ルートREADMEの法令全体への適合をうたう表現をMVPの検証範囲案内に修正し、韓国語・日本語ポートフォリオとデモ手順の状態を更新しました。
-- 最初の文書バンドル呼び出しは指定先`http://100.111.193.94:11434`の`GetRequestStream`で`Unable to connect to the remote server`となり、レポートはありませんでした。その後、同じbundle SHA `cd7cd20d12ba7771fb8ceb01dcd95181bfe39c924b8a595aa5e6fb91fdf649b8`の呼び出しはexit 0で不正なレポートを生成しました。Qwen独立再監査Run `20261114_014515_cd7cd20d`はWARN 3件を返しました。これらはPASSではなく、以前の文書監査10/10 PASSは当時の固定bundleだけに適用します。
+- 最初の文書バンドル呼び出しは指定先`http://<TAILSCALE_OLLAMA_HOST>:11434`の`GetRequestStream`で`Unable to connect to the remote server`となり、レポートはありませんでした。その後、同じbundle SHA `cd7cd20d12ba7771fb8ceb01dcd95181bfe39c924b8a595aa5e6fb91fdf649b8`の呼び出しはexit 0で不正なレポートを生成しました。Qwen独立再監査Run `20261114_014515_cd7cd20d`はWARN 3件を返しました。これらはPASSではなく、以前の文書監査10/10 PASSは当時の固定bundleだけに適用します。
 - 原本のログ、初回失敗、不正レポート、WARN再監査、新しいbundleは`docs/audit_runs/project_wide_handoff_20261114/`とハッシュ別実行フォルダーに保存しています。運用DB、ローカル7B、別IP、ダウンロードは使用していません。
 ````
 
@@ -1106,7 +1106,7 @@ SHA-256: 8594afcc260801afae452e0d87bde844c5c13e7d424ecda0a5ea597478276cff
 {
   "attempted_at": "2026-11-14",
   "purpose": "Independent Qwen review of current project-wide documentation bundle",
-  "endpoint": "http://100.111.193.94:11434",
+  "endpoint": "http://<TAILSCALE_OLLAMA_HOST>:11434",
   "model": "qwen27b:latest",
   "preflight": "INPUT_READY",
   "original_error": "Exception calling GetRequestStream: Unable to connect to the remote server",
@@ -1127,7 +1127,7 @@ SHA-256: 1e4321fede8fa98be477577ad9d96882d22ab3d9514e03291cc9ec3524710e0b
 ````text
 {
   "test": "Hermes chunked audit failure is fail-closed",
-  "endpoint": "http://100.111.193.94:11434",
+  "endpoint": "http://<TAILSCALE_OLLAMA_HOST>:11434",
   "model": "qwen27b:latest",
   "powershell_parse_pass": true,
   "script_process_exit": 1,
@@ -1146,7 +1146,7 @@ SHA-256: 4c9a2d9092236a013c27a6d3b5f565b050dab572ff7ead6c6716094bfd114872
 ````text
 {
   "audit_exit_code": 0,
-  "endpoint": "http://100.111.193.94:11434",
+  "endpoint": "http://<TAILSCALE_OLLAMA_HOST>:11434",
   "model": "qwen27b:latest",
   "bundle_sha256": "cd7cd20d12ba7771fb8ceb01dcd95181bfe39c924b8a595aa5e6fb91fdf649b8",
   "report_exists": true,
@@ -1174,7 +1174,7 @@ SHA-256: 5d0427fe787d7a0a9d62cb6649c34930949235cf05bdcc3e772e9ba29fd26edc
   "model_digest": "23c3820b0d9326b73e97191b9fb7e16b53f6e24bb3449d2a17037c5f2b6179a1",
   "model_quantization": "IQ3_M",
   "model_parameter_size": "27.3B",
-  "host_url": "http://100.111.193.94:11434",
+  "host_url": "http://<TAILSCALE_OLLAMA_HOST>:11434",
   "num_ctx": 24576,
   "seed": 42,
   "temperature": 0.1,
@@ -1209,7 +1209,7 @@ SHA-256: 695bb5bd62735a192a13b95d7461c80805d2d88c5608742db3d76201ed94a86d
 | **Report Content Validity** | **Discrepancy** | `qwen27b_current_docs_report.md` (implied) vs. Bundle Statement | The bundle implies the audit is "BLOCKED" and "not a PASS". The prompt reveals the actual report contains "only an empty table header followed by unrelated echoed text and no findings." This is not a "BLOCKED" state (which implies no execution) but a "FAILED EXECUTION" or "INVALID OUTPUT" state. The bundle's narrative of "connection failure" does not match the evidence of a generated (albeit empty) report file from an exit-0 run. | The documentation must accurately reflect that a report file *was* generated but was invalid/empty. The status should be "AUDIT INVALID: EMPTY REPORT" rather than "BLOCKED: CONNECTION FAILED". The distinction is critical for audit trail integrity. |
 | **Historical Label Consistency** | **Consistent** | `docs/rtm_ledger.md` vs. `docs/final-portfolio/README_KO.md` | Both sources consistently label the latest full regression as 92 PASS (DB `kintai_full_test_d4124a317ed0`) and the Day 11 target run as 6/6 PASS (DB `kintai_day11_test_01f4cb1439e6`). The Day 13 checkpoint is correctly labeled as 83 PASS (historical). | No correction needed. |
 | **Operating DB Safety** | **Consistent** | `docs/handoff/20261114_antigravity_project_wide_handoff.md` vs. `docs/final-portfolio/technical_evidence_v2.1.md` | Both sources explicitly state that the operating DB (`kintai_db`) was not used, and all tests/demos used isolated, allowlisted DBs. Evidence cites specific isolated DB names. | No correction needed. |
-| **Endpoint/Model Configuration** | **Consistent** | `scripts/audit_config.json` vs. `docs/final-portfolio/technical_evidence_v2.1.md` | Both specify `http://100.111.193.94:11434` and `qwen27b:latest` with digest `23c3820b...`. The handoff document correctly notes that local 7B or other IPs are prohibited. | No correction needed. |
+| **Endpoint/Model Configuration** | **Consistent** | `scripts/audit_config.json` vs. `docs/final-portfolio/technical_evidence_v2.1.md` | Both specify `http://<TAILSCALE_OLLAMA_HOST>:11434` and `qwen27b:latest` with digest `23c3820b...`. The handoff document correctly notes that local 7B or other IPs are prohibited. | No correction needed. |
 | **R-05/Day 12 Exclusions** | **Consistent** | `docs/rtm_ledger.md` vs. `docs/handoff/20261114_antigravity_project_wide_handoff.md` | Both sources confirm R-05 (MySQL 8.4) and Day 12 tasks are DEFERRED/EXCLUDED per user instruction, with no results claimed. | No correction needed. |
 
 **Overall Verdict:** The bundle contains a **critical discrepancy** regarding the status of the latest documentation audit. It incorrectly labels the state as "BLOCKED/No Report" when evidence indicates a subsequent run exited 0 and produced a malformed report file. The "fail-closed" claim is also misleading as it does not account for malformed response handling. All other technical, safety, and historical labels are consistent.
@@ -1222,7 +1222,7 @@ SHA-256: 5bf414b8159cbd2d2fbe528ec2433df99065c4f5bb05e5e85460cb3e6c92cf2c
 {
   "run_id": "runner_validation_20261114_110200",
   "checked_at": "2026-11-14T11:00:50.8167949+09:00",
-  "endpoint": "http://100.111.193.94:11434",
+  "endpoint": "http://<TAILSCALE_OLLAMA_HOST>:11434",
   "model": "qwen27b:latest",
   "parser": [
     {
