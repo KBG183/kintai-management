@@ -23,7 +23,7 @@ public class MemberController {
      * URL: GET /members/sample (ADMIN専用に保護)
      */
     @GetMapping("/members/sample")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
     public String memberSampleView(Model model) {
         List<MemberResponseDto> members = memberService.getAllMembers().stream()
                 .map(MemberResponseDto::from)
@@ -38,7 +38,7 @@ public class MemberController {
      */
     @GetMapping("/api/members")
     @ResponseBody
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
     public ApiResponse<List<MemberResponseDto>> getAllMembersApi() {
         List<MemberResponseDto> responses = memberService.getAllMembers().stream()
                 .map(MemberResponseDto::from)
@@ -47,12 +47,12 @@ public class MemberController {
     }
 
     /**
-     * 【REST API】単一会員情報取得 (ADMINまたは本人専用)
+     * 【REST API】単一会員情報取得 (ADMIN/OWNERまたは本人専用)
      * URL: GET /api/members/{id}
      */
     @GetMapping("/api/members/{id}")
     @ResponseBody
-    @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.memberId")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OWNER') or #id == authentication.principal.memberId")
     public ApiResponse<MemberResponseDto> getMemberApi(@PathVariable("id") Long id) {
         return ApiResponse.ok(MemberResponseDto.from(memberService.getMemberById(id)));
     }

@@ -58,6 +58,7 @@
         FROM store_staff
         WHERE member_id = #{memberId}
           AND employment_status = 'ACTIVE'
+        ORDER BY joined_date ASC, store_staff_id ASC
         LIMIT 1
     </select>
 
@@ -69,6 +70,7 @@
         FROM store_staff
         WHERE member_id = #{memberId}
           AND employment_status = 'ACTIVE'
+        ORDER BY joined_date ASC, store_staff_id ASC
         LIMIT 1
     </select>
 

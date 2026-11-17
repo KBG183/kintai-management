@@ -358,9 +358,9 @@ public class ShiftService {
         // 2. 指定日の打刻実績一覧取得
         List<AttendanceDto> actualAttendances = attendanceMapper.findAttendancesByStoreAndDate(storeId, targetDate);
 
-        // スタッフIDをキーとする打刻マップ作成
-        Map<Long, AttendanceDto> attendanceMap = actualAttendances.stream()
-                .collect(Collectors.toMap(AttendanceDto::getStoreStaffId, a -> a, (a1, a2) -> a1));
+        // スタッフIDをキーとする打刻マップ作成 (複数打刻・中抜け対応: スタッフごとにリストで保持)
+        Map<Long, List<AttendanceDto>> attendanceMap = actualAttendances.stream()
+                .collect(Collectors.groupingBy(AttendanceDto::getStoreStaffId, Collectors.toCollection(ArrayList::new)));
 
         List<ShiftComparisonDto> comparisonList = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
@@ -383,7 +383,27 @@ public class ShiftService {
             long grossPlannedMinutes = Duration.between(shift.getConfirmedStartAt(), shift.getConfirmedEndAt()).toMinutes();
             dto.setPlannedWorkMinutes(Math.max(0, grossPlannedMinutes - dto.getPlannedBreakMinutes()));
 
-            AttendanceDto attendance = attendanceMap.remove(shift.getStoreStaffId());
+            // スタッフの打刻候補からシフト開始時刻に最も近い実績を1件取り出し（中抜け・分割勤務対応）
+            List<AttendanceDto> staffAttendances = attendanceMap.get(shift.getStoreStaffId());
+            AttendanceDto attendance = null;
+            if (staffAttendances != null && !staffAttendances.isEmpty()) {
+                int bestIdx = 0;
+                long minDiff = Long.MAX_VALUE;
+                for (int i = 0; i < staffAttendances.size(); i++) {
+                    AttendanceDto candidate = staffAttendances.get(i);
+                    if (candidate.getClockInAt() != null) {
+                        long diff = Math.abs(Duration.between(shift.getConfirmedStartAt(), candidate.getClockInAt()).toMinutes());
+                        if (diff < minDiff) {
+                            minDiff = diff;
+                            bestIdx = i;
+                        }
+                    }
+                }
+                attendance = staffAttendances.remove(bestIdx);
+                if (staffAttendances.isEmpty()) {
+                    attendanceMap.remove(shift.getStoreStaffId());
+                }
+            }
 
             if (attendance != null) {
                 dto.setAttendanceId(attendance.getAttendanceId());
@@ -452,23 +472,25 @@ public class ShiftService {
         }
 
         // 4. シフト予定がないにもかかわらず打刻があるスタッフ（予定外勤務）
-        for (AttendanceDto extra : attendanceMap.values()) {
-            ShiftComparisonDto dto = new ShiftComparisonDto();
-            dto.setStoreStaffId(extra.getStoreStaffId());
-            dto.setWorkDate(extra.getWorkDate());
-            dto.setAttendanceId(extra.getAttendanceId());
-            dto.setActualClockInAt(extra.getClockInAt());
-            dto.setActualClockOutAt(extra.getClockOutAt());
-            dto.setActualBreakMinutes(extra.getTotalBreakMinutes() != null ? extra.getTotalBreakMinutes() : 0);
-            dto.setActualWorkMinutes(extra.getNetWorkMinutes() != null ? (long) extra.getNetWorkMinutes() : 0L);
-            dto.setPlannedBreakMinutes(0);
-            dto.setPlannedWorkMinutes(0L);
-            dto.setDiffWorkMinutes(dto.getActualWorkMinutes());
-            dto.setLateMinutes(0L);
-            dto.setEarlyLeaveMinutes(0L);
-            dto.setComparisonStatus("UNSCHEDULED");
-            dto.setStatusLabel("予定外勤務 (シフト未登録)");
-            comparisonList.add(dto);
+        for (List<AttendanceDto> remainingList : attendanceMap.values()) {
+            for (AttendanceDto extra : remainingList) {
+                ShiftComparisonDto dto = new ShiftComparisonDto();
+                dto.setStoreStaffId(extra.getStoreStaffId());
+                dto.setWorkDate(extra.getWorkDate());
+                dto.setAttendanceId(extra.getAttendanceId());
+                dto.setActualClockInAt(extra.getClockInAt());
+                dto.setActualClockOutAt(extra.getClockOutAt());
+                dto.setActualBreakMinutes(extra.getTotalBreakMinutes() != null ? extra.getTotalBreakMinutes() : 0);
+                dto.setActualWorkMinutes(extra.getNetWorkMinutes() != null ? (long) extra.getNetWorkMinutes() : 0L);
+                dto.setPlannedBreakMinutes(0);
+                dto.setPlannedWorkMinutes(0L);
+                dto.setDiffWorkMinutes(dto.getActualWorkMinutes());
+                dto.setLateMinutes(0L);
+                dto.setEarlyLeaveMinutes(0L);
+                dto.setComparisonStatus("UNSCHEDULED");
+                dto.setStatusLabel("予定外勤務 (シフト未登録)");
+                comparisonList.add(dto);
+            }
         }
 
         return comparisonList;

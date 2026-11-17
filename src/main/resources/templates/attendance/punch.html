@@ -220,8 +220,8 @@
             setInterval(updateClock, 1000);
             updateClock();
 
-            // 修正申請日付の初期値設定（本日）
-            const todayStr = new Date().toISOString().substring(0, 10);
+            // 修正申請日付の初期値設定（JST/KSTローカルタイムゾーン考慮）
+            const todayStr = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().substring(0, 10);
             document.getElementById('modWorkDate').value = todayStr;
 
             // 時刻フォーマット補助関数 (YYYY-MM-DDTHH:mm:ss -> HH:mm)

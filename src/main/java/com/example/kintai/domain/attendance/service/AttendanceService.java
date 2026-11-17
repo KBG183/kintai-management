@@ -308,9 +308,18 @@ public class AttendanceService {
         if (requestDto.getRequestedBreaks() != null && !requestDto.getRequestedBreaks().isEmpty()) {
             int sumBreak = 0;
             for (AttendanceModRequestDto.BreakTimeDto b : requestDto.getRequestedBreaks()) {
-                sumBreak += (int) Duration.between(b.getStartAt(), b.getEndAt()).toMinutes();
+                int dur = Math.max(1, (int) Duration.between(b.getStartAt(), b.getEndAt()).toMinutes());
+                sumBreak += dur;
             }
             totalBreakMin = sumBreak;
+        }
+
+        if (totalBreakMin < 0) {
+            throw new IllegalArgumentException("休憩時間は0分以上である必要があります。");
+        }
+        long totalSpanMinutes = Duration.between(requestDto.getRequestedClockInAt(), requestDto.getRequestedClockOutAt()).toMinutes();
+        if (totalBreakMin >= totalSpanMinutes) {
+            throw new IllegalArgumentException("休憩時間は勤務時間未満である必要があります。(申請休憩: " + totalBreakMin + "分, 勤務拘束: " + totalSpanMinutes + "分)");
         }
         requestDto.setRequestedBreakMinutes(totalBreakMin);
 
@@ -330,7 +339,7 @@ public class AttendanceService {
         // 3. 修正希望休憩区間スナップショットの保存
         if (requestDto.getRequestedBreaks() != null) {
             for (AttendanceModRequestDto.BreakTimeDto b : requestDto.getRequestedBreaks()) {
-                int dur = (int) Duration.between(b.getStartAt(), b.getEndAt()).toMinutes();
+                int dur = Math.max(1, (int) Duration.between(b.getStartAt(), b.getEndAt()).toMinutes());
                 attendanceMapper.insertModBreak(modRequestId, "REQUESTED", b.getStartAt(), b.getEndAt(), dur);
             }
         }
@@ -414,6 +423,11 @@ public class AttendanceService {
             return;
         }
 
+        // 承認（APPROVE）以外の未定義アクションを防御（L-4対策: 不正な文字列での意図しない自動承認を遮断）
+        if (!"APPROVE".equalsIgnoreCase(reviewDto.getAction())) {
+            throw new IllegalArgumentException("無効なアクションです。(APPROVE または REJECT を指定してください)");
+        }
+
         // 承認（APPROVE）処理
         // 既存勤務記録との重複再検証
         int overlapCount = attendanceMapper.countOverlappingAttendances(
@@ -435,20 +449,24 @@ public class AttendanceService {
             totalBreakMin += b.getDurationMinutes();
         }
 
+        long totalSpanMinutes = java.time.Duration.between(req.getRequestedClockInAt(), req.getRequestedClockOutAt()).toMinutes();
+
         if (breakIntervals.isEmpty() && req.getRequestedBreakMinutes() != null && req.getRequestedBreakMinutes() > 0) {
             totalBreakMin = req.getRequestedBreakMinutes();
-            long totalSpanMinutes = java.time.Duration.between(req.getRequestedClockInAt(), req.getRequestedClockOutAt()).toMinutes();
-            if (totalSpanMinutes > totalBreakMin) {
-                // 勤務時間の中央付近に仮想休憩区間を自動生成し、実労働時間・割増時間の減算整合性および休憩テーブルを担保
-                long offsetMinutes = (totalSpanMinutes - totalBreakMin) / 2;
-                LocalDateTime virtualBreakStart = req.getRequestedClockInAt().plusMinutes(offsetMinutes);
-                LocalDateTime virtualBreakEnd = virtualBreakStart.plusMinutes(totalBreakMin);
-                breakIntervals.add(new AttendanceTimeCalculator.BreakInterval(virtualBreakStart, virtualBreakEnd));
-
-                AttendanceBreakDto virtualBreak = new AttendanceBreakDto(virtualBreakStart, virtualBreakEnd, totalBreakMin);
-                virtualBreak.setBreakSetType("REQUESTED");
-                reqBreaks.add(virtualBreak);
+            if (totalBreakMin >= totalSpanMinutes) {
+                throw new IllegalStateException("休憩時間は勤務時間未満である必要があります。(申請休憩: " + totalBreakMin + "分, 勤務拘束: " + totalSpanMinutes + "分)");
             }
+            // 勤務時間の中央付近に仮想休憩区間を自動生成し、実労働時間・割増時間の減算整合性および休憩テーブルを担保
+            long offsetMinutes = (totalSpanMinutes - totalBreakMin) / 2;
+            LocalDateTime virtualBreakStart = req.getRequestedClockInAt().plusMinutes(offsetMinutes);
+            LocalDateTime virtualBreakEnd = virtualBreakStart.plusMinutes(totalBreakMin);
+            breakIntervals.add(new AttendanceTimeCalculator.BreakInterval(virtualBreakStart, virtualBreakEnd));
+
+            AttendanceBreakDto virtualBreak = new AttendanceBreakDto(virtualBreakStart, virtualBreakEnd, totalBreakMin);
+            virtualBreak.setBreakSetType("REQUESTED");
+            reqBreaks.add(virtualBreak);
+        } else if (totalBreakMin >= totalSpanMinutes) {
+            throw new IllegalStateException("休憩時間は勤務時間未満である必要があります。(申請休憩: " + totalBreakMin + "分, 勤務拘束: " + totalSpanMinutes + "分)");
         }
 
         // 分割勤務（中抜け）対応: 同一スタッフ・同日の先行完了実労働時間の秒精度累計を取得

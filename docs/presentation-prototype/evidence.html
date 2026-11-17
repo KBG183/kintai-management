@@ -80,7 +80,7 @@ const DOCS=[
  purpose:"プロジェクトの業務範囲、中核課題の解決、成果と限界を最初に確認する資料です。",
  look:"KINTAIが何を解決し、94/94 PASSの範囲と限界がどこにあるかを俯瞰します。",
  limit:"要約資料です。個々の数値の裏付けは、技術証跡書と各ログの原文で確認してください。"},
-{src:"../legacy_audit_reports/portfolio_audit_evidence_JA_cumulative_20261114.md",type:"MD",title:"日本語技術証跡書",
+{src:"../legacy_audit_reports/portfolio_audit_evidence_JA_cumulative_20261114.md",type:"MD",title:"技術証跡書",
  purpose:"KINTAIの実装・監査・改修・再検証の回次別履歴をまとめた技術文書です。",
  look:"問題の原因、改修内容、テスト・監査判定、未検証・DEFERRED範囲を確認します。",
  limit:"記載は実行記録のある回次に限ります。未検証・DEFERREDの範囲は完了として扱われていません。"},
@@ -140,7 +140,8 @@ $("#look").textContent=doc.look;
 $("#limit").textContent=doc.limit;
 const type=$("#type");type.textContent=doc.type;type.hidden=false;
 const url=new URL(doc.src,location.href);
-$("#sourceLabel").textContent=url.pathname;
+const cleanPath="docs/"+doc.src.replace(/^(\.\.\/)+/,"");
+$("#sourceLabel").textContent=cleanPath;
 $("#openSource").href=url.href;
 
 const viewer=$("#viewer");

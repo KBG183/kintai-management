@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <testsuite name="com.example.kintai.domain.attendance.controller.AttendancePunchApiIntegrationTest" tests="1" skipped="0" failures="1" errors="0" timestamp="2026-11-17T07:29:30.994Z" hostname="BK" time="6.596">
   <properties/>
   <testcase name="authenticatedStaffPunchUsesSessionIdentityInsteadOfSpoofedBodyIds()" classname="com.example.kintai.domain.attendance.controller.AttendancePunchApiIntegrationTest" time="1.001">
@@ -21,7 +21,7 @@
 
  :: Spring Boot ::                (v4.0.8)
 
-2026-11-17T16:29:31.887+09:00  INFO 22144 --- [    Test worker] .d.a.c.AttendancePunchApiIntegrationTest : Starting AttendancePunchApiIntegrationTest using Java 17.0.12 with PID 22144 (started by klad3 in C:\dev\kintai)
+2026-11-17T16:29:31.887+09:00  INFO 22144 --- [    Test worker] .d.a.c.AttendancePunchApiIntegrationTest : Starting AttendancePunchApiIntegrationTest using Java 17.0.12 with PID 22144 (started by <LOCAL_USER> in C:\dev\kintai)
 2026-11-17T16:29:31.889+09:00  INFO 22144 --- [    Test worker] .d.a.c.AttendancePunchApiIntegrationTest : No active profile set, falling back to 1 default profile: "default"
 2026-11-17T16:29:34.774+09:00  INFO 22144 --- [    Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
 2026-11-17T16:29:36.355+09:00  INFO 22144 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''

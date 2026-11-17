@@ -134,6 +134,17 @@
                 return (amount || 0).toLocaleString() + '円';
             }
 
+            // XSS対策エスケープ
+            function escapeHtml(str) {
+                if (!str) return '';
+                return String(str)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;');
+            }
+
             // 給与一覧の読み込み
             function loadPayrollList() {
                 const tbody = document.getElementById('payrollTableBody');
@@ -157,11 +168,11 @@
 
                             const confirmBtn = isConfirmed
                                 ? '<button class="btn btn-sm btn-outline-secondary" disabled>確定済</button>'
-                                : `<button class="btn btn-sm btn-outline-success fw-bold btn-confirm" data-id="${item.payrollId}" data-gross="${item.grossPay}" data-name="${item.staffName}">確定</button>`;
+                                : `<button class="btn btn-sm btn-outline-success fw-bold btn-confirm" data-id="${item.payrollId}" data-gross="${item.grossPay}" data-name="${escapeHtml(item.staffName)}">確定</button>`;
 
                             return `
                                 <tr>
-                                    <td class="fw-bold">${item.staffName}</td>
+                                    <td class="fw-bold">${escapeHtml(item.staffName)}</td>
                                     <td>${statusBadge}</td>
                                     <td>${item.workDaysCount}日</td>
                                     <td>${formatMinutes(item.totalWorkMinutes)}</td>
@@ -185,7 +196,7 @@
                         attachActionListeners();
                     })
                     .catch(err => {
-                        tbody.innerHTML = `<tr><td colspan="12" class="py-4 text-danger">読み込みエラー: ${err}</td></tr>`;
+                        tbody.innerHTML = `<tr><td colspan="12" class="py-4 text-danger">読み込みエラー: ${escapeHtml(err ? (err.message || String(err)) : '')}</td></tr>`;
                     });
             }
 

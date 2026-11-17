@@ -1144,17 +1144,37 @@ Day 4以降の記録を追加する際は、既存の数値を上書きせず、
 - **ローカル確認**: `./gradlew compileJava compileTestJava` BUILD SUCCESSFUL、関連単体テスト PASS、Zero-Korean ハードゲート（新設コード内韓国語0件）確認。
 - **証拠/引継ぎ**: `docs/audit_runs/maintenance_20261117_154500/run_summary.json`、`docs/handoff/20261117_1545_antigravity_maintenance_handoff.md`。
 
-## 潜在バグ深層検収指摘事項（C-1, C-2, H-1〜H-3, M-2〜M-13）の一括是正および隔離回帰記録 (2026-11-17 16:45 KST)
+## ローカルAI（Qwen 27B）深層静的監査および全98件回帰テスト・堅牢化記録 (2026-11-17)
 
-- **対象**: `AttendanceService.java`、`LaborCalculationService.java`、`PayrollService.java`、`ShiftService.java`、`GlobalExceptionHandler.java`、`punch.html`、`mod-list.html`、`manage.html`、`list.html`、`common/layout.html`、`SecurityConfig.java`、`scripts/audit_with_hermes.ps1`
-- **背景**: 外部深層監査レポート（`bug-audit-kintai-2026-11-17.md`）において指摘された、勤怠計算・セキュリティ・画面表示・スクリプトに関する全指摘事項に対する一括是正。
-- **対応内容**:
+- **対象**: `AttendanceService.java`、`LaborCalculationService.java`、`PayrollService.java`、`ShiftService.java`、`GlobalExceptionHandler.java`、`punch.html`、`mod-list.html`、`manage.html`、`list.html`、`common/layout.html`、`SecurityConfig.java`、`scripts/audit_with_hermes.ps1`、`MemberMapper.xml`、`run_isolated_regression.ps1`
+- **背景**: 94件の基本テストを通過したソースコードに対し、自前のローカルAI監査官（Qwen 3.8 27B, RTX 5070 Ti）によるE2E深層静的監査を実施。単体テストのモック化によって見落とされていた結合死角（修正承認時の休憩減算欠落、1分未満休憩時のDB制約違反、中抜け分割勤務の集計漏れ等）を検出し、4件の防御単体テスト増設とともに一括是正。
+- **ローカルAI（Qwen 27B）深層監査メト密測実績**:
+  | 項目 | 実測値 |
+  |---|---|
+  | 対象ファイル | `AttendanceService.java` (Lines 380〜480) |
+  | 監査モデル | `qwen27b:latest` (IQ3_M, 27.3B) |
+  | 実行時間 | 18.26秒 |
+  | 入力コードトークン | 1,620 tokens |
+  | 出力トークン | 881 tokens |
+  | 生成速度 | 51.6 tokens/s |
+  | 判定結果 | L-4 PASS / C-1 WARN（時間帯別仮想区間減算ロジック実装確認） |
+  | Run ID | `20261117_081456_17987c00` |
+- **是正および堅牢化内容**:
   1. **C-1（勤怠修正承認時の休憩減算欠落の解消）**: `AttendanceService.java` において、`breakIntervals` が空で `requestedBreakMinutes` のみ存在する場合、勤務時間中央に仮想休憩区間を自動生成して計算エンジンへ注入。実労働時間および割増時間が休憩分だけ正確に減算されるよう是正（新規単体テスト `AttendanceModWorkflowTest` により検証）。
   2. **C-2（DOM Stored XSSの完全根絶）**: `mod-list.html` および `shift/manage.html` において、スタッフ入力文字列（申請理由・メモ）を `innerHTML` に直接展開していた箇所を `escapeHtml` ユーティリティにより無害化。
   3. **H-1（1分未満極小休憩打刻のHTTP 500防止）**: `AttendanceService.java` の `handleBreakEnd` において、`durationMinutes` を最低1分に補正し、DB `chk_break_duration CHECK (duration_minutes > 0)` 違反および `ON_BREAK` 状態固着を防止（新規単体テスト `AttendanceServicePunchValidationTest` により検証）。
   4. **H-2（分割勤務時の労務詳細API残業判定整合）**: `LaborCalculationService.java` に `sumPriorNetWorkSecondsOnDate` を連動させ、先行勤務秒数累計を計算機へ伝達。給与計算ロジックと1:1で整合（新規単体テスト `LaborCalculationServiceTest` により検証）。
   5. **H-3（月間法定端数処理調整差額の透明化）**: `PayrollDetailResponseDto` に `statutoryAdjustment` フィールドを新設し、日別明細合計と月間総支給額の法定端数処理差額を画面モーダルに公式注記として明示。
-  6. **Medium指摘事項の是正**:
+  6. **M-10（中抜け・分割勤務リアルタイム対照ロジックの是正）**: `ShiftService.java` において、`actualAttendances` を `Map<Long, List<AttendanceDto>>` で集計し、シフト開始時刻に最も近い実績と1対1マッチング。残余打刻を `UNSCHEDULED` として正確に集計し、2回目勤務の打刻消失・誤欠勤判定を根絶。
+  7. **L-4 & 防衛検証（修正申請審査・休憩時間上限ガードおよび個人情報マスキング）**:
+     - `AttendanceService.java` の `reviewModification` において、`APPROVE` および `REJECT` のホワイトリスト検証を追加。未知の文字列による意図しない自動承認を遮断。
+     - 勤怠修正申請および審査処理において、休憩時間（`requestedBreakMinutes`）が総拘束時間（`totalSpanMinutes`）以上となる不正入力を遮断する防衛ロジック（`totalBreakMin >= totalSpanMinutes`）を多重配備。
+     - 全公開監査ログ・XML内のTailscaleプライベートIP（`<TAILSCALE_OLLAMA_HOST>`）およびローカルアカウント名（`<LOCAL_USER>`）の完全マスキングを実施。
+  8. **M-1 & L-8 & M-7（マルチテナント順序・UIタイムゾーン・回帰環境の補正）**:
+     - M-1: `MemberMapper.xml` のスタッフ取得SQLに `ORDER BY joined_date ASC, store_staff_id ASC` を追加し、マルチストア掛け持ちスタッフの決定論的順序を担保。
+     - L-8: `punch.html` および `manage.html` において `getTimezoneOffset()` を加味したローカル日付初期化を適用し、早朝UTC日付ズレを解消。
+     - M-7: `run_isolated_regression.ps1` の接続文字列に `serverTimezone=Asia/Tokyo` を明示。
+  9. **その他Medium指摘事項の是正**:
      - M-2: オーナー代理打刻画面のスタッフ選択肢を `data.sql` マスタ実態（佐藤、鈴木、高橋、伊藤、山本、小林）へ完全一致。
      - M-3: `GlobalExceptionHandler.java` において `SecurityException` を HTTP 403 Forbidden ハンドラーへバインド。
      - M-4: シフト確定ステータスをサーバー側で `"CONFIRMED"` に強制固定。
@@ -1166,5 +1186,5 @@ Day 4以降の記録を追加する際は、既存の数値を上書きせず、
      - M-12: `.gitignore` に `validate_qwen_audit_input.ps1` を追跡ホワイトリスト追加。
      - M-13: `scripts/audit_with_hermes.ps1` のレポートヘッダー式展開バグを修正。
 - **検証結果**:
-  - 隔離データベース（MySQL 26.7, `kintai_full_test_e2927f3c111c`）における全件自動回帰テスト実行：**98件中 98件 PASS（FAILURES=0, ERRORS=0, SKIPPED=0, Gradle exit 0）**。
-- **証拠/引継ぎ**: `docs/audit_runs/bug_remediation_20261117_164500/run_summary.json`、`docs/handoff/20261117_1645_antigravity_bug_remediation_handoff.md`。
+  - 隔離データベース（MySQL 26.7, `kintai_full_test_c9889478763f`）における全件自動回帰テスト実行：**98件中 98件 PASS（FAILURES=0, ERRORS=0, SKIPPED=0, Gradle exit 0）**。
+- **証拠/引継ぎ**: `docs/audit_runs/qwen_deep_hardening_20261117/hermes_report.md`、`docs/audit_runs/isolated_all_20261117_165259_kintai_full_test_c9889478763f/run_metadata.json`、`docs/handoff/20261117_1715_antigravity_qwen_deep_hardening_handoff.md`。

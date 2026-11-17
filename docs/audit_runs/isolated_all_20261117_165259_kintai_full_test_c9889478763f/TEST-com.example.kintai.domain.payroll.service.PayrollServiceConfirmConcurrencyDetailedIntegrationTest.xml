@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="F-04: confirmPayroll 同時実行競合および同時重複確定(CAS)検証" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-11-17T07:53:31.915Z" hostname="BK" time="0.04">
+  <properties/>
+  <testcase name="同一給与に対する2つの管理者セッションによる同時重複確定試行時、正確に1件のみ成功し1件はステータス遮断されることの検証" classname="com.example.kintai.domain.payroll.service.PayrollServiceConfirmConcurrencyDetailedIntegrationTest" time="0.034"/>
+  <system-out><![CDATA[2026-11-17T16:53:31.917+09:00  INFO 24716 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.PayrollServiceConfirmConcurrencyDetailedIntegrationTest]: PayrollServiceConfirmConcurrencyDetailedIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-17T16:53:31.918+09:00  INFO 24716 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.PayrollServiceConfirmConcurrencyDetailedIntegrationTest
+2026-11-17T16:53:31.919+09:00  INFO 24716 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.PayrollServiceConfirmConcurrencyDetailedIntegrationTest]: PayrollServiceConfirmConcurrencyDetailedIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-17T16:53:31.919+09:00  INFO 24716 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.PayrollServiceConfirmConcurrencyDetailedIntegrationTest
+[pool-9-thread-1] ConnectionID=307 確定試行開始 at 1794902011931
+[pool-9-thread-2] ConnectionID=308 確定試行開始 at 1794902011931
+[pool-9-thread-1] 確定成功完了 at 1794902011949
+[pool-9-thread-2] 二重確定の安全遮?を捕捉: ?に確定?みの給?デ?タです。(現在の?態: CONFIRMED)
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

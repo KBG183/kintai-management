@@ -172,21 +172,14 @@
         </div>
     </div>
 
-</div>
-
-<!-- スクリプト定義 -->
-<th:block layout:fragment="scripts">
-<script>
-    let csrfToken = '';
-    let csrfHeader = '';
+    <!-- スクリプト定義 -->
+    <script>
     let pendingShiftsCache = [];
 
     document.addEventListener('DOMContentLoaded', () => {
-        csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content') || '';
-        csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || '';
 
-        // 日付初期設定 (本日)
-        const todayStr = new Date().toISOString().split('T')[0];
+        // 日付初期設定 (JST/KSTローカルタイムゾーン考慮)
+        const todayStr = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0];
         document.getElementById('comparisonDate').value = todayStr;
 
         // 全選択チェックボックス連動
@@ -249,7 +242,7 @@
                 tbody.appendChild(tr);
             });
         } catch (err) {
-            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i>${err.message}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i>${escapeHtml(err.message || String(err))}</td></tr>`;
         }
     }
 
@@ -319,7 +312,7 @@
                 tbody.appendChild(tr);
             });
         } catch (err) {
-            tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i>${err.message}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i>${escapeHtml(err.message || String(err))}</td></tr>`;
         }
     }
 
@@ -398,8 +391,7 @@
             const res = await fetch(`/api/shifts/${shiftId}/confirm`, {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json',
-                    [csrfHeader]: csrfToken
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(body)
             });
@@ -427,8 +419,7 @@
             const res = await fetch(`/api/shifts/${shiftId}/reject`, {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json',
-                    [csrfHeader]: csrfToken
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ ownerMemo: ownerMemo })
             });
@@ -461,8 +452,7 @@
             const res = await fetch('/api/shifts/batch-confirm', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    [csrfHeader]: csrfToken
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     shiftIds: shiftIds,
@@ -479,7 +469,7 @@
             alert('エラー: ' + err.message);
         }
     }
-</script>
-</th:block>
+    </script>
+</div>
 </body>
 </html>

@@ -5,5 +5,5 @@ SET status = 'CONFIRMED'
 WHERE store_id = 1 AND store_staff_id = 5 AND work_date = '2026-11-06' AND status = 'SUBMITTED';
 
 UPDATE attendance_mod_request
-SET approval_status = 'REJECTED', reject_reason = '촬영 전 초기화된 이전 신청'
+SET approval_status = 'REJECTED', reject_reason = '撮影前初期化された既存申請'
 WHERE store_id = 1 AND approval_status = 'PENDING';

@@ -62,7 +62,7 @@ if (Test-Path -LiteralPath $resultDir -PathType Container) {
 $oldSpringUrl = $env:SPRING_DATASOURCE_URL
 $oldMysqlPwd = $env:MYSQL_PWD
 $env:MYSQL_PWD = Get-DatabasePassword
-$env:SPRING_DATASOURCE_URL = "jdbc:mysql://127.0.0.1:3306/$DatabaseName"
+$env:SPRING_DATASOURCE_URL = "jdbc:mysql://127.0.0.1:3306/${DatabaseName}?useSSL=false&serverTimezone=Asia/Tokyo&characterEncoding=UTF-8&allowPublicKeyRetrieval=true"
 
 try {
     $selected = & $mysqlExe --host=127.0.0.1 --port=3306 --user=root --database=$DatabaseName --batch --skip-column-names `
@@ -72,10 +72,12 @@ try {
         throw "Target database mismatch. Expected '$DatabaseName', got '$selected'."
     }
 
+    $commitSha = try { (& git -C $projectRoot rev-parse HEAD 2>$null).Trim() } catch { $null }
     $metadata = [ordered]@{
         database = $DatabaseName
         scope = $Scope
         test_class = if ($Scope -ne 'All') { $TestClass } else { $null }
+        commit_sha = $commitSha
         run_id = $runId
         output_dir = $outputDir
         jdbc_url_host = '127.0.0.1:3306'

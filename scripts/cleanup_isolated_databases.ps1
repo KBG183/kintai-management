@@ -21,7 +21,7 @@ $oldMysqlPwd = $env:MYSQL_PWD
 $env:MYSQL_PWD = Get-DatabasePassword
 try {
     $names = @(& $mysqlExe --host=127.0.0.1 --port=3306 --user=root --batch --skip-column-names `
-        --execute="SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME REGEXP '^kintai_(day10_test|full_test)_[0-9a-f]{12}$' ORDER BY SCHEMA_NAME;")
+        --execute="SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME REGEXP '^kintai_(day10_test|day11_test|full_test)_[0-9a-f]{12}$' ORDER BY SCHEMA_NAME;")
     if ($LASTEXITCODE -ne 0) { throw "Database inventory failed: exit $LASTEXITCODE" }
 
     if ($names.Count -eq 0) {
@@ -36,7 +36,7 @@ try {
     }
 
     foreach ($name in $names) {
-        if ($name -notmatch '^kintai_(day10_test|full_test)_[0-9a-f]{12}$') {
+        if ($name -notmatch '^kintai_(day10_test|day11_test|full_test)_[0-9a-f]{12}$') {
             throw "Refusing to delete a name outside the generated allowlist: $name"
         }
         & $mysqlExe --host=127.0.0.1 --port=3306 --user=root --execute="DROP DATABASE ``$name``;"

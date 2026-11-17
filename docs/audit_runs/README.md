@@ -6,7 +6,7 @@
 
 | 種類 | 例 | 役割 |
 |---|---|---|
-| 全体回帰 | `isolated_all_20261114_114819_kintai_full_test_8a75679f5b1e/` | 最新の94/94 PASS、JUnit XML、終了サマリー |
+| 全体回帰 | `isolated_all_20261117_165259_kintai_full_test_c9889478763f/` | 最新の98/98 PASS、JUnit XML、終了サマリー |
 | ポートフォリオ監査 | `day13_calendar_20261114/final_portfolio_review/` | 要約・証跡・発表資料の文書監査 |
 | ローカルAI監査 | `codex_20261114_112428_v10/` | B-09修正後の監査ランナー最終レポート |
 | B-05/B-06監査 | `b05_b06_audit_20261114/` | YearMonth入力境界と給与詳細JSONの監査 |
@@ -15,7 +15,7 @@
 
 ## 発表で参照する代表原本
 
-- [最新全体回帰の集計](isolated_all_20261114_114819_kintai_full_test_8a75679f5b1e/exit_summary.json)
+- [最新全体回帰の集計](isolated_all_20261117_165259_kintai_full_test_c9889478763f/exit_summary.json)
 - [最新ポートフォリオ監査](day13_calendar_20261114/final_portfolio_review/)
 - [監査ランナー最終レポート](codex_20261114_112428_v10/hermes_report.md)
 - [B-05/B-06監査レポート](b05_b06_20261114_c598266c/hermes_report.md)

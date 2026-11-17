@@ -207,18 +207,9 @@
             const detailModal = new bootstrap.Modal(document.getElementById('shiftDetailModal'));
             const confModal = new bootstrap.Modal(document.getElementById('shiftConfirmModal'));
 
-            // CSRF トークン取得
-            const csrfTokenMeta = document.querySelector('meta[name="_csrf"]');
-            const csrfHeaderMeta = document.querySelector('meta[name="_csrf_header"]');
-            const csrfToken = csrfTokenMeta ? csrfTokenMeta.getAttribute('content') : '';
-            const csrfHeader = csrfHeaderMeta ? csrfHeaderMeta.getAttribute('content') : 'X-CSRF-TOKEN';
-
             const headers = {
                 'Content-Type': 'application/json'
             };
-            if (csrfToken) {
-                headers[csrfHeader] = csrfToken;
-            }
 
             const calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',

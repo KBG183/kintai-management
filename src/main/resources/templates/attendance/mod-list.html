@@ -157,7 +157,7 @@
                         attachListeners();
                     })
                     .catch(err => {
-                        tbody.innerHTML = `<tr><td colspan="9" class="py-4 text-danger">読み込みエラー: ${err}</td></tr>`;
+                        tbody.innerHTML = `<tr><td colspan="9" class="py-4 text-danger">読み込みエラー: ${escapeHtml(err ? (err.message || String(err)) : '')}</td></tr>`;
                     });
             }
 
