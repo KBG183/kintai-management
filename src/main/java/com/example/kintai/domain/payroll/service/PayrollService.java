@@ -486,6 +486,17 @@ public class PayrollService {
             dailyList.add(daily);
         }
 
+        // 労働基準法第37条に基づく月間端数処理による差額（日別明細合計と月間総支給額の調整額）を算出
+        int dailyTotalSum = 0;
+        for (PayrollDetailResponseDto.DailyAttendanceDetail daily : dailyList) {
+            dailyTotalSum += (daily.getBasePay() != null ? daily.getBasePay() : 0)
+                    + (daily.getNightAllowance() != null ? daily.getNightAllowance() : 0)
+                    + (daily.getOvertimeAllowance() != null ? daily.getOvertimeAllowance() : 0)
+                    + (daily.getTransportAmount() != null ? daily.getTransportAmount() : 0);
+        }
+        int statutoryAdjustment = (summary.getGrossPay() != null ? summary.getGrossPay() : 0) - dailyTotalSum;
+        summary.setStatutoryAdjustment(statutoryAdjustment);
+
         response.setDailyAttendances(dailyList);
         return response;
     }

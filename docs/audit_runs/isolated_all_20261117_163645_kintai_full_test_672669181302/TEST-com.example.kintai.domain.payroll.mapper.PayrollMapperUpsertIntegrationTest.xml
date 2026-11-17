@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="F-09: MySQL upsertPayroll useGeneratedKeys &amp; LAST_INSERT_ID のセッション汚染分離に関する精密実測" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-11-17T07:37:16.005Z" hostname="BK" time="0.118">
+  <properties/>
+  <testcase name="途中で別の AUTO_INCREMENT が発生して LAST_INSERT_ID が汚染された場合でも、DTO B に元の対象 PK が正確に渡されることを検証" classname="com.example.kintai.domain.payroll.mapper.PayrollMapperUpsertIntegrationTest" time="0.061"/>
+  <system-out><![CDATA[2026-11-17T16:37:16.008+09:00  INFO 23776 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.mapper.PayrollMapperUpsertIntegrationTest]: PayrollMapperUpsertIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-17T16:37:16.056+09:00  INFO 23776 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.mapper.PayrollMapperUpsertIntegrationTest
+2026-11-17T16:37:16.058+09:00  INFO 23776 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.mapper.PayrollMapperUpsertIntegrationTest]: PayrollMapperUpsertIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-17T16:37:16.059+09:00  INFO 23776 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.mapper.PayrollMapperUpsertIntegrationTest
+[ステップ1] DTO A INSERT 後 - 採番 ID: 3, セッション LAST_INSERT_ID(): 3
+[ステップ2：汚染?生] Attendance ?入後 - attendance_id: 8, セッション LAST_INSERT_ID(): 8
+==================================================================
+[F-09 セッション汚染分離の精密?測結果]
+1. 元の?象給? ID（Target）     : 3
+2. 途中で汚染されたセッション ID（Polluted）: 8
+3. DTO B にバインドされた最終 ID        : 3
+4. 重複 UPDATE 後のセッション LAST_INSERT_ID: 8
+==================================================================
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

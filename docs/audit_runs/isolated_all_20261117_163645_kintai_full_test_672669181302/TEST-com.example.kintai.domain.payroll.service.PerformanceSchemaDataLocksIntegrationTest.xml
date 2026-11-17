@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="F-04: performance_schema.data_locks 実測検証" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-11-17T07:37:19.151Z" hostname="BK" time="0.018">
+  <properties/>
+  <testcase name="独立コネクションにおける lockStorePayrollsForUpdate 実行時の performance_schema.data_locks ロックモードおよびインデックス実測" classname="com.example.kintai.domain.payroll.service.PerformanceSchemaDataLocksIntegrationTest" time="0.009"/>
+  <system-out><![CDATA[2026-11-17T16:37:19.154+09:00  INFO 23776 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.PerformanceSchemaDataLocksIntegrationTest]: PerformanceSchemaDataLocksIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-17T16:37:19.155+09:00  INFO 23776 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.PerformanceSchemaDataLocksIntegrationTest
+2026-11-17T16:37:19.157+09:00  INFO 23776 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.PerformanceSchemaDataLocksIntegrationTest]: PerformanceSchemaDataLocksIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-17T16:37:19.158+09:00  INFO 23776 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.PerformanceSchemaDataLocksIntegrationTest
+[Session 1] lockStorePayrollsForUpdate FOR UPDATE ロック取得完了
+==================== [performance_schema.data_locks ?測] ====================
+Table: payroll | Index: null | Type: TABLE | Mode: IX | Status: GRANTED | Data: null
+Table: payroll | Index: fk_payroll_store | Type: RECORD | Mode: X,REC_NOT_GAP | Status: GRANTED | Data: 1, 28
+Table: payroll | Index: fk_payroll_store | Type: RECORD | Mode: X,REC_NOT_GAP | Status: GRANTED | Data: 1, 34
+Table: payroll | Index: PRIMARY | Type: RECORD | Mode: X,REC_NOT_GAP | Status: GRANTED | Data: 28
+Table: payroll | Index: PRIMARY | Type: RECORD | Mode: X,REC_NOT_GAP | Status: GRANTED | Data: 34
+===============================================================================
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

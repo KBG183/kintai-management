@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Day 11: 12-month attendance-to-payroll scenario" tests="6" skipped="0" failures="6" errors="0" timestamp="2026-11-17T07:31:11.733Z" hostname="BK" time="0.12">
+  <properties/>
+  <testcase name="nightWorkOverlappingDailyOvertimeReceivesBothPremiums()" classname="com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest" time="0.008">
+    <failure message="java.sql.SQLSyntaxErrorException: Table 'kintai_full_test_ce304917c81f.member' doesn't exist" type="java.sql.SQLSyntaxErrorException">java.sql.SQLSyntaxErrorException: Table 'kintai_full_test_ce304917c81f.member' doesn't exist
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:112)
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:114)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeInternal(ClientPreparedStatement.java:988)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdateInternal(ClientPreparedStatement.java:1166)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdateInternal(ClientPreparedStatement.java:1101)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeLargeUpdate(ClientPreparedStatement.java:1448)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdate(ClientPreparedStatement.java:1084)
+	at com.zaxxer.hikari.pool.ProxyPreparedStatement.executeUpdate(ProxyPreparedStatement.java:61)
+	at com.zaxxer.hikari.pool.HikariProxyPreparedStatement.executeUpdate(HikariProxyPreparedStatement.java)
+	at com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest.insertAndGetId(AnnualPayrollScenarioIntegrationTest.java:347)
+	at com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest.seedAnnualScenario(AnnualPayrollScenarioIntegrationTest.java:81)
+</failure>
+  </testcase>
+  <testcase name="splitShiftClockOutAccumulatesPriorWorkAndFlowsIntoMonthlyPayroll()" classname="com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest" time="0.006">
+    <failure message="java.sql.SQLSyntaxErrorException: Table 'kintai_full_test_ce304917c81f.member' doesn't exist" type="java.sql.SQLSyntaxErrorException">java.sql.SQLSyntaxErrorException: Table 'kintai_full_test_ce304917c81f.member' doesn't exist
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:112)
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:114)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeInternal(ClientPreparedStatement.java:988)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdateInternal(ClientPreparedStatement.java:1166)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdateInternal(ClientPreparedStatement.java:1101)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeLargeUpdate(ClientPreparedStatement.java:1448)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdate(ClientPreparedStatement.java:1084)
+	at com.zaxxer.hikari.pool.ProxyPreparedStatement.executeUpdate(ProxyPreparedStatement.java:61)
+	at com.zaxxer.hikari.pool.HikariProxyPreparedStatement.executeUpdate(HikariProxyPreparedStatement.java)
+	at com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest.insertAndGetId(AnnualPayrollScenarioIntegrationTest.java:347)
+	at com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest.seedAnnualScenario(AnnualPayrollScenarioIntegrationTest.java:81)
+</failure>
+  </testcase>
+  <testcase name="isolatedDatabaseGuardRejectsAnyDatabaseOutsideTheExactAllowlist()" classname="com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest" time="0.007">
+    <failure message="java.sql.SQLSyntaxErrorException: Table 'kintai_full_test_ce304917c81f.member' doesn't exist" type="java.sql.SQLSyntaxErrorException">java.sql.SQLSyntaxErrorException: Table 'kintai_full_test_ce304917c81f.member' doesn't exist
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:112)
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:114)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeInternal(ClientPreparedStatement.java:988)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdateInternal(ClientPreparedStatement.java:1166)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdateInternal(ClientPreparedStatement.java:1101)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeLargeUpdate(ClientPreparedStatement.java:1448)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdate(ClientPreparedStatement.java:1084)
+	at com.zaxxer.hikari.pool.ProxyPreparedStatement.executeUpdate(ProxyPreparedStatement.java:61)
+	at com.zaxxer.hikari.pool.HikariProxyPreparedStatement.executeUpdate(HikariProxyPreparedStatement.java)
+	at com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest.insertAndGetId(AnnualPayrollScenarioIntegrationTest.java:347)
+	at com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest.seedAnnualScenario(AnnualPayrollScenarioIntegrationTest.java:81)
+</failure>
+  </testcase>
+  <testcase name="calculatesEveryMonthAndAnnualTotalAgainstIndependentOracle()" classname="com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest" time="0.007">
+    <failure message="java.sql.SQLSyntaxErrorException: Table 'kintai_full_test_ce304917c81f.member' doesn't exist" type="java.sql.SQLSyntaxErrorException">java.sql.SQLSyntaxErrorException: Table 'kintai_full_test_ce304917c81f.member' doesn't exist
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:112)
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:114)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeInternal(ClientPreparedStatement.java:988)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdateInternal(ClientPreparedStatement.java:1166)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdateInternal(ClientPreparedStatement.java:1101)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeLargeUpdate(ClientPreparedStatement.java:1448)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdate(ClientPreparedStatement.java:1084)
+	at com.zaxxer.hikari.pool.ProxyPreparedStatement.executeUpdate(ProxyPreparedStatement.java:61)
+	at com.zaxxer.hikari.pool.HikariProxyPreparedStatement.executeUpdate(HikariProxyPreparedStatement.java)
+	at com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest.insertAndGetId(AnnualPayrollScenarioIntegrationTest.java:347)
+	at com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest.seedAnnualScenario(AnnualPayrollScenarioIntegrationTest.java:81)
+</failure>
+  </testcase>
+  <testcase name="contractHistoryUsesInclusiveStartAndExclusiveEndDates()" classname="com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest" time="0.009">
+    <failure message="java.sql.SQLSyntaxErrorException: Table 'kintai_full_test_ce304917c81f.member' doesn't exist" type="java.sql.SQLSyntaxErrorException">java.sql.SQLSyntaxErrorException: Table 'kintai_full_test_ce304917c81f.member' doesn't exist
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:112)
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:114)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeInternal(ClientPreparedStatement.java:988)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdateInternal(ClientPreparedStatement.java:1166)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdateInternal(ClientPreparedStatement.java:1101)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeLargeUpdate(ClientPreparedStatement.java:1448)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdate(ClientPreparedStatement.java:1084)
+	at com.zaxxer.hikari.pool.ProxyPreparedStatement.executeUpdate(ProxyPreparedStatement.java:61)
+	at com.zaxxer.hikari.pool.HikariProxyPreparedStatement.executeUpdate(HikariProxyPreparedStatement.java)
+	at com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest.insertAndGetId(AnnualPayrollScenarioIntegrationTest.java:347)
+	at com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest.seedAnnualScenario(AnnualPayrollScenarioIntegrationTest.java:81)
+</failure>
+  </testcase>
+  <testcase name="payrollMonthRangeIncludesMonthEndButExcludesNextMonthFirstDay()" classname="com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest" time="0.008">
+    <failure message="java.sql.SQLSyntaxErrorException: Table 'kintai_full_test_ce304917c81f.member' doesn't exist" type="java.sql.SQLSyntaxErrorException">java.sql.SQLSyntaxErrorException: Table 'kintai_full_test_ce304917c81f.member' doesn't exist
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:112)
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:114)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeInternal(ClientPreparedStatement.java:988)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdateInternal(ClientPreparedStatement.java:1166)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdateInternal(ClientPreparedStatement.java:1101)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeLargeUpdate(ClientPreparedStatement.java:1448)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdate(ClientPreparedStatement.java:1084)
+	at com.zaxxer.hikari.pool.ProxyPreparedStatement.executeUpdate(ProxyPreparedStatement.java:61)
+	at com.zaxxer.hikari.pool.HikariProxyPreparedStatement.executeUpdate(HikariProxyPreparedStatement.java)
+	at com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest.insertAndGetId(AnnualPayrollScenarioIntegrationTest.java:347)
+	at com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest.seedAnnualScenario(AnnualPayrollScenarioIntegrationTest.java:81)
+</failure>
+  </testcase>
+  <system-out><![CDATA[2026-11-17T16:31:11.736+09:00  INFO 27724 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest]: AnnualPayrollScenarioIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-17T16:31:11.794+09:00  INFO 27724 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest
+2026-11-17T16:31:11.796+09:00  INFO 27724 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest]: AnnualPayrollScenarioIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-17T16:31:11.798+09:00  INFO 27724 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

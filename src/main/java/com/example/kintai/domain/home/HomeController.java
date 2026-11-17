@@ -24,4 +24,12 @@ public class HomeController {
 
         return isOwner ? "redirect:/attendance/mod-requests" : "redirect:/attendance";
     }
+
+    /**
+     * アクセス権限拒否画面（403 Forbidden 遷移先）
+     */
+    @GetMapping("/access-denied")
+    public String accessDenied() {
+        return "error/access-denied";
+    }
 }

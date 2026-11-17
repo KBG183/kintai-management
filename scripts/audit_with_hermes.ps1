@@ -318,7 +318,7 @@ if ($Chunk -or ($lines.Count -gt 400 -and $hasMajorHeaders)) {
 
     $fullReport = [System.Text.StringBuilder]::new()
     [void]$fullReport.AppendLine("# 🛡️ Hermes Independent Audit Report (Section-by-Section)")
-    [void]$fullReport.AppendLine("> **Target**: `$TargetFile` ($($lines.Count) lines) | **Model**: `$Model` | **Timestamp**: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')`n")
+    [void]$fullReport.AppendLine("> **Target**: `$($TargetFile)` ($($lines.Count) lines) | **Model**: `$($Model)` | **Timestamp**: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')`n")
 
     $totalDurationAll = 0
     $totalPromptTokens = 0

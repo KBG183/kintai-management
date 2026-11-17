@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.kintai.domain.attendance.controller.AttendancePunchApiIntegrationTest" tests="1" skipped="0" failures="1" errors="0" timestamp="2026-11-17T07:31:03.949Z" hostname="BK" time="6.672">
+  <properties/>
+  <testcase name="authenticatedStaffPunchUsesSessionIdentityInsteadOfSpoofedBodyIds()" classname="com.example.kintai.domain.attendance.controller.AttendancePunchApiIntegrationTest" time="1.612">
+    <failure message="java.sql.SQLSyntaxErrorException: Table 'kintai_full_test_ce304917c81f.member' doesn't exist" type="java.sql.SQLSyntaxErrorException">java.sql.SQLSyntaxErrorException: Table 'kintai_full_test_ce304917c81f.member' doesn't exist
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:112)
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:114)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeInternal(ClientPreparedStatement.java:988)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdateInternal(ClientPreparedStatement.java:1166)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdateInternal(ClientPreparedStatement.java:1101)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeLargeUpdate(ClientPreparedStatement.java:1448)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdate(ClientPreparedStatement.java:1084)
+	at com.zaxxer.hikari.pool.ProxyPreparedStatement.executeUpdate(ProxyPreparedStatement.java:61)
+	at com.zaxxer.hikari.pool.HikariProxyPreparedStatement.executeUpdate(HikariProxyPreparedStatement.java)
+	at com.example.kintai.domain.attendance.controller.AttendancePunchApiIntegrationTest.insertAndGetId(AttendancePunchApiIntegrationTest.java:124)
+	at com.example.kintai.domain.attendance.controller.AttendancePunchApiIntegrationTest.createIsolatedApiFixture(AttendancePunchApiIntegrationTest.java:52)
+</failure>
+  </testcase>
+  <system-out><![CDATA[16:31:04.188 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.kintai.domain.attendance.controller.AttendancePunchApiIntegrationTest]: AttendancePunchApiIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+16:31:04.349 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.attendance.controller.AttendancePunchApiIntegrationTest
+16:31:04.440 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.kintai.domain.attendance.controller.AttendancePunchApiIntegrationTest]: AttendancePunchApiIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+16:31:04.445 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.attendance.controller.AttendancePunchApiIntegrationTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-11-17T16:31:04.864+09:00  INFO 27724 --- [    Test worker] .d.a.c.AttendancePunchApiIntegrationTest : Starting AttendancePunchApiIntegrationTest using Java 17.0.12 with PID 27724 (started by klad3 in C:\dev\kintai)
+2026-11-17T16:31:04.867+09:00  INFO 27724 --- [    Test worker] .d.a.c.AttendancePunchApiIntegrationTest : No active profile set, falling back to 1 default profile: "default"
+2026-11-17T16:31:07.568+09:00  INFO 27724 --- [    Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-11-17T16:31:08.802+09:00  INFO 27724 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-17T16:31:08.802+09:00  INFO 27724 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-17T16:31:08.809+09:00  INFO 27724 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 6 ms
+2026-11-17T16:31:08.981+09:00  INFO 27724 --- [    Test worker] .d.a.c.AttendancePunchApiIntegrationTest : Started AttendancePunchApiIntegrationTest in 4.453 seconds (process running for 6.198)
+2026-11-17T16:31:10.106+09:00  INFO 27724 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-11-17T16:31:10.479+09:00  INFO 27724 --- [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@a7fd77f
+2026-11-17T16:31:10.482+09:00  INFO 27724 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

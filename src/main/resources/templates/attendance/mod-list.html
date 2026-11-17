@@ -81,6 +81,16 @@
             const storeId = /*[[${storeId}]]*/ 1;
             const rejectModal = new bootstrap.Modal(document.getElementById('rejectModal'));
 
+            function escapeHtml(str) {
+                if (!str) return '';
+                return String(str)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            }
+
             function formatTime(dtStr) {
                 if (!dtStr) return '-';
                 return dtStr.substring(11, 16);
@@ -110,7 +120,7 @@
                             if (item.approvalStatus === 'APPROVED') {
                                 badge = '<span class="badge bg-success">承認済</span>';
                             } else if (item.approvalStatus === 'REJECTED') {
-                                badge = `<span class="badge bg-danger" title="${item.rejectReason || ''}">却下済</span>`;
+                                badge = `<span class="badge bg-danger" title="${escapeHtml(item.rejectReason || '')}">却下済</span>`;
                             }
 
                             const beforeText = item.beforeClockInAt
@@ -133,11 +143,11 @@
                                 <tr>
                                     <td>${item.modRequestId}</td>
                                     <td class="text-muted small">${item.createdAt ? item.createdAt.substring(0, 10) : '-'}</td>
-                                    <td class="fw-bold">${item.staffName}</td>
-                                    <td>${item.workDate}</td>
+                                    <td class="fw-bold">${escapeHtml(item.staffName)}</td>
+                                    <td>${escapeHtml(item.workDate)}</td>
                                     <td>${beforeText}</td>
                                     <td class="text-primary">${reqText}</td>
-                                    <td class="text-start" style="max-width: 200px;"><small>${item.reason || ''}</small></td>
+                                    <td class="text-start" style="max-width: 200px;"><small>${escapeHtml(item.reason || '')}</small></td>
                                     <td>${badge}</td>
                                     <td>${actionBtns}</td>
                                 </tr>

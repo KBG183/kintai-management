@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.kintai.KintaiApplicationTests" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-11-17T07:31:11.854Z" hostname="BK" time="0.039">
+  <properties/>
+  <testcase name="contextLoads()" classname="com.example.kintai.KintaiApplicationTests" time="0.011"/>
+  <system-out><![CDATA[2026-11-17T16:31:11.856+09:00  INFO 27724 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.KintaiApplicationTests]: KintaiApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-17T16:31:11.876+09:00  INFO 27724 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.KintaiApplicationTests
+2026-11-17T16:31:11.876+09:00  INFO 27724 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.KintaiApplicationTests]: KintaiApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-17T16:31:11.879+09:00  INFO 27724 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.KintaiApplicationTests
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

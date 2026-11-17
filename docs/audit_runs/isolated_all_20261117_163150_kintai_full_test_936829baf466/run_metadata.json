@@ -1,0 +1,8 @@
+﻿{
+    "database":  "kintai_full_test_936829baf466",
+    "scope":  "All",
+    "test_class":  null,
+    "run_id":  "20261117_163150",
+    "output_dir":  "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261117_163150_kintai_full_test_936829baf466",
+    "jdbc_url_host":  "127.0.0.1:3306"
+}

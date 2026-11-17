@@ -104,6 +104,7 @@
                             </tbody>
                         </table>
                     </div>
+                    <div id="statutoryAdjustmentNotice" class="mt-2 text-muted small"></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
@@ -298,6 +299,16 @@
                                     <td>${formatYen(row.transportAmount)}</td>
                                 </tr>
                             `).join('');
+                        }
+
+                        const noticeDiv = document.getElementById('statutoryAdjustmentNotice');
+                        if (noticeDiv) {
+                            if (s.statutoryAdjustment && s.statutoryAdjustment !== 0) {
+                                const sign = s.statutoryAdjustment > 0 ? '+' : '';
+                                noticeDiv.innerHTML = `<i class="fa-solid fa-circle-info me-1 text-primary"></i>※ 労働基準法第37条に基づく月間端数処理（通達 基発第150号）による調整額: <strong>${sign}${s.statutoryAdjustment.toLocaleString()}円</strong> (日別明細合計と総支給額の法定丸め差額)`;
+                            } else {
+                                noticeDiv.innerHTML = '';
+                            }
                         }
 
                         detailModal.show();

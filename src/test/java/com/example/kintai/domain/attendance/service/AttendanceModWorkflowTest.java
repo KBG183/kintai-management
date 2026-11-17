@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -168,6 +169,59 @@ class AttendanceModWorkflowTest {
             assertThat(updated.getOvertimeMinutes()).isEqualTo(60); // 8時間超過 = 60分
 
             verify(attendanceMapper).updateModRequestReview(eq(modRequestId), eq("APPROVED"), eq(reviewerId), isNull(), any());
+        }
+
+        @Test
+        @DisplayName("C-1検証: 休憩区間リストが空で希望休憩分(60分)のみ指定された場合、仮想区間が自動生成され実労働・残業時間から正確に減算されること")
+        void reviewModification_WhenOnlyRequestedBreakMinutesProvided_ShouldDeductBreakFromNetWorkAndOvertime() {
+            Long modRequestId = 2L;
+            Long reviewerId = 999L;
+            LocalDate workDate = LocalDate.of(2026, 11, 10);
+            LocalDateTime clockIn = LocalDateTime.of(2026, 11, 10, 9, 0);
+            LocalDateTime clockOut = LocalDateTime.of(2026, 11, 10, 18, 0); // 9時間拘束 (540分)
+
+            AttendanceModResponseDto req = new AttendanceModResponseDto();
+            req.setModRequestId(modRequestId);
+            req.setAttendanceId(101L);
+            req.setStoreStaffId(10L);
+            req.setWorkDate(workDate);
+            req.setRequestedClockInAt(clockIn);
+            req.setRequestedClockOutAt(clockOut);
+            req.setRequestedBreakMinutes(60); // 60分休憩希望 (区間リストは空)
+            req.setApprovalStatus("PENDING");
+
+            AttendanceDto existing = new AttendanceDto();
+            existing.setAttendanceId(101L);
+            existing.setStoreStaffId(10L);
+            existing.setWorkDate(workDate);
+
+            when(attendanceMapper.findModRequestById(modRequestId)).thenReturn(req);
+            when(attendanceMapper.findById(101L)).thenReturn(existing);
+            when(attendanceMapper.isPayrollConfirmedForDate(10L, workDate)).thenReturn(false);
+            when(attendanceMapper.countOverlappingAttendances(10L, clockIn, clockOut, 101L)).thenReturn(0);
+            when(attendanceMapper.findModBreaksByRequestId(modRequestId, "REQUESTED")).thenReturn(new ArrayList<>());
+            when(attendanceMapper.sumPriorNetWorkSecondsOnDate(10L, workDate, 101L, clockIn)).thenReturn(0L);
+            when(attendanceMapper.updateModRequestReview(eq(modRequestId), eq("APPROVED"), eq(reviewerId), isNull(), any())).thenReturn(1);
+
+            AttendanceModReviewDto reviewDto = new AttendanceModReviewDto();
+            reviewDto.setAction("APPROVE");
+
+            attendanceService.reviewModification(modRequestId, reviewerId, reviewDto);
+
+            ArgumentCaptor<AttendanceDto> captor = ArgumentCaptor.forClass(AttendanceDto.class);
+            verify(attendanceMapper).updateAttendance(captor.capture());
+
+            AttendanceDto updated = captor.getValue();
+            // 9時間拘束(540分) - 休憩60分 = 実働480分(8時間)、残業0分
+            assertThat(updated.getTotalBreakMinutes()).isEqualTo(60);
+            assertThat(updated.getNetWorkMinutes()).isEqualTo(480);
+            assertThat(updated.getOvertimeMinutes()).isEqualTo(0);
+
+            // 仮想休憩がattendance_breakテーブルに保存されたことを検証
+            ArgumentCaptor<AttendanceBreakDto> breakCaptor = ArgumentCaptor.forClass(AttendanceBreakDto.class);
+            verify(attendanceMapper).insertBreak(breakCaptor.capture());
+            assertThat(breakCaptor.getValue().getDurationMinutes()).isEqualTo(60);
+            assertThat(breakCaptor.getValue().getAttendanceId()).isEqualTo(101L);
         }
 
         @Test

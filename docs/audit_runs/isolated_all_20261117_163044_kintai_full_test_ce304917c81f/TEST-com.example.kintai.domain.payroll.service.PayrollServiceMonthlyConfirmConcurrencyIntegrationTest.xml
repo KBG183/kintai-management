@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="F-04: confirmMonthlyPayroll 2段階ロックおよび同時実行境界(新規DRAFT競合)検証" tests="2" skipped="0" failures="2" errors="0" timestamp="2026-11-17T07:31:23.776Z" hostname="BK" time="0.022">
+  <properties/>
+  <testcase name="2段階ロック一括確定(confirmMonthlyPayroll)の正常動作および対象DRAFT全員のCONFIRMED遷移検証" classname="com.example.kintai.domain.payroll.service.PayrollServiceMonthlyConfirmConcurrencyIntegrationTest" time="0.006">
+    <failure message="java.sql.SQLSyntaxErrorException: Table 'kintai_full_test_ce304917c81f.member' doesn't exist" type="java.sql.SQLSyntaxErrorException">java.sql.SQLSyntaxErrorException: Table 'kintai_full_test_ce304917c81f.member' doesn't exist
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:112)
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:114)
+	at com.mysql.cj.jdbc.StatementImpl.executeUpdateInternal(StatementImpl.java:1506)
+	at com.mysql.cj.jdbc.StatementImpl.executeLargeUpdate(StatementImpl.java:2303)
+	at com.mysql.cj.jdbc.StatementImpl.executeUpdate(StatementImpl.java:1376)
+	at com.zaxxer.hikari.pool.ProxyStatement.executeUpdate(ProxyStatement.java:120)
+	at com.zaxxer.hikari.pool.HikariProxyStatement.executeUpdate(HikariProxyStatement.java)
+	at com.example.kintai.domain.payroll.service.PayrollServiceMonthlyConfirmConcurrencyIntegrationTest.setUp(PayrollServiceMonthlyConfirmConcurrencyIntegrationTest.java:58)
+</failure>
+  </testcase>
+  <testcase name="同時実行：一括確定(confirmMonthlyPayroll)と個別再計算(calculatePayrollForStaff)の競合時にデッドロックなく直列化成功" classname="com.example.kintai.domain.payroll.service.PayrollServiceMonthlyConfirmConcurrencyIntegrationTest" time="0.008">
+    <failure message="java.sql.SQLSyntaxErrorException: Table 'kintai_full_test_ce304917c81f.member' doesn't exist" type="java.sql.SQLSyntaxErrorException">java.sql.SQLSyntaxErrorException: Table 'kintai_full_test_ce304917c81f.member' doesn't exist
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:112)
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:114)
+	at com.mysql.cj.jdbc.StatementImpl.executeUpdateInternal(StatementImpl.java:1506)
+	at com.mysql.cj.jdbc.StatementImpl.executeLargeUpdate(StatementImpl.java:2303)
+	at com.mysql.cj.jdbc.StatementImpl.executeUpdate(StatementImpl.java:1376)
+	at com.zaxxer.hikari.pool.ProxyStatement.executeUpdate(ProxyStatement.java:120)
+	at com.zaxxer.hikari.pool.HikariProxyStatement.executeUpdate(HikariProxyStatement.java)
+	at com.example.kintai.domain.payroll.service.PayrollServiceMonthlyConfirmConcurrencyIntegrationTest.setUp(PayrollServiceMonthlyConfirmConcurrencyIntegrationTest.java:58)
+</failure>
+  </testcase>
+  <system-out><![CDATA[2026-11-17T16:31:23.779+09:00  INFO 27724 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.PayrollServiceMonthlyConfirmConcurrencyIntegrationTest]: PayrollServiceMonthlyConfirmConcurrencyIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-17T16:31:23.779+09:00  INFO 27724 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.PayrollServiceMonthlyConfirmConcurrencyIntegrationTest
+2026-11-17T16:31:23.782+09:00  INFO 27724 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.PayrollServiceMonthlyConfirmConcurrencyIntegrationTest]: PayrollServiceMonthlyConfirmConcurrencyIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-17T16:31:23.783+09:00  INFO 27724 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.PayrollServiceMonthlyConfirmConcurrencyIntegrationTest
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -19,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.csrf.CsrfTokenRequestHandler;
@@ -53,7 +54,7 @@ public class SecurityConfig {
                         .csrfTokenRepository(tokenRepository)
                         .csrfTokenRequestHandler(requestHandler)
                 )
-                .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
+                .addFilterAfter(new CsrfCookieFilter(), CsrfFilter.class)
                 .authorizeHttpRequests(auth -> auth
                         // 静的リソースおよび認証関連エンドポイントの開放
                         .requestMatchers(
@@ -155,8 +156,14 @@ public class SecurityConfig {
         protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
                 throws ServletException, IOException {
             CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+            if (csrfToken == null) {
+                Object raw = request.getAttribute("_csrf");
+                if (raw instanceof CsrfToken) {
+                    csrfToken = (CsrfToken) raw;
+                }
+            }
             if (csrfToken != null) {
-                // クッキーの書き出しをトリガー
+                // クッキーの書き出しをトリガー（DeferredCsrfTokenを即時解決）
                 csrfToken.getToken();
             }
             filterChain.doFilter(request, response);

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.kintai.domain.attendance.service.AttendanceServicePunchValidationTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-11-17T07:32:23.364Z" hostname="BK" time="0.025">
+  <properties/>
+  <testcase name="missingOrNonPositiveStaffIdIsRejectedBeforeDatabaseAccess()" classname="com.example.kintai.domain.attendance.service.AttendanceServicePunchValidationTest" time="0.005"/>
+  <testcase name="H-1検証: 1分未満(例: 45秒)の休憩終了時でもdurationMinutesが1以上に補正され、DB制約(CHECK &gt; 0)違反および状態固着が防止されること" classname="com.example.kintai.domain.attendance.service.AttendanceServicePunchValidationTest" time="0.013"/>
+  <testcase name="missingOrUnsupportedPunchTypeIsRejectedBeforeDatabaseAccess()" classname="com.example.kintai.domain.attendance.service.AttendanceServicePunchValidationTest" time="0.003"/>
+  <testcase name="nullRequestIsRejectedBeforeDatabaseAccess()" classname="com.example.kintai.domain.attendance.service.AttendanceServicePunchValidationTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

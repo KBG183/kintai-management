@@ -49,6 +49,10 @@ scripts/*
 !scripts/*audit_with_hermes.ps1
 !scripts/*audit_config.json
 !scripts/*audit_config.schema.json
+!scripts/*validate_qwen_audit_input.ps1
+
+# Temporary Scratch
+scratch/
 AGENTS.md
 hermes_audit_report.md
 initial_db_schema.md

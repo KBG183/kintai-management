@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="F-04: ロック順序逆転によるMySQL InnoDBデッドロック(1213 / 40001)再現検証" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-11-17T07:29:41.763Z" hostname="BK" time="0.213">
+  <properties/>
+  <testcase name="独立した2つのJDBCコネクションにおける相互逆順ロック取得時のMySQL 1213デッドロック検知および40001 SQLState実測" classname="com.example.kintai.domain.payroll.service.PayrollLockOrderDeadlockReproductionIntegrationTest" time="0.199"/>
+  <system-out><![CDATA[2026-11-17T16:29:41.766+09:00  INFO 22144 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.PayrollLockOrderDeadlockReproductionIntegrationTest]: PayrollLockOrderDeadlockReproductionIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-17T16:29:41.768+09:00  INFO 22144 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.PayrollLockOrderDeadlockReproductionIntegrationTest
+2026-11-17T16:29:41.771+09:00  INFO 22144 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.PayrollLockOrderDeadlockReproductionIntegrationTest]: PayrollLockOrderDeadlockReproductionIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-17T16:29:41.772+09:00  INFO 22144 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.PayrollLockOrderDeadlockReproductionIntegrationTest
+[Conn-1] Step 1: store_staff 行ロック取得完了
+[Conn-2] Step 1: payroll 行ロック取得完了
+[Conn-1] Step 2: payroll 行ロック要求試行
+[Conn-2] Step 2: store_staff 行ロック要求試行（デッドロック?生）
+[Conn-1] Step 2 成功（生存トランザクション）
+[Conn-2] SQLException 捕捉: ErrorCode=1213, SQLState=40001, Msg=Deadlock found when trying to get lock; try restarting transaction
+==================================================================
+[F-04 デッドロック精密?測結果]
+Conn-1 Exception: SURVIVED & COMMITTED
+Conn-2 Exception: ErrorCode=1213, SQLState=40001 (Deadlock found when trying to get lock; try restarting transaction)
+==================================================================
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

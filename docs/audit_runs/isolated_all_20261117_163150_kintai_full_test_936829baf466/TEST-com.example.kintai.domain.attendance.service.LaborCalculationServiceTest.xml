@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="LaborCalculationService 労働基準法詳細算定サービス単体テスト" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-11-17T07:32:23.390Z" hostname="BK" time="0.005">
+  <properties/>
+  <testcase name="M-8検証: attendance_break個別レコードが無く合計休憩分(60分)のみ存在する場合でもフォールバックで実労働が正常算定されること" classname="com.example.kintai.domain.attendance.service.LaborCalculationServiceTest" time="0.002"/>
+  <testcase name="H-2検証: 分割勤務（中抜け）の第2勤務時、先行勤務累計秒数が連動して8時間超過分の残業が正確に算定されること" classname="com.example.kintai.domain.attendance.service.LaborCalculationServiceTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

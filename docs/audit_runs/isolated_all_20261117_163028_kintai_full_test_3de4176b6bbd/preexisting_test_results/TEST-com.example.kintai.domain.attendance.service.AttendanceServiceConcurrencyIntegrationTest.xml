@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Day 10: AttendanceService 同時出退勤打刻の排他検証" tests="2" skipped="0" failures="2" errors="0" timestamp="2026-11-17T07:29:37.595Z" hostname="BK" time="0.939">
+  <properties/>
+  <testcase name="同時CLOCK_INリクエストは1件のみ成功し重複勤務レコードを作成しない" classname="com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest" time="0.015">
+    <failure message="java.lang.IllegalStateException: Integration test requires an allowlisted isolated database; refusing database: kintai_db" type="java.lang.IllegalStateException">java.lang.IllegalStateException: Integration test requires an allowlisted isolated database; refusing database: kintai_db
+	at com.example.kintai.database.IsolatedDatabaseGuard.requireAllowedDatabase(IsolatedDatabaseGuard.java:24)
+	at com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest.setUp(AttendanceServiceConcurrencyIntegrationTest.java:55)
+</failure>
+  </testcase>
+  <testcase name="同時CLOCK_OUTリクエストは1件のみ成功し完了状態を保持する" classname="com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest" time="0.006">
+    <failure message="java.lang.IllegalStateException: Integration test requires an allowlisted isolated database; refusing database: kintai_db" type="java.lang.IllegalStateException">java.lang.IllegalStateException: Integration test requires an allowlisted isolated database; refusing database: kintai_db
+	at com.example.kintai.database.IsolatedDatabaseGuard.requireAllowedDatabase(IsolatedDatabaseGuard.java:24)
+	at com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest.setUp(AttendanceServiceConcurrencyIntegrationTest.java:55)
+</failure>
+  </testcase>
+  <system-out><![CDATA[2026-11-17T16:29:37.598+09:00  INFO 22144 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest]: AttendanceServiceConcurrencyIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-17T16:29:37.645+09:00  INFO 22144 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest
+2026-11-17T16:29:37.647+09:00  INFO 22144 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest]: AttendanceServiceConcurrencyIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-17T16:29:37.648+09:00  INFO 22144 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-11-17T16:29:37.689+09:00  INFO 22144 --- [    Test worker] endanceServiceConcurrencyIntegrationTest : Starting AttendanceServiceConcurrencyIntegrationTest using Java 17.0.12 with PID 22144 (started by klad3 in C:\dev\kintai)
+2026-11-17T16:29:37.690+09:00  INFO 22144 --- [    Test worker] endanceServiceConcurrencyIntegrationTest : No active profile set, falling back to 1 default profile: "default"
+2026-11-17T16:29:38.247+09:00  INFO 22144 --- [    Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-11-17T16:29:38.509+09:00  INFO 22144 --- [    Test worker] endanceServiceConcurrencyIntegrationTest : Started AttendanceServiceConcurrencyIntegrationTest in 0.854 seconds (process running for 8.743)
+2026-11-17T16:29:38.514+09:00  INFO 22144 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Starting...
+2026-11-17T16:29:38.521+09:00  INFO 22144 --- [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Added connection com.mysql.cj.jdbc.ConnectionImpl@1e284d90
+2026-11-17T16:29:38.522+09:00  INFO 22144 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Start completed.
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

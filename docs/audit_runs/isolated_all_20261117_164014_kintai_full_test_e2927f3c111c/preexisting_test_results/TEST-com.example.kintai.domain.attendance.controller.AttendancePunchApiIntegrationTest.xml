@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.kintai.domain.attendance.controller.AttendancePunchApiIntegrationTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-11-17T07:37:12.813Z" hostname="BK" time="2.1">
+  <properties/>
+  <testcase name="authenticatedStaffPunchUsesSessionIdentityInsteadOfSpoofedBodyIds()" classname="com.example.kintai.domain.attendance.controller.AttendancePunchApiIntegrationTest" time="0.172"/>
+  <system-out><![CDATA[2026-11-17T16:37:12.817+09:00  INFO 23776 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.attendance.controller.AttendancePunchApiIntegrationTest]: AttendancePunchApiIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-17T16:37:12.928+09:00  INFO 23776 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.attendance.controller.AttendancePunchApiIntegrationTest
+2026-11-17T16:37:12.930+09:00  INFO 23776 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.attendance.controller.AttendancePunchApiIntegrationTest]: AttendancePunchApiIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-17T16:37:12.935+09:00  INFO 23776 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.attendance.controller.AttendancePunchApiIntegrationTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.8)
+
+2026-11-17T16:37:13.010+09:00  INFO 23776 --- [    Test worker] .d.a.c.AttendancePunchApiIntegrationTest : Starting AttendancePunchApiIntegrationTest using Java 17.0.12 with PID 23776 (started by klad3 in C:\dev\kintai)
+2026-11-17T16:37:13.010+09:00  INFO 23776 --- [    Test worker] .d.a.c.AttendancePunchApiIntegrationTest : No active profile set, falling back to 1 default profile: "default"
+2026-11-17T16:37:14.121+09:00  INFO 23776 --- [    Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-11-17T16:37:14.672+09:00  INFO 23776 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-17T16:37:14.673+09:00  INFO 23776 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-17T16:37:14.677+09:00  INFO 23776 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 4 ms
+2026-11-17T16:37:14.738+09:00  INFO 23776 --- [    Test worker] .d.a.c.AttendancePunchApiIntegrationTest : Started AttendancePunchApiIntegrationTest in 1.789 seconds (process running for 11.902)
+2026-11-17T16:37:14.746+09:00  INFO 23776 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Starting...
+2026-11-17T16:37:14.791+09:00  INFO 23776 --- [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Added connection com.mysql.cj.jdbc.ConnectionImpl@3027fe42
+2026-11-17T16:37:14.792+09:00  INFO 23776 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Start completed.
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

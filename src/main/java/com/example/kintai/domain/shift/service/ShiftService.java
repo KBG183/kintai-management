@@ -228,7 +228,7 @@ public class ShiftService {
         existing.setConfirmedStartAt(confirmedStartAt);
         existing.setConfirmedEndAt(confirmedEndAt);
         existing.setPlannedBreakMinutes(plannedBreak);
-        existing.setStatus(confirmDto.getStatus() != null ? confirmDto.getStatus() : "CONFIRMED");
+        existing.setStatus("CONFIRMED");
         existing.setOwnerMemo(confirmDto.getOwnerMemo());
 
         int affected = shiftMapper.updateShiftConfirm(existing);
@@ -334,8 +334,9 @@ public class ShiftService {
                 existing.setOwnerMemo(batchDto.getOwnerMemo());
             }
 
-            shiftMapper.updateShiftConfirm(existing);
-            confirmedCount++;
+            if (shiftMapper.updateShiftConfirm(existing) == 1) {
+                confirmedCount++;
+            }
         }
 
         return confirmedCount;

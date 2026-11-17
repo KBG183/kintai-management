@@ -22,6 +22,7 @@ public class PayrollDetailResponseDto {
         private Integer overtimeAllowance;
         private Integer transportAllowance;
         private Integer grossPay;
+        private Integer statutoryAdjustment;
         private String payrollStatus;
 
         public PayrollSummary() {}
@@ -44,6 +45,8 @@ public class PayrollDetailResponseDto {
         public void setTransportAllowance(Integer transportAllowance) { this.transportAllowance = transportAllowance; }
         public Integer getGrossPay() { return grossPay; }
         public void setGrossPay(Integer grossPay) { this.grossPay = grossPay; }
+        public Integer getStatutoryAdjustment() { return statutoryAdjustment; }
+        public void setStatutoryAdjustment(Integer statutoryAdjustment) { this.statutoryAdjustment = statutoryAdjustment; }
         public String getPayrollStatus() { return payrollStatus; }
         public void setPayrollStatus(String payrollStatus) { this.payrollStatus = payrollStatus; }
     }

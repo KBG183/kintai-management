@@ -236,10 +236,10 @@
                     <td class="text-center">
                         <input type="checkbox" class="form-check-input check-pending-item" value="${item.shiftId}">
                     </td>
-                    <td class="fw-bold">${item.workDate}</td>
-                    <td>${item.staffName || 'スタッフ'}</td>
+                    <td class="fw-bold">${escapeHtml(item.workDate)}</td>
+                    <td>${escapeHtml(item.staffName || 'スタッフ')}</td>
                     <td><span class="badge bg-light text-dark border">${startTime} ～ ${endTime}</span></td>
-                    <td class="small text-muted">${item.staffMemo || '-'}</td>
+                    <td class="small text-muted">${escapeHtml(item.staffMemo || '-')}</td>
                     <td class="text-center">
                         <button class="btn btn-sm btn-outline-primary" onclick="openConfirmModal(${item.shiftId})">
                             <i class="fa-solid fa-sliders me-1"></i>調整・確定
@@ -310,7 +310,7 @@
                 }
 
                 tr.innerHTML = `
-                    <td class="fw-bold">${item.staffName || 'スタッフ'}</td>
+                    <td class="fw-bold">${escapeHtml(item.staffName || 'スタッフ')}</td>
                     <td>${plannedHtml}</td>
                     <td>${actualHtml}</td>
                     <td>${statusHtml}</td>
@@ -334,6 +334,16 @@
             case 'UNSCHEDULED': return 'bg-info text-dark';
             default: return 'bg-secondary';
         }
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
     }
 
     function formatTime(dtStr) {

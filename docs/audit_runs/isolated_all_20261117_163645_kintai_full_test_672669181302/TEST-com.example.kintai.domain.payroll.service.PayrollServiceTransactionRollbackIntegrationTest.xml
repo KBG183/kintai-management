@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="F-08: PayrollService内部呼出時の実DB変更およびトランザクション全体ロールバックの原子性精密実測" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-11-17T07:37:19.100Z" hostname="BK" time="0.05">
+  <properties/>
+  <testcase name="内部再計算(calculatePayrollForStaff)による金額/明細変更中に例外発生時、実DBが初期状態へ100%ロールバックされることの実測" classname="com.example.kintai.domain.payroll.service.PayrollServiceTransactionRollbackIntegrationTest" time="0.042"/>
+  <system-out><![CDATA[2026-11-17T16:37:19.101+09:00  INFO 23776 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.PayrollServiceTransactionRollbackIntegrationTest]: PayrollServiceTransactionRollbackIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-17T16:37:19.103+09:00  INFO 23776 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.PayrollServiceTransactionRollbackIntegrationTest
+2026-11-17T16:37:19.104+09:00  INFO 23776 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.PayrollServiceTransactionRollbackIntegrationTest]: PayrollServiceTransactionRollbackIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-17T16:37:19.105+09:00  INFO 23776 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.PayrollServiceTransactionRollbackIntegrationTest
+[F-08 ??例外捕捉]: 確認時と金額が一致しません。(確認額: 999999円, 再計算額: 32700円)。再確認が必要です。
+==================================================================
+[F-08 ?密?測??結果（テストレベル @Transactional なし）]
+1. ロ?ルバック後 GrossPay      (期待値: 10900, ?測値: 10900)
+2. ロ?ルバック後 WorkDaysCount (期待値: 1,     ?測値: 1)
+3. ロ?ルバック後 明細レコ?ド? (期待値: 1,     ?測値: 1)
+4. ロ?ルバック後 ステ?タス   (期待値: DRAFT, ?測値: DRAFT)
+==================================================================
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

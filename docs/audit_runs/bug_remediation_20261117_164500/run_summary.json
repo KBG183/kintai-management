@@ -1,0 +1,141 @@
+{
+  "run_id": "bug_remediation_20261117_164500",
+  "timestamp": "2026-11-17T16:45:00+09:00",
+  "audit_source": "bug-audit-kintai-2026-11-17.md",
+  "target_repository": "KBG183/kintai-management",
+  "remediated_items": [
+    {
+      "id": "C-1",
+      "severity": "CRITICAL",
+      "target_file": "src/main/java/com/example/kintai/domain/attendance/service/AttendanceService.java",
+      "description": "勤怠修正承認時の希望休憩分自動仮想区間生成および実労働・残業時間減算補正",
+      "status": "RESOLVED",
+      "test_evidence": "AttendanceModWorkflowTest#reviewModification_WhenOnlyRequestedBreakMinutesProvided_ShouldDeductBreakFromNetWorkAndOvertime (PASS)"
+    },
+    {
+      "id": "C-2",
+      "severity": "CRITICAL",
+      "target_files": [
+        "src/main/resources/templates/attendance/mod-list.html",
+        "src/main/resources/templates/shift/manage.html"
+      ],
+      "description": "スタッフ入力項目（reason, staffMemo）に対するescapeHtml適用によるDOMベースStored XSS脆弱性根絶",
+      "status": "RESOLVED",
+      "test_evidence": "Static Code Inspection & Safe DOM Escaping Verified"
+    },
+    {
+      "id": "H-1",
+      "severity": "HIGH",
+      "target_file": "src/main/java/com/example/kintai/domain/attendance/service/AttendanceService.java",
+      "description": "1分未満極小休憩打刻時のdurationMinutes最低1分補正によるDB CHECK制約違反(HTTP 500)および状態固着防止",
+      "status": "RESOLVED",
+      "test_evidence": "AttendanceServicePunchValidationTest#punch_WhenBreakDurationUnderOneMinute_ShouldClampDurationToAtLeastOneMinute (PASS)"
+    },
+    {
+      "id": "H-2",
+      "severity": "HIGH",
+      "target_file": "src/main/java/com/example/kintai/domain/attendance/service/LaborCalculationService.java",
+      "description": "分割勤務（中抜け）時の先行勤務累計秒数連動による労務詳細API残業判定整合",
+      "status": "RESOLVED",
+      "test_evidence": "LaborCalculationServiceTest#calculateDetailedLabor_WhenSplitShift_ShouldIncludePriorWorkSeconds (PASS)"
+    },
+    {
+      "id": "H-3",
+      "severity": "HIGH",
+      "target_files": [
+        "src/main/java/com/example/kintai/domain/payroll/service/PayrollService.java",
+        "src/main/java/com/example/kintai/domain/payroll/dto/PayrollDetailResponseDto.java",
+        "src/main/resources/templates/payroll/list.html"
+      ],
+      "description": "労働基準法第37条月間端数処理（基発第150号）による日別明細合計と総支給額の調整差額（statutoryAdjustment）明示化",
+      "status": "RESOLVED",
+      "test_evidence": "PayrollDetailResponseDto statutoryAdjustment integration & list.html notice rendering"
+    },
+    {
+      "id": "M-2",
+      "severity": "MEDIUM",
+      "target_file": "src/main/resources/templates/attendance/punch.html",
+      "description": "オーナー代理打刻画面のスタッフ一覧をdata.sqlマスタ実態（佐藤、鈴木、高橋、伊藤、山本、小林）へ整合",
+      "status": "RESOLVED"
+    },
+    {
+      "id": "M-3",
+      "severity": "MEDIUM",
+      "target_file": "src/main/java/com/example/kintai/global/exception/GlobalExceptionHandler.java",
+      "description": "SecurityExceptionをHTTP 403 Forbiddenハンドラーにバインドし500ログ汚染を防止",
+      "status": "RESOLVED"
+    },
+    {
+      "id": "M-4",
+      "severity": "MEDIUM",
+      "target_file": "src/main/java/com/example/kintai/domain/shift/service/ShiftService.java",
+      "description": "シフト確定処理時のステータスをCONFIRMEDにサーバー側強制固定",
+      "status": "RESOLVED"
+    },
+    {
+      "id": "M-5",
+      "severity": "MEDIUM",
+      "target_files": [
+        "src/main/java/com/example/kintai/domain/home/HomeController.java",
+        "src/main/resources/templates/error/access-denied.html"
+      ],
+      "description": "/access-deniedエンドポイントおよび専用エラー画面配備によるWhiteLabel防止",
+      "status": "RESOLVED"
+    },
+    {
+      "id": "M-6",
+      "severity": "MEDIUM",
+      "target_file": "src/main/resources/templates/common/layout.html",
+      "description": "未実装/storesリンクを次期提供準備中ガイダンスへ安全置換",
+      "status": "RESOLVED"
+    },
+    {
+      "id": "M-8",
+      "severity": "MEDIUM",
+      "target_file": "src/main/java/com/example/kintai/domain/attendance/service/LaborCalculationService.java",
+      "description": "attendance_break個別レコード未登録時の合計休憩分フォールバック算定",
+      "status": "RESOLVED",
+      "test_evidence": "LaborCalculationServiceTest#calculateDetailedLabor_WhenOnlyTotalBreakMinutesExists_ShouldFallbackAndCalculateCorrectNetWork (PASS)"
+    },
+    {
+      "id": "M-9",
+      "severity": "MEDIUM",
+      "target_file": "src/main/java/com/example/kintai/domain/shift/service/ShiftService.java",
+      "description": "一括確定バッチ時の実更新件数（CAS成功件数）正確累積",
+      "status": "RESOLVED"
+    },
+    {
+      "id": "M-11",
+      "severity": "MEDIUM",
+      "target_file": "src/main/java/com/example/kintai/domain/attendance/service/AttendanceService.java",
+      "description": "勤怠修正申請理由の500文字上限検証（HTTP 400）追加によるData too long 500エラー防止",
+      "status": "RESOLVED"
+    },
+    {
+      "id": "M-12",
+      "severity": "MEDIUM",
+      "target_file": ".gitignore",
+      "description": "validate_qwen_audit_input.ps1の除外ホワイトリスト登録",
+      "status": "RESOLVED"
+    },
+    {
+      "id": "M-13",
+      "severity": "MEDIUM",
+      "target_file": "scripts/audit_with_hermes.ps1",
+      "description": "レポートヘッダーの`$($TargetFile)`式展開バグ修正",
+      "status": "RESOLVED"
+    }
+  ],
+  "verification_results": {
+    "isolated_regression_suite": {
+      "total_tests": 98,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "status": "ALL_PASS",
+      "isolated_database": "kintai_full_test_e2927f3c111c"
+    },
+    "compile_java": "BUILD_SUCCESSFUL",
+    "compile_test_java": "BUILD_SUCCESSFUL"
+  }
+}

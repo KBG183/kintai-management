@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,11 +55,31 @@ public class LaborCalculationService {
                 breakIntervals.add(new AttendanceTimeCalculator.BreakInterval(b.getBreakStartAt(), b.getBreakEndAt()));
             }
         }
+        // デモデータや事後修正等で休憩個別レコードが無く合計休憩分のみ存在する場合のフォールバック
+        if (breakIntervals.isEmpty() && attendance.getTotalBreakMinutes() != null && attendance.getTotalBreakMinutes() > 0) {
+            int breakMin = attendance.getTotalBreakMinutes();
+            long totalSpan = java.time.Duration.between(attendance.getClockInAt(), attendance.getClockOutAt()).toMinutes();
+            if (totalSpan > breakMin) {
+                long offset = (totalSpan - breakMin) / 2;
+                LocalDateTime bStart = attendance.getClockInAt().plusMinutes(offset);
+                LocalDateTime bEnd = bStart.plusMinutes(breakMin);
+                breakIntervals.add(new AttendanceTimeCalculator.BreakInterval(bStart, bEnd));
+            }
+        }
+
+        // 分割勤務（中抜け）対応: 同一スタッフ・同日の先行完了実労働時間の秒精度累計を取得し給与計算と整合
+        long priorWorkSeconds = attendanceMapper.sumPriorNetWorkSecondsOnDate(
+                attendance.getStoreStaffId(),
+                attendance.getWorkDate(),
+                attendance.getAttendanceId(),
+                attendance.getClockInAt()
+        );
 
         AttendanceTimeCalculator.DetailedCalculationResult calc = AttendanceTimeCalculator.calculateDetailed(
                 attendance.getClockInAt(),
                 attendance.getClockOutAt(),
-                breakIntervals
+                breakIntervals,
+                priorWorkSeconds
         );
 
         Integer hourlyWageVal = attendanceMapper.findHourlyWageForStaffOnDate(

@@ -28,8 +28,12 @@
                             <label class="form-label fw-bold">打刻対象スタッフ</label>
                             <div sec:authorize="hasRole('OWNER')">
                                 <select class="form-select form-select-lg text-center" id="selectStaff">
-                                    <option value="1" selected>山田 太郎 (Staff ID: 1)</option>
-                                    <option value="2">佐藤 花子 (Staff ID: 2)</option>
+                                    <option value="1" selected>佐藤 花子 (Staff ID: 1)</option>
+                                    <option value="2">鈴木 一郎 (Staff ID: 2)</option>
+                                    <option value="3">高橋 美咲 (Staff ID: 3)</option>
+                                    <option value="4">伊藤 蓮 (Staff ID: 4)</option>
+                                    <option value="5">山本 葵 (Staff ID: 5)</option>
+                                    <option value="6">小林 恒一 (Staff ID: 6)</option>
                                 </select>
                                 <div class="form-text text-muted small">※ オーナー権限：代理打刻・確認対象スタッフを選択</div>
                             </div>

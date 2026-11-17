@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="CSRF 多層防御セキュリティ統合テスト" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-17T07:29:39.404Z" hostname="BK" time="0.423">
+  <properties/>
+  <testcase name="CSRFトークンなしのPOSTリクエストは403 Forbiddenで拒否されること" classname="com.example.kintai.config.CsrfSecurityIntegrationTest" time="0.018"/>
+  <testcase name="不正なCSRFトークンを含むPOSTリクエストは403 Forbiddenで拒否されること" classname="com.example.kintai.config.CsrfSecurityIntegrationTest" time="0.005"/>
+  <testcase name="CSRFトークンが有効でも未認証ユーザーの打刻APIアクセスはログインへ拒否されること" classname="com.example.kintai.config.CsrfSecurityIntegrationTest" time="0.007"/>
+  <testcase name="オーナーおよびスタッフのアカウントで正常にログインできること" classname="com.example.kintai.config.CsrfSecurityIntegrationTest" time="0.264"/>
+  <testcase name="正常なCSRFトークンを付与したPOSTリクエストは403にならず正常に受け付けられること" classname="com.example.kintai.config.CsrfSecurityIntegrationTest" time="0.117"/>
+  <system-out><![CDATA[2026-11-17T16:29:39.406+09:00  INFO 22144 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.config.CsrfSecurityIntegrationTest]: CsrfSecurityIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-17T16:29:39.408+09:00  INFO 22144 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.config.CsrfSecurityIntegrationTest
+2026-11-17T16:29:39.410+09:00  INFO 22144 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.config.CsrfSecurityIntegrationTest]: CsrfSecurityIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-17T16:29:39.411+09:00  INFO 22144 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.config.CsrfSecurityIntegrationTest
+2026-11-17T16:29:39.423+09:00  INFO 22144 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-17T16:29:39.423+09:00  INFO 22144 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-17T16:29:39.424+09:00  INFO 22144 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-11-17T16:29:39.434+09:00  INFO 22144 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-17T16:29:39.434+09:00  INFO 22144 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-17T16:29:39.435+09:00  INFO 22144 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-11-17T16:29:39.439+09:00  INFO 22144 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-17T16:29:39.440+09:00  INFO 22144 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-17T16:29:39.440+09:00  INFO 22144 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-11-17T16:29:39.447+09:00  INFO 22144 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-17T16:29:39.447+09:00  INFO 22144 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-17T16:29:39.448+09:00  INFO 22144 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-11-17T16:29:39.713+09:00  INFO 22144 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-17T16:29:39.713+09:00  INFO 22144 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-17T16:29:39.714+09:00  INFO 22144 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

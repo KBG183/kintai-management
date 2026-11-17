@@ -77,7 +77,7 @@ class CsrfSecurityIntegrationTest {
         mockMvc.perform(post("/login-process")
                         .with(csrf())
                         .param("email", "owner@kintai.com")
-                        .param("password", "1234"))
+                        .param("password", "12341234"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(result -> {
                     String url = result.getResponse().getRedirectedUrl();
@@ -90,7 +90,7 @@ class CsrfSecurityIntegrationTest {
         mockMvc.perform(post("/login-process")
                         .with(csrf())
                         .param("email", "staff1@kintai.com")
-                        .param("password", "1234"))
+                        .param("password", "12341234"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(result -> {
                     String url = result.getResponse().getRedirectedUrl();

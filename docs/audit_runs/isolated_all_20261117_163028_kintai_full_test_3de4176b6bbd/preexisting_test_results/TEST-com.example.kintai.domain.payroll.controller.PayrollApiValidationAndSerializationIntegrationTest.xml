@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest" tests="2" skipped="0" failures="2" errors="0" timestamp="2026-11-17T07:29:38.535Z" hostname="BK" time="0.091">
+  <properties/>
+  <testcase name="listCalculateConfirmAndExcelRejectInvalidYearMonthWithHttp400()" classname="com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest" time="0.007">
+    <failure message="java.lang.IllegalStateException: Integration test requires an allowlisted isolated database; refusing database: kintai_db" type="java.lang.IllegalStateException">java.lang.IllegalStateException: Integration test requires an allowlisted isolated database; refusing database: kintai_db
+	at com.example.kintai.database.IsolatedDatabaseGuard.requireAllowedDatabase(IsolatedDatabaseGuard.java:24)
+	at com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest.setUpIsolatedFixture(PayrollApiValidationAndSerializationIntegrationTest.java:60)
+</failure>
+  </testcase>
+  <testcase name="payrollDetailJsonSerializationExcludesSensitiveFieldsAndMatchesAllowlist()" classname="com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest" time="0.007">
+    <failure message="java.lang.IllegalStateException: Integration test requires an allowlisted isolated database; refusing database: kintai_db" type="java.lang.IllegalStateException">java.lang.IllegalStateException: Integration test requires an allowlisted isolated database; refusing database: kintai_db
+	at com.example.kintai.database.IsolatedDatabaseGuard.requireAllowedDatabase(IsolatedDatabaseGuard.java:24)
+	at com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest.setUpIsolatedFixture(PayrollApiValidationAndSerializationIntegrationTest.java:60)
+</failure>
+  </testcase>
+  <system-out><![CDATA[2026-11-17T16:29:38.539+09:00  INFO 22144 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest]: PayrollApiValidationAndSerializationIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-17T16:29:38.601+09:00  INFO 22144 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest
+2026-11-17T16:29:38.603+09:00  INFO 22144 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest]: PayrollApiValidationAndSerializationIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-17T16:29:38.607+09:00  INFO 22144 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

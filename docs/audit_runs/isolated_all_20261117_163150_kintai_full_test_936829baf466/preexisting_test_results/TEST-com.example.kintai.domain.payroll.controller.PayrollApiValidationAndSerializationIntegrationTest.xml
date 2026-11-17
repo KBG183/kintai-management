@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest" tests="2" skipped="0" failures="2" errors="0" timestamp="2026-11-17T07:31:11.657Z" hostname="BK" time="0.075">
+  <properties/>
+  <testcase name="listCalculateConfirmAndExcelRejectInvalidYearMonthWithHttp400()" classname="com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest" time="0.008">
+    <failure message="java.sql.SQLSyntaxErrorException: Table 'kintai_full_test_ce304917c81f.member' doesn't exist" type="java.sql.SQLSyntaxErrorException">java.sql.SQLSyntaxErrorException: Table 'kintai_full_test_ce304917c81f.member' doesn't exist
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:112)
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:114)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeInternal(ClientPreparedStatement.java:988)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdateInternal(ClientPreparedStatement.java:1166)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdateInternal(ClientPreparedStatement.java:1101)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeLargeUpdate(ClientPreparedStatement.java:1448)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdate(ClientPreparedStatement.java:1084)
+	at com.zaxxer.hikari.pool.ProxyPreparedStatement.executeUpdate(ProxyPreparedStatement.java:61)
+	at com.zaxxer.hikari.pool.HikariProxyPreparedStatement.executeUpdate(HikariProxyPreparedStatement.java)
+	at com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest.insertAndGetId(PayrollApiValidationAndSerializationIntegrationTest.java:222)
+	at com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest.setUpIsolatedFixture(PayrollApiValidationAndSerializationIntegrationTest.java:62)
+</failure>
+  </testcase>
+  <testcase name="payrollDetailJsonSerializationExcludesSensitiveFieldsAndMatchesAllowlist()" classname="com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest" time="0.008">
+    <failure message="java.sql.SQLSyntaxErrorException: Table 'kintai_full_test_ce304917c81f.member' doesn't exist" type="java.sql.SQLSyntaxErrorException">java.sql.SQLSyntaxErrorException: Table 'kintai_full_test_ce304917c81f.member' doesn't exist
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:112)
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:114)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeInternal(ClientPreparedStatement.java:988)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdateInternal(ClientPreparedStatement.java:1166)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdateInternal(ClientPreparedStatement.java:1101)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeLargeUpdate(ClientPreparedStatement.java:1448)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdate(ClientPreparedStatement.java:1084)
+	at com.zaxxer.hikari.pool.ProxyPreparedStatement.executeUpdate(ProxyPreparedStatement.java:61)
+	at com.zaxxer.hikari.pool.HikariProxyPreparedStatement.executeUpdate(HikariProxyPreparedStatement.java)
+	at com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest.insertAndGetId(PayrollApiValidationAndSerializationIntegrationTest.java:222)
+	at com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest.setUpIsolatedFixture(PayrollApiValidationAndSerializationIntegrationTest.java:62)
+</failure>
+  </testcase>
+  <system-out><![CDATA[2026-11-17T16:31:11.660+09:00  INFO 27724 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest]: PayrollApiValidationAndSerializationIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-17T16:31:11.705+09:00  INFO 27724 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest
+2026-11-17T16:31:11.707+09:00  INFO 27724 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest]: PayrollApiValidationAndSerializationIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-17T16:31:11.711+09:00  INFO 27724 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

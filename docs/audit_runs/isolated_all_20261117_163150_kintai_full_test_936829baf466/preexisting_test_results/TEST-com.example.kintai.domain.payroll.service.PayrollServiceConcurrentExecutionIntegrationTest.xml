@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="F-04: 実際のPayrollService経路の同時実行におけるロック順序統一によるデッドロック解消および直列化検証" tests="1" skipped="0" failures="1" errors="0" timestamp="2026-11-17T07:31:23.743Z" hostname="BK" time="0.014">
+  <properties/>
+  <testcase name="同一従業員に対し calculatePayrollForStaff と confirmPayroll を同時実行した際、デッドロックなく順次実行完了することの検証" classname="com.example.kintai.domain.payroll.service.PayrollServiceConcurrentExecutionIntegrationTest" time="0.006">
+    <failure message="org.springframework.jdbc.BadSqlGrammarException: &#13;&#10;### Error querying database.  Cause: java.sql.SQLSyntaxErrorException: Table 'kintai_full_test_ce304917c81f.payroll' doesn't exist&#13;&#10;### The error may exist in file [C:\dev\kintai\build\resources\main\mapper\payroll\PayrollMapper.xml]&#13;&#10;### The error may involve defaultParameterMap&#13;&#10;### The error occurred while setting parameters&#13;&#10;### SQL: SELECT             p.payroll_id,             p.store_id,             p.store_staff_id,             m.name AS staff_name,             p.target_year_month,             p.range_start_date,             p.range_end_date,             p.work_days_count,             p.total_work_minutes,             p.total_night_minutes,             p.total_overtime_minutes,             p.applied_hourly_wage,             p.applied_transport_limit,             p.base_pay,             p.night_allowance,             p.overtime_allowance,             p.transport_allowance,             p.gross_pay,             p.payroll_status,             p.confirmed_at,             p.paid_at         FROM payroll p         JOIN store_staff ss ON p.store_staff_id = ss.store_staff_id         JOIN member m ON ss.member_id = m.member_id         WHERE p.store_staff_id = ?           AND p.target_year_month = ?         LIMIT 1&#13;&#10;### Cause: java.sql.SQLSyntaxErrorException: Table 'kintai_full_test_ce304917c81f.payroll' doesn't exist&#10;; bad SQL grammar []" type="org.springframework.jdbc.BadSqlGrammarException">org.springframework.jdbc.BadSqlGrammarException: 
+### Error querying database.  Cause: java.sql.SQLSyntaxErrorException: Table 'kintai_full_test_ce304917c81f.payroll' doesn't exist
+### The error may exist in file [C:\dev\kintai\build\resources\main\mapper\payroll\PayrollMapper.xml]
+### The error may involve defaultParameterMap
+### The error occurred while setting parameters
+### SQL: SELECT             p.payroll_id,             p.store_id,             p.store_staff_id,             m.name AS staff_name,             p.target_year_month,             p.range_start_date,             p.range_end_date,             p.work_days_count,             p.total_work_minutes,             p.total_night_minutes,             p.total_overtime_minutes,             p.applied_hourly_wage,             p.applied_transport_limit,             p.base_pay,             p.night_allowance,             p.overtime_allowance,             p.transport_allowance,             p.gross_pay,             p.payroll_status,             p.confirmed_at,             p.paid_at         FROM payroll p         JOIN store_staff ss ON p.store_staff_id = ss.store_staff_id         JOIN member m ON ss.member_id = m.member_id         WHERE p.store_staff_id = ?           AND p.target_year_month = ?         LIMIT 1
+### Cause: java.sql.SQLSyntaxErrorException: Table 'kintai_full_test_ce304917c81f.payroll' doesn't exist
+; bad SQL grammar []
+	at org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator.doTranslate(SQLErrorCodeSQLExceptionTranslator.java:244)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:102)
+	at org.mybatis.spring.MyBatisExceptionTranslator.translateExceptionIfPossible(MyBatisExceptionTranslator.java:95)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:362)
+	at jdk.proxy3/jdk.proxy3.$Proxy108.selectOne(Unknown Source)
+	at org.mybatis.spring.SqlSessionTemplate.selectOne(SqlSessionTemplate.java:169)
+	at org.apache.ibatis.binding.MapperMethod.execute(MapperMethod.java:87)
+	at org.apache.ibatis.binding.MapperProxy$PlainMethodInvoker.invoke(MapperProxy.java:141)
+	at org.apache.ibatis.binding.MapperProxy.invoke(MapperProxy.java:86)
+	at jdk.proxy3/jdk.proxy3.$Proxy117.findByStaffAndMonth(Unknown Source)
+	at com.example.kintai.domain.payroll.service.PayrollServiceConcurrentExecutionIntegrationTest.setUp(PayrollServiceConcurrentExecutionIntegrationTest.java:46)
+Caused by: java.sql.SQLSyntaxErrorException: Table 'kintai_full_test_ce304917c81f.payroll' doesn't exist
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:112)
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:114)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeInternal(ClientPreparedStatement.java:988)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.execute(ClientPreparedStatement.java:383)
+	at com.zaxxer.hikari.pool.ProxyPreparedStatement.execute(ProxyPreparedStatement.java:44)
+	at com.zaxxer.hikari.pool.HikariProxyPreparedStatement.execute(HikariProxyPreparedStatement.java)
+	at org.apache.ibatis.executor.statement.PreparedStatementHandler.query(PreparedStatementHandler.java:65)
+	at org.apache.ibatis.executor.statement.RoutingStatementHandler.query(RoutingStatementHandler.java:80)
+	at org.apache.ibatis.executor.SimpleExecutor.doQuery(SimpleExecutor.java:65)
+	at org.apache.ibatis.executor.BaseExecutor.queryFromDatabase(BaseExecutor.java:336)
+	at org.apache.ibatis.executor.BaseExecutor.query(BaseExecutor.java:158)
+	at org.apache.ibatis.executor.CachingExecutor.query(CachingExecutor.java:110)
+	at org.apache.ibatis.executor.CachingExecutor.query(CachingExecutor.java:90)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:154)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:147)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:142)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.selectOne(DefaultSqlSession.java:75)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:348)
+	... 7 more
+</failure>
+  </testcase>
+  <system-out><![CDATA[2026-11-17T16:31:23.747+09:00  INFO 27724 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.PayrollServiceConcurrentExecutionIntegrationTest]: PayrollServiceConcurrentExecutionIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-17T16:31:23.748+09:00  INFO 27724 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.PayrollServiceConcurrentExecutionIntegrationTest
+2026-11-17T16:31:23.749+09:00  INFO 27724 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.service.PayrollServiceConcurrentExecutionIntegrationTest]: PayrollServiceConcurrentExecutionIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-17T16:31:23.749+09:00  INFO 27724 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.service.PayrollServiceConcurrentExecutionIntegrationTest
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

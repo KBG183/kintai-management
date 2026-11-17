@@ -1,0 +1,208 @@
+﻿{
+    "schema_version":  "1.0",
+    "run_id":  "20261117_163044",
+    "generated_at_utc":  "2026-11-17T07:31:31.1495882Z",
+    "algorithm":  "SHA-256",
+    "files":  [
+                  {
+                      "path":  "gradle_console.log",
+                      "bytes":  8891,
+                      "sha256":  "04b175f58bd37a248921eff2a92310410c404060db761a87a1d4a10c000c6b5b"
+                  },
+                  {
+                      "path":  "TEST-com.-S3U06U8UAHCCA.kintai.domain.attendance.controller.AttendanceApiSecurityTest$ReviewModificationSecurityTest.xml",
+                      "bytes":  2006,
+                      "sha256":  "1ac64c2c4dc8d19fa7e5527fb243cb167585b632c706257377c25a8d87cc6739"
+                  },
+                  {
+                      "path":  "TEST-com.exa-7QLIAK9JQ1EHK.kintai.domain.attendance.controller.AttendanceApiSecurityTest$UnauthenticatedSecurityTest.xml",
+                      "bytes":  2108,
+                      "sha256":  "123154ea97f783f38c3cb78a490941640f0965920d42ab1eaf6ba862c0392dda"
+                  },
+                  {
+                      "path":  "TEST-com.exam-13DC0NI3L800A.kintai.domain.payroll.service.PayrollMonthlyConfirmPostQueryRaceConditionIntegrationTest.xml",
+                      "bytes":  4559,
+                      "sha256":  "a72489a6be5157e5d35d3fdd9eb06dd2cfae72b0a6bc5d91b481620b8ef41f81"
+                  },
+                  {
+                      "path":  "TEST-com.exam-3B1RBGRRPG88S.kintai.domain.attendance.util.LaborCalculationEngineTest$PayrollAllowanceAndRoundingTest.xml",
+                      "bytes":  831,
+                      "sha256":  "6387b2dfec372f65731f7e58b5379c0d3c0af5af6f2cd7c8191a1534c86b7efa"
+                  },
+                  {
+                      "path":  "TEST-com.example.kintai.config.CsrfCookieHeaderLifecycleIntegrationTest.xml",
+                      "bytes":  4355,
+                      "sha256":  "25f272dd944afccb749cea7bb8760e0b60d9c5e6bf38a77ce048c771a99c0ae3"
+                  },
+                  {
+                      "path":  "TEST-com.example.kintai.config.CsrfSecurityIntegrationTest.xml",
+                      "bytes":  62049,
+                      "sha256":  "f7dd78cb250d86c25e7ec6550d87f01108bdf8fd63d6b185f08bc1062f59d2d1"
+                  },
+                  {
+                      "path":  "TEST-com.example.kintai.domain.attendance.controller.AttendanceApiSecurityTest$ModRequestSecurityTest.xml",
+                      "bytes":  2702,
+                      "sha256":  "f79164e959d6d5f5a07c84d2e007a9e963b1f2df5475d4472aaaadcd5ba32912"
+                  },
+                  {
+                      "path":  "TEST-com.example.kintai.domain.attendance.controller.AttendanceApiSecurityTest$PunchSecurityTest.xml",
+                      "bytes":  2688,
+                      "sha256":  "1e661cf5e81b48d909292d6581452ed8b300f9242c2691aef7ad7c8c6c1c19df"
+                  },
+                  {
+                      "path":  "TEST-com.example.kintai.domain.attendance.controller.AttendancePunchApiIntegrationTest.xml",
+                      "bytes":  5345,
+                      "sha256":  "5c61f60ec49bddbcbf55e7f712b6b78f87a0398d3900edae40f1b81e8766d5f9"
+                  },
+                  {
+                      "path":  "TEST-com.example.kintai.domain.attendance.service.AttendanceModWorkflowTest$GetModRequestsTest.xml",
+                      "bytes":  613,
+                      "sha256":  "862282381aaad4c480467392b4b996e92cef757af7546fb40c73c39087b0e651"
+                  },
+                  {
+                      "path":  "TEST-com.example.kintai.domain.attendance.service.AttendanceModWorkflowTest$RequestModificationTest.xml",
+                      "bytes":  869,
+                      "sha256":  "9a3d53870403c0fc208455331b35c1b2cc558ecaedd1acfc129dfc26dc0abc73"
+                  },
+                  {
+                      "path":  "TEST-com.example.kintai.domain.attendance.service.AttendanceModWorkflowTest$ReviewModificationTest.xml",
+                      "bytes":  1176,
+                      "sha256":  "2158a381cb6bd2f8889ce8cfe9bdec5da7fbd9580543c657813a05979f8f7934"
+                  },
+                  {
+                      "path":  "TEST-com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest.xml",
+                      "bytes":  6742,
+                      "sha256":  "213a9242335bdcf31ea1ec13b9e28b41a5a571b364aee5c1c12e9a02c69c3a90"
+                  },
+                  {
+                      "path":  "TEST-com.example.kintai.domain.attendance.service.AttendanceServicePunchValidationTest.xml",
+                      "bytes":  1221,
+                      "sha256":  "33a0f134998cf79c729021381c5a21a5abc53d2fadab8236c889a1f0cfa60597"
+                  },
+                  {
+                      "path":  "TEST-com.example.kintai.domain.attendance.service.LaborCalculationServiceTest.xml",
+                      "bytes":  927,
+                      "sha256":  "dbcaa5ce785c93c22318c8a1ae813b0bed228717b0a109de653b7e381cad9dd3"
+                  },
+                  {
+                      "path":  "TEST-com.example.kintai.domain.attendance.util.LaborCalculationEngineTest$TimelineSlicingTimeTest.xml",
+                      "bytes":  1495,
+                      "sha256":  "02a17fe815f68b847ce9dcc3abf5d25cc374226bab793cee0e599767c51dd51e"
+                  },
+                  {
+                      "path":  "TEST-com.example.kintai.domain.attendance.util.LaborCalculationEngineTest$ValidationTest.xml",
+                      "bytes":  788,
+                      "sha256":  "deca9d0174ccb572935bd031e21a35a268c2b1499b4e1a50842cd0a6373698ef"
+                  },
+                  {
+                      "path":  "TEST-com.example.kintai.domain.attendance.util.SplitShiftOvertimeDefectTest.xml",
+                      "bytes":  872,
+                      "sha256":  "c1b38806cb8403092364850926df254f12b9b1e5e2caf57389ab24505c94c0b1"
+                  },
+                  {
+                      "path":  "TEST-com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest.xml",
+                      "bytes":  5285,
+                      "sha256":  "785078f421d325c8d737bf0f52869fb2e88fc6973d4473da226bd30bb14d6a44"
+                  },
+                  {
+                      "path":  "TEST-com.example.kintai.domain.payroll.mapper.PayrollMapperUpsertIntegrationTest.xml",
+                      "bytes":  7403,
+                      "sha256":  "b627380941f78fda80ee67dc2864880374da161c34a08abdf140bce1211e708a"
+                  },
+                  {
+                      "path":  "TEST-com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest.xml",
+                      "bytes":  11544,
+                      "sha256":  "74d35d30eafd60ede319c6485ef8153e937d100a8bd23fe6f542cf76df3c7ce3"
+                  },
+                  {
+                      "path":  "TEST-com.example.kintai.domain.payroll.service.PayrollLockOrderDeadlockReproductionIntegrationTest.xml",
+                      "bytes":  9195,
+                      "sha256":  "9e73d4916da101e6f4de2b4d28f5d465bf90e072df34303ab19c4b023435549a"
+                  },
+                  {
+                      "path":  "TEST-com.example.kintai.domain.payroll.service.PayrollPessimisticLockConcurrencyIntegrationTest.xml",
+                      "bytes":  5124,
+                      "sha256":  "04e1219f4fccf442a7a9322a3199c5d822ef50f8cc91be562c217dec42a2feb6"
+                  },
+                  {
+                      "path":  "TEST-com.example.kintai.domain.payroll.service.PayrollServiceConcurrentExecutionIntegrationTest.xml",
+                      "bytes":  8317,
+                      "sha256":  "9dd943faf5f0632847c4c5fb167c5e9a8d9384977f9e2c8b6c6ffa08996ddc93"
+                  },
+                  {
+                      "path":  "TEST-com.example.kintai.domain.payroll.service.PayrollServiceConfirmConcurrencyDetailedIntegrationTest.xml",
+                      "bytes":  7505,
+                      "sha256":  "fc6830441be0790174ed387db8feb907b1be6dd572f4d46c35abc23199fda446"
+                  },
+                  {
+                      "path":  "TEST-com.example.kintai.domain.payroll.service.PayrollServiceMonthlyConfirmConcurrencyIntegrationTest.xml",
+                      "bytes":  4452,
+                      "sha256":  "6e945cd8f604ff6052f1d434a63ff6b74f663dad6df637b5637d05248fae606c"
+                  },
+                  {
+                      "path":  "TEST-com.example.kintai.domain.payroll.service.PayrollServiceTest.xml",
+                      "bytes":  1704,
+                      "sha256":  "17e0f8b882fff25288cc1701a3e9c57bda481e10838b7a7b48971bb6931a9bf1"
+                  },
+                  {
+                      "path":  "TEST-com.example.kintai.domain.payroll.service.PayrollServiceTransactionRollbackIntegrationTest.xml",
+                      "bytes":  7482,
+                      "sha256":  "c708de49ae3ba67cd56c3f89374691e69ea4479e273b5d090236fcc9aa102b66"
+                  },
+                  {
+                      "path":  "TEST-com.example.kintai.domain.payroll.service.PerformanceSchemaDataLocksIntegrationTest.xml",
+                      "bytes":  4246,
+                      "sha256":  "2441aa332eb7bd3716e9d6415dc03b696ebc2ba1d193c77fbed2634a566c769e"
+                  },
+                  {
+                      "path":  "TEST-com.example.kintai.domain.payroll.util.PayrollCalculatorStatutoryRoundingTest.xml",
+                      "bytes":  1084,
+                      "sha256":  "9dc8a25c98093f0aee0124a2bef523ec2bc4ce1739bafde2876473df9f179612"
+                  },
+                  {
+                      "path":  "TEST-com.example.kintai.domain.payroll.util.PayrollExcelExporterTest$ExportSuccessTests.xml",
+                      "bytes":  972,
+                      "sha256":  "cc4e1af024d367d6f10aaebaa5b803ecb9e070206c098d968a411c161839ab8b"
+                  },
+                  {
+                      "path":  "TEST-com.example.kintai.domain.payroll.util.PayrollExcelExporterTest$LargeDataStreamingTests.xml",
+                      "bytes":  655,
+                      "sha256":  "6c1db34f7da72b783b456e253e43bed874d265d5680b5e9537951c1260e0c55f"
+                  },
+                  {
+                      "path":  "TEST-com.example.kintai.domain.payroll.util.StatutoryRoundingTest$HourlyRateRoundingTest.xml",
+                      "bytes":  751,
+                      "sha256":  "6c38dcda0ec9a0201b6c1bd69588d93cb90288958692402eb7e45d75f299aa7c"
+                  },
+                  {
+                      "path":  "TEST-com.example.kintai.domain.payroll.util.StatutoryRoundingTest$MonthlyAllowanceRoundingTest.xml",
+                      "bytes":  753,
+                      "sha256":  "3bd0a795c41e91f32684f3cbd923728c0c02b5655685b7ece0fd03620810ab59"
+                  },
+                  {
+                      "path":  "TEST-com.example.kintai.domain.payroll.util.StatutoryRoundingTest$MonthlyHoursRoundingTest.xml",
+                      "bytes":  905,
+                      "sha256":  "5171144b64265e3b06215129592b6904f186dcece802dbf34af0001520e6d7cf"
+                  },
+                  {
+                      "path":  "TEST-com.example.kintai.domain.shift.service.ShiftServiceTest$BreakTimeCalculationTest.xml",
+                      "bytes":  1452,
+                      "sha256":  "07d2389883127204e02ce7a6247dfc045435208d9fae720b31083d12f1e47245"
+                  },
+                  {
+                      "path":  "TEST-com.example.kintai.domain.shift.service.ShiftServiceTest$ShiftComparisonEngineTest.xml",
+                      "bytes":  1500,
+                      "sha256":  "a6663e9e068add828c2faa4bfa6421388720ca93e989851cad577d57e889dda4"
+                  },
+                  {
+                      "path":  "TEST-com.example.kintai.domain.store.service.StoreAuthorizationServicePayrollOwnershipTest.xml",
+                      "bytes":  916,
+                      "sha256":  "df130f295397f7bc55b3f0c1142a1c24c576901f4709548469811e21272a81d9"
+                  },
+                  {
+                      "path":  "TEST-com.example.kintai.KintaiApplicationTests.xml",
+                      "bytes":  1569,
+                      "sha256":  "aa63886791c8436c0bcecff656b5c5cb88fe63a0267911ff1c5cf0b85076ee49"
+                  }
+              ]
+}

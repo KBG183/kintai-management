@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-11-17T07:37:15.651Z" hostname="BK" time="0.353">
+  <properties/>
+  <testcase name="listCalculateConfirmAndExcelRejectInvalidYearMonthWithHttp400()" classname="com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest" time="0.176"/>
+  <testcase name="payrollDetailJsonSerializationExcludesSensitiveFieldsAndMatchesAllowlist()" classname="com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest" time="0.101"/>
+  <system-out><![CDATA[2026-11-17T16:37:15.654+09:00  INFO 23776 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest]: PayrollApiValidationAndSerializationIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-17T16:37:15.712+09:00  INFO 23776 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest
+2026-11-17T16:37:15.714+09:00  INFO 23776 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest]: PayrollApiValidationAndSerializationIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-17T16:37:15.718+09:00  INFO 23776 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.kintai.KintaiApplication for test class com.example.kintai.domain.payroll.controller.PayrollApiValidationAndSerializationIntegrationTest
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
