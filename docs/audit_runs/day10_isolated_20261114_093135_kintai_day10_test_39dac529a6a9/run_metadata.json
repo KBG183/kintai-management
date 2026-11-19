@@ -1,4 +1,4 @@
-﻿{
+{
     "database":  "kintai_day10_test_39dac529a6a9",
     "jdbc_url_host":  "127.0.0.1:3306",
     "test_class":  "com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest",

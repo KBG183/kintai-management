@@ -1,0 +1,126 @@
+{
+    "run_id":  "20261119_043415_294c78bf",
+    "generated_at":  "2026-11-19T13:34:50.3873200+09:00",
+    "findings":  [
+                     {
+                         "finding_id":  "SEC-001",
+                         "audit_item":  "Japanese Labor Standards Act Art 37 Compliance",
+                         "severity":  "N/A",
+                         "verdict":  "N/A",
+                         "evidence":  "N/A",
+                         "analysis":  "This file contains only security configuration logic. It does not contain payroll calculation, overtime logic, or time-tracking business logic required for Labor Standards Act compliance."
+                     },
+                     {
+                         "finding_id":  "SEC-002",
+                         "audit_item":  "Payroll Math \u0026 Rounding",
+                         "severity":  "N/A",
+                         "verdict":  "N/A",
+                         "evidence":  "N/A",
+                         "analysis":  "No mathematical operations or rounding logic (`RoundingMode.HALF_UP`) are present in this security configuration class."
+                     },
+                     {
+                         "finding_id":  "SEC-003",
+                         "audit_item":  "Concurrency \u0026 Security: Transactional Isolation",
+                         "severity":  "N/A",
+                         "verdict":  "N/A",
+                         "evidence":  "N/A",
+                         "analysis":  "This is a configuration class, not a service or repository. `@Transactional` and isolation levels are not applicable here."
+                     },
+                     {
+                         "finding_id":  "SEC-004",
+                         "audit_item":  "Concurrency \u0026 Security: Pessimistic Locking",
+                         "severity":  "N/A",
+                         "verdict":  "N/A",
+                         "evidence":  "N/A",
+                         "analysis":  "No database queries or locking mechanisms (`SELECT ... FOR UPDATE`) are defined in this class."
+                     },
+                     {
+                         "finding_id":  "SEC-005",
+                         "audit_item":  "IDOR Vulnerability Prevention (Access Control)",
+                         "severity":  "P1",
+                         "verdict":  "WARN",
+                         "evidence":  "`SecurityConfig.java` lines 68-75: `.requestMatchers(\"/api/members/**\").authenticated()`",
+                         "analysis":  "The security configuration grants access to `/api/members/**` to any authenticated user. While `@EnableMethodSecurity` is enabled, the security layer itself does not enforce ownership checks (e.g., ensuring User A cannot access User B\u0027s member record). If the underlying controller/service for `/api/members/{id}` does not explicitly verify that the current authenticated user owns the resource ID, this creates an IDOR vulnerability. The comment mentions delegating to `@PreAuthorize`, but the security config alone does not guarantee this for all endpoints under this path if the annotation is missing or misconfigured in the controller."
+                     },
+                     {
+                         "finding_id":  "SEC-006",
+                         "audit_item":  "Exception Handling \u0026 Boundary Validation",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "`SecurityConfig.java` lines 138-155: `SpaCsrfTokenRequestHandler`",
+                         "analysis":  "The `resolveCsrfTokenValue` method in `SpaCsrfTokenRequestHandler` does not explicitly handle potential `NullPointerException` if `csrfToken` is null, although Spring Security typically guarantees non-null tokens in this context. More critically, the `CsrfCookieFilter` (lines 160-175) attempts to cast `request.getAttribute(\"_csrf\")` to `CsrfToken`. If the attribute exists but is of a different type (unlikely but possible in complex filter chains), it will throw a `ClassCastException`. It is recommended to add explicit type checking or use `instanceof` patterns more defensively."
+                     },
+                     {
+                         "finding_id":  "SEC-007",
+                         "audit_item":  "Security Configuration: CSRF Token Exposure",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "`SecurityConfig.java` lines 52-55: `CookieCsrfTokenRepository.withHttpOnlyFalse()`",
+                         "analysis":  "The CSRF token is stored in a cookie with `HttpOnly` set to `false`. This is necessary for JavaScript to read the token and send it in headers for SPA/Fetch requests. However, this makes the token accessible to XSS attacks. Ensure that Content Security Policy (CSP) headers are strictly enforced elsewhere in the application to mitigate XSS risks, as the CSRF token itself is not protected from script access."
+                     },
+                     {
+                         "finding_id":  "SEC-008",
+                         "audit_item":  "Security Configuration: Authentication Manager Bean",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "`SecurityConfig.java` lines 108-112: `authenticationManager` method",
+                         "analysis":  "The `AuthenticationManager` bean is created by building from `http.getSharedObject(AuthenticationManagerBuilder.class)`. This approach is deprecated in newer Spring Security versions and can lead to subtle issues if the `HttpSecurity` object is not fully initialized or if multiple `SecurityFilterChain` beans exist. It is recommended to use `AuthenticationConfiguration` or explicitly define the `AuthenticationManager` bean using `AuthenticationManagerBuilder` directly without relying on the `HttpSecurity` shared object, to ensure proper bean lifecycle management and avoid potential `NullPointerException`s during bean initialization."
+                     },
+                     {
+                         "finding_id":  "SEC-009",
+                         "audit_item":  "Security Configuration: Logout Cookie Deletion",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "`SecurityConfig.java` lines 92-93: `.deleteCookies(\"JSESSIONID\", \"XSRF-TOKEN\")`",
+                         "analysis":  "The logout configuration explicitly deletes the `JSESSIONID` and `XSRF-TOKEN` cookies. However, it does not delete the `CSRF-TOKEN` cookie (if named differently) or other potential session-related cookies. Ensure that all session-related cookies, including any custom CSRF cookies, are cleared upon logout to prevent session fixation or token reuse attacks. Verify the exact cookie name used by `CookieCsrfTokenRepository` (default is `XSRF-TOKEN`, but it can be customized) and ensure it matches."
+                     },
+                     {
+                         "finding_id":  "SEC-010",
+                         "audit_item":  "Security Configuration: Static Resource Exposure",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "`SecurityConfig.java` lines 62-67: `.requestMatchers(\"/css/**\", \"/js/**\", ...).permitAll()`",
+                         "analysis":  "Static resources are permitted for all users, which is standard. However, ensure that no sensitive static files (e.g., debug pages, test assets) are placed in these directories. Additionally, consider adding cache-control headers for static resources to improve performance and security (e.g., preventing caching of sensitive static content)."
+                     },
+                     {
+                         "finding_id":  "SEC-011",
+                         "audit_item":  "Security Configuration: Method Security Enablement",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "`SecurityConfig.java` line 45: `@EnableMethodSecurity`",
+                         "analysis":  "Method security is enabled, which is good. However, ensure that all sensitive endpoints, especially those under `/api/members/**` and `/api/payroll/**`, have appropriate `@PreAuthorize` or `@Secured` annotations in the controller/service layer to enforce fine-grained access control. The security configuration alone does not provide method-level security for these endpoints."
+                     },
+                     {
+                         "finding_id":  "SEC-012",
+                         "audit_item":  "Security Configuration: Password Encoder",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "`SecurityConfig.java` lines 102-104: `passwordEncoder` method",
+                         "analysis":  "The `BCryptPasswordEncoder` is used, which is a strong hashing algorithm. Ensure that the strength parameter (default is 10) is appropriate for your security requirements. Consider increasing the strength to 12 or higher if performance allows, to provide better protection against brute-force attacks."
+                     },
+                     {
+                         "finding_id":  "SEC-013",
+                         "audit_item":  "Security Configuration: Form Login Parameters",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "`SecurityConfig.java` lines 82-83: `.usernameParameter(\"email\").passwordParameter(\"password\")`",
+                         "analysis":  "The form login uses `email` as the username parameter. Ensure that the `CustomUserDetailsService` correctly loads users by email and that the email field is unique and validated. Additionally, consider adding rate-limiting or CAPTCHA to the login endpoint to prevent brute-force attacks."
+                     },
+                     {
+                         "finding_id":  "SEC-014",
+                         "audit_item":  "Security Configuration: Access Denied Page",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "`SecurityConfig.java` lines 96-97: `.accessDeniedPage(\"/access-denied\")`",
+                         "analysis":  "The access denied page is set to `/access-denied`. Ensure that this page is accessible to all users (including unauthenticated users) and does not leak sensitive information. Additionally, consider logging access denied events for security auditing purposes."
+                     },
+                     {
+                         "finding_id":  "SEC-015",
+                         "audit_item":  "Security Configuration: CSRF Token Handler",
+                         "severity":  "P2",
+                         "verdict":  "WARN",
+                         "evidence":  "`SecurityConfig.java` lines 138-155: `SpaCsrfTokenRequestHandler`",
+                         "analysis":  "The custom CSRF token handler attempts to handle both plain and XOR-encoded tokens. Ensure that the logic for resolving the token value is correct and does not introduce vulnerabilities. Specifically, verify that the `plain` and `xor` handlers are used correctly based on the request type (header vs. form). Additionally, ensure that the token is not leaked in error messages or logs."
+                     }
+                 ]
+}

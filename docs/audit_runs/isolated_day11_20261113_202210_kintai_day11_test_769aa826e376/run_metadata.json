@@ -1,4 +1,4 @@
-﻿{
+{
     "database":  "kintai_day11_test_769aa826e376",
     "scope":  "Day11",
     "test_class":  "com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest",

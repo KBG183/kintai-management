@@ -37,7 +37,7 @@ Confirm the explicit owner decision was transcribed accurately, R-02 policy matc
    - 점주는 "새로운 급여가 생성되었으므로 재확인 후 다시 확정하라"는 안내를 받게 됩니다.
 
 3. **결론 및 증거 연계**:
-   - [`PayrollMonthlyConfirmPostQueryRaceConditionIntegrationTest.java`](file:///c:/dev/kintai/src/test/java/com/example/kintai/domain/payroll/service/PayrollMonthlyConfirmPostQueryRaceConditionIntegrationTest.java)의 `testLateDraftCreation_IsolationRisk` 테스트는 위 정책에 따라:
+   - [`PayrollMonthlyConfirmPostQueryRaceConditionIntegrationTest.java`](../../../../src/test/java/com/example/kintai/domain/payroll/service/PayrollMonthlyConfirmPostQueryRaceConditionIntegrationTest.java)의 `testLateDraftCreation_IsolationRisk` 테스트는 위 정책에 따라:
      - 확정 작업 이후 생성된 신규 급여가 `CONFIRMED`로 잘못 오염되지 않고 `DRAFT` 상태로 완벽히 격리 보존됨을 실측 증명했습니다.
 
 

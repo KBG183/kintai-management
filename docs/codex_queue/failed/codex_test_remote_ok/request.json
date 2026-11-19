@@ -1,4 +1,4 @@
-﻿{
+{
   "request_id": "codex_test_remote_ok",
   "model": "qwen27b:latest",
   "endpoint": "http://<TAILSCALE_OLLAMA_HOST>:11434",

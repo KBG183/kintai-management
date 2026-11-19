@@ -46,7 +46,7 @@ public class CalendarEventDto {
 
     /**
      * プライバシー保護・サーバーサイドマスキング対応
-     * 他スタッフの個人メモは管理者(ROLE_OWNER/ROLE_MANAGER)または本人のみに限定して返却
+     * 他スタッフの個人メモは管理者(ROLE_OWNER)または本人のみに限定して返却
      */
     public static CalendarEventDto from(ShiftDto shift, Long currentStaffId, boolean isManager) {
         CalendarEventDto dto = new CalendarEventDto();

@@ -1,0 +1,8 @@
+{
+    "timestamp_utc":  "2026-11-19T04:28:42.6556983Z",
+    "target_file":  "C:\\dev\\kintai\\src\\main\\java\\com\\example\\kintai\\domain\\attendance\\service\\AttendanceService.java",
+    "resolved_path":  "C:\\dev\\kintai\\src\\main\\java\\com\\example\\kintai\\domain\\attendance\\service\\AttendanceService.java",
+    "sha256":  "388582ee879bec9e01a97d3a6ace9b692a6ba27756199a101c867049cf488a74",
+    "line_count":  543,
+    "git_head":  "56bce272c342bad20d3bed02dabc610426baf82c"
+}

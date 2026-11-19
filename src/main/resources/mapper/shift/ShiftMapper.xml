@@ -94,8 +94,10 @@
         SELECT COUNT(*) &gt; 0
         FROM shift_schedule
         WHERE store_staff_id = #{storeStaffId}
-          AND work_date = #{workDate}
           AND status != 'REJECTED'
+          <if test="workDate != null">
+              AND work_date BETWEEN DATE_SUB(#{workDate}, INTERVAL 1 DAY) AND DATE_ADD(#{workDate}, INTERVAL 1 DAY)
+          </if>
           <if test="excludeShiftId != null">
               AND shift_id != #{excludeShiftId}
           </if>

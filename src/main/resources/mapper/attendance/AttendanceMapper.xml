@@ -113,7 +113,7 @@
         <set>
             <if test="clockInAt != null">clock_in_at = #{clockInAt},</if>
             <if test="clockOutAt != null">clock_out_at = #{clockOutAt},</if>
-            <if test="breakStartAt != null">break_start_at = #{breakStartAt},</if>
+            break_start_at = #{breakStartAt, jdbcType=TIMESTAMP},
             <if test="breakEndAt != null">break_end_at = #{breakEndAt},</if>
             <if test="totalBreakMinutes != null">total_break_minutes = #{totalBreakMinutes},</if>
             <if test="netWorkMinutes != null">net_work_minutes = #{netWorkMinutes},</if>

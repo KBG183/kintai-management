@@ -4,6 +4,7 @@ import com.example.kintai.domain.attendance.dto.AttendanceDto;
 import com.example.kintai.domain.attendance.mapper.AttendanceMapper;
 import com.example.kintai.domain.shift.dto.ShiftComparisonDto;
 import com.example.kintai.domain.shift.dto.ShiftDto;
+import com.example.kintai.domain.shift.dto.ShiftRequestDto;
 import com.example.kintai.domain.shift.mapper.ShiftMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -15,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -235,6 +237,33 @@ class ShiftServiceTest {
             ShiftComparisonDto dto = result.get(0);
             assertThat(dto.getComparisonStatus()).isEqualTo("UNSCHEDULED");
             assertThat(dto.getActualWorkMinutes()).isEqualTo(240L);
+        }
+    }
+
+    @Nested
+    @DisplayName("シフト申請 重複時間帯検証テスト")
+    class ShiftOverlapValidationTest {
+
+        @Test
+        @DisplayName("日跨ぎ（夜勤）を含む時間帯で既存シフトと重複する場合、IllegalStateExceptionがスローされること")
+        void requestShift_WhenOverlappingWithMidnightShift_ShouldThrowException() {
+            LocalDate futureDate = LocalDate.now().plusDays(3);
+            ShiftRequestDto req = new ShiftRequestDto();
+            req.setStoreId(1L);
+            req.setStoreStaffId(10L);
+            req.setWorkDate(futureDate);
+            req.setRequestedStartTime("04:00");
+            req.setRequestedEndTime("12:00");
+
+            LocalDateTime startAt = LocalDateTime.of(futureDate, LocalTime.of(4, 0));
+            LocalDateTime endAt = LocalDateTime.of(futureDate, LocalTime.of(12, 0));
+
+            when(shiftMapper.existsOverlapShift(10L, futureDate, startAt, endAt, null)).thenReturn(true);
+
+            org.junit.jupiter.api.Assertions.assertThrows(
+                    IllegalStateException.class,
+                    () -> shiftService.requestShift(req)
+            );
         }
     }
 }

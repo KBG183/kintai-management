@@ -1,4 +1,4 @@
-﻿{
+{
     "request_id":  "codex_test_remote_ok",
     "status":  "FAILED",
     "endpoint":  "http://<TAILSCALE_OLLAMA_HOST>:11434",

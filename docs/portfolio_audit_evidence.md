@@ -587,7 +587,7 @@ flowchart TD
 
 ### 確認事実
 
-- プロジェクト基準パスは `C:\dev\kintai` であり、今回の点検はこのローカルプロジェクトフォルダ全体を基準に実施した。
+- プロジェクト基準パスは `` であり、今回の点検はこのローカルプロジェクトフォルダ全体を基準に実施した。
 - `src/main/resources/schema.sql` と `src/main/resources/db/schema.sql` はファイルサイズと SHA-256 が異なり、テーブル定義・制約・カラムも一致しない。
 - Java ソースおよび MyBatis 設定から、いずれかのスキーマファイルを直接参照するコードは確認されなかった。
 - `application.yaml` には `spring.sql.init.*`、`ddl-auto`、Flyway、Liquibase の設定がない。そのため、現状のアプリケーション実行は外部 MySQL データベースの事前状態に依存している。
@@ -1188,3 +1188,23 @@ Day 4以降の記録を追加する際は、既存の数値を上書きせず、
 - **検証結果**:
   - 隔離データベース（MySQL 26.7, `kintai_full_test_c9889478763f`）における全件自動回帰テスト実行：**98件中 98件 PASS（FAILURES=0, ERRORS=0, SKIPPED=0, Gradle exit 0）**。
 - **証拠/引継ぎ**: `docs/audit_runs/qwen_deep_hardening_20261117/hermes_report.md`、`docs/audit_runs/isolated_all_20261117_165259_kintai_full_test_c9889478763f/run_metadata.json`、`docs/handoff/20261117_1715_antigravity_qwen_deep_hardening_handoff.md`。
+
+---
+
+## 33. リリース前4大ドメイン全数精密監査およびエッジケース是正 (2026-11-19)
+
+- **背景**: 8段階精密全数検証（Pre-release 8-Stage Deep Audit）に基づき、勤怠・シフト・給与・セキュリティの4大主要ドメイン全体（計1,860行）に対し、自宅RTX 5070 Ti搭載の独立ローカルAI監査官（Qwen 3.8 27B, `think: false`）による全数交差監査を実施。MyBatis動的タグのNULL更新漏れや日跨ぎ夜勤シフト重複判定範囲の欠落等のエッジケースを検出し、コード是正および防御単体テスト増設を完了。
+- **ローカルAI（Qwen 27B）4大ドメイン監査実測集計**:
+  | ドメイン | 対象ファイル | 行数 | 所要時間 | 入力トークン | 出力トークン | 生成速度 | 判定結果 | Run ID |
+  |---|---|---|---|---|---|---|---|---|
+  | **勤怠・打刻** | `AttendanceService.java` | 543行 | 106.63秒 | 6,304 tokens | 2,325 tokens | 44.7 tok/s | E2E VERIFIED | `20261119_042842_388582ee` |
+  | **シフト** | `ShiftService.java` | 498行 | 58.35秒 | 5,625 tokens | 2,751 tokens | 49.8 tok/s | PASS | `20261119_043121_50bd5f38` |
+  | **給与・労基法** | `PayrollService.java` | 644行 | 46.59秒 | 6,907 tokens | 2,121 tokens | 49.6 tok/s | PASS | `20261119_043256_0dda2239` |
+  | **認証・認可** | `SecurityConfig.java` | 175行 | 34.61秒 | 1,944 tokens | 1,689 tokens | 50.7 tok/s | PASS | `20261119_043415_294c78bf` |
+  | **合計 / 平均** | **4大主要ソース** | **1,860行** | **246.18秒** | **20,780 tokens** | **8,886 tokens** | **48.7 tok/s** | **ALL DOMAIN PASS** | - |
+- **是正および検証内容**:
+  1. **ATT-BUG-01（休憩終了時の進行中フラグNULL更新是正）**: `AttendanceMapper.xml` の `updateAttendance` において、`<if test="breakStartAt != null">` によるNULL更新欠落を解消し、`break_start_at = #{breakStartAt, jdbcType=TIMESTAMP}` による完全NULL初期化を担保。
+  2. **SFT-BUG-01（日跨ぎ夜勤シフト重複判定の範囲拡張）**: `ShiftMapper.xml` の `existsOverlapShift` において、`work_date = #{workDate}` 単一検索から前後1日（`BETWEEN DATE_SUB/DATE_ADD`）へ検索範囲を拡張。前日22:00〜翌日06:00の夜勤シフトとの重複を確実に遮断し、`ShiftServiceTest` に防御単体テストを追加。
+  3. **SEC-ROLE-01（認証・認可ロールの整合）**: DBスキーマに実在しない `ROLE_MANAGER` および `ROLE_ADMIN` を整理し、店長・管理者権限を `ROLE_OWNER`、スタッフ権限を `ROLE_STAFF` に統一。
+  4. **DOCS-SSOT（ドキュメント整合および衛生管理）**: スライド19のリンク先を `exit_summary.json` へ整合、要約書の98 PASS数値統一、公開スクリプトマニフェスト（5/5）再生成、および全272個のJSONファイルからUTF-8 BOMを完全除去。
+- **証拠/引継ぎ**: `docs/audit_runs/audit_attendance_service_report.md`、`docs/audit_runs/audit_shift_service_report.md`、`docs/audit_runs/audit_payroll_service_report.md`、`docs/audit_runs/audit_security_config_report.md`、`docs/handoff/20261119_1340_antigravity_handoff.md`。

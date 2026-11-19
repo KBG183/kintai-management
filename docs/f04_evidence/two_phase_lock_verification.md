@@ -14,7 +14,7 @@
 
 ## 2. confirmMonthlyPayroll 실제 2단계 잠금(Two-Phase Locking) 구현 명세
 
-### ① 구현된 Java Service 코드 ([PayrollService.java](file:///c:/dev/kintai/src/main/java/com/example/kintai/domain/payroll/service/PayrollService.java#L357-L425))
+### ① 구현된 Java Service 코드 ([PayrollService.java](../../src/main/java/com/example/kintai/domain/payroll/service/PayrollService.java#L357-L425))
 ```java
     @Transactional
     public int confirmMonthlyPayroll(Long storeId, String targetYearMonth) {
@@ -104,10 +104,10 @@
 ## 4. 실측 검증 데이터
 
 1. **단위/통합 테스트 슈트**:
-   - [`PayrollServiceMonthlyConfirmConcurrencyIntegrationTest.java`](file:///c:/dev/kintai/src/test/java/com/example/kintai/domain/payroll/service/PayrollServiceMonthlyConfirmConcurrencyIntegrationTest.java):
+   - [`PayrollServiceMonthlyConfirmConcurrencyIntegrationTest.java`](../../src/test/java/com/example/kintai/domain/payroll/service/PayrollServiceMonthlyConfirmConcurrencyIntegrationTest.java):
      - 2단계 잠금 일괄 확정 성공 검증 (DRAFT ➔ CONFIRMED 2건)
      - 일괄 확정과 개별 재계산 동시 실행 시 데드락 0건 직렬화 완료
-   - [`PayrollServiceConfirmConcurrencyDetailedIntegrationTest.java`](file:///c:/dev/kintai/src/test/java/com/example/kintai/domain/payroll/service/PayrollServiceConfirmConcurrencyDetailedIntegrationTest.java):
+   - [`PayrollServiceConfirmConcurrencyDetailedIntegrationTest.java`](../../src/test/java/com/example/kintai/domain/payroll/service/PayrollServiceConfirmConcurrencyDetailedIntegrationTest.java):
      - 독립 DB 커넥션 동시 중복 확정 시 1건 성공 / 1건 상태 차단 실측 (CAS)
 2. **클린 전체 회귀 테스트**:
    - `70 tests completed, 70 passed, 0 failures, 0 errors` (`BUILD SUCCESSFUL in 37s`)

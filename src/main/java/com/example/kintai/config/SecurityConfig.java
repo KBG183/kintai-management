@@ -81,11 +81,11 @@ public class SecurityConfig {
                                 "/shifts/**",
                                 "/api/shifts/**",
                                 "/api/attendance/**"
-                        ).hasAnyRole("STAFF", "OWNER", "ADMIN")
-                        // サンプル確認用画面（オーナー・管理者用）
+                        ).hasAnyRole("STAFF", "OWNER")
+                        // サンプル確認用画面（オーナー用）
                         .requestMatchers(
                                 "/members/sample"
-                        ).hasAnyRole("OWNER", "ADMIN")
+                        ).hasRole("OWNER")
                         // 会員API（メソッド単位の認可制御 @PreAuthorize に委譲）
                         .requestMatchers(
                                 "/api/members/**"

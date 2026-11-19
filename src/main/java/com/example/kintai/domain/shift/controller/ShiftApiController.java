@@ -48,7 +48,7 @@ public class ShiftApiController {
         }
 
         boolean isManager = userDetails.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_OWNER") || a.getAuthority().equals("ROLE_MANAGER"));
+                .anyMatch(a -> a.getAuthority().equals("ROLE_OWNER"));
 
         Long targetStoreId;
         if (isManager && storeId != null) {
@@ -136,9 +136,9 @@ public class ShiftApiController {
         if (userDetails == null || userDetails.getStoreId() == null) {
             throw new AccessDeniedException("店長認証セッションおよび店舗情報が必要です。(IDOR遮断)");
         }
-        // 店長権限(ROLE_OWNER / ROLE_MANAGER)の検証
+        // 店長権限(ROLE_OWNER)の検証
         boolean isManager = userDetails.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_OWNER") || a.getAuthority().equals("ROLE_MANAGER"));
+                .anyMatch(a -> a.getAuthority().equals("ROLE_OWNER"));
         if (!isManager) {
             throw new AccessDeniedException("シフト確定権限がありません。(店長・管理者権限が必要)");
         }
@@ -160,7 +160,7 @@ public class ShiftApiController {
             throw new AccessDeniedException("店長認証セッションおよび店舗情報が必要です。(IDOR遮断)");
         }
         boolean isManager = userDetails.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_OWNER") || a.getAuthority().equals("ROLE_MANAGER"));
+                .anyMatch(a -> a.getAuthority().equals("ROLE_OWNER"));
         if (!isManager) {
             throw new AccessDeniedException("シフト却下権限がありません。(店長・管理者権限が必要)");
         }
@@ -182,7 +182,7 @@ public class ShiftApiController {
             throw new AccessDeniedException("店長認証セッションおよび店舗情報が必要です。(IDOR遮断)");
         }
         boolean isManager = userDetails.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_OWNER") || a.getAuthority().equals("ROLE_MANAGER"));
+                .anyMatch(a -> a.getAuthority().equals("ROLE_OWNER"));
         if (!isManager) {
             throw new AccessDeniedException("一括確定権限がありません。(店長・管理者権限が必要)");
         }
@@ -204,7 +204,7 @@ public class ShiftApiController {
             throw new AccessDeniedException("店長認証セッションが必要です。(IDOR遮断)");
         }
         boolean isManager = userDetails.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_OWNER") || a.getAuthority().equals("ROLE_MANAGER"));
+                .anyMatch(a -> a.getAuthority().equals("ROLE_OWNER"));
         if (!isManager) {
             throw new AccessDeniedException("未確定シフト閲覧権限がありません。");
         }
@@ -225,7 +225,7 @@ public class ShiftApiController {
             throw new AccessDeniedException("店長認証セッションが必要です。(IDOR遮断)");
         }
         boolean isManager = userDetails.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_OWNER") || a.getAuthority().equals("ROLE_MANAGER"));
+                .anyMatch(a -> a.getAuthority().equals("ROLE_OWNER"));
         if (!isManager) {
             throw new AccessDeniedException("シフト対照閲覧権限がありません。");
         }
