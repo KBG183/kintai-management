@@ -1,4 +1,4 @@
-﻿package com.example.kintai.config;
+package com.example.kintai.config;
 
 import com.example.kintai.global.security.CustomAuthenticationSuccessHandler;
 import com.example.kintai.global.security.CustomUserDetailsService;

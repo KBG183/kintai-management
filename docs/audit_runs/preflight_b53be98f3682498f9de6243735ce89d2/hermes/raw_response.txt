@@ -1,4 +1,4 @@
-﻿| Finding ID | Audit Item | Severity (P0/P1/P2/Info) | Verdict (PASS / WARN / FAIL / N/A) | Code & Test Evidence | Detailed Analysis & Recommendation |
+| Finding ID | Audit Item | Severity (P0/P1/P2/Info) | Verdict (PASS / WARN / FAIL / N/A) | Code & Test Evidence | Detailed Analysis & Recommendation |
 |---|---|---|---|---|---|
 | F-01 | RTM R-14 Status Consistency | P1 | PASS | RTM Row R-14 vs. Checklist `R-14` | **Corrected:** The RTM Row R-14 now explicitly states `VERIFIED (2026-11-14 source/document scope)`, aligning with the Checklist status `VERIFIED_DOCUMENT_SCOPE`. The previous mismatch (stale `REVIEW_PENDING`) has been resolved in the frozen documents. |
 | F-02 | Full Regression Test Count (Day 13 vs. Final) | P2 | PASS | Korean/Japanese Evidence vs. Handoff/Checklist | **Clarified:** The documents now explicitly distinguish the "Day 13 Snapshot" (83 tests, DB `kintai_full_test_9f4b67f66b64`) from the "Final Project Regression" (92 tests, DB `kintai_full_test_d4124a317ed0`). The Korean and Japanese sections both include the note: "The 83-test regression is a Day 13 checkpoint... The latest full regression is 92 PASS." This resolves the ambiguity. |

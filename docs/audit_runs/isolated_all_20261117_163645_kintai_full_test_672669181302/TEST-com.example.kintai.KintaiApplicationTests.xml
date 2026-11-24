@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <testsuite name="com.example.kintai.KintaiApplicationTests" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-11-17T07:37:03.982Z" hostname="BK" time="6.157">
   <properties/>
   <testcase name="contextLoads()" classname="com.example.kintai.KintaiApplicationTests" time="0.866"/>
@@ -16,7 +16,7 @@
 
  :: Spring Boot ::                (v4.0.8)
 
-2026-11-17T16:37:04.882+09:00  INFO 23776 --- [    Test worker] c.example.kintai.KintaiApplicationTests  : Starting KintaiApplicationTests using Java 17.0.12 with PID 23776 (started by <LOCAL_USER> in C:\dev\kintai)
+2026-11-17T16:37:04.882+09:00  INFO 23776 --- [    Test worker] c.example.kintai.KintaiApplicationTests  : Starting KintaiApplicationTests using Java 17.0.12 with PID 23776 (started by <LOCAL_USER> in <PROJECT_ROOT>)
 2026-11-17T16:37:04.883+09:00  INFO 23776 --- [    Test worker] c.example.kintai.KintaiApplicationTests  : No active profile set, falling back to 1 default profile: "default"
 2026-11-17T16:37:07.916+09:00  INFO 23776 --- [    Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
 2026-11-17T16:37:09.249+09:00  INFO 23776 --- [    Test worker] c.example.kintai.KintaiApplicationTests  : Started KintaiApplicationTests in 4.716 seconds (process running for 6.412)

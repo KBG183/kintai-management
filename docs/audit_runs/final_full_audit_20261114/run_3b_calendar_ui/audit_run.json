@@ -14,7 +14,7 @@
     "num_ctx":  24576,
     "seed":  42,
     "temperature":  0.1,
-    "target_file":  "C:\\dev\\kintai\\docs\\audit_runs\\final_full_audit_20261114\\bundles\\bundle_3b_calendar_ui.md",
+    "target_file":  "<PROJECT_ROOT>\\docs\\audit_runs\\final_full_audit_20261114\\bundles\\bundle_3b_calendar_ui.md",
     "target_sha256":  "7cbffc93e1ffe62679ff97e128a82b9b1d9a66f3dc0b71b7cabb9a90967be1de",
     "git_head":  "9f1d02100bd8041738e45916aeae6fccbb209c31",
     "script_sha256":  "d94df24a6df2c97a51d25c5016403eb44f676cbd456f648752b3e2cbc5841b0e",
@@ -24,6 +24,6 @@
     "total_seconds":  34.75,
     "speed_tps":  47.4,
     "done_reason":  "stop",
-    "output_dir":  "C:\\dev\\kintai\\docs\\audit_runs\\final_full_audit_20261114\\run_3b_calendar_ui",
+    "output_dir":  "<PROJECT_ROOT>\\docs\\audit_runs\\final_full_audit_20261114\\run_3b_calendar_ui",
     "error_message":  ""
 }

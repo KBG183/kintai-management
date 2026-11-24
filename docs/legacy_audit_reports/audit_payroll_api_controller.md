@@ -1,7 +1,7 @@
-﻿### [Hermes Audit Execution Metrics]
+### [Hermes Audit Execution Metrics]
 | Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed |
 |---|---|---|---|---|---|
-| C:\dev\kintai\src\main\java\com\example\kintai\domain\payroll\controller\PayrollApiController.java (105 lines) | qwen27b:latest | 12.84s | 1427 tokens | 603 tokens | 51.3 tokens/s |
+| <PROJECT_ROOT>\src\main\java\com\example\kintai\domain\payroll\controller\PayrollApiController.java (105 lines) | qwen27b:latest | 12.84s | 1427 tokens | 603 tokens | 51.3 tokens/s |
 
 | Audit Item | Verdict (PASS / WARN / FAIL) | Detailed Finding & Recommendation (English) |
 |---|---|---|

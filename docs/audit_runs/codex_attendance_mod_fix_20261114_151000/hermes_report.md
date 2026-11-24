@@ -1,7 +1,7 @@
-﻿### [Hermes Audit Execution Metrics]
+### [Hermes Audit Execution Metrics]
 | Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed |
 |---|---|---|---|---|---|
-| C:\dev\kintai\src\main\java\com\example\kintai\domain\attendance\service\AttendanceService.java (496 lines) | qwen27b:latest | 7.39s | 5396 tokens | 200 tokens | 47 tokens/s |
+| <PROJECT_ROOT>\src\main\java\com\example\kintai\domain\attendance\service\AttendanceService.java (496 lines) | qwen27b:latest | 7.39s | 5396 tokens | 200 tokens | 47 tokens/s |
 
 | Audit Item | Verdict (PASS / WARN / FAIL) | Finding |
 | --- | --- | --- |

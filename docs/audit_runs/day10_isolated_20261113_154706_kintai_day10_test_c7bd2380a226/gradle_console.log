@@ -10,38 +10,38 @@ Java HotSpot(TM) 64-Bit Server VM warning: Sharing is only supported for boot lo
 
 > Task :test
 
-CSRF ÒýöµÛÁåÙ«»«­«å«ê«Æ«£÷Öùê«Æ«¹«È > «ª?«Ê?ªªªèªÓ«¹«¿«Ã«ÕªÎ«¢«««¦«ó«ÈªÇïáßÈªË«í«°«¤«óªÇª­ªëª³ªÈ FAILED
+CSRF ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ«ï¿½ï¿½ï¿½ï¿½ï¿½Æ«ï¿½ï¿½ï¿½ > ï¿½ï¿½?ï¿½ï¿½?ï¿½ï¿½ï¿½ï¿½Ó«ï¿½ï¿½ï¿½ï¿½Ã«ÕªÎ«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Èªï¿½ï¿½ï¿½ï¿½ÈªË«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Çªï¿½ï¿½ëª³ï¿½ï¿½ FAILED
     java.lang.AssertionError at CsrfSecurityIntegrationTest.java:69
 
-F-09: MySQL upsertPayroll useGeneratedKeys & LAST_INSERT_ID ¼¼¼Ç ¿À¿° ºÐ¸® Á¤¹Ð ½ÇÃø > Áß°£¿¡ ´Ù¸¥ AUTO_INCREMENT ¹ß»ýÀ¸·Î LAST_INSERT_ID ¿À¿° ½Ã¿¡µµ DTO B¿¡ ¿ø·¡ ´ë»ó PK°¡ Á¤È®È÷ Àü´ÞµÇ´ÂÁö °ËÁõ FAILED
+F-09: MySQL upsertPayroll useGeneratedKeys & LAST_INSERT_ID ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ð¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ > ï¿½ß°ï¿½ï¿½ï¿½ ï¿½Ù¸ï¿½ AUTO_INCREMENT ï¿½ß»ï¿½ï¿½ï¿½ï¿½ï¿½ LAST_INSERT_ID ï¿½ï¿½ï¿½ï¿½ ï¿½Ã¿ï¿½ï¿½ï¿½ DTO Bï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ PKï¿½ï¿½ ï¿½ï¿½È®ï¿½ï¿½ ï¿½ï¿½ï¿½ÞµÇ´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ FAILED
     org.springframework.dao.DataIntegrityViolationException at PayrollMapperUpsertIntegrationTest.java:50
         Caused by: java.sql.SQLIntegrityConstraintViolationException at PayrollMapperUpsertIntegrationTest.java:50
 
-F-04: ¶ô ¼ø¼­ ¿ªÀü¿¡ µû¸¥ ½ÇÁ¦ MySQL InnoDB µ¥µå¶ô(1213 / 40001) ÀçÇö ¹× °ËÁõ > µ¶¸³ JDBC Ä¿³Ø¼Ç 2°³¿¡¼­ »óÈ£ ¿ª¼ø ¶ô È¹µæ ½Ã MySQL 1213 µ¥µå¶ô °¨Áö ¹× 40001 SQLState ½ÇÃø FAILED
+F-04: ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ MySQL InnoDB ï¿½ï¿½ï¿½ï¿½ï¿½(1213 / 40001) ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ > ï¿½ï¿½ï¿½ï¿½ JDBC Ä¿ï¿½Ø¼ï¿½ 2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È£ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ È¹ï¿½ï¿½ ï¿½ï¿½ MySQL 1213 ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ 40001 SQLState ï¿½ï¿½ï¿½ï¿½ FAILED
     org.springframework.dao.DataIntegrityViolationException at PayrollLockOrderDeadlockReproductionIntegrationTest.java:58
         Caused by: java.sql.SQLIntegrityConstraintViolationException at PayrollLockOrderDeadlockReproductionIntegrationTest.java:58
 
-F-04: ¸ÖÆ¼ ¼¼¼Ç ºñ°üÀû ¶ô(SELECT ... FOR UPDATE) µ¿½Ã¼º °æÇÕ ¹× ¹Ýº¹ Å¸ÀÌ¹Ö ¾ÈÁ¤¼º °ËÁõ > Æ®·£Àè¼Ç 1ÀÌ store_staff Çà ¶ôÀ» Á¡À¯ ÁßÀÏ ¶§, Æ®·£Àè¼Ç 2°¡ µ¿ÀÏ Çà¿¡ ¶ôÀ» ¿äÃ»ÇÏ¸é ´ë±âÇÏ¸ç Ä¿¹Ô ÈÄ Á¤»ó È¹µæµÇ´ÂÁö ¹Ýº¹ ½ÇÃø (3È¸ ¿¬¼Ó) > repetition 1 of 3 FAILED
+F-04: ï¿½ï¿½Æ¼ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½(SELECT ... FOR UPDATE) ï¿½ï¿½ï¿½Ã¼ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ýºï¿½ Å¸ï¿½Ì¹ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ > Æ®ï¿½ï¿½ï¿½ï¿½ï¿½ 1ï¿½ï¿½ store_staff ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½, Æ®ï¿½ï¿½ï¿½ï¿½ï¿½ 2ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½à¿¡ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã»ï¿½Ï¸ï¿½ ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½ Ä¿ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ È¹ï¿½ï¿½Ç´ï¿½ï¿½ï¿½ ï¿½Ýºï¿½ ï¿½ï¿½ï¿½ï¿½ (3È¸ ï¿½ï¿½ï¿½ï¿½) > repetition 1 of 3 FAILED
     org.opentest4j.AssertionFailedError at PayrollPessimisticLockConcurrencyIntegrationTest.java:96
 
-F-04: ¸ÖÆ¼ ¼¼¼Ç ºñ°üÀû ¶ô(SELECT ... FOR UPDATE) µ¿½Ã¼º °æÇÕ ¹× ¹Ýº¹ Å¸ÀÌ¹Ö ¾ÈÁ¤¼º °ËÁõ > Æ®·£Àè¼Ç 1ÀÌ store_staff Çà ¶ôÀ» Á¡À¯ ÁßÀÏ ¶§, Æ®·£Àè¼Ç 2°¡ µ¿ÀÏ Çà¿¡ ¶ôÀ» ¿äÃ»ÇÏ¸é ´ë±âÇÏ¸ç Ä¿¹Ô ÈÄ Á¤»ó È¹µæµÇ´ÂÁö ¹Ýº¹ ½ÇÃø (3È¸ ¿¬¼Ó) > repetition 2 of 3 FAILED
+F-04: ï¿½ï¿½Æ¼ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½(SELECT ... FOR UPDATE) ï¿½ï¿½ï¿½Ã¼ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ýºï¿½ Å¸ï¿½Ì¹ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ > Æ®ï¿½ï¿½ï¿½ï¿½ï¿½ 1ï¿½ï¿½ store_staff ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½, Æ®ï¿½ï¿½ï¿½ï¿½ï¿½ 2ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½à¿¡ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã»ï¿½Ï¸ï¿½ ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½ Ä¿ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ È¹ï¿½ï¿½Ç´ï¿½ï¿½ï¿½ ï¿½Ýºï¿½ ï¿½ï¿½ï¿½ï¿½ (3È¸ ï¿½ï¿½ï¿½ï¿½) > repetition 2 of 3 FAILED
     org.opentest4j.AssertionFailedError at PayrollPessimisticLockConcurrencyIntegrationTest.java:96
 
-F-04: ¸ÖÆ¼ ¼¼¼Ç ºñ°üÀû ¶ô(SELECT ... FOR UPDATE) µ¿½Ã¼º °æÇÕ ¹× ¹Ýº¹ Å¸ÀÌ¹Ö ¾ÈÁ¤¼º °ËÁõ > Æ®·£Àè¼Ç 1ÀÌ store_staff Çà ¶ôÀ» Á¡À¯ ÁßÀÏ ¶§, Æ®·£Àè¼Ç 2°¡ µ¿ÀÏ Çà¿¡ ¶ôÀ» ¿äÃ»ÇÏ¸é ´ë±âÇÏ¸ç Ä¿¹Ô ÈÄ Á¤»ó È¹µæµÇ´ÂÁö ¹Ýº¹ ½ÇÃø (3È¸ ¿¬¼Ó) > repetition 3 of 3 FAILED
+F-04: ï¿½ï¿½Æ¼ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½(SELECT ... FOR UPDATE) ï¿½ï¿½ï¿½Ã¼ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ýºï¿½ Å¸ï¿½Ì¹ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ > Æ®ï¿½ï¿½ï¿½ï¿½ï¿½ 1ï¿½ï¿½ store_staff ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½, Æ®ï¿½ï¿½ï¿½ï¿½ï¿½ 2ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½à¿¡ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã»ï¿½Ï¸ï¿½ ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½ Ä¿ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ È¹ï¿½ï¿½Ç´ï¿½ï¿½ï¿½ ï¿½Ýºï¿½ ï¿½ï¿½ï¿½ï¿½ (3È¸ ï¿½ï¿½ï¿½ï¿½) > repetition 3 of 3 FAILED
     org.opentest4j.AssertionFailedError at PayrollPessimisticLockConcurrencyIntegrationTest.java:96
 
-F-04: ½ÇÁ¦ PayrollService °æ·Î µ¿½Ã ½ÇÇà ½Ã ¶ô ¼ø¼­ ÀÏÄ¡¿¡ µû¸¥ µ¥µå¶ô ¼Ò¸ê ¹× Á÷·ÄÈ­ °ËÁõ > µ¿ÀÏ Á÷¿ø¿¡ ´ëÇØ calculatePayrollForStaff¿Í confirmPayroll µ¿½Ã ½ÇÇà ½Ã µ¥µå¶ô ¾øÀÌ ¼øÂ÷ ½ÇÇà ¿Ï·á °ËÁõ FAILED
+F-04: ï¿½ï¿½ï¿½ï¿½ PayrollService ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ò¸ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½È­ ï¿½ï¿½ï¿½ï¿½ > ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ calculatePayrollForStaffï¿½ï¿½ confirmPayroll ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ï·ï¿½ ï¿½ï¿½ï¿½ï¿½ FAILED
     org.springframework.dao.DataIntegrityViolationException at PayrollServiceConcurrentExecutionIntegrationTest.java:64
         Caused by: java.sql.SQLIntegrityConstraintViolationException at PayrollServiceConcurrentExecutionIntegrationTest.java:64
 
-F-04: confirmPayroll µ¿½Ã¼º Á¤¹Ð °æÇÕ ¹× µ¿½Ã Áßº¹ È®Á¤(CAS) °ËÁõ > µ¿ÀÏ ±Þ¿©¿¡ ´ëÇÑ 2°³ °ü¸®ÀÚ ¼¼¼Ç µ¿½Ã Áßº¹ È®Á¤ ½Ãµµ ½Ã Á¤È®È÷ 1°Ç¸¸ ¼º°øÇÏ°í 1°ÇÀº »óÅÂ Â÷´Ü °ËÁõ FAILED
+F-04: confirmPayroll ï¿½ï¿½ï¿½Ã¼ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ßºï¿½ È®ï¿½ï¿½(CAS) ï¿½ï¿½ï¿½ï¿½ > ï¿½ï¿½ï¿½ï¿½ ï¿½Þ¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ 2ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ßºï¿½ È®ï¿½ï¿½ ï¿½Ãµï¿½ ï¿½ï¿½ ï¿½ï¿½È®ï¿½ï¿½ 1ï¿½Ç¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ 1ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ FAILED
     org.opentest4j.AssertionFailedError at PayrollServiceConfirmConcurrencyDetailedIntegrationTest.java:171
 
-F-08: PayrollService ³»ºÎ È£Ãâ ½Ã ½ÇÁ¦ DB º¯°æ ¹× Æ®·£Àè¼Ç ÀüÃ¼ ·Ñ¹é ¿øÀÚ¼º Á¤¹Ð ½ÇÃø > ³»ºÎ Àç°è»ê(calculatePayrollForStaff)À¸·Î ±Ý¾×/»ó¼¼ º¯°æ µµÁß ¿¹¿Ü ¹ß»ý ½Ã, ½ÇÁ¦ DB°¡ ÃÊ±â »óÅÂ·Î 100% ·Ñ¹éµÇ´ÂÁö ½ÇÃø FAILED
+F-08: PayrollService ï¿½ï¿½ï¿½ï¿½ È£ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ DB ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ Æ®ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ ï¿½Ñ¹ï¿½ ï¿½ï¿½ï¿½Ú¼ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ > ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½(calculatePayrollForStaff)ï¿½ï¿½ï¿½ï¿½ ï¿½Ý¾ï¿½/ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ß»ï¿½ ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ DBï¿½ï¿½ ï¿½Ê±ï¿½ ï¿½ï¿½ï¿½Â·ï¿½ 100% ï¿½Ñ¹ï¿½Ç´ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ FAILED
     org.springframework.dao.DataIntegrityViolationException at PayrollServiceTransactionRollbackIntegrationTest.java:72
         Caused by: java.sql.SQLIntegrityConstraintViolationException at PayrollServiceTransactionRollbackIntegrationTest.java:72
 
-F-04: performance_schema.data_locks ½ÇÃø °ËÁõ > µ¶¸³ Ä¿³Ø¼Ç¿¡¼­ lockStorePayrollsForUpdate ½ÇÇà ½Ã performance_schema.data_locksÀÇ ¶ô ¸ðµå ¹× ÀÎµ¦½º ½ÇÃø FAILED
+F-04: performance_schema.data_locks ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ > ï¿½ï¿½ï¿½ï¿½ Ä¿ï¿½Ø¼Ç¿ï¿½ï¿½ï¿½ lockStorePayrollsForUpdate ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ performance_schema.data_locksï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ FAILED
     org.opentest4j.AssertionFailedError at PerformanceSchemaDataLocksIntegrationTest.java:73
 
 2026-11-13T15:47:38.442+09:00  INFO 27296 --- [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
@@ -57,7 +57,7 @@ FAILURE: Build failed with an exception.
 
 * What went wrong:
 Execution failed for task ':test'.
-> There were failing tests. See the report at: file:///C:/dev/kintai/build/reports/tests/test/index.html
+> There were failing tests. See the report at: file:///<PROJECT_ROOT>/build/reports/tests/test/index.html
 
 * Try:
 > Run with --scan to get full insights from a Build Scan (powered by Develocity).

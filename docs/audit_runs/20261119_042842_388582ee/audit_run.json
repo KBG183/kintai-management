@@ -14,7 +14,7 @@
     "num_ctx":  24576,
     "seed":  42,
     "temperature":  0.1,
-    "target_file":  "C:\\dev\\kintai\\src\\main\\java\\com\\example\\kintai\\domain\\attendance\\service\\AttendanceService.java",
+    "target_file":  "<PROJECT_ROOT>\\src\\main\\java\\com\\example\\kintai\\domain\\attendance\\service\\AttendanceService.java",
     "target_sha256":  "388582ee879bec9e01a97d3a6ace9b692a6ba27756199a101c867049cf488a74",
     "git_head":  "56bce272c342bad20d3bed02dabc610426baf82c",
     "script_sha256":  "d94df24a6df2c97a51d25c5016403eb44f676cbd456f648752b3e2cbc5841b0e",
@@ -24,6 +24,6 @@
     "total_seconds":  106.63,
     "speed_tps":  44.7,
     "done_reason":  "stop",
-    "output_dir":  "C:\\dev\\kintai\\docs\\audit_runs\\20261119_042842_388582ee",
+    "output_dir":  "<PROJECT_ROOT>\\docs\\audit_runs\\20261119_042842_388582ee",
     "error_message":  ""
 }

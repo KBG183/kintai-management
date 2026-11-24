@@ -13,7 +13,7 @@
 
 - **물리적 증거 대조**:
   1. **새로운 Run ID 부재**:
-     - 프로젝트 루트(`c:\dev\kintai\docs\audit_runs\`)의 최신 감사 실행 디렉터리는 **`20261112_055925_dbe89f06` (14:59:25 생성)**이며, 사용자 홈(`C:\Users\<LOCAL_USER>\docs\audit_runs\`)의 최신 디렉터리는 **`20261112_054459_PROMPT` (14:44:59 생성)**임.
+     - 프로젝트 루트(`<PROJECT_ROOT>\docs\audit_runs\`)의 최신 감사 실행 디렉터리는 **`20261112_055925_dbe89f06` (14:59:25 생성)**이며, 사용자 홈(`C:\Users\<LOCAL_USER>\docs\audit_runs\`)의 최신 디렉터리는 **`20261112_054459_PROMPT` (14:44:59 생성)**임.
      - 직전 턴(`hermes_qwen_blind_cross_audit.md` 작성 시점: 15:21)에 새로 생성된 고유 `audit_run` 디렉터리는 **물리적으로 단 1개도 존재하지 않음.**
   2. **요청 시각 및 로그 누락**:
      - `state_machine_ledger.json` 상에 15:00 이후 추가된 트랜잭션 기록 없음.

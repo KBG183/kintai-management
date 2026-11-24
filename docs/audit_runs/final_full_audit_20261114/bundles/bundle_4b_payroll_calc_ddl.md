@@ -1,4 +1,4 @@
-﻿# Final Full Audit Bundle: bundle_4b_payroll_calc_ddl
+# Final Full Audit Bundle: bundle_4b_payroll_calc_ddl
 Generated: 2026-11-14T12:51:27+09:00
 
 ## FILE: src\main\java\com\example\kintai\domain\payroll\util\PayrollCalculator.java

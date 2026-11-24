@@ -53,7 +53,7 @@
 
  :: Spring Boot ::                (v4.0.8)
 
-2026-11-13T15:32:55.988+09:00  INFO 7392 --- [    Test worker] endanceServiceConcurrencyIntegrationTest : Starting AttendanceServiceConcurrencyIntegrationTest using Java 17.0.12 with PID 7392 (started by <LOCAL_USER> in C:\dev\kintai)
+2026-11-13T15:32:55.988+09:00  INFO 7392 --- [    Test worker] endanceServiceConcurrencyIntegrationTest : Starting AttendanceServiceConcurrencyIntegrationTest using Java 17.0.12 with PID 7392 (started by <LOCAL_USER> in <PROJECT_ROOT>)
 2026-11-13T15:32:55.991+09:00  INFO 7392 --- [    Test worker] endanceServiceConcurrencyIntegrationTest : No active profile set, falling back to 1 default profile: "default"
 2026-11-13T15:32:57.206+09:00  INFO 7392 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
 2026-11-13T15:32:59.144+09:00  INFO 7392 --- [    Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService

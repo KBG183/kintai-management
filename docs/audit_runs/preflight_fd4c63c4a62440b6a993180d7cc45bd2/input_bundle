@@ -164,7 +164,7 @@ Verify final source facts and documentation. Check prior WARN corrections, all f
   "num_ctx": 24576,
   "seed": 42,
   "temperature": 0.1,
-  "target_file": "C:\\dev\\kintai\\scripts\\..\\docs\\audit_runs\\preflight_1e3b8fba040b4197aed07afbde9334f2\\input_bundle",
+  "target_file": "<PROJECT_ROOT>\\scripts\\..\\docs\\audit_runs\\preflight_1e3b8fba040b4197aed07afbde9334f2\\input_bundle",
   "target_sha256": "46049b14578b32462a6f105966643d658919d5ed658faaf885796e2e1cd2c4b8",
   "git_head": "8a5d7a10b2102916d40f6975ebab48d6662345b7",
   "script_sha256": "d94df24a6df2c97a51d25c5016403eb44f676cbd456f648752b3e2cbc5841b0e",
@@ -174,7 +174,7 @@ Verify final source facts and documentation. Check prior WARN corrections, all f
   "total_seconds": 46.15,
   "speed_tps": 40.6,
   "done_reason": "stop",
-  "output_dir": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_1e3b8fba040b4197aed07afbde9334f2\\hermes",
+  "output_dir": "<PROJECT_ROOT>\\docs\\audit_runs\\preflight_1e3b8fba040b4197aed07afbde9334f2\\hermes",
   "error_message": ""
 }
 
@@ -183,7 +183,7 @@ Verify final source facts and documentation. Check prior WARN corrections, all f
 ### [Hermes Audit Execution Metrics v1.1.1]
 | Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed | Done Reason | Run ID |
 |---|---|---|---|---|---|---|---|
-| C:\dev\kintai\scripts\..\docs\audit_runs\preflight_f99c7739c6b64ba0bfeb8b423f4b0cfb\input_bundle | qwen27b:latest (IQ3_M) | 35.43s | 10056 tokens | 1203 tokens | 41.4 tokens/s | stop | 20261114_005138_3485208b |
+| <PROJECT_ROOT>\scripts\..\docs\audit_runs\preflight_f99c7739c6b64ba0bfeb8b423f4b0cfb\input_bundle | qwen27b:latest (IQ3_M) | 35.43s | 10056 tokens | 1203 tokens | 41.4 tokens/s | stop | 20261114_005138_3485208b |
 
 | Finding ID | Audit Item | Severity (P0/P1/P2/Info) | Verdict (PASS / WARN / FAIL / N/A) | Code & Test Evidence | Detailed Analysis & Recommendation |
 |---|---|---|---|---|---|

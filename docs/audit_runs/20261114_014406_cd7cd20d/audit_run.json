@@ -24,6 +24,6 @@
   "total_seconds": 47.0,
   "speed_tps": 39.9,
   "done_reason": "stop",
-  "output_dir": "C:\\dev\\kintai\\docs\\audit_runs\\20261114_014406_cd7cd20d",
+  "output_dir": "<PROJECT_ROOT>\\docs\\audit_runs\\20261114_014406_cd7cd20d",
   "error_message": "Response truncated: done_reason=stop, total tokens (22421) exceeded 90% of num_ctx (22118 / 24576)."
 }

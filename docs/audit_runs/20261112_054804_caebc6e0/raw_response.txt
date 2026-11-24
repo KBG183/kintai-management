@@ -1,4 +1,4 @@
-﻿| Finding ID | Audit Item | Severity (P0/P1/P2/Info) | Verdict (PASS / WARN / FAIL / N/A) | Code & Test Evidence | Detailed Analysis & Recommendation |
+| Finding ID | Audit Item | Severity (P0/P1/P2/Info) | Verdict (PASS / WARN / FAIL / N/A) | Code & Test Evidence | Detailed Analysis & Recommendation |
 |---|---|---|---|---|---|
 | F-001 | Japanese Labor Standards Act Art 37: Night work & Overtime Pay Logic | N/A | N/A | N/A | The provided code bundle contains only Security Configuration, User Details Service, Store Authorization Service, and Auth Controller. It does not contain the Payroll Calculation Engine or Timekeeping Logic required to verify Art 37 compliance (25%/50% premiums, night work deductions). |
 | F-002 | Payroll Math & Rounding (HALF_UP) | N/A | N/A | N/A | No payroll calculation logic is present in this bundle. Rounding logic cannot be audited. |

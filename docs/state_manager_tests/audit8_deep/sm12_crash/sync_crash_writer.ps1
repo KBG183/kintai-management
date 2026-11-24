@@ -1,4 +1,4 @@
-﻿param([string]$LedgerPath, [string]$EventName)
+param([string]$LedgerPath, [string]$EventName)
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $tmpFile = "$LedgerPath.tmp"
 $partialData = '{"current_state": "CORRUPTED_MID_WRITE_FAIL", "data": "incomplete_payload_1234567890"}'

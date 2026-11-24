@@ -1,5 +1,5 @@
 TARGET_DATABASE=kintai_day10_test_82b3d79633e0
-OUTPUT_DIR=C:\dev\kintai\docs\audit_runs\day10_isolated_20261114_091905_kintai_day10_test_82b3d79633e0
+OUTPUT_DIR=<PROJECT_ROOT>\docs\audit_runs\day10_isolated_20261114_091905_kintai_day10_test_82b3d79633e0
 TEST_STARTING
 To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.8.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
 Daemon will be stopped at the end of the build 

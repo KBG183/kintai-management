@@ -38,7 +38,7 @@
 
 ```text
 TARGET_DATABASE=kintai_full_test_e2927f3c111c
-OUTPUT_DIR=C:\dev\kintai\docs\audit_runs\isolated_all_20261117_164014_kintai_full_test_e2927f3c111c
+OUTPUT_DIR=<PROJECT_ROOT>\docs\audit_runs\isolated_all_20261117_164014_kintai_full_test_e2927f3c111c
 GRADLE_EXIT_CODE=0
 JUNIT_XML_COUNT=39
 TESTS=98

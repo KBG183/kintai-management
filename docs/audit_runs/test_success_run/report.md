@@ -1,4 +1,4 @@
-﻿### [Hermes Audit Execution Metrics v1.1.0]
+### [Hermes Audit Execution Metrics v1.1.0]
 | Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed | Done Reason | Run ID |
 |---|---|---|---|---|---|---|---|
 | docs/test_sample.java | qwen27b:latest | 10.47s | 440 tokens | 376 tokens | 51.4 tokens/s | stop | 20261111_052947_d0be0ae1 |

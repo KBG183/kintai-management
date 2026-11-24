@@ -1,4 +1,4 @@
-﻿### [Hermes Audit Execution Metrics]
+### [Hermes Audit Execution Metrics]
 | Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed |
 |---|---|---|---|---|---|
 | C:\Users\<LOCAL_USER>\.gemini\GEMINI.md (39 lines) | qwen3.8:27b | 15.75s | 1434 tokens | 766 tokens | 51.9 tokens/s |

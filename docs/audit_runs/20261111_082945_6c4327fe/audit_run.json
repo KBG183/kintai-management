@@ -14,7 +14,7 @@
     "num_ctx":  24576,
     "seed":  42,
     "temperature":  0.1,
-    "target_file":  "c:\\dev\\kintai\\docs\\portfolio_audit_evidence.md",
+    "target_file":  "<PROJECT_ROOT>\\docs\\portfolio_audit_evidence.md",
     "target_sha256":  "6c4327fe6b9211d3361edb72f9a27ff954c1b8dd07937bd6493db15f55814c76",
     "git_head":  "072c60dc1bc97a7357005f3b6b6b1a20ff00b8cc",
     "script_sha256":  "d94df24a6df2c97a51d25c5016403eb44f676cbd456f648752b3e2cbc5841b0e",
@@ -24,6 +24,6 @@
     "total_seconds":  0,
     "speed_tps":  0,
     "done_reason":  "unknown",
-    "output_dir":  "C:\\dev\\kintai\\docs\\audit_runs\\20261111_082945_6c4327fe",
+    "output_dir":  "<PROJECT_ROOT>\\docs\\audit_runs\\20261111_082945_6c4327fe",
     "error_message":  "API call failed after 2 retries. Last error: Exception calling \"GetResponse\" with \"0\" argument(s): \"The remote server returned an error: (400) Bad Request.\""
 }

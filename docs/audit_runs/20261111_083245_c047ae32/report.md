@@ -1,4 +1,4 @@
-﻿### [Hermes Audit Execution Metrics v1.1.1]
+### [Hermes Audit Execution Metrics v1.1.1]
 | Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed | Done Reason | Run ID |
 |---|---|---|---|---|---|---|---|
 | src/main/java/com/example/kintai/domain/payroll/controller/PayrollApiController.java | qwen27b:latest (IQ3_M) | 22.17s | 1599 tokens | 1084 tokens | 51.2 tokens/s | stop | 20261111_083245_c047ae32 |

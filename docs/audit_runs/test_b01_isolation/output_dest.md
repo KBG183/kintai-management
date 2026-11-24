@@ -1,4 +1,4 @@
-﻿# PREVIOUS RUN RESULT
+# PREVIOUS RUN RESULT
 
 | Finding ID | Audit Item | Severity | Verdict |
 |---|---|---|---|

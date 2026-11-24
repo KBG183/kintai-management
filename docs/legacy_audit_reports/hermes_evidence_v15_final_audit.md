@@ -1,7 +1,7 @@
-﻿### [Total Audit Execution Metrics]
+### [Total Audit Execution Metrics]
 | Target File | Model | Total Time | Total Prompt Tokens | Total Eval Tokens |
 |---|---|---|---|---|
-| c:\dev\kintai\kintai\docs\portfolio_audit_evidence.md (569 lines) | qwen27b:latest | 230.57s | 27313 tokens | 11156 tokens |
+| <PROJECT_ROOT>\kintai\docs\portfolio_audit_evidence.md (569 lines) | qwen27b:latest | 230.57s | 27313 tokens | 11156 tokens |
 
 # ?썳截?Hermes Independent Audit Report (Section-by-Section)
 > **Target**: $TargetFile (569 lines) | **Model**: $Model | **Timestamp**: 2026-11-06 15:17:10

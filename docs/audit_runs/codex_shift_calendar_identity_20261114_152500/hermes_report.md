@@ -1,7 +1,7 @@
-﻿### [Hermes Audit Execution Metrics]
+### [Hermes Audit Execution Metrics]
 | Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed |
 |---|---|---|---|---|---|
-| C:\dev\kintai\src\main\resources\templates\shift\calendar.html (474 lines) | qwen27b:latest | 20.08s | 5988 tokens | 725 tokens | 43.9 tokens/s |
+| <PROJECT_ROOT>\src\main\resources\templates\shift\calendar.html (474 lines) | qwen27b:latest | 20.08s | 5988 tokens | 725 tokens | 43.9 tokens/s |
 
 | Audit Item | Verdict (PASS / WARN / FAIL) | Detailed Finding & Recommendation (English) |
 |---|---|---|

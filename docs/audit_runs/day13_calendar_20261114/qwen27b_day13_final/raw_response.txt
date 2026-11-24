@@ -1,4 +1,4 @@
-﻿| Finding ID | Audit Item | Severity (P0/P1/P2/Info) | Verdict (PASS / WARN / FAIL / N/A) | Code & Test Evidence | Detailed Analysis & Recommendation |
+| Finding ID | Audit Item | Severity (P0/P1/P2/Info) | Verdict (PASS / WARN / FAIL / N/A) | Code & Test Evidence | Detailed Analysis & Recommendation |
 |---|---|---|---|---|---|
 | F-01 | Japanese Labor Standards Act Art 37: Night Work Premium (22:00-05:00) | P0 | PASS | `LaborCalculationEngineTest.java` (13:00-01:00 overlap case); `PayrollCalculator.java` (125% night logic) | The code correctly identifies the night work window (22:00-05:00). The test case `13:00-01:00` correctly isolates the night portion (22:00-01:00) for premium calculation. The `PayrollCalculator` applies the 125% rate to night hours. |
 | F-02 | Japanese Labor Standards Act Art 37: Daily Overtime Premium (>8h/day) | P0 | PASS | `LaborCalculationEngineTest.java` (09:00-21:00 case); `PayrollCalculator.java` (125% overtime logic) | The engine correctly calculates overtime for hours exceeding 8 hours per day. The test case `09:00-21:00` (12 hours) results in 4 hours of overtime, which is subject to the 125% premium. |

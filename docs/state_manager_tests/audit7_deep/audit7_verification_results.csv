@@ -1,4 +1,4 @@
-﻿"TestId","Description","ExpectedExit","ActualExit","Status","Evidence"
+"TestId","Description","ExpectedExit","ActualExit","Status","Evidence"
 "A-28-01-APPROVED-GRADLE","Approved GRADLE_TEST profile","0","0","PASS","Exit code 0 on approved gradlew.bat --version"
 "A-28-02-BLOCK-CMD-WRAPPER","Block cmd.exe /c wrapper in GRADLE_TEST",">=61","62","PASS","Blocked cmd.exe with code 62"
 "A-28-03-BLOCK-PS-COMMAND","Block powershell.exe -Command arbitrary command","65","65","PASS","Detected -Command token, blocked with code 65"

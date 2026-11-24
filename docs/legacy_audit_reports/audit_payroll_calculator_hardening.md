@@ -1,7 +1,7 @@
-﻿### [Hermes Audit Execution Metrics]
+### [Hermes Audit Execution Metrics]
 | Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed |
 |---|---|---|---|---|---|
-| C:\dev\kintai\src\main\java\com\example\kintai\domain\payroll\util\PayrollCalculator.java (202 lines) | qwen27b:latest | 22.1s | 2859 tokens | 1034 tokens | 50.7 tokens/s |
+| <PROJECT_ROOT>\src\main\java\com\example\kintai\domain\payroll\util\PayrollCalculator.java (202 lines) | qwen27b:latest | 22.1s | 2859 tokens | 1034 tokens | 50.7 tokens/s |
 
 | Audit Item | Verdict (PASS / WARN / FAIL) | Detailed Finding & Recommendation (English) |
 |---|---|---|

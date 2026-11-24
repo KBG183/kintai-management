@@ -4,7 +4,7 @@
 > **실행 일시**: 2026-11-12 15:26:24 ~ 15:27:16 (한국 표준시)  
 > **감사관 모델**: `qwen27b:latest` (Ollama v0.40.16, 자택 RTX 5070 Ti, Tailscale 원격 가속)  
 > **실행 파이프라인**: 공식 백로그 러너 `C:\Users\<LOCAL_USER>\.gemini\scripts\audit_with_hermes.ps1`  
-> **출력 디렉터리**: `c:\dev\kintai\docs\hermes_v2_spec\qwen_blind_audit_runs\run_qwen_live_audit\`  
+> **출력 디렉터리**: `<PROJECT_ROOT>\docs\hermes_v2_spec\qwen_blind_audit_runs\run_qwen_live_audit\`  
 > **검증 상태**: **`PROVENANCE_GATE_VERIFIED`** (실제 독립 로컬 모델 실행 100% 입증)
 
 ---
@@ -18,7 +18,7 @@
 | **3. 실제 모델 태그** | **`qwen27b:latest`** (자택 Ollama 등록 태그) | `VERIFIED` |
 | **4. 전체 모델 Digest** | `23c3820b0d9326b73e97191b9fb7e16b53f6e24bb3449d2a17037c5f2b6179a1` | `VERIFIED` |
 | **5. 양자화 사양** | **`IQ3_M`** (GGUF: `Qwen3.8-27B-Uncensored-HauhauCS-Aggressive-IQ3_M.gguf`) | `VERIFIED` (비고: 의도 모델 Q3_K_M과 변종 불일치 투명 고지) |
-| **6. 입력 번들 경로 및 해시** | `c:\dev\kintai\docs\hermes_v2_spec\blind_audit_bundle.md`<br>SHA-256: `ebd6b8c6d55dd05091c010fd49316423084313a8d5553908b9a5800d4533aeba` | `VERIFIED` |
+| **6. 입력 번들 경로 및 해시** | `<PROJECT_ROOT>\docs\hermes_v2_spec\blind_audit_bundle.md`<br>SHA-256: `ebd6b8c6d55dd05091c010fd49316423084313a8d5553908b9a5800d4533aeba` | `VERIFIED` |
 | **7. 시스템 프롬프트 해시** | SHA-256: `586ed5e13f1794efcb1eb9cf9250c6ff64fd82ea20e083d2071fcdd30e840c7c` | `VERIFIED` |
 | **8. 실제 Qwen 원본 응답** | `raw_response.txt` (9,110 Bytes, SHA-256: `ED32E295C56A2A70538CCBC9B2B8A7DA455949974030282A0ED2D85E5E15629C`) | `VERIFIED` |
 | **9. 실행 완료 상태** | `status: "SUCCESS"`, `exit_code: 0`, `done_reason: "stop"` | `VERIFIED` |

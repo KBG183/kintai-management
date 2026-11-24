@@ -32,7 +32,7 @@
 
 org.springframework.security.authentication.InternalAuthenticationServiceException: 
 ### Error querying database.  Cause: java.sql.SQLSyntaxErrorException: Table 'kintai_full_test_ce304917c81f.member' doesn't exist
-### The error may exist in file [C:\dev\kintai\build\resources\main\mapper\member\MemberMapper.xml]
+### The error may exist in file [<PROJECT_ROOT>\build\resources\main\mapper\member\MemberMapper.xml]
 ### The error may involve defaultParameterMap
 ### The error occurred while setting parameters
 ### SQL: SELECT             member_id,             email,             password,             name,             phone,             role,             is_active,             created_at,             updated_at         FROM member         WHERE email = ?
@@ -173,7 +173,7 @@ org.springframework.security.authentication.InternalAuthenticationServiceExcepti
 	at worker.org.gradle.process.internal.worker.GradleWorkerMain.main(GradleWorkerMain.java:74) ~[gradle-worker.jar:na]
 Caused by: org.springframework.jdbc.BadSqlGrammarException: 
 ### Error querying database.  Cause: java.sql.SQLSyntaxErrorException: Table 'kintai_full_test_ce304917c81f.member' doesn't exist
-### The error may exist in file [C:\dev\kintai\build\resources\main\mapper\member\MemberMapper.xml]
+### The error may exist in file [<PROJECT_ROOT>\build\resources\main\mapper\member\MemberMapper.xml]
 ### The error may involve defaultParameterMap
 ### The error occurred while setting parameters
 ### SQL: SELECT             member_id,             email,             password,             name,             phone,             role,             is_active,             created_at,             updated_at         FROM member         WHERE email = ?
@@ -237,7 +237,7 @@ Caused by: java.sql.SQLSyntaxErrorException: Table 'kintai_full_test_ce304917c81
 
 org.springframework.jdbc.BadSqlGrammarException: 
 ### Error querying database.  Cause: java.sql.SQLSyntaxErrorException: Table 'kintai_full_test_ce304917c81f.store_staff' doesn't exist
-### The error may exist in file [C:\dev\kintai\build\resources\main\mapper\attendance\AttendanceMapper.xml]
+### The error may exist in file [<PROJECT_ROOT>\build\resources\main\mapper\attendance\AttendanceMapper.xml]
 ### The error may involve defaultParameterMap
 ### The error occurred while setting parameters
 ### SQL: SELECT store_staff_id         FROM store_staff         WHERE store_staff_id = ?         FOR UPDATE

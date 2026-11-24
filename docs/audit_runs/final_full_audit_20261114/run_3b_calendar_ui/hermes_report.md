@@ -1,7 +1,7 @@
-﻿### [Hermes Audit Execution Metrics v1.1.1]
+### [Hermes Audit Execution Metrics v1.1.1]
 | Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed | Done Reason | Run ID |
 |---|---|---|---|---|---|---|---|
-| C:\dev\kintai\docs\audit_runs\final_full_audit_20261114\bundles\bundle_3b_calendar_ui.md | qwen27b:latest (IQ3_M) | 34.75s | 6802 tokens | 1466 tokens | 47.4 tokens/s | stop | 20261114_035219_7cbffc93 |
+| <PROJECT_ROOT>\docs\audit_runs\final_full_audit_20261114\bundles\bundle_3b_calendar_ui.md | qwen27b:latest (IQ3_M) | 34.75s | 6802 tokens | 1466 tokens | 47.4 tokens/s | stop | 20261114_035219_7cbffc93 |
 
 | Finding ID | Audit Item | Severity (P0/P1/P2/Info) | Verdict (PASS / WARN / FAIL / N/A) | Code & Test Evidence | Detailed Analysis & Recommendation |
 |---|---|---|---|---|---|

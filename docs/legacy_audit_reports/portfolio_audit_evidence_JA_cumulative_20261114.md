@@ -422,7 +422,7 @@ flowchart TD
 #### 2. 主要検出事項および解決措置
 - **ローカルHermes監査によるN+1クエリ欠陥の検出と即時解決**:
   - getModRequestsにおいて修正申請一覧取得後、各申請の休憩区間を個別にSQL呼出していた欠陥に対し、Hermes 27Bが「Code Quality: N+1 Query Problem」としてWARN警告を検出。
-  - indModBreaksByRequestIds（一括IN句クエリ）およびO(1)インメモリマッピングへ即時リファクタリングを断行し、2次再監査にて完全PASS（解消確認）を獲得。
+  - indModBreaksByRequestIds（一括IN句クエリ）およびO(1)インメモリマッピングへ即時リファクタリングを断行し、2次再監査にて完全PASS（解消確認）を獲得。
 - **勤務時間帯の重複防御（R-03 / Overlapping Detection）の実装**:
   - 申請時および承認時の両段階において、同一従業員の他勤務記録との時間帯重複（countOverlappingAttendances）を厳格に検証・遮断。
 - **給与確定衝突防御および悲観・楽観的並行制御（CAS UPDATE & SELECT ... FOR UPDATE）**:
@@ -799,7 +799,7 @@ Day 4以降の記録を追加する際は、既存の数値を上書きせず、
 
 ### 確認事実
 
-- プロジェクト基準パスは `C:\dev\kintai` であり、今回の点検はこのローカルプロジェクトフォルダ全体を基準に実施した。
+- プロジェクト基準パスは `<PROJECT_ROOT>` であり、今回の点検はこのローカルプロジェクトフォルダ全体を基準に実施した。
 - `src/main/resources/schema.sql` と `src/main/resources/db/schema.sql` はファイルサイズと SHA-256 が異なり、テーブル定義・制約・カラムも一致しない。
 - Java ソースおよび MyBatis 設定から、いずれかのスキーマファイルを直接参照するコードは確認されなかった。
 - `application.yaml` には `spring.sql.init.*`、`ddl-auto`、Flyway、Liquibase の設定がない。そのため、現状のアプリケーション実行は外部 MySQL データベースの事前状態に依存している。
@@ -1034,7 +1034,7 @@ Day 4以降の記録を追加する際は、既存の数値を上書きせず、
 
 
 
-- 証拠バンドル最終整合監査: Hermes v1.1.1 / Qwen 27B IQ3_M、リモート <TAILSCALE_OLLAMA_HOST>:11434。Run ID 20261113_231841_e3e0981e、30.19秒、入力3162/出力1169トークン。バンドルSHA-256 3e0981eaac3a4f47314aa2c9164c2cdfb1ec18f4541622ca27d8f4f40f4a7f0、報告書 docs/audit_runs/day13_calendar_20261114/qwen27b_final/report.md、SHA-256 41087C2A78D80FFA37B50A79BF8CA5F46B2DA9E3BC6EB9B0967974C7CFE40A9。最終Verdict PASS。リモート /api/ps とローカルOllamaが空である実測は qwen27b_remote_ps_final.json。
+- 証拠バンドル最終整合監査: Hermes v1.1.1 / Qwen 27B IQ3_M、リモート <TAILSCALE_OLLAMA_HOST>:11434。Run ID 20261113_231841_e3e0981e、30.19秒、入力3162/出力1169トークン。バンドルSHA-256 3e0981eaac3a4f47314aa2c9164c2cdfb1ec18f4541622ca27d8f4f40f4a7f0、報告書 docs/audit_runs/day13_calendar_20261114/qwen27b_final/report.md、SHA-256 41087C2A78D80FFA37B50A79BF8CA5F46B2DA9E3BC6EB9B0967974C7CFE40A9。最終Verdict PASS。リモート /api/ps とローカルOllamaが空である実測は qwen27b_remote_ps_final.json。
 
 
 - ブラウザーDLの最終確認: ChromeでExcel出力をクリックすると /api/payroll/excel?storeId=1&yearMonth=2026-01 で ERR_BLOCKED_BY_CLIENT となった。ブラウザーツールのURLポリシーは chrome://downloads/ への移動と代替経路・回避を明示的に拒否した。原因をアプリまたは拡張機能と断定しない。認証APIのXLSXは正常・有効だが、browser-managed保存は未確認。Qwen最終Run ID 20261113_232151_a808922d は対象範囲PASS、この検証項目のみP2 WARN/Unresolved。報告書SHA-256 1CBA641563D0BD88CCE21E41C71F97E7A563C550EBFDEA9DF9FB6A09F646D61E。

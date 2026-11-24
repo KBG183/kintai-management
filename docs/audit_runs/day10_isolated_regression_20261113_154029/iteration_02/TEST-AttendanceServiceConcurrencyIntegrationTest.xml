@@ -17,7 +17,7 @@
 
  :: Spring Boot ::                (v4.0.8)
 
-2026-11-13T15:41:12.548+09:00  INFO 8272 --- [    Test worker] endanceServiceConcurrencyIntegrationTest : Starting AttendanceServiceConcurrencyIntegrationTest using Java 17.0.12 with PID 8272 (started by <LOCAL_USER> in C:\dev\kintai)
+2026-11-13T15:41:12.548+09:00  INFO 8272 --- [    Test worker] endanceServiceConcurrencyIntegrationTest : Starting AttendanceServiceConcurrencyIntegrationTest using Java 17.0.12 with PID 8272 (started by <LOCAL_USER> in <PROJECT_ROOT>)
 2026-11-13T15:41:12.550+09:00  INFO 8272 --- [    Test worker] endanceServiceConcurrencyIntegrationTest : No active profile set, falling back to 1 default profile: "default"
 2026-11-13T15:41:13.749+09:00  INFO 8272 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
 2026-11-13T15:41:14.111+09:00  INFO 8272 --- [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@1008df1e

@@ -14,7 +14,7 @@
     "num_ctx":  24576,
     "seed":  42,
     "temperature":  0.1,
-    "target_file":  "C:\\dev\\kintai\\docs\\portfolio_audit_evidence_KO.md",
+    "target_file":  "<PROJECT_ROOT>\\docs\\portfolio_audit_evidence_KO.md",
     "target_sha256":  "d39330bd6beb18ea8ac2215bc32ff49d2a48377b411defa3c6c4503c936acf3b",
     "git_head":  "7c1622c2c5818268d84af67a849ca8f7a75ee0ec",
     "script_sha256":  "d94df24a6df2c97a51d25c5016403eb44f676cbd456f648752b3e2cbc5841b0e",
@@ -24,6 +24,6 @@
     "total_seconds":  52.46,
     "speed_tps":  46.4,
     "done_reason":  "stop",
-    "output_dir":  "C:\\dev\\kintai\\docs\\audit_runs\\20261113_072343_d39330bd",
+    "output_dir":  "<PROJECT_ROOT>\\docs\\audit_runs\\20261113_072343_d39330bd",
     "error_message":  ""
 }

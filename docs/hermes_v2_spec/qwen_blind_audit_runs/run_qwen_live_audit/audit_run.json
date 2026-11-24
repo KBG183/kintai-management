@@ -14,7 +14,7 @@
     "num_ctx":  24576,
     "seed":  42,
     "temperature":  0.1,
-    "target_file":  "c:\\dev\\kintai\\docs\\hermes_v2_spec\\blind_audit_bundle.md",
+    "target_file":  "<PROJECT_ROOT>\\docs\\hermes_v2_spec\\blind_audit_bundle.md",
     "target_sha256":  "ebd6b8c6d55dd05091c010fd49316423084313a8d5553908b9a5800d4533aeba",
     "git_head":  "33ea103dcbe9d610835a82b40ef0e51968a62ccf",
     "script_sha256":  "d94df24a6df2c97a51d25c5016403eb44f676cbd456f648752b3e2cbc5841b0e",
@@ -24,6 +24,6 @@
     "total_seconds":  51.24,
     "speed_tps":  50.6,
     "done_reason":  "stop",
-    "output_dir":  "C:\\dev\\kintai\\docs\\hermes_v2_spec\\qwen_blind_audit_runs\\run_qwen_live_audit",
+    "output_dir":  "<PROJECT_ROOT>\\docs\\hermes_v2_spec\\qwen_blind_audit_runs\\run_qwen_live_audit",
     "error_message":  ""
 }

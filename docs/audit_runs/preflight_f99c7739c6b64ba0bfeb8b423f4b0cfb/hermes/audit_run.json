@@ -14,7 +14,7 @@
   "num_ctx": 24576,
   "seed": 42,
   "temperature": 0.1,
-  "target_file": "C:\\dev\\kintai\\scripts\\..\\docs\\audit_runs\\preflight_f99c7739c6b64ba0bfeb8b423f4b0cfb\\input_bundle",
+  "target_file": "<PROJECT_ROOT>\\scripts\\..\\docs\\audit_runs\\preflight_f99c7739c6b64ba0bfeb8b423f4b0cfb\\input_bundle",
   "target_sha256": "3485208b9d7d5defd6a076148d97ddc5970a1c948075c536ed0ff4d53f6616ae",
   "git_head": "8a5d7a10b2102916d40f6975ebab48d6662345b7",
   "script_sha256": "d94df24a6df2c97a51d25c5016403eb44f676cbd456f648752b3e2cbc5841b0e",
@@ -24,6 +24,6 @@
   "total_seconds": 35.43,
   "speed_tps": 41.4,
   "done_reason": "stop",
-  "output_dir": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_f99c7739c6b64ba0bfeb8b423f4b0cfb\\hermes",
+  "output_dir": "<PROJECT_ROOT>\\docs\\audit_runs\\preflight_f99c7739c6b64ba0bfeb8b423f4b0cfb\\hermes",
   "error_message": ""
 }

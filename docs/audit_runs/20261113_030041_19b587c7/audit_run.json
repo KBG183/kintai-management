@@ -14,7 +14,7 @@
     "num_ctx":  24576,
     "seed":  42,
     "temperature":  0.1,
-    "target_file":  "C:\\dev\\kintai\\docs\\audit_bundles\\day10_attendance_concurrency_bundle.md",
+    "target_file":  "<PROJECT_ROOT>\\docs\\audit_bundles\\day10_attendance_concurrency_bundle.md",
     "target_sha256":  "19b587c7392d924af23aacd09cc6c898c373e7ee1d36e7f4d9e82ab1863a4425",
     "git_head":  "b3bec866398df3ca07912b5811ed4f9027ab90ae",
     "script_sha256":  "d94df24a6df2c97a51d25c5016403eb44f676cbd456f648752b3e2cbc5841b0e",
@@ -24,6 +24,6 @@
     "total_seconds":  33.29,
     "speed_tps":  50.5,
     "done_reason":  "stop",
-    "output_dir":  "C:\\dev\\kintai\\docs\\audit_runs\\20261113_030041_19b587c7",
+    "output_dir":  "<PROJECT_ROOT>\\docs\\audit_runs\\20261113_030041_19b587c7",
     "error_message":  ""
 }

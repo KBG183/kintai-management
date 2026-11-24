@@ -1,7 +1,7 @@
-﻿### [Hermes Audit Execution Metrics]
+### [Hermes Audit Execution Metrics]
 | Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed |
 |---|---|---|---|---|---|
-| C:\dev\kintai\kintai\docs\portfolio_audit_evidence.md (235 lines) | qwen27b:latest | 38.19s | 6562 tokens | 1620 tokens | 50.6 tokens/s |
+| <PROJECT_ROOT>\kintai\docs\portfolio_audit_evidence.md (235 lines) | qwen27b:latest | 38.19s | 6562 tokens | 1620 tokens | 50.6 tokens/s |
 
 | Audit Item | Verdict | Detailed Finding & Recommendation |
 |---|---|---|

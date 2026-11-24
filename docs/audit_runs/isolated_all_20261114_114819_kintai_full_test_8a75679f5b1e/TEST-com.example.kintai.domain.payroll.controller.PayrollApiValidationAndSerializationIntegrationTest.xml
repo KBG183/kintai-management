@@ -17,7 +17,7 @@
 
  :: Spring Boot ::                (v4.0.8)
 
-2026-11-14T11:48:40.010+09:00  INFO 8152 --- [    Test worker] alidationAndSerializationIntegrationTest : Starting PayrollApiValidationAndSerializationIntegrationTest using Java 17.0.12 with PID 8152 (started by <LOCAL_USER> in C:\dev\kintai)
+2026-11-14T11:48:40.010+09:00  INFO 8152 --- [    Test worker] alidationAndSerializationIntegrationTest : Starting PayrollApiValidationAndSerializationIntegrationTest using Java 17.0.12 with PID 8152 (started by <LOCAL_USER> in <PROJECT_ROOT>)
 2026-11-14T11:48:40.011+09:00  INFO 8152 --- [    Test worker] alidationAndSerializationIntegrationTest : No active profile set, falling back to 1 default profile: "default"
 2026-11-14T11:48:42.346+09:00  INFO 8152 --- [    Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
 2026-11-14T11:48:43.392+09:00  INFO 8152 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''

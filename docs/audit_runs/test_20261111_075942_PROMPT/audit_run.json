@@ -24,6 +24,6 @@
     "total_seconds":  10.43,
     "speed_tps":  51.5,
     "done_reason":  "stop",
-    "output_dir":  "C:\\dev\\kintai\\docs\\audit_runs\\test_20261111_075942_PROMPT",
+    "output_dir":  "<PROJECT_ROOT>\\docs\\audit_runs\\test_20261111_075942_PROMPT",
     "error_message":  ""
 }

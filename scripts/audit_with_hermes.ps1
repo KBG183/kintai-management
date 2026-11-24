@@ -1,4 +1,4 @@
-﻿param(
+param(
     [string]$TargetFile,
     [string]$CustomPrompt = "",
     [string]$SystemPromptOverride = "",

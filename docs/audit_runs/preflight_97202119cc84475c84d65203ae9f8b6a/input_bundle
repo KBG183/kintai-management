@@ -1220,7 +1220,7 @@ class SplitShiftOvertimeDefectTest {
   "scope": "All",
   "test_class": null,
   "run_id": "20261114_093302",
-  "output_dir": "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_093302_kintai_full_test_964bf98d5088",
+  "output_dir": "<PROJECT_ROOT>\\docs\\audit_runs\\isolated_all_20261114_093302_kintai_full_test_964bf98d5088",
   "jdbc_url_host": "127.0.0.1:3306"
 }
 
@@ -1230,7 +1230,7 @@ class SplitShiftOvertimeDefectTest {
   "scope": "Day11",
   "test_class": "com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest",
   "run_id": "20261114_093228",
-  "output_dir": "C:\\dev\\kintai\\docs\\audit_runs\\isolated_day11_20261114_093228_kintai_day11_test_3a25e5513c4f",
+  "output_dir": "<PROJECT_ROOT>\\docs\\audit_runs\\isolated_day11_20261114_093228_kintai_day11_test_3a25e5513c4f",
   "jdbc_url_host": "127.0.0.1:3306"
 }
 
@@ -2114,7 +2114,7 @@ Day 4 이후 기록을 추가할 때는 기존 수치를 덮어쓰지 않고 날
 
 ### 확인 사실
 
-- 프로젝트 기준 경로는 `C:\dev\kintai`이며, 이번 점검은 해당 로컬 프로젝트 폴더 전체를 기준으로 수행했다.
+- 프로젝트 기준 경로는 `<PROJECT_ROOT>`이며, 이번 점검은 해당 로컬 프로젝트 폴더 전체를 기준으로 수행했다.
 - `src/main/resources/schema.sql`과 `src/main/resources/db/schema.sql`은 파일 크기와 SHA-256이 서로 다르며, 테이블 정의·제약조건·컬럼이 일치하지 않는다.
 - Java 소스와 MyBatis 설정에서 두 스키마 파일을 직접 참조하는 코드는 확인되지 않았다.
 - `application.yaml`에는 `spring.sql.init.*`, `ddl-auto`, Flyway, Liquibase 설정이 없다. 따라서 현재 애플리케이션 실행은 외부 MySQL 데이터베이스의 사전 상태에 의존한다.
@@ -3158,7 +3158,7 @@ Day 4以降の記録を追加する際は、既存の数値を上書きせず、
 
 ### 確認事実
 
-- プロジェクト基準パスは `C:\dev\kintai` であり、今回の点検はこのローカルプロジェクトフォルダ全体を基準に実施した。
+- プロジェクト基準パスは `<PROJECT_ROOT>` であり、今回の点検はこのローカルプロジェクトフォルダ全体を基準に実施した。
 - `src/main/resources/schema.sql` と `src/main/resources/db/schema.sql` はファイルサイズと SHA-256 が異なり、テーブル定義・制約・カラムも一致しない。
 - Java ソースおよび MyBatis 設定から、いずれかのスキーマファイルを直接参照するコードは確認されなかった。
 - `application.yaml` には `spring.sql.init.*`、`ddl-auto`、Flyway、Liquibase の設定がない。そのため、現状のアプリケーション実行は外部 MySQL データベースの事前状態に依存している。

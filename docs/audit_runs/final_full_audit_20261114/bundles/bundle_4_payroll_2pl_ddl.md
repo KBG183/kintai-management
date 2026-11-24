@@ -1,4 +1,4 @@
-﻿# Final Full Audit Bundle: bundle_4_payroll_2pl_ddl
+# Final Full Audit Bundle: bundle_4_payroll_2pl_ddl
 Generated: 2026-11-14T12:48:13+09:00
 
 ## FILE: src\main\java\com\example\kintai\domain\payroll\controller\PayrollApiController.java

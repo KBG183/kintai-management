@@ -14,7 +14,7 @@
     "num_ctx":  24576,
     "seed":  42,
     "temperature":  0.1,
-    "target_file":  "c:\\dev\\kintai\\docs\\audit_bundles\\day9_payroll_excel_bundle.md",
+    "target_file":  "<PROJECT_ROOT>\\docs\\audit_bundles\\day9_payroll_excel_bundle.md",
     "target_sha256":  "6d76c8d393474c1ba4bbc738928e3da9b90a217e18245e96041478ad759ef7ee",
     "git_head":  "419eddb31b9d9fed54d05325e2c0c40f85a09e1e",
     "script_sha256":  "d94df24a6df2c97a51d25c5016403eb44f676cbd456f648752b3e2cbc5841b0e",
@@ -24,6 +24,6 @@
     "total_seconds":  29.99,
     "speed_tps":  50.6,
     "done_reason":  "stop",
-    "output_dir":  "C:\\dev\\kintai\\docs\\audit_runs\\20261112_045615_6d76c8d3",
+    "output_dir":  "<PROJECT_ROOT>\\docs\\audit_runs\\20261112_045615_6d76c8d3",
     "error_message":  ""
 }

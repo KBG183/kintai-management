@@ -10,7 +10,7 @@
 
 ## 1. 기존 실행 증거 물리적 목록 및 파일 완전성 대조
 
-`c:\dev\kintai\docs\hermes_v2_spec\qwen_blind_audit_runs\run_qwen_live_audit\` 디렉터리 내 물리적 파일 조사 결과:
+`<PROJECT_ROOT>\docs\hermes_v2_spec\qwen_blind_audit_runs\run_qwen_live_audit\` 디렉터리 내 물리적 파일 조사 결과:
 
 | 파일명 | 크기 (Bytes) | SHA-256 체크섬 | Hermes v1.1.1 표준 규격 여부 | 비고 / 검증 상태 |
 |---|---|---|:---:|---|
@@ -66,10 +66,10 @@
 ## 4. Run ID 및 저장 경로 정합성
 
 - **보고된 Run ID**: `20261112_062624_ebd6b8c6`
-- **실제 저장 경로**: `C:\dev\kintai\docs\hermes_v2_spec\qwen_blind_audit_runs\run_qwen_live_audit`
+- **실제 저장 경로**: `<PROJECT_ROOT>\docs\hermes_v2_spec\qwen_blind_audit_runs\run_qwen_live_audit`
 - **정합성 대조**:
   - `audit_run.json` 4행: `"run_id": "20261112_062624_ebd6b8c6"`
-  - `audit_run.json` 27행: `"output_dir": "C:\\dev\\kintai\\docs\\hermes_v2_spec\\qwen_blind_audit_runs\\run_qwen_live_audit"`
+  - `audit_run.json` 27행: `"output_dir": "<PROJECT_ROOT>\\docs\\hermes_v2_spec\\qwen_blind_audit_runs\\run_qwen_live_audit"`
   - `report.md` 4행 표 내부: `Run ID: 20261112_062624_ebd6b8c6`
 - **분석 및 권고**:
   - 실행 시 `-OutputDir` 파라미터로 명시적 폴더명(`run_qwen_live_audit`)을 주입하여 생성되었으나, 내부 파일들과 Run ID가 정확히 1:1로 일치하여 식별성에 모순은 없음.

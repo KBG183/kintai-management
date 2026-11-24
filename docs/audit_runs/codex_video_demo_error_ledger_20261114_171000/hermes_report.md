@@ -1,7 +1,7 @@
-﻿### [Hermes Audit Execution Metrics]
+### [Hermes Audit Execution Metrics]
 | Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed |
 |---|---|---|---|---|---|
-| C:\dev\kintai\docs\final-portfolio\video_demo_error_ledger_KO.md (38 lines) | qwen27b:latest | 24.35s | 1753 tokens | 802 tokens | 43.8 tokens/s |
+| <PROJECT_ROOT>\docs\final-portfolio\video_demo_error_ledger_KO.md (38 lines) | qwen27b:latest | 24.35s | 1753 tokens | 802 tokens | 43.8 tokens/s |
 
 OVERALL: AUDIT_PASSED
 

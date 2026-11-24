@@ -1,4 +1,4 @@
-﻿# Final Full Audit Bundle: bundle_3b_calendar_ui
+# Final Full Audit Bundle: bundle_3b_calendar_ui
 Generated: 2026-11-14T12:51:27+09:00
 
 ## FILE: src\main\java\com\example\kintai\domain\shift\dto\CalendarEventDto.java

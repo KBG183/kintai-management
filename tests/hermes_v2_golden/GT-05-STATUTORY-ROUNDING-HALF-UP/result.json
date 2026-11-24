@@ -14,10 +14,10 @@
     }
   },
   "bundle_info": {
-    "bundle_path": "C:/dev/kintai/tests/hermes_v2_golden/GT-05-STATUTORY-ROUNDING-HALF-UP/bundle.txt",
+    "bundle_path": "<PROJECT_ROOT>/tests/hermes_v2_golden/GT-05-STATUTORY-ROUNDING-HALF-UP/bundle.txt",
     "bundle_sha256": "1b6c99d2b09d0b7889d54a9f06ff7813b8ef376bc3357d1c25c9063574548f91",
     "target_files": [
-      "C:/dev/kintai/tests/hermes_v2_golden/GT-05-STATUTORY-ROUNDING-HALF-UP/bundle.txt"
+      "<PROJECT_ROOT>/tests/hermes_v2_golden/GT-05-STATUTORY-ROUNDING-HALF-UP/bundle.txt"
     ],
     "known_dependencies": [],
     "missing_dependencies": []
@@ -49,7 +49,7 @@
       "verdict": "PASS",
       "tracking_status": "OPEN",
       "location": {
-        "file_path": "C:/dev/kintai/tests/hermes_v2_golden/GT-05-STATUTORY-ROUNDING-HALF-UP/bundle.txt",
+        "file_path": "<PROJECT_ROOT>/tests/hermes_v2_golden/GT-05-STATUTORY-ROUNDING-HALF-UP/bundle.txt",
         "class_name": "Fixture",
         "method_name": "fixture",
         "line_start": 1,

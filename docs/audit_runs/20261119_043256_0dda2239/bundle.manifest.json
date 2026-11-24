@@ -1,7 +1,7 @@
 {
     "timestamp_utc":  "2026-11-19T04:32:56.5994525Z",
-    "target_file":  "C:\\dev\\kintai\\src\\main\\java\\com\\example\\kintai\\domain\\payroll\\service\\PayrollService.java",
-    "resolved_path":  "C:\\dev\\kintai\\src\\main\\java\\com\\example\\kintai\\domain\\payroll\\service\\PayrollService.java",
+    "target_file":  "<PROJECT_ROOT>\\src\\main\\java\\com\\example\\kintai\\domain\\payroll\\service\\PayrollService.java",
+    "resolved_path":  "<PROJECT_ROOT>\\src\\main\\java\\com\\example\\kintai\\domain\\payroll\\service\\PayrollService.java",
     "sha256":  "0dda2239c6bdac6abfcbe8ad1d011f6bb0ae4a68afb94febfdf7dfdb08650478",
     "line_count":  514,
     "git_head":  "56bce272c342bad20d3bed02dabc610426baf82c"

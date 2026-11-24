@@ -380,6 +380,6 @@ $env:KINTAI_DB_PASSWORD = "<ローカルDBパスワード>"
   "success_report_written": false,
   "test_result": "PASS",
   "remote_audit_result": "BLOCKED: Unable to connect to the remote server",
-  "console_log": "C:\\dev\\kintai\\docs\\audit_runs\\project_wide_handoff_20261114\\fail_closed_retest_console.log",
-  "attempted_report": "C:\\dev\\kintai\\docs\\audit_runs\\project_wide_handoff_20261114\\fail_closed_retest_report.md"
+  "console_log": "<PROJECT_ROOT>\\docs\\audit_runs\\project_wide_handoff_20261114\\fail_closed_retest_console.log",
+  "attempted_report": "<PROJECT_ROOT>\\docs\\audit_runs\\project_wide_handoff_20261114\\fail_closed_retest_report.md"
 }

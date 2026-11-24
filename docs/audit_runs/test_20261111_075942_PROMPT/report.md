@@ -1,4 +1,4 @@
-﻿### [Hermes Audit Execution Metrics v1.1.1]
+### [Hermes Audit Execution Metrics v1.1.1]
 | Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed | Done Reason | Run ID |
 |---|---|---|---|---|---|---|---|
 |  | qwen27b:latest (IQ3_M) | 10.43s | 390 tokens | 375 tokens | 51.5 tokens/s | stop | 20261111_075942_PROMPT |

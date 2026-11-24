@@ -1,7 +1,7 @@
-﻿### [Hermes Audit Execution Metrics]
+### [Hermes Audit Execution Metrics]
 | Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed |
 |---|---|---|---|---|---|
-| C:\dev\kintai\src\main\resources\templates\payroll\list.html (385 lines) | qwen27b:latest | 12.81s | 4572 tokens | 483 tokens | 46.9 tokens/s |
+| <PROJECT_ROOT>\src\main\resources\templates\payroll\list.html (385 lines) | qwen27b:latest | 12.81s | 4572 tokens | 483 tokens | 46.9 tokens/s |
 
 | Audit Item | Verdict (PASS / WARN / FAIL) | Detailed Finding & Recommendation (English) |
 |---|---|---|

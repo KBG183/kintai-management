@@ -1,4 +1,4 @@
-﻿# Final Full Audit Bundle: bundle_1_auth_security_store
+# Final Full Audit Bundle: bundle_1_auth_security_store
 Generated: 2026-11-14T12:48:13+09:00
 
 ## FILE: src\main\java\com\example\kintai\config\SecurityConfig.java

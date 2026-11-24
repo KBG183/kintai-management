@@ -10,14 +10,14 @@
 | 구성요소 명칭 | 실제 파일 경로 | 버전/설정 | 담당 역할 및 기능 | 호출자 (Caller) / 피호출자 (Callee) |
 |---|---|---|---|---|
 | **메인 감사 실행 스크립트** | `C:\Users\<LOCAL_USER>\.gemini\scripts\audit_with_hermes.ps1` | v1.1.1 | - Ollama REST API(`/api/chat`) 원격 호출<br>- 입력 토큰 수 추정 및 컨텍스트 한도(90%) 사전 방어<br>- 5초 스트리밍 하트비트 출력<br>- 실행 메트릭(소요시간, 속도, 토큰) 계산 및 리포트 저장 | **Caller**: 개발자/에이전트 수동 호출, `state_manager.ps1`<br>**Callee**: 원격 Ollama 서버 (`http://<TAILSCALE_OLLAMA_HOST>:11434`) |
-| **상태 전이 관리자** | `c:\dev\kintai\scripts\state_manager.ps1` | v3.0 | - 6단계 엄격 상태 머신(`IMPLEMENTED` ➔ `TESTED` ➔ `AUDIT_PASSED` ➔ `USER_APPROVED` ➔ `COMMITTED` ➔ `PUSHED`) 관리<br>- 감사 결과 리포트 파싱(PASS/FAIL/WARN 탐지)<br>- SHA-256 해시 검증 및 변조 방지 | **Caller**: 빌드/배포 스크립트, 에이전트 작업 파이프라인<br>**Callee**: `docs/state_machine_ledger.json`, 감사 리포트 파일 |
-| **감사 설정 파일** | `c:\dev\kintai\scripts\audit_config.json` | v1.0 | - 로컬 Ollama 엔드포인트(`<TAILSCALE_OLLAMA_HOST>:11434`) 지정<br>- 메인 모델(`qwen27b:latest`), 컨텍스트(`num_ctx: 24576`), `temperature: 0.1`, `think: false` 고정<br>- 폴백 엔드포인트(`127.0.0.1:11434`, `qwen2.5:7b`) 정의 | **Caller**: `audit_with_hermes.ps1`, `state_manager.ps1` |
-| **설정 유효성 스키마** | `c:\dev\kintai\scripts\audit_config.schema.json` | Draft-07 | `audit_config.json`의 JSON 스키마 유효성 검증용 메타 규격 | **Caller**: 설정 검증 스크립트 |
-| **4계층 판정 헌법** | `c:\dev\kintai\docs\constitution_4layer_specification.md` | v2.1 | - 계층 1(기본 원칙) ~ 계층 4(기술 증적서) 가이드라인<br>- 트랜잭션 격리, 일본 노동법 37조, 동시성 비관적 락 가이드 정의 | **Caller**: 감사관 프롬프트 빌더 |
-| **감사 프롬프트 명세** | `c:\dev\kintai\docs\audit_prompt_spec.md` | v1.0 | - Hermes 시스템 프롬프트(영문 100% 강제, 역할 정의)<br>- 마크다운 출력 포맷 템플릿 제공 | **Caller**: `audit_with_hermes.ps1` |
-| **상태 전이 원장** | `c:\dev\kintai\docs\state_machine_ledger.json` | Runtime | 각 태스크/일차별 상태 전이 이력, 커밋 해시, 테스트 통과 증적, 감사 리포트 해시 보관 | **Caller**: `state_manager.ps1` |
-| **감사 번들 저장소** | `c:\dev\kintai\docs\audit_bundles\` | Runtime | 검사 대상 Java/XML/SQL 파일들을 단일 E2E 마크다운 파일로 결합한 물리적 파일 | **Caller**: PowerShell 파이프라인 |
-| **감사 리포트 원본** | `c:\dev\kintai\docs\audit_runs\` | Runtime | 로컬 Ollama가 생성한 원시 마크다운 감사 리포트 디렉터리 (타임스탬프 기반 명명) | **Caller**: `audit_with_hermes.ps1` |
+| **상태 전이 관리자** | `<PROJECT_ROOT>\scripts\state_manager.ps1` | v3.0 | - 6단계 엄격 상태 머신(`IMPLEMENTED` ➔ `TESTED` ➔ `AUDIT_PASSED` ➔ `USER_APPROVED` ➔ `COMMITTED` ➔ `PUSHED`) 관리<br>- 감사 결과 리포트 파싱(PASS/FAIL/WARN 탐지)<br>- SHA-256 해시 검증 및 변조 방지 | **Caller**: 빌드/배포 스크립트, 에이전트 작업 파이프라인<br>**Callee**: `docs/state_machine_ledger.json`, 감사 리포트 파일 |
+| **감사 설정 파일** | `<PROJECT_ROOT>\scripts\audit_config.json` | v1.0 | - 로컬 Ollama 엔드포인트(`<TAILSCALE_OLLAMA_HOST>:11434`) 지정<br>- 메인 모델(`qwen27b:latest`), 컨텍스트(`num_ctx: 24576`), `temperature: 0.1`, `think: false` 고정<br>- 폴백 엔드포인트(`127.0.0.1:11434`, `qwen2.5:7b`) 정의 | **Caller**: `audit_with_hermes.ps1`, `state_manager.ps1` |
+| **설정 유효성 스키마** | `<PROJECT_ROOT>\scripts\audit_config.schema.json` | Draft-07 | `audit_config.json`의 JSON 스키마 유효성 검증용 메타 규격 | **Caller**: 설정 검증 스크립트 |
+| **4계층 판정 헌법** | `<PROJECT_ROOT>\docs\constitution_4layer_specification.md` | v2.1 | - 계층 1(기본 원칙) ~ 계층 4(기술 증적서) 가이드라인<br>- 트랜잭션 격리, 일본 노동법 37조, 동시성 비관적 락 가이드 정의 | **Caller**: 감사관 프롬프트 빌더 |
+| **감사 프롬프트 명세** | `<PROJECT_ROOT>\docs\audit_prompt_spec.md` | v1.0 | - Hermes 시스템 프롬프트(영문 100% 강제, 역할 정의)<br>- 마크다운 출력 포맷 템플릿 제공 | **Caller**: `audit_with_hermes.ps1` |
+| **상태 전이 원장** | `<PROJECT_ROOT>\docs\state_machine_ledger.json` | Runtime | 각 태스크/일차별 상태 전이 이력, 커밋 해시, 테스트 통과 증적, 감사 리포트 해시 보관 | **Caller**: `state_manager.ps1` |
+| **감사 번들 저장소** | `<PROJECT_ROOT>\docs\audit_bundles\` | Runtime | 검사 대상 Java/XML/SQL 파일들을 단일 E2E 마크다운 파일로 결합한 물리적 파일 | **Caller**: PowerShell 파이프라인 |
+| **감사 리포트 원본** | `<PROJECT_ROOT>\docs\audit_runs\` | Runtime | 로컬 Ollama가 생성한 원시 마크다운 감사 리포트 디렉터리 (타임스탬프 기반 명명) | **Caller**: `audit_with_hermes.ps1` |
 
 ---
 

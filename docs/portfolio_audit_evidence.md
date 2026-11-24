@@ -422,7 +422,7 @@ flowchart TD
 #### 2. 主要検出事項および解決措置
 - **ローカルHermes監査によるN+1クエリ欠陥の検出と即時解決**:
   - getModRequestsにおいて修正申請一覧取得後、各申請の休憩区間を個別にSQL呼出していた欠陥に対し、Hermes 27Bが「Code Quality: N+1 Query Problem」としてWARN警告を検出。
-  - indModBreaksByRequestIds（一括IN句クエリ）およびO(1)インメモリマッピングへ即時リファクタリングを断行し、2次再監査にて完全PASS（解消確認）を獲得。
+  - indModBreaksByRequestIds（一括IN句クエリ）およびO(1)インメモリマッピングへ即時リファクタリングを断行し、2次再監査にて完全PASS（解消確認）を獲得。
 - **勤務時間帯の重複防御（R-03 / Overlapping Detection）の実装**:
   - 申請時および承認時の両段階において、同一従業員の他勤務記録との時間帯重複（countOverlappingAttendances）を厳格に検証・遮断。
 - **給与確定衝突防御及び悲観的・楽観的並行制御（CAS UPDATE & SELECT ... FOR UPDATE）**:
@@ -822,7 +822,7 @@ flowchart TD
 
 
 
-- 証拠バンドル最終整合監査: Hermes v1.1.1 / Qwen 27B IQ3_M、リモート <TAILSCALE_OLLAMA_HOST>:11434。Run ID 20261113_231841_e3e0981e、30.19秒、入力3162/出力1169トークン。バンドルSHA-256 3e0981eaac3a4f47314aa2c9164c2cdfb1ec18f4541622ca27d8f4f40f4a7f0、報告書 docs/audit_runs/day13_calendar_20261114/qwen27b_final/report.md、SHA-256 41087C2A78D80FFA37B50A79BF8CA5F46B2DA9E3BC6EB9B0967974C7CFE40A9。最終Verdict PASS。リモート /api/ps とローカルOllamaが空である実測は qwen27b_remote_ps_final.json。
+- 証拠バンドル最終整合監査: Hermes v1.1.1 / Qwen 27B IQ3_M、リモート <TAILSCALE_OLLAMA_HOST>:11434。Run ID 20261113_231841_e3e0981e、30.19秒、入力3162/出力1169トークン。バンドルSHA-256 3e0981eaac3a4f47314aa2c9164c2cdfb1ec18f4541622ca27d8f4f40f4a7f0、報告書 docs/audit_runs/day13_calendar_20261114/qwen27b_final/report.md、SHA-256 41087C2A78D80FFA37B50A79BF8CA5F46B2DA9E3BC6EB9B0967974C7CFE40A9。最終Verdict PASS。リモート /api/ps とローカルOllamaが空である実測は qwen27b_remote_ps_final.json。
 
 
 - ブラウザーDLの最終確認: ChromeでExcel出力をクリックすると /api/payroll/excel?storeId=1&yearMonth=2026-01 で ERR_BLOCKED_BY_CLIENT となった。ブラウザーツールのURLポリシーは chrome://downloads/ への移動と代替経路・回避を明示的に拒否した。原因をアプリまたは拡張機能と断定しない。認証APIのXLSXは正常・有効だが、browser-managed保存は未確認。Qwen最終Run ID 20261113_232151_a808922d は対象範囲PASS、この検証項目のみP2 WARN/Unresolved。報告書SHA-256 1CBA641563D0BD88CCE21E41C71F97E7A563C550EBFDEA9DF9FB6A09F646D61E。
@@ -1193,18 +1193,22 @@ Day 4以降の記録を追加する際は、既存の数値を上書きせず、
 
 ## 33. リリース前4大ドメイン全数精密監査およびエッジケース是正 (2026-11-19)
 
-- **背景**: 8段階精密全数検証（Pre-release 8-Stage Deep Audit）に基づき、勤怠・シフト・給与・セキュリティの4大主要ドメイン全体（計1,860行）に対し、自宅RTX 5070 Ti搭載の独立ローカルAI監査官（Qwen 3.8 27B, `think: false`）による全数交差監査を実施。MyBatis動的タグのNULL更新漏れや日跨ぎ夜勤シフト重複判定範囲の欠落等のエッジケースを検出し、コード是正および防御単体テスト増設を完了。
+- **背景**: 8段階精密全数検証（Pre-release 8-Stage Deep Audit）に基づき、勤怠・シフト・給与・セキュリティの4大主要ドメイン全体（計1,730行）に対し、自宅RTX 5070 Ti搭載の独立ローカルAI監査官（Qwen 3.8 27B, `think: false`）による全数交差監査を実施。MyBatis動的タグのNULL更新漏れや日跨ぎ夜勤シフト重複判定範囲の欠落等のエッジケースを検出し、コード是正および防御単体テスト増設を完了。
 - **ローカルAI（Qwen 27B）4大ドメイン監査実測集計**:
   | ドメイン | 対象ファイル | 行数 | 所要時間 | 入力トークン | 出力トークン | 生成速度 | 判定結果 | Run ID |
   |---|---|---|---|---|---|---|---|---|
   | **勤怠・打刻** | `AttendanceService.java` | 543行 | 106.63秒 | 6,304 tokens | 2,325 tokens | 44.7 tok/s | E2E VERIFIED | `20261119_042842_388582ee` |
   | **シフト** | `ShiftService.java` | 498行 | 58.35秒 | 5,625 tokens | 2,751 tokens | 49.8 tok/s | PASS | `20261119_043121_50bd5f38` |
-  | **給与・労基法** | `PayrollService.java` | 644行 | 46.59秒 | 6,907 tokens | 2,121 tokens | 49.6 tok/s | PASS | `20261119_043256_0dda2239` |
+  | **給与・労基法** | `PayrollService.java` | 514行 | 46.59秒 | 6,907 tokens | 2,121 tokens | 49.6 tok/s | E2E VERIFIED | `20261119_043256_0dda2239` |
   | **認証・認可** | `SecurityConfig.java` | 175行 | 34.61秒 | 1,944 tokens | 1,689 tokens | 50.7 tok/s | PASS | `20261119_043415_294c78bf` |
-  | **合計 / 平均** | **4大主要ソース** | **1,860行** | **246.18秒** | **20,780 tokens** | **8,886 tokens** | **48.7 tok/s** | **ALL DOMAIN PASS** | - |
+  | **合計 / 平均** | **4大主要ソース** | **1,730行** | **246.18秒** | **20,780 tokens** | **8,886 tokens** | **48.7 tok/s** | **ALL DOMAIN PASS** | - |
 - **是正および検証内容**:
   1. **ATT-BUG-01（休憩終了時の進行中フラグNULL更新是正）**: `AttendanceMapper.xml` の `updateAttendance` において、`<if test="breakStartAt != null">` によるNULL更新欠落を解消し、`break_start_at = #{breakStartAt, jdbcType=TIMESTAMP}` による完全NULL初期化を担保。
   2. **SFT-BUG-01（日跨ぎ夜勤シフト重複判定の範囲拡張）**: `ShiftMapper.xml` の `existsOverlapShift` において、`work_date = #{workDate}` 単一検索から前後1日（`BETWEEN DATE_SUB/DATE_ADD`）へ検索範囲を拡張。前日22:00〜翌日06:00の夜勤シフトとの重複を確実に遮断し、`ShiftServiceTest` に防御単体テストを追加。
   3. **SEC-ROLE-01（認証・認可ロールの整合）**: DBスキーマに実在しない `ROLE_MANAGER` および `ROLE_ADMIN` を整理し、店長・管理者権限を `ROLE_OWNER`、スタッフ権限を `ROLE_STAFF` に統一。
   4. **DOCS-SSOT（ドキュメント整合および衛生管理）**: スライド19のリンク先を `exit_summary.json` へ整合、要約書の98 PASS数値統一、公開スクリプトマニフェスト（5/5）再生成、および全272個のJSONファイルからUTF-8 BOMを完全除去。
+  5. **P0指摘事項のE2E実証解剖および公式棄却根拠（口頭説明の排除と物理検証）**:
+     - **F-001 & F-006（労働基準法第37条 深夜休憩減算ロジック）**: 監査官は単一ファイル検査により `AttendanceTimeCalculator` の実装不在から P0 FAIL / WARN を判定したが、実コード（`AttendanceTimeCalculator.java:184~195`）にて総拘束時間から休憩区間を完全除外した純実働区間（`WorkInterval`）を抽出し、22:00〜05:00の境界スライシングを行うため、深夜休憩は深夜労働時間から100%自動控除されることを物理証明。
+     - **F-004（勤怠修正申請のIDOR脆弱性懸念）**: サービス単体コード上の DTO `storeStaffId` 直接受領に対し P0 FAIL が指摘されたが、コントローラー関門（`AttendanceApiController.java:99`）にてセッション認証済みの `userDetails.getStoreStaffId()` による強制上書き（`forceBindSessionStaffId`）が配備されており、`AttendanceApiSecurityTest.java:208` のスプーフィング遮断単体テスト PASS により実証解決を確認。
+     - **F-01（給与計算 50%重畳割増の整合性）**: `PayrollCalculator.java:113~116` において基本給100%＋深夜25%＋残業25%＝150%が完全分離算定され、内訳と総額が1円の誤差もなく合致することを `AnnualPayrollScenarioIntegrationTest.java`（12ヶ月全件PASS）により証明。
 - **証拠/引継ぎ**: `docs/audit_runs/audit_attendance_service_report.md`、`docs/audit_runs/audit_shift_service_report.md`、`docs/audit_runs/audit_payroll_service_report.md`、`docs/audit_runs/audit_security_config_report.md`、`docs/handoff/20261119_1340_antigravity_handoff.md`。

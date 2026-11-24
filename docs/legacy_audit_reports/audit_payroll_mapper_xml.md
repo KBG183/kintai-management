@@ -1,7 +1,7 @@
-﻿### [Hermes Audit Execution Metrics]
+### [Hermes Audit Execution Metrics]
 | Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed |
 |---|---|---|---|---|---|
-| C:\dev\kintai\src\main\resources\mapper\payroll\PayrollMapper.xml (275 lines) | qwen27b:latest | 22.3s | 2568 tokens | 1056 tokens | 50.9 tokens/s |
+| <PROJECT_ROOT>\src\main\resources\mapper\payroll\PayrollMapper.xml (275 lines) | qwen27b:latest | 22.3s | 2568 tokens | 1056 tokens | 50.9 tokens/s |
 
 | Audit Item | Verdict (PASS / WARN / FAIL) | Detailed Finding & Recommendation (English) |
 |---|---|---|

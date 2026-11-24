@@ -14,7 +14,7 @@
   "num_ctx": 24576,
   "seed": 42,
   "temperature": 0.1,
-  "target_file": "C:\\dev\\kintai\\docs\\audit_runs\\day11_local_final_review_20261113\\input_bundle.md",
+  "target_file": "<PROJECT_ROOT>\\docs\\audit_runs\\day11_local_final_review_20261113\\input_bundle.md",
   "target_sha256": "a39493e57c6c503b01baf939dfbcdc730ba356f381545f5af69499a0f0cdc335",
   "git_head": "7c1622c2c5818268d84af67a849ca8f7a75ee0ec",
   "script_sha256": "d94df24a6df2c97a51d25c5016403eb44f676cbd456f648752b3e2cbc5841b0e",
@@ -24,6 +24,6 @@
   "total_seconds": 55.06,
   "speed_tps": 42.9,
   "done_reason": "stop",
-  "output_dir": "C:\\dev\\kintai\\docs\\audit_runs\\day11_local_final_review_20261113\\qwen_run",
+  "output_dir": "<PROJECT_ROOT>\\docs\\audit_runs\\day11_local_final_review_20261113\\qwen_run",
   "error_message": ""
 }

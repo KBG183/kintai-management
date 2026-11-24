@@ -677,7 +677,7 @@ Do not trust prior conclusions. Use only the supplied target content. State PASS
 [lines 34-]
 }
   "error_message": ""
-  "output_dir": "C:\\dev\\kintai\\docs\\audit_runs\\20261114_014515_cd7cd20d",
+  "output_dir": "<PROJECT_ROOT>\\docs\\audit_runs\\20261114_014515_cd7cd20d",
   "done_reason": "stop",
   "speed_tps": 39.5,
   "total_seconds": 46.43,

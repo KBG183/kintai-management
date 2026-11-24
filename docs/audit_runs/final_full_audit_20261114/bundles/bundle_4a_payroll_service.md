@@ -1,4 +1,4 @@
-﻿# Final Full Audit Bundle: bundle_4a_payroll_service
+# Final Full Audit Bundle: bundle_4a_payroll_service
 Generated: 2026-11-14T12:51:27+09:00
 
 ## FILE: src\main\java\com\example\kintai\domain\payroll\controller\PayrollApiController.java

@@ -24,6 +24,6 @@
     "total_seconds":  0,
     "speed_tps":  0,
     "done_reason":  "unknown",
-    "output_dir":  "C:\\dev\\kintai\\docs\\audit_runs\\test_b01_isolation",
+    "output_dir":  "<PROJECT_ROOT>\\docs\\audit_runs\\test_b01_isolation",
     "error_message":  "API call failed after 1 retries. Last error: Exception calling \"GetRequestStream\" with \"0\" argument(s): \"Unable to connect to the remote server\""
 }

@@ -1,4 +1,4 @@
-﻿*************************** 1. row ***************************
+*************************** 1. row ***************************
        Table: attendance
 Create Table: CREATE TABLE `attendance` (
   `attendance_id` bigint NOT NULL AUTO_INCREMENT COMMENT '���� PK',

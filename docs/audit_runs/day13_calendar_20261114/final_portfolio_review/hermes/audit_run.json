@@ -14,7 +14,7 @@
   "num_ctx": 24576,
   "seed": 42,
   "temperature": 0.1,
-  "target_file": "C:\\dev\\kintai\\scripts\\..\\docs\\audit_runs\\preflight_22638bc7d0684e819a023f276eb473dd\\input_bundle",
+  "target_file": "<PROJECT_ROOT>\\scripts\\..\\docs\\audit_runs\\preflight_22638bc7d0684e819a023f276eb473dd\\input_bundle",
   "target_sha256": "77734dbc9a0123e97a6e177499f4279095c224770f71a7f6abc4c2962def3450",
   "git_head": "8a5d7a10b2102916d40f6975ebab48d6662345b7",
   "script_sha256": "d94df24a6df2c97a51d25c5016403eb44f676cbd456f648752b3e2cbc5841b0e",
@@ -24,6 +24,6 @@
   "total_seconds": 51.31,
   "speed_tps": 43.5,
   "done_reason": "stop",
-  "output_dir": "C:\\dev\\kintai\\docs\\audit_runs\\day13_calendar_20261114\\final_portfolio_review\\hermes",
+  "output_dir": "<PROJECT_ROOT>\\docs\\audit_runs\\day13_calendar_20261114\\final_portfolio_review\\hermes",
   "error_message": ""
 }

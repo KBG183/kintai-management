@@ -5,10 +5,10 @@ Daemon will be stopped at the end of the build
 > Task :classes
 
 > Task :compileTestJava
-C:\dev\kintai\src\test\java\com\example\kintai\domain\attendance\controller\AttendancePunchApiIntegrationTest.java:10: error: package org.springframework.boot.test.autoconfigure.web.servlet does not exist
+<PROJECT_ROOT>\src\test\java\com\example\kintai\domain\attendance\controller\AttendancePunchApiIntegrationTest.java:10: error: package org.springframework.boot.test.autoconfigure.web.servlet does not exist
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
                                                               ^
-C:\dev\kintai\src\test\java\com\example\kintai\domain\attendance\controller\AttendancePunchApiIntegrationTest.java:33: error: cannot find symbol
+<PROJECT_ROOT>\src\test\java\com\example\kintai\domain\attendance\controller\AttendancePunchApiIntegrationTest.java:33: error: cannot find symbol
 @AutoConfigureMockMvc
  ^
   symbol: class AutoConfigureMockMvc
@@ -16,17 +16,17 @@ C:\dev\kintai\src\test\java\com\example\kintai\domain\attendance\controller\Atte
 
 > Task :compileTestJava FAILED
 
-[Incubating] Problems report is available at: file:///C:/dev/kintai/build/reports/problems/problems-report.html
+[Incubating] Problems report is available at: file:///<PROJECT_ROOT>/build/reports/problems/problems-report.html
 
 FAILURE: Build failed with an exception.
 
 * What went wrong:
 Execution failed for task ':compileTestJava' (registered by plugin class 'org.gradle.api.plugins.JavaBasePlugin').
 > Compilation failed; see the compiler output below.
-  C:\dev\kintai\src\test\java\com\example\kintai\domain\attendance\controller\AttendancePunchApiIntegrationTest.java:10: error: package org.springframework.boot.test.autoconfigure.web.servlet does not exist
+  <PROJECT_ROOT>\src\test\java\com\example\kintai\domain\attendance\controller\AttendancePunchApiIntegrationTest.java:10: error: package org.springframework.boot.test.autoconfigure.web.servlet does not exist
   import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
                                                                 ^
-  C:\dev\kintai\src\test\java\com\example\kintai\domain\attendance\controller\AttendancePunchApiIntegrationTest.java:33: error: cannot find symbol
+  <PROJECT_ROOT>\src\test\java\com\example\kintai\domain\attendance\controller\AttendancePunchApiIntegrationTest.java:33: error: cannot find symbol
   @AutoConfigureMockMvc
    ^
     symbol: class AutoConfigureMockMvc

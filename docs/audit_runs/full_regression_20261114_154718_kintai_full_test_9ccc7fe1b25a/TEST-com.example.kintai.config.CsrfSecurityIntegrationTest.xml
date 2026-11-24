@@ -20,7 +20,7 @@
 
  :: Spring Boot ::                (v4.0.8)
 
-2026-11-14T15:47:41.189+09:00  INFO 23172 --- [    Test worker] c.e.k.c.CsrfSecurityIntegrationTest      : Starting CsrfSecurityIntegrationTest using Java 17.0.12 with PID 23172 (started by <LOCAL_USER> in C:\dev\kintai)
+2026-11-14T15:47:41.189+09:00  INFO 23172 --- [    Test worker] c.e.k.c.CsrfSecurityIntegrationTest      : Starting CsrfSecurityIntegrationTest using Java 17.0.12 with PID 23172 (started by <LOCAL_USER> in <PROJECT_ROOT>)
 2026-11-14T15:47:41.189+09:00  INFO 23172 --- [    Test worker] c.e.k.c.CsrfSecurityIntegrationTest      : No active profile set, falling back to 1 default profile: "default"
 2026-11-14T15:47:44.064+09:00  INFO 23172 --- [    Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
 2026-11-14T15:47:45.341+09:00  INFO 23172 --- [    Test worker] c.e.k.c.CsrfSecurityIntegrationTest      : Started CsrfSecurityIntegrationTest in 4.504 seconds (process running for 6.267)

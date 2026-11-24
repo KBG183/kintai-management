@@ -16,7 +16,7 @@
 
  :: Spring Boot ::                (v4.0.8)
 
-2026-11-14T07:25:09.452+09:00  INFO 21284 --- [    Test worker] c.example.kintai.KintaiApplicationTests  : Starting KintaiApplicationTests using Java 17.0.12 with PID 21284 (started by <LOCAL_USER> in C:\dev\kintai)
+2026-11-14T07:25:09.452+09:00  INFO 21284 --- [    Test worker] c.example.kintai.KintaiApplicationTests  : Starting KintaiApplicationTests using Java 17.0.12 with PID 21284 (started by <LOCAL_USER> in <PROJECT_ROOT>)
 2026-11-14T07:25:09.454+09:00  INFO 21284 --- [    Test worker] c.example.kintai.KintaiApplicationTests  : No active profile set, falling back to 1 default profile: "default"
 2026-11-14T07:25:11.807+09:00  INFO 21284 --- [    Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
 2026-11-14T07:25:12.965+09:00  INFO 21284 --- [    Test worker] c.example.kintai.KintaiApplicationTests  : Started KintaiApplicationTests in 3.835 seconds (process running for 5.429)

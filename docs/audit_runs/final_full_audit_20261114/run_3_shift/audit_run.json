@@ -14,7 +14,7 @@
     "num_ctx":  24576,
     "seed":  42,
     "temperature":  0.1,
-    "target_file":  "C:\\dev\\kintai\\docs\\audit_runs\\final_full_audit_20261114\\bundles\\bundle_3_shift_calendar_ui.md",
+    "target_file":  "<PROJECT_ROOT>\\docs\\audit_runs\\final_full_audit_20261114\\bundles\\bundle_3_shift_calendar_ui.md",
     "target_sha256":  "42f7e38d5596e2f789e1df0b54166db06a52104fed3f6984962d28f25a63fd71",
     "git_head":  "9f1d02100bd8041738e45916aeae6fccbb209c31",
     "script_sha256":  "d94df24a6df2c97a51d25c5016403eb44f676cbd456f648752b3e2cbc5841b0e",
@@ -24,6 +24,6 @@
     "total_seconds":  0,
     "speed_tps":  0,
     "done_reason":  "unknown",
-    "output_dir":  "C:\\dev\\kintai\\docs\\audit_runs\\final_full_audit_20261114\\run_3_shift",
+    "output_dir":  "<PROJECT_ROOT>\\docs\\audit_runs\\final_full_audit_20261114\\run_3_shift",
     "error_message":  "Pre-check failed: Estimated input tokens (24524) exceeds 90% of num_ctx (22118 / 24576). Risk of truncation."
 }

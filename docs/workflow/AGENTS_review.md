@@ -2,7 +2,7 @@
 
 ## Scope and preservation rule
 
-- Reviewed source: `C:\dev\kintai\AGENTS.md`
+- Reviewed source: `<PROJECT_ROOT>\AGENTS.md`
 - This document does not modify or replace the source.
 - Facts below come from the reviewed files or build configuration. Recommendations
   are explicitly labeled as recommendations.
@@ -12,7 +12,7 @@
 | ID | Finding | Evidence | Impact |
 |---|---|---|---|
 | F-01 | The project toolchain is Java 17, while AGENTS.md states Java 21. | `build.gradle` sets `JavaLanguageVersion.of(17)`; AGENTS.md Team Role Architecture | An operator can write or review against the wrong runtime baseline. |
-| F-02 | Hermes execution paths conflict. | AGENTS.md names `C:\Users\<LOCAL_USER>\.gemini\scripts\audit_with_hermes.ps1`; active project script is `C:\dev\kintai\scripts\audit_with_hermes.ps1`. | Instructions can call an obsolete or different script. |
+| F-02 | Hermes execution paths conflict. | AGENTS.md names `C:\Users\<LOCAL_USER>\.gemini\scripts\audit_with_hermes.ps1`; active project script is `<PROJECT_ROOT>\scripts\audit_with_hermes.ps1`. | Instructions can call an obsolete or different script. |
 | F-03 (superseded) | An earlier review snapshot reported conflicting Hermes hosts. | The active project script and config were rechecked on 2026-11-14 and both specify `<TAILSCALE_OLLAMA_HOST>:11434`. | Historical finding; do not use the obsolete `100.91` value. See current-state correction below. |
 | F-04 | Model policy is internally inconsistent. | AGENTS.md preserves `qwen2.5:7b` fallback rules; current operating policy says the 27B Antigravity/Hermes route is primary and Codex queue routing is not the standard route. | A lower-capacity model or retired workflow can be used unintentionally. |
 | F-05 | The document contains mandatory daily full-audit, pre-audit, re-audit, and three-step source-wide audit requirements. | AGENTS.md sections 6, 11, 14, and 17. | Small changes can trigger disproportionate work, delay the Day-based plan, and encourage checkbox evidence rather than risk-based evidence. |

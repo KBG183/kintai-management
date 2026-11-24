@@ -1,4 +1,4 @@
-﻿package com.example.kintai.domain.payroll.util;
+package com.example.kintai.domain.payroll.util;
 
 import com.example.kintai.domain.attendance.util.AttendanceTimeCalculator;
 

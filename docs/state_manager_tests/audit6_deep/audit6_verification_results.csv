@@ -1,4 +1,4 @@
-﻿"TestId","Category","ExpectedExit","ActualExit","Evidence","Status"
+"TestId","Category","ExpectedExit","ActualExit","Evidence","Status"
 "SM-12-CRASH","Ledger Crash Recovery","0","0","TmpCleaned=True, ValidLedger=True","PASS"
 "SM-13-CONCURRENCY","OS Mutex Lock Contention","P1:0, P2:0","P1:0, P2:0","PID1=12868, PID2=28356, LedgerIntact=True","PASS"
 "A-28-WHITELIST","Command Injection Defense","Cmd:61, Ps:0","Cmd:61, Ps:0","cmd.exe blocked (61), powershell.exe allowed (0)","PASS"

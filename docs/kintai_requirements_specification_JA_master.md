@@ -1,8 +1,8 @@
-﻿# 📘 日本型シフト・勤怠・給与精算システム マスター技術仕様書および詳細要件定義書 (SRS)
+# 📘 日本型シフト・勤怠・給与精算システム マスター技術仕様書および詳細要件定義書 (SRS)
 
 > **システム名**: 日本型シフト・勤怠・給与精算システム (勤怠・シフト・給与管理システム / Kintai Management System)  
 > **文書種別**: プロジェクト概論書 · アーキテクチャ設計書 · DB物理仕様書 · 業務ドメイン実装ガイド統合版  
-> **ビルド基準**: uild.gradle 基準 Java toolchain 17, Spring Boot 4.0.8, MyBatis Spring Boot Starter 4.0.1, Spring Security, Thymeleaf, Spring WebMVC, Bean Validation, Apache POI 5.2.5。検証環境は ローカル MySQL 26.7（MySQL 8.4 互換）。画面ライブラリおよびその他の設定は実際の設定ファイルに準拠します。  
+> **ビルド基準**: uild.gradle 基準 Java toolchain 17, Spring Boot 4.0.8, MyBatis Spring Boot Starter 4.0.1, Spring Security, Thymeleaf, Spring WebMVC, Bean Validation, Apache POI 5.2.5。検証環境は ローカル MySQL 26.7（MySQL 8.4 互換）。画面ライブラリおよびその他の設定は実際の設定ファイルに準拠します。  
 > **文書の目的と運用**: 本文書は企画・要件・DB・API・画面・法令計算ルールを一元管理する Single Source of Truth (SSOT) です。実装前に実プロジェクトのファイル群と照合し、仕様とコードに齟齬が生じた場合は検証証跡に基づき継続的に同期します。本文書は要件基準であり、記載のみをもって実装完了と判断しません。
 
 ---
@@ -94,10 +94,10 @@ com.example.kintai
 | ログイン / 新規登録 | GET /login, GET /join | member/login, member/join | 匿名アクセス可 | 認証およびアカウント開設 |
 | 店舗管理 | GET /stores | store/manage | ROLE_OWNER | 店舗情報、スタッフ一覧、契約条件設定 |
 | シフト計画 | GET /shifts | shift/calendar | ROLE_OWNER, ROLE_STAFF | シフト希望提出およびカレンダー確定調整 |
-| 勤怠打刻 | GET /attendance | ttendance/punch | ROLE_STAFF (オーナーは代理確認可) | 出勤・休憩・退勤打刻および月間履歴照会 |
-| 勤怠承認管理 | GET /attendance/mod-requests | ttendance/mod-list | ROLE_OWNER | 打刻修正申請の承認・却下ワークフロー |
+| 勤怠打刻 | GET /attendance | ttendance/punch | ROLE_STAFF (オーナーは代理確認可) | 出勤・休憩・退勤打刻および月間履歴照会 |
+| 勤怠承認管理 | GET /attendance/mod-requests | ttendance/mod-list | ROLE_OWNER | 打刻修正申請の承認・却下ワークフロー |
 | 給与精算 | GET /payroll | payroll/list | ROLE_OWNER | 月次給与集計・帳簿確定・明細書・Excel出力 |
-| 経営分析 (拡張) | GET /analytics | nalytics/dashboard | ROLE_OWNER (拡張時) | 参考用人件費・年収シミュレーション |
+| 経営分析 (拡張) | GET /analytics | nalytics/dashboard | ROLE_OWNER (拡張時) | 参考用人件費・年収シミュレーション |
 
 ---
 
@@ -175,11 +175,11 @@ REST API エンドポイントは、一貫したレスポンス構造を提供�
 ---## 第2章. データベース物理設計および全DDL定義 (Database Schema)
 
 実装およびMyBatisマッピングにおいて、テーブル名およびカラム名の不整合を防止するため、以下の確定DDLを正本とします。  
-（pplication.yaml に map-underscore-to-camel-case: true が設定されているため、DBの store_staff_id は Java DTO の storeStaffId と自動マッピングされます。）
+（pplication.yaml に map-underscore-to-camel-case: true が設定されているため、DBの store_staff_id は Java DTO の storeStaffId と自動マッピングされます。）
 
 ### 2.1 コアテーブルDDL (src/main/resources/db/schema.sql)
 
-以下のDDLはMVPの基準スキーマです。基本テーブルに加え、契約履歴 (store_staff_contract_history)、複数回休憩 (ttendance_break)、修正申請休憩スナップショット (ttendance_mod_break)、および給与日別確定詳細 (payroll_daily_detail) を定義しています。Mapper および DTO は本スキーマに完全準拠させます。
+以下のDDLはMVPの基準スキーマです。基本テーブルに加え、契約履歴 (store_staff_contract_history)、複数回休憩 (ttendance_break)、修正申請休憩スナップショット (ttendance_mod_break)、および給与日別確定詳細 (payroll_daily_detail) を定義しています。Mapper および DTO は本スキーマに完全準拠させます。
 
 `sql
 -- 1. 会員 (オーナーおよびスタッフのアカウントマスタ)
@@ -588,13 +588,13 @@ ALTER TABLE store ADD COLUMN min_peak_staff INT NOT NULL DEFAULT 3 COMMENT 'ピ�
     * grossMinutes > 525: 60分
   * オーナーが計画休憩時間を入力した場合、法定下限を満たしているかを検証し、不足している場合は入力エラーとして差し戻します。
 
----## 第5章. [ドメイン 3] 監査証跡 出退勤打刻および修正承認ワークフロー (ttendance, ttendance_mod_request)
+---## 第5章. [ドメイン 3] 監査証跡 出退勤打刻および修正承認ワークフロー (ttendance, ttendance_mod_request)
 
 > **実装領域**: リアルタイム勤怠打刻および改ざん防止監査ワークフロー  
 > **パッケージ**: com.example.kintai.domain.attendance
 
 ### 5.1 ドメイン概論および状態遷移マシン (State Machine)
-スタッフの1日の勤怠状態 (ttendance_status) は、以下の厳格な有限状態遷移モデルに従います:
+スタッフの1日の勤怠状態 (ttendance_status) は、以下の厳格な有限状態遷移モデルに従います:
 `	ext
 [未出勤] ──(出勤打刻: CLOCK_IN)──▶ [WORKING (勤務中)]
                                        │         ▲
@@ -623,7 +623,7 @@ ALTER TABLE store ADD COLUMN min_peak_staff INT NOT NULL DEFAULT 3 COMMENT 'ピ�
 
 ### 5.3 ⭐ [コアアルゴリズム仕様] 日別労働時間3種 (実労働・深夜・法定時間外) 算出エンジン
 
-入力パラメータは出退勤日時と **完了済み全休憩区間リスト (ttendance_break)** です。ttendance.break_start_at は進行中休憩のUI表示にのみ利用し、実際の計算は全区間の実績に基づき厳密に算出します。
+入力パラメータは出退勤日時と **完了済み全休憩区間リスト (ttendance_break)** です。ttendance.break_start_at は進行中休憩のUI表示にのみ利用し、実際の計算は全区間の実績に基づき厳密に算出します。
 
 `java
 package com.example.kintai.domain.attendance.util;
@@ -732,7 +732,7 @@ public final class AttendanceTimeCalculator {
 * **コアロジック (二重打刻防止、帳簿確定ロック保護、シフト自動連携)**:
   * **二重打刻防止**: punchType == 'CLOCK_IN' 時、未退勤 (WORKING, ON_BREAK) のレコードが存在する場合は二重出勤を遮断 (409 Conflict)。
   * **F01 防御 (確定給与期間の保護)**: 当日を含む給与精算がすでに CONFIRMED または PAID にロックされている場合、新規打刻を遮断し帳簿不変性を担保。
-  * **確定シフト連携**: 当日の shift_schedule (CONFIRMED) が存在する場合、ttendance.shift_id に自動紐付け。
+  * **確定シフト連携**: 当日の shift_schedule (CONFIRMED) が存在する場合、ttendance.shift_id に自動紐付け。
   * **休憩・退勤処理**: BREAK_START は WORKING からのみ、BREAK_END は ON_BREAK からのみ許可。CLOCK_OUT 時に全休憩区間を集計して AttendanceTimeCalculator.calculate() を呼び出し、分単位集計値を保存。
 
 #### ② 勤怠修正申請 (POST /api/attendance/mod-requests)
@@ -750,7 +750,7 @@ public final class AttendanceTimeCalculator {
     "reason": "閉店後の清掃作業により退勤打刻が漏れました。"
   }
   `
-* **完全打刻漏れ時の事後生成**: ttendanceId == null の場合でも、勤務日・出退勤時刻・休憩区間を PENDING 申請として受け付け、承認時に勤怠レコードを新規生成。
+* **完全打刻漏れ時の事後生成**: ttendanceId == null の場合でも、勤務日・出退勤時刻・休憩区間を PENDING 申請として受け付け、承認時に勤怠レコードを新規生成。
 
 #### ③ オーナー承認・却下レビュー (PUT /api/attendance/mod-requests/{modRequestId}/review)
 * **Request JSON**: { "action": "APPROVE", "rejectReason": null }
@@ -758,7 +758,7 @@ public final class AttendanceTimeCalculator {
   * トランザクション開始時に store_staff 行を悲観的ロック (SELECT ... FOR UPDATE) で直列化し、給与確定処理との競合を完全遮断。
   * 対象勤怠の勤務日を含む給与台帳が確定済み (CONFIRMED) の場合は承認を即時遮断 (409 Conflict)。
   * **F05 防御**: 出勤日 (work_date) 自体を変更する申請はデータ整合性保護のため遮断。
-  * 承認時は修正前データを ttendance_mod_break (BEFORE) に退避し、申請値を ttendance に適用して労働時間を再計算。
+  * 承認時は修正前データを ttendance_mod_break (BEFORE) に退避し、申請値を ttendance に適用して労働時間を再計算。
 
 ---## 第6章. [ドメイン 4] 日本国労働基準法準拠 給与精算エンジンおよび Apache POI 給与台帳 (payroll)
 

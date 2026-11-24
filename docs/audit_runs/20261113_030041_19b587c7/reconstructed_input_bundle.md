@@ -10,11 +10,11 @@ The auditor must evaluate whether:
 5. The environmental constraint (MySQL 26.7.0 vs Docker/MySQL 8.4 LTS) is honestly disclosed without unexecuted claims.
 
 ## 2. Governing Files & Rules
-- Governing rules: `C:\dev\kintai\AGENTS.md`
-- SRS: `C:\dev\kintai\kintai_requirements_specification_revised.md` (SRS 1.3, Section 8.1 F04)
-- Traceability process: `C:\dev\kintai\docs\requirements_tracking_process.md`
-- RTM ledger: `C:\dev\kintai\docs\rtm_ledger.md`
-- Working draft: `C:\dev\kintai\docs\day10_traceability_working.md`
+- Governing rules: `<PROJECT_ROOT>\AGENTS.md`
+- SRS: `<PROJECT_ROOT>\kintai_requirements_specification_revised.md` (SRS 1.3, Section 8.1 F04)
+- Traceability process: `<PROJECT_ROOT>\docs\requirements_tracking_process.md`
+- RTM ledger: `<PROJECT_ROOT>\docs\rtm_ledger.md`
+- Working draft: `<PROJECT_ROOT>\docs\day10_traceability_working.md`
 
 ## 3. Implementation Under Review
 

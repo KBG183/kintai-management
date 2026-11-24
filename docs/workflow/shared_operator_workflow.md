@@ -76,7 +76,7 @@ docs\handoff\YYYYMMDD_HHmm_<operator>_handoff.md
 Windows PowerShell에서 다음 워커를 하나만 실행한다.
 
 ```powershell
-cd C:\dev\kintai
+cd <PROJECT_ROOT>
 .\scripts\process_codex_queue.ps1 -Watch -PollIntervalSec 3
 ```
 

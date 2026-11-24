@@ -22,13 +22,13 @@
     "91-test full regression"
   ],
   "execution_logs": [
-    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_093302_kintai_full_test_964bf98d5088\\gradle_console.log",
+    "<PROJECT_ROOT>\\docs\\audit_runs\\isolated_all_20261114_093302_kintai_full_test_964bf98d5088\\gradle_console.log",
     "docs/audit_runs/day10_isolated_regression_20261114_093404/summary.json"
   ],
   "junit_xml": [
-    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_093302_kintai_full_test_964bf98d5088\\TEST-com.example.kintai.config.CsrfSecurityIntegrationTest.xml",
-    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_093302_kintai_full_test_964bf98d5088\\TEST-com.example.kintai.domain.attendance.controller.AttendancePunchApiIntegrationTest.xml",
-    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_093302_kintai_full_test_964bf98d5088\\TEST-com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest.xml"
+    "<PROJECT_ROOT>\\docs\\audit_runs\\isolated_all_20261114_093302_kintai_full_test_964bf98d5088\\TEST-com.example.kintai.config.CsrfSecurityIntegrationTest.xml",
+    "<PROJECT_ROOT>\\docs\\audit_runs\\isolated_all_20261114_093302_kintai_full_test_964bf98d5088\\TEST-com.example.kintai.domain.attendance.controller.AttendancePunchApiIntegrationTest.xml",
+    "<PROJECT_ROOT>\\docs\\audit_runs\\isolated_all_20261114_093302_kintai_full_test_964bf98d5088\\TEST-com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest.xml"
   ],
   "environment": "Windows local MySQL 26.7 isolated databases only; independent reviewer remote Qwen 27B",
   "bundle_sha256": "dd991d3ca2ab013943b9f6e7f5b676524b4e77df34d67fe77e881586f03aa7c8"

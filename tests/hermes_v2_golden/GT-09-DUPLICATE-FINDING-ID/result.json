@@ -14,10 +14,10 @@
     }
   },
   "bundle_info": {
-    "bundle_path": "C:/dev/kintai/tests/hermes_v2_golden/GT-09-DUPLICATE-FINDING-ID/bundle.txt",
+    "bundle_path": "<PROJECT_ROOT>/tests/hermes_v2_golden/GT-09-DUPLICATE-FINDING-ID/bundle.txt",
     "bundle_sha256": "c5f29f016a40c83b40b0d9a0d08242f095c16652fb3e19d45b01438e960ef8e2",
     "target_files": [
-      "C:/dev/kintai/tests/hermes_v2_golden/GT-09-DUPLICATE-FINDING-ID/bundle.txt"
+      "<PROJECT_ROOT>/tests/hermes_v2_golden/GT-09-DUPLICATE-FINDING-ID/bundle.txt"
     ],
     "known_dependencies": [],
     "missing_dependencies": []
@@ -49,7 +49,7 @@
       "verdict": "PASS",
       "tracking_status": "OPEN",
       "location": {
-        "file_path": "C:/dev/kintai/tests/hermes_v2_golden/GT-09-DUPLICATE-FINDING-ID/bundle.txt",
+        "file_path": "<PROJECT_ROOT>/tests/hermes_v2_golden/GT-09-DUPLICATE-FINDING-ID/bundle.txt",
         "class_name": "Fixture",
         "method_name": "fixture",
         "line_start": 1,
@@ -74,7 +74,7 @@
       "verdict": "PASS",
       "tracking_status": "OPEN",
       "location": {
-        "file_path": "C:/dev/kintai/tests/hermes_v2_golden/GT-09-DUPLICATE-FINDING-ID/bundle.txt",
+        "file_path": "<PROJECT_ROOT>/tests/hermes_v2_golden/GT-09-DUPLICATE-FINDING-ID/bundle.txt",
         "class_name": "Fixture",
         "method_name": "fixture",
         "line_start": 1,

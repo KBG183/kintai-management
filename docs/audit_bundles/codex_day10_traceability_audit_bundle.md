@@ -6,11 +6,11 @@ This is an independent pre-audit input for Day 10. The auditor must distinguish 
 
 ## Governing files
 
-- Project rules: `C:\dev\kintai\AGENTS.md`
-- SRS: `C:\dev\kintai\kintai_requirements_specification_revised.md`
-- Traceability process: `C:\dev\kintai\docs\requirements_tracking_process.md`
-- RTM: `C:\dev\kintai\docs\rtm_ledger.md`
-- Day 10 working traceability: `C:\dev\kintai\docs\working\day10_traceability_working.md`
+- Project rules: `<PROJECT_ROOT>\AGENTS.md`
+- SRS: `<PROJECT_ROOT>\kintai_requirements_specification_revised.md`
+- Traceability process: `<PROJECT_ROOT>\docs\requirements_tracking_process.md`
+- RTM: `<PROJECT_ROOT>\docs\rtm_ledger.md`
+- Day 10 working traceability: `<PROJECT_ROOT>\docs\working\day10_traceability_working.md`
 
 ## Day 10 scope and current claims
 

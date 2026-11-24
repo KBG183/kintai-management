@@ -14,10 +14,10 @@
     }
   },
   "bundle_info": {
-    "bundle_path": "C:/dev/kintai/tests/hermes_v2_golden/GT-10-INVALID-ENUM-REJECTION/bundle.txt",
+    "bundle_path": "<PROJECT_ROOT>/tests/hermes_v2_golden/GT-10-INVALID-ENUM-REJECTION/bundle.txt",
     "bundle_sha256": "b996afd8d60399e9770a806f724b9de67accdbc8cb1e600958cde32b8b4f848d",
     "target_files": [
-      "C:/dev/kintai/tests/hermes_v2_golden/GT-10-INVALID-ENUM-REJECTION/bundle.txt"
+      "<PROJECT_ROOT>/tests/hermes_v2_golden/GT-10-INVALID-ENUM-REJECTION/bundle.txt"
     ],
     "known_dependencies": [],
     "missing_dependencies": []
@@ -50,7 +50,7 @@
       "verdict": "PASS",
       "tracking_status": "OPEN",
       "location": {
-        "file_path": "C:/dev/kintai/tests/hermes_v2_golden/GT-10-INVALID-ENUM-REJECTION/bundle.txt",
+        "file_path": "<PROJECT_ROOT>/tests/hermes_v2_golden/GT-10-INVALID-ENUM-REJECTION/bundle.txt",
         "class_name": "Fixture",
         "method_name": "fixture",
         "line_start": 1,

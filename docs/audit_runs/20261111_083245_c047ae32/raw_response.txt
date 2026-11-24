@@ -1,4 +1,4 @@
-﻿| Finding ID | Audit Item | Severity (P0/P1/P2/Info) | Verdict (PASS / WARN / FAIL / N/A) | Code & Test Evidence | Detailed Analysis & Recommendation |
+| Finding ID | Audit Item | Severity (P0/P1/P2/Info) | Verdict (PASS / WARN / FAIL / N/A) | Code & Test Evidence | Detailed Analysis & Recommendation |
 |---|---|---|---|---|---|
 | F-001 | Japanese Labor Standards Act Art 37: Night Work & Overtime Calculation Logic | P0 | N/A | `PayrollApiController.java` (Controller Layer) | The controller delegates calculation logic to `PayrollService`. The specific logic for Night Work (+25%), Daily Overtime (+25%), and Concurrent Overlap (+50%) is not visible in this controller file. Verification requires auditing `PayrollService` and related calculation utilities. |
 | F-002 | Payroll Math & Rounding: RoundingMode.HALF_UP | P1 | N/A | `PayrollApiController.java` (Controller Layer) | Rounding logic is typically implemented in the service or domain layer during calculation. This controller only handles DTOs and response wrapping. Verification requires auditing `PayrollService.calculateMonthlyPayroll` and related math utilities. |

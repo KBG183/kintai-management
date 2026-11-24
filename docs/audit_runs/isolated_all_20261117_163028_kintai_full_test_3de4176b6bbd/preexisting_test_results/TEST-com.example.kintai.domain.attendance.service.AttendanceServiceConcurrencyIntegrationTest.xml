@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <testsuite name="Day 10: AttendanceService 同時出退勤打刻の排他検証" tests="2" skipped="0" failures="2" errors="0" timestamp="2026-11-17T07:29:37.595Z" hostname="BK" time="0.939">
   <properties/>
   <testcase name="同時CLOCK_INリクエストは1件のみ成功し重複勤務レコードを作成しない" classname="com.example.kintai.domain.attendance.service.AttendanceServiceConcurrencyIntegrationTest" time="0.015">
@@ -27,7 +27,7 @@
 
  :: Spring Boot ::                (v4.0.8)
 
-2026-11-17T16:29:37.689+09:00  INFO 22144 --- [    Test worker] endanceServiceConcurrencyIntegrationTest : Starting AttendanceServiceConcurrencyIntegrationTest using Java 17.0.12 with PID 22144 (started by <LOCAL_USER> in C:\dev\kintai)
+2026-11-17T16:29:37.689+09:00  INFO 22144 --- [    Test worker] endanceServiceConcurrencyIntegrationTest : Starting AttendanceServiceConcurrencyIntegrationTest using Java 17.0.12 with PID 22144 (started by <LOCAL_USER> in <PROJECT_ROOT>)
 2026-11-17T16:29:37.690+09:00  INFO 22144 --- [    Test worker] endanceServiceConcurrencyIntegrationTest : No active profile set, falling back to 1 default profile: "default"
 2026-11-17T16:29:38.247+09:00  INFO 22144 --- [    Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
 2026-11-17T16:29:38.509+09:00  INFO 22144 --- [    Test worker] endanceServiceConcurrencyIntegrationTest : Started AttendanceServiceConcurrencyIntegrationTest in 0.854 seconds (process running for 8.743)

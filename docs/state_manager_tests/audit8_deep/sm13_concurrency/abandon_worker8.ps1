@@ -1,4 +1,4 @@
-﻿param([string]$LedgerPath, [string]$ReadyEventName)
+param([string]$LedgerPath, [string]$ReadyEventName)
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $mutexName = "Global\Kintai_LedgerLock_" + (([System.Security.Cryptography.SHA256]::Create().ComputeHash([System.Text.Encoding]::UTF8.GetBytes($LedgerPath)) | ForEach-Object { "{0:x2}" -f $_ }) -join '').Substring(0, 16)
 $created = $false

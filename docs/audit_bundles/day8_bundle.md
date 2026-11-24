@@ -1,4 +1,4 @@
-﻿package com.example.kintai.domain.payroll.service;
+package com.example.kintai.domain.payroll.service;
 
 import com.example.kintai.domain.attendance.dto.AttendanceDto;
 import com.example.kintai.domain.attendance.mapper.AttendanceMapper;

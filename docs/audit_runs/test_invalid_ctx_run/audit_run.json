@@ -20,6 +20,6 @@
     "total_seconds":  0,
     "speed_tps":  0,
     "done_reason":  "unknown",
-    "output_dir":  "C:\\dev\\kintai\\docs\\audit_runs\\test_invalid_ctx_run",
+    "output_dir":  "<PROJECT_ROOT>\\docs\\audit_runs\\test_invalid_ctx_run",
     "error_message":  "Pre-check failed: Estimated input tokens (541) exceeds 90% of num_ctx (90 / 100). Risk of truncation."
 }

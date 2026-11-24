@@ -1,4 +1,4 @@
-﻿| Finding ID | Audit Item | Severity (P0/P1/P2/Info) | Verdict (PASS / WARN / FAIL / N/A) | Code & Test Evidence | Detailed Analysis & Recommendation |
+| Finding ID | Audit Item | Severity (P0/P1/P2/Info) | Verdict (PASS / WARN / FAIL / N/A) | Code & Test Evidence | Detailed Analysis & Recommendation |
 |---|---|---|---|---|---|
 | AUDIT-001 | Japanese Labor Standards Act Art 37 Compliance | N/A | N/A | N/A | The provided code is a PowerShell script for an AI queue processor (`process_codex_queue.ps1`) and a JSON manifest. It does not contain payroll calculation logic, shift scheduling, or labor law enforcement mechanisms. Therefore, specific checks for night work premiums, overtime calculations, or break time deductions are not applicable to this codebase. |
 | AUDIT-002 | Payroll Math & Rounding Logic | N/A | N/A | N/A | No financial calculations, currency handling, or `RoundingMode` logic is present in the target code. The script handles file I/O, JSON parsing, and HTTP requests. No 1-yen discrepancy risks exist in this context. |

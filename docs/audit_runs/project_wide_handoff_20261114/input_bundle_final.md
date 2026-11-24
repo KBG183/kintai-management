@@ -3,7 +3,7 @@
 
 ## 작업 기준
 
-- 프로젝트 기준 경로는 `C:\dev\kintai`다. 사용자 지시와 적용 가능한 상위 지침을 우선하며, 기존 변경과 증적을 보존한다.
+- 프로젝트 기준 경로는 `<PROJECT_ROOT>`다. 사용자 지시와 적용 가능한 상위 지침을 우선하며, 기존 변경과 증적을 보존한다.
 - Day별 SRS, 설계서, RTM 및 작업 기록을 확인하여 점진적으로 진행한다. 과거 일정표의 완료 표시는 실제 검증의 근거가 아니다.
 - 사용자에게 전달하는 모든 진행 메시지와 최종 답변은 한국어 존댓말로 작성한다. 파일명, 명령어, 로그와 오류의 원문은 정확성을 위해 원어를 유지할 수 있으며 필요한 설명은 한국어로 제공한다. 물결표와 취소선은 사용하지 않는다. 사실, 추정, 미검증 사항을 구분한다.
 - 코드 주석, UI와 일본어 포트폴리오 기술 산출물은 기존 일본어 방침을 따른다. 한국어 보고와 한국어 증적서는 함께 유지한다.
@@ -619,7 +619,7 @@ This Codex session's executor denied host loopback access. The error does not es
 - 번들 정합성 최종 재감사: Run ID 20261113_231504_7898dce0 (원격 <TAILSCALE_OLLAMA_HOST>, 27.3B IQ3_M), 44.9초, 3156 입력/1807 출력 토큰. 일관성 수정 최종 번들 SHA-256 7898dce049db27937e95f02e2e308ddaaf32b7b73df1335ec2942a016a47564f; 보고서 docs/audit_runs/day13_calendar_20261114/qwen27b_final_consistent/report.md, SHA-256 7CD37FABD171FD36AFE5F8FECA4189AF61076B62B9FA0151893747D88122FA12. 범위 PASS; browser download UX만 Info/WARN로 분리됨. /api/ps 최종 증거 qwen27b_remote_ps_final.json에서 원격 qwen27b:latest 27.3B 모델 로드 및 VRAM residency를 확인. 로컬 ollama ps는 비어 있음.
 
 
-- 증거 번들 최종 정합성 감사: Hermes v1.1.1 / Qwen 27B IQ3_M, 원격 <TAILSCALE_OLLAMA_HOST>:11434; Run ID 20261113_231841_e3e0981e, 30.19초, 3162 입력/1169 출력 토큰. 번들 SHA-256 3e0981eaac3a4f47314aa2c9164c2cdfb1ec18f4541622ca27d8f4f40f4a7f0; 보고서 docs/audit_runs/day13_calendar_20261114/qwen27b_final/report.md, SHA-256 41087C2A78D80FFA37B50A79BF8CA5F46B2DA9E3BC6EB9B0967974C7CFE40A9. 최종 verdict PASS. 원격 /api/ps 모델 상태와 로컬 Ollama 비어 있음은 qwen27b_remote_ps_final.json에 기록.
+- 증거 번들 최종 정합성 감사: Hermes v1.1.1 / Qwen 27B IQ3_M, 원격 <TAILSCALE_OLLAMA_HOST>:11434; Run ID 20261113_231841_e3e0981e, 30.19초, 3162 입력/1169 출력 토큰. 번들 SHA-256 3e0981eaac3a4f47314aa2c9164c2cdfb1ec18f4541622ca27d8f4f40f4a7f0; 보고서 docs/audit_runs/day13_calendar_20261114/qwen27b_final/report.md, SHA-256 41087C2A78D80FFA37B50A79BF8CA5F46B2DA9E3BC6EB9B0967974C7CFE40A9. 최종 verdict PASS. 원격 /api/ps 모델 상태와 로컬 Ollama 비어 있음은 qwen27b_remote_ps_final.json에 기록.
 
 - 브라우저 다운로드 최종 확인 결과: Chrome의 export 클릭이 /api/payroll/excel?storeId=1&yearMonth=2026-01에서 ERR_BLOCKED_BY_CLIENT로 끝났다. 브라우저 도구의 URL 정책은 chrome://downloads/ 이동과 대체 경로/우회를 명시적으로 거부했다. 원인을 앱 또는 확장 프로그램으로 단정하지 않는다. 인증 API XLSX는 정상·유효하나 실제 browser-managed 저장은 미확인으로 남긴다. Qwen 최종 감사 Run ID 20261113_232151_a808922d는 핵심 범위 PASS, 이 검증 항목만 P2 WARN/Unresolved. 보고서 SHA-256 1CBA641563D0BD88CCE21E41C71F97E7A563C550EBFDEA9DF9FB6A09F646D61E.
 
@@ -732,7 +732,7 @@ This Codex session's executor denied host loopback access. The error does not es
 
 ## Scope and preservation rule
 
-- Reviewed source: `C:\dev\kintai\AGENTS.md`
+- Reviewed source: `<PROJECT_ROOT>\AGENTS.md`
 - This document does not modify or replace the source.
 - Facts below come from the reviewed files or build configuration. Recommendations
   are explicitly labeled as recommendations.
@@ -742,7 +742,7 @@ This Codex session's executor denied host loopback access. The error does not es
 | ID | Finding | Evidence | Impact |
 |---|---|---|---|
 | F-01 | The project toolchain is Java 17, while AGENTS.md states Java 21. | `build.gradle` sets `JavaLanguageVersion.of(17)`; AGENTS.md Team Role Architecture | An operator can write or review against the wrong runtime baseline. |
-| F-02 | Hermes execution paths conflict. | AGENTS.md names `C:\Users\<LOCAL_USER>\.gemini\scripts\audit_with_hermes.ps1`; active project script is `C:\dev\kintai\scripts\audit_with_hermes.ps1`. | Instructions can call an obsolete or different script. |
+| F-02 | Hermes execution paths conflict. | AGENTS.md names `C:\Users\<LOCAL_USER>\.gemini\scripts\audit_with_hermes.ps1`; active project script is `<PROJECT_ROOT>\scripts\audit_with_hermes.ps1`. | Instructions can call an obsolete or different script. |
 | F-03 (superseded) | An earlier review snapshot reported conflicting Hermes hosts. | The active project script and config were rechecked on 2026-11-14 and both specify `<TAILSCALE_OLLAMA_HOST>:11434`. | Historical finding; do not use the obsolete `100.91` value. See current-state correction below. |
 | F-04 | Model policy is internally inconsistent. | AGENTS.md preserves `qwen2.5:7b` fallback rules; current operating policy says the 27B Antigravity/Hermes route is primary and Codex queue routing is not the standard route. | A lower-capacity model or retired workflow can be used unintentionally. |
 | F-05 | The document contains mandatory daily full-audit, pre-audit, re-audit, and three-step source-wide audit requirements. | AGENTS.md sections 6, 11, 14, and 17. | Small changes can trigger disproportionate work, delay the Day-based plan, and encourage checkbox evidence rather than risk-based evidence. |

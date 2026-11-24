@@ -1,4 +1,4 @@
-﻿# Final Full Audit Bundle: bundle_2_attendance_approval
+# Final Full Audit Bundle: bundle_2_attendance_approval
 Generated: 2026-11-14T12:48:13+09:00
 
 ## FILE: src\main\java\com\example\kintai\domain\attendance\controller\AttendanceApiController.java

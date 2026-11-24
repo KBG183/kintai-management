@@ -14,7 +14,7 @@
     "num_ctx":  24576,
     "seed":  42,
     "temperature":  0.1,
-    "target_file":  "C:\\dev\\kintai\\src\\main\\java\\com\\example\\kintai\\domain\\shift\\service\\ShiftService.java",
+    "target_file":  "<PROJECT_ROOT>\\src\\main\\java\\com\\example\\kintai\\domain\\shift\\service\\ShiftService.java",
     "target_sha256":  "50bd5f3812f667daa1afcf6135b9c36c27d07ddea4248864274562287430d0de",
     "git_head":  "56bce272c342bad20d3bed02dabc610426baf82c",
     "script_sha256":  "d94df24a6df2c97a51d25c5016403eb44f676cbd456f648752b3e2cbc5841b0e",
@@ -24,6 +24,6 @@
     "total_seconds":  58.35,
     "speed_tps":  49.8,
     "done_reason":  "stop",
-    "output_dir":  "C:\\dev\\kintai\\docs\\audit_runs\\20261119_043121_50bd5f38",
+    "output_dir":  "<PROJECT_ROOT>\\docs\\audit_runs\\20261119_043121_50bd5f38",
     "error_message":  ""
 }

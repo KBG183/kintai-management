@@ -20,10 +20,10 @@ public class MemberController {
 
     /**
      * 【画面サンプル】Thymeleaf共通レイアウトおよびデータバインディング確認
-     * URL: GET /members/sample (ADMIN専用に保護)
+     * URL: GET /members/sample (OWNER専用に保護)
      */
     @GetMapping("/members/sample")
-    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
+    @PreAuthorize("hasRole('OWNER')")
     public String memberSampleView(Model model) {
         List<MemberResponseDto> members = memberService.getAllMembers().stream()
                 .map(MemberResponseDto::from)
@@ -33,12 +33,12 @@ public class MemberController {
     }
 
     /**
-     * 【REST API】全スタッフ・オーナー一覧取得 (JSON, ADMIN専用)
+     * 【REST API】全スタッフ・オーナー一覧取得 (JSON, OWNER専用)
      * URL: GET /api/members
      */
     @GetMapping("/api/members")
     @ResponseBody
-    @PreAuthorize("hasAnyRole('OWNER', 'ADMIN')")
+    @PreAuthorize("hasRole('OWNER')")
     public ApiResponse<List<MemberResponseDto>> getAllMembersApi() {
         List<MemberResponseDto> responses = memberService.getAllMembers().stream()
                 .map(MemberResponseDto::from)
@@ -47,12 +47,12 @@ public class MemberController {
     }
 
     /**
-     * 【REST API】単一会員情報取得 (ADMIN/OWNERまたは本人専用)
+     * 【REST API】単一会員情報取得 (OWNERまたは本人専用)
      * URL: GET /api/members/{id}
      */
     @GetMapping("/api/members/{id}")
     @ResponseBody
-    @PreAuthorize("hasRole('ADMIN') or hasRole('OWNER') or #id == authentication.principal.memberId")
+    @PreAuthorize("hasRole('OWNER') or #id == authentication.principal.memberId")
     public ApiResponse<MemberResponseDto> getMemberApi(@PathVariable("id") Long id) {
         return ApiResponse.ok(MemberResponseDto.from(memberService.getMemberById(id)));
     }

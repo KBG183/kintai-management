@@ -1,7 +1,7 @@
-﻿### [Hermes Audit Execution Metrics]
+### [Hermes Audit Execution Metrics]
 | Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed |
 |---|---|---|---|---|---|
-| C:\dev\kintai\src\main\resources\db\data.sql (57 lines) | qwen27b:latest | 6.02s | 1958 tokens | 225 tokens | 47.7 tokens/s |
+| <PROJECT_ROOT>\src\main\resources\db\data.sql (57 lines) | qwen27b:latest | 6.02s | 1958 tokens | 225 tokens | 47.7 tokens/s |
 
 | Audit Item | Verdict (PASS / WARN / FAIL) | Finding |
 | --- | --- | --- |

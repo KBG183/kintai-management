@@ -1,4 +1,4 @@
-Write-Error: C:\dev\kintai\scripts\audit_with_hermes.ps1:364
+Write-Error: <PROJECT_ROOT>\scripts\audit_with_hermes.ps1:364
 Line |
  364 |  …   $resObj = Call-HermesApi -ContentToAudit $rawText -HeaderTitle $Tar …
      |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

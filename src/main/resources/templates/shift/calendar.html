@@ -28,7 +28,7 @@
             <i class="fa-solid fa-user-check text-primary me-1"></i>
             <strong>現在のログイン</strong>
             <span th:text="${#authentication?.principal?.name ?: '未ログイン'}">ユーザー</span>
-                <span class="text-muted" th:text="${#authorization.expression('hasAnyRole(''OWNER'', ''MANAGER'')') ? '（店舗全体を表示。オーナー自身はスタッフではありません）' : '（自分の所属店舗を表示）'}">（所属店舗を表示）</span>
+                <span class="text-muted" th:text="${#authorization.expression('hasRole(''OWNER'')') ? '（店舗全体を表示。オーナー自身はスタッフではありません）' : '（自分の所属店舗を表示）'}">（所属店舗を表示）</span>
         </div>
         <div id="staffLegend" class="d-flex flex-wrap gap-2 small" aria-label="スタッフ一覧">
             <span class="text-muted">スタッフ名を読み込み中…</span>
@@ -198,7 +198,7 @@
     <script th:inline="javascript">
         document.addEventListener('DOMContentLoaded', function () {
             const storeId = /*[[${storeId}]]*/ 1;
-            const isManager = /*[[${#authorization.expression('hasAnyRole(''OWNER'', ''MANAGER'')')}]]*/ false;
+            const isManager = /*[[${#authorization.expression('hasRole(''OWNER'')')}]]*/ false;
             const currentStaffId = /*[[${#authentication?.principal?.storeStaffId}]]*/ null;
             const currentUserName = /*[[${#authentication?.principal?.name}]]*/ '';
 

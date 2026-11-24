@@ -14,7 +14,7 @@
     "num_ctx":  24576,
     "seed":  42,
     "temperature":  0.1,
-    "target_file":  "c:\\dev\\kintai\\docs\\audit_bundles\\day5_bundle.md",
+    "target_file":  "<PROJECT_ROOT>\\docs\\audit_bundles\\day5_bundle.md",
     "target_sha256":  "f3c297164cdd7609ceb8f0f1f2d8660b2a9df145123886575060a6248d5c67f1",
     "git_head":  "33ea103dcbe9d610835a82b40ef0e51968a62ccf",
     "script_sha256":  "d94df24a6df2c97a51d25c5016403eb44f676cbd456f648752b3e2cbc5841b0e",
@@ -24,6 +24,6 @@
     "total_seconds":  52.61,
     "speed_tps":  49.1,
     "done_reason":  "stop",
-    "output_dir":  "C:\\dev\\kintai\\docs\\audit_runs\\20261112_055152_f3c29716",
+    "output_dir":  "<PROJECT_ROOT>\\docs\\audit_runs\\20261112_055152_f3c29716",
     "error_message":  ""
 }

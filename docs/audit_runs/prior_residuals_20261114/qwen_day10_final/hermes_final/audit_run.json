@@ -14,7 +14,7 @@
   "num_ctx": 24576,
   "seed": 42,
   "temperature": 0.1,
-  "target_file": "C:\\dev\\kintai\\scripts\\..\\docs\\audit_runs\\preflight_e55c583173004fdfb6405aa93bfa4acb\\input_bundle",
+  "target_file": "<PROJECT_ROOT>\\scripts\\..\\docs\\audit_runs\\preflight_e55c583173004fdfb6405aa93bfa4acb\\input_bundle",
   "target_sha256": "dd991d3ca2ab013943b9f6e7f5b676524b4e77df34d67fe77e881586f03aa7c8",
   "git_head": "8a5d7a10b2102916d40f6975ebab48d6662345b7",
   "script_sha256": "d94df24a6df2c97a51d25c5016403eb44f676cbd456f648752b3e2cbc5841b0e",
@@ -24,6 +24,6 @@
   "total_seconds": 53.86,
   "speed_tps": 40.6,
   "done_reason": "stop",
-  "output_dir": "C:\\dev\\kintai\\docs\\audit_runs\\prior_residuals_20261114\\qwen_day10_final\\hermes_final",
+  "output_dir": "<PROJECT_ROOT>\\docs\\audit_runs\\prior_residuals_20261114\\qwen_day10_final\\hermes_final",
   "error_message": ""
 }

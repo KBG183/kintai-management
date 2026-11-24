@@ -1,7 +1,7 @@
-﻿### [Hermes Audit Execution Metrics]
+### [Hermes Audit Execution Metrics]
 | Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed |
 |---|---|---|---|---|---|
-| C:\dev\kintai\src\main\resources\mapper\attendance\AttendanceMapper.xml (436 lines) | qwen27b:latest | 22.97s | 3978 tokens | 1048 tokens | 50.6 tokens/s |
+| <PROJECT_ROOT>\src\main\resources\mapper\attendance\AttendanceMapper.xml (436 lines) | qwen27b:latest | 22.97s | 3978 tokens | 1048 tokens | 50.6 tokens/s |
 
 | Audit Item | Verdict (PASS / WARN / FAIL) | Detailed Finding & Recommendation (English) |
 |---|---|---|

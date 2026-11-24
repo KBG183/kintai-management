@@ -1,4 +1,4 @@
-﻿# Final Full Audit Bundle: bundle_5_final_docs
+# Final Full Audit Bundle: bundle_5_final_docs
 Generated: 2026-11-14T12:48:13+09:00
 
 ## FILE: docs\final-portfolio\portfolio_summary_KO.md

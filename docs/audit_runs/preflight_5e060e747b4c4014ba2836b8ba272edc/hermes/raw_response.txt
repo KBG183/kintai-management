@@ -1,4 +1,4 @@
-﻿| Finding ID | Audit Item | Severity (P0/P1/P2/Info) | Verdict (PASS / WARN / FAIL / N/A) | Code & Test Evidence | Detailed Analysis & Recommendation |
+| Finding ID | Audit Item | Severity (P0/P1/P2/Info) | Verdict (PASS / WARN / FAIL / N/A) | Code & Test Evidence | Detailed Analysis & Recommendation |
 |---|---|---|---|---|---|
 | F-01 | R-02 Policy Acceptance Verification | P0 | PASS | `docs/f04_evidence/r02_business_policy.md`, `completion_checklist.json` | The user explicitly accepted the "Snapshot Scope + Fail-Fast Rollback" policy on 2026-11-14. The policy document and checklist correctly reflect this decision. The implementation logic (throwing `IllegalStateException` on late DRAFT detection) aligns with the accepted policy. |
 | F-02 | R-02 Technical Verification (Isolated Tests) | P0 | PASS | `PayrollMonthlyConfirmPostQueryRaceConditionIntegrationTest.java`, JUnit XML | The isolated integration test suite `PayrollMonthlyConfirmPostQueryRaceConditionIntegrationTest` executed 2 tests with 0 failures/errors. This confirms the technical isolation and rollback behavior matches the accepted policy. |

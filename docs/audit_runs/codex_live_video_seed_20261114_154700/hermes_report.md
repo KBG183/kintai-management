@@ -1,7 +1,7 @@
-﻿### [Hermes Audit Execution Metrics]
+### [Hermes Audit Execution Metrics]
 | Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed |
 |---|---|---|---|---|---|
-| C:\dev\kintai\scripts\local_video_demo_seed.sql (50 lines) | qwen27b:latest | 15.05s | 2545 tokens | 639 tokens | 46.9 tokens/s |
+| <PROJECT_ROOT>\scripts\local_video_demo_seed.sql (50 lines) | qwen27b:latest | 15.05s | 2545 tokens | 639 tokens | 46.9 tokens/s |
 
 | Audit Item | Verdict (PASS / WARN / FAIL) | Detailed Finding & Recommendation (English) |
 |---|---|---|

@@ -783,23 +783,23 @@ SHA-256: 84e7e618d45b15259af5d6083859316c5a7fa85016b4042026092bac4fa797f6
 
 | 영역 | 현재 경로 |
 |---|---|
-| 프로젝트 규칙 | `C:\dev\kintai\AGENTS.md` |
-| SRS | `C:\dev\kintai\kintai_requirements_specification_revised.md` |
-| RTM | `C:\dev\kintai\docs\rtm_ledger.md` |
-| 요구사항 추적 규칙 | `C:\dev\kintai\docs\requirements_tracking_process.md` |
-| 한국어 증적서 | `C:\dev\kintai\docs\portfolio_audit_evidence_KO.md` |
-| 일본어 증적서 | `C:\dev\kintai\docs\portfolio_audit_evidence.md` |
-| 일별 감사 결과 | `C:\dev\kintai\audit_reports\day_by_day\` |
-| 독립 감사 번들 | `C:\dev\kintai\docs\audit_bundles\` |
-| 최종 포트폴리오 | `C:\dev\kintai\docs\final-portfolio\` |
-| 감사 실행 결과 | `C:\dev\kintai\docs\audit_runs\` |
+| 프로젝트 규칙 | `<PROJECT_ROOT>\AGENTS.md` |
+| SRS | `<PROJECT_ROOT>\kintai_requirements_specification_revised.md` |
+| RTM | `<PROJECT_ROOT>\docs\rtm_ledger.md` |
+| 요구사항 추적 규칙 | `<PROJECT_ROOT>\docs\requirements_tracking_process.md` |
+| 한국어 증적서 | `<PROJECT_ROOT>\docs\portfolio_audit_evidence_KO.md` |
+| 일본어 증적서 | `<PROJECT_ROOT>\docs\portfolio_audit_evidence.md` |
+| 일별 감사 결과 | `<PROJECT_ROOT>\audit_reports\day_by_day\` |
+| 독립 감사 번들 | `<PROJECT_ROOT>\docs\audit_bundles\` |
+| 최종 포트폴리오 | `<PROJECT_ROOT>\docs\final-portfolio\` |
+| 감사 실행 결과 | `<PROJECT_ROOT>\docs\audit_runs\` |
 | 역사적 Day 10 사용자 프로필 Hermes 스크립트 | `C:\Users\<LOCAL_USER>\.gemini\scripts\audit_with_hermes.ps1` (과거 실행 해시 증거 전용; 현재 프로젝트 정본이 아님) |
-| 현재 프로젝트 감사 진입점 | `C:\dev\kintai\scripts\codex_hermes_bridge.ps1` → `scripts\audit_with_hermes.ps1` (설정 endpoint/model 사용, HTTP 기본값) |
-| 선택적 사전검증 진입점 | `C:\dev\kintai\scripts\audit_hermes_preflight.ps1` (프로젝트 감사 스크립트 실행 전 입력 검증) |
-| 보관 감사 문서 | `C:\dev\kintai\docs\legacy_audit_reports\` |
-| 학습·참고 문서 | `C:\dev\kintai\docs\study_guides\` |
-| 작업 로그 | `C:\dev\kintai\docs\logs\` |
-| 작업·인계 문서 | `C:\dev\kintai\docs\workflow\` 및 `C:\dev\kintai\docs\working\` |
+| 현재 프로젝트 감사 진입점 | `<PROJECT_ROOT>\scripts\codex_hermes_bridge.ps1` → `scripts\audit_with_hermes.ps1` (설정 endpoint/model 사용, HTTP 기본값) |
+| 선택적 사전검증 진입점 | `<PROJECT_ROOT>\scripts\audit_hermes_preflight.ps1` (프로젝트 감사 스크립트 실행 전 입력 검증) |
+| 보관 감사 문서 | `<PROJECT_ROOT>\docs\legacy_audit_reports\` |
+| 학습·참고 문서 | `<PROJECT_ROOT>\docs\study_guides\` |
+| 작업 로그 | `<PROJECT_ROOT>\docs\logs\` |
+| 작업·인계 문서 | `<PROJECT_ROOT>\docs\workflow\` 및 `<PROJECT_ROOT>\docs\working\` |
 
 ## 경로 변경 규칙
 
@@ -1135,8 +1135,8 @@ SHA-256: 1e4321fede8fa98be477577ad9d96882d22ab3d9514e03291cc9ec3524710e0b
   "success_report_written": false,
   "test_result": "PASS",
   "remote_audit_result": "BLOCKED: Unable to connect to the remote server",
-  "console_log": "C:\\dev\\kintai\\docs\\audit_runs\\project_wide_handoff_20261114\\fail_closed_retest_console.log",
-  "attempted_report": "C:\\dev\\kintai\\docs\\audit_runs\\project_wide_handoff_20261114\\fail_closed_retest_report.md"
+  "console_log": "<PROJECT_ROOT>\\docs\\audit_runs\\project_wide_handoff_20261114\\fail_closed_retest_console.log",
+  "attempted_report": "<PROJECT_ROOT>\\docs\\audit_runs\\project_wide_handoff_20261114\\fail_closed_retest_report.md"
 }
 ````
 
@@ -1151,8 +1151,8 @@ SHA-256: 4c9a2d9092236a013c27a6d3b5f565b050dab572ff7ead6c6716094bfd114872
   "bundle_sha256": "cd7cd20d12ba7771fb8ceb01dcd95181bfe39c924b8a595aa5e6fb91fdf649b8",
   "report_exists": true,
   "result": "REPORT_CREATED_REVIEW_REQUIRED",
-  "console_log": "C:\\dev\\kintai\\docs\\audit_runs\\project_wide_handoff_20261114\\qwen27b_current_docs_final_console.log",
-  "report": "C:\\dev\\kintai\\docs\\audit_runs\\project_wide_handoff_20261114\\qwen27b_current_docs_final_report.md",
+  "console_log": "<PROJECT_ROOT>\\docs\\audit_runs\\project_wide_handoff_20261114\\qwen27b_current_docs_final_console.log",
+  "report": "<PROJECT_ROOT>\\docs\\audit_runs\\project_wide_handoff_20261114\\qwen27b_current_docs_final_report.md",
   "completed_at": "2026-11-14T01:39:59.4014938Z",
   "report_sha256": "1e83ea8c854464db273c54caf856d0d236c3cdbb9758afa8194af375004ce49c"
 }
@@ -1188,7 +1188,7 @@ SHA-256: 5d0427fe787d7a0a9d62cb6649c34930949235cf05bdcc3e772e9ba29fd26edc
   "total_seconds": 46.43,
   "speed_tps": 39.5,
   "done_reason": "stop",
-  "output_dir": "C:\\dev\\kintai\\docs\\audit_runs\\20261114_014515_cd7cd20d",
+  "output_dir": "<PROJECT_ROOT>\\docs\\audit_runs\\20261114_014515_cd7cd20d",
   "error_message": ""
 }
 ````

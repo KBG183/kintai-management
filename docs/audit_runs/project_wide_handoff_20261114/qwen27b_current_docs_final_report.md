@@ -1,7 +1,7 @@
-﻿### [Hermes Audit Execution Metrics]
+### [Hermes Audit Execution Metrics]
 | Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed |
 |---|---|---|---|---|---|
-| C:\dev\kintai\docs\audit_runs\project_wide_handoff_20261114\current_docs_audit_bundle_final.md (385 lines) | qwen27b:latest | 104.79s | 21179 tokens | 3397 tokens | 39.5 tokens/s |
+| <PROJECT_ROOT>\docs\audit_runs\project_wide_handoff_20261114\current_docs_audit_bundle_final.md (385 lines) | qwen27b:latest | 104.79s | 21179 tokens | 3397 tokens | 39.5 tokens/s |
 
 | Audit Item | Verdict | Detailed Finding & Recommendation |
 |---|---|---|
@@ -11,7 +11,7 @@ We need audit based on provided bundle. Need output Markdown table with finding,
 
 Need analyze provided evidence.
 
-Target code path: C:\dev\kintai\docs\audit_runs\project_wide_handoff_20261114\current_docs_audit_bundle_final.md. We only have bundle content in prompt. Need audit documentation and audit-script reliability. Need verify claims against included primary evidence and actual script excerpt.
+Target code path: <PROJECT_ROOT>\docs\audit_runs\project_wide_handoff_20261114\current_docs_audit_bundle_final.md. We only have bundle content in prompt. Need audit documentation and audit-script reliability. Need verify claims against included primary evidence and actual script excerpt.
 
 Claims to check:
 - latest full regression 92 pass, 0 failures/errors/skips on named isolated DB.

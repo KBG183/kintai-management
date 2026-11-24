@@ -17,7 +17,7 @@
 
  :: Spring Boot ::                (v4.0.8)
 
-2026-11-14T09:19:25.009+09:00  INFO 20856 --- [    Test worker] endanceServiceConcurrencyIntegrationTest : Starting AttendanceServiceConcurrencyIntegrationTest using Java 17.0.12 with PID 20856 (started by <LOCAL_USER> in C:\dev\kintai)
+2026-11-14T09:19:25.009+09:00  INFO 20856 --- [    Test worker] endanceServiceConcurrencyIntegrationTest : Starting AttendanceServiceConcurrencyIntegrationTest using Java 17.0.12 with PID 20856 (started by <LOCAL_USER> in <PROJECT_ROOT>)
 2026-11-14T09:19:25.011+09:00  INFO 20856 --- [    Test worker] endanceServiceConcurrencyIntegrationTest : No active profile set, falling back to 1 default profile: "default"
 2026-11-14T09:19:27.340+09:00  INFO 20856 --- [    Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
 2026-11-14T09:19:28.469+09:00  INFO 20856 --- [    Test worker] endanceServiceConcurrencyIntegrationTest : Started AttendanceServiceConcurrencyIntegrationTest in 3.798 seconds (process running for 5.443)

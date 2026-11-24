@@ -3,6 +3,6 @@
     "scope":  "All",
     "test_class":  null,
     "run_id":  "20261114_114819",
-    "output_dir":  "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_114819_kintai_full_test_8a75679f5b1e",
+    "output_dir":  "<PROJECT_ROOT>\\docs\\audit_runs\\isolated_all_20261114_114819_kintai_full_test_8a75679f5b1e",
     "jdbc_url_host":  "127.0.0.1:3306"
 }

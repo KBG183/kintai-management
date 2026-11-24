@@ -24,6 +24,6 @@
   "total_seconds": 46.43,
   "speed_tps": 39.5,
   "done_reason": "stop",
-  "output_dir": "C:\\dev\\kintai\\docs\\audit_runs\\20261114_014515_cd7cd20d",
+  "output_dir": "<PROJECT_ROOT>\\docs\\audit_runs\\20261114_014515_cd7cd20d",
   "error_message": ""
 }

@@ -1,4 +1,4 @@
-﻿| Finding | Verdict | Source | Evidence | Correction |
+| Finding | Verdict | Source | Evidence | Correction |
 | :--- | :--- | :--- | :--- | :--- |
 | Regression 92/0/0/0 and annual target 6/6 on named isolated DBs | PASS | `docs/handoff/20261114_antigravity_project_wide_handoff.md`, `docs/rtm_ledger.md` | Handoff states "92 PASS, 실패 0, 오류 0, 스킵 0" on `kintai_full_test_d4124a317ed0` and "6/6 PASS" on `kintai_day11_test_01f4cb1439e6`. RTM R-13 confirms "6 PASS" for target and "92 PASS" for full regression. | N/A |
 | R-02, R-05, R-08..R-19 and B-01..B-09 status | PASS | `docs/rtm_ledger.md`, `docs/handoff/20261114_antigravity_project_wide_handoff.md` | RTM lists R-02 as VERIFIED (policy adopted), R-05 as DEFERRED, R-08-R-19 as VERIFIED. Backlog lists B-01/B-07 as "대기 (마일스톤 시 검토)" (Milestone deferred), B-05/B-06 as "대기" (Open), B-02/B-03/B-08/B-09 as "완료" (Complete). | N/A |

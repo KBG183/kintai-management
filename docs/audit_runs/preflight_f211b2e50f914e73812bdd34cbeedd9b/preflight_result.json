@@ -1,7 +1,7 @@
 {
   "status": "INPUT_INCOMPLETE",
-  "bundle_path": "C:\\dev\\kintai\\docs\\audit_runs\\preflight_f211b2e50f914e73812bdd34cbeedd9b\\input_bundle",
-  "manifest_path": "C:\\dev\\kintai\\scripts\\..\\docs\\audit_runs\\preflight_f211b2e50f914e73812bdd34cbeedd9b\\input_manifest.json",
+  "bundle_path": "<PROJECT_ROOT>\\docs\\audit_runs\\preflight_f211b2e50f914e73812bdd34cbeedd9b\\input_bundle",
+  "manifest_path": "<PROJECT_ROOT>\\scripts\\..\\docs\\audit_runs\\preflight_f211b2e50f914e73812bdd34cbeedd9b\\input_manifest.json",
   "bundle_sha256": "0fb32983c98b565c9ea9b2d62c4f0ad682153f0d0089dad90d61895602b08a55",
   "failures": [
     {

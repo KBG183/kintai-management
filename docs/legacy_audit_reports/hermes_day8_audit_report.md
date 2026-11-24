@@ -1,7 +1,7 @@
-﻿### [Hermes Audit Execution Metrics]
+### [Hermes Audit Execution Metrics]
 | Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed |
 |---|---|---|---|---|---|
-| C:\dev\kintai\docs\temp_audit_day8_bundle.java (1260 lines) | qwen27b:latest | 42.48s | 17981 tokens | 1551 tokens | 47.8 tokens/s |
+| <PROJECT_ROOT>\docs\temp_audit_day8_bundle.java (1260 lines) | qwen27b:latest | 42.48s | 17981 tokens | 1551 tokens | 47.8 tokens/s |
 
 | Finding ID | Audit Item | Severity (P0/P1/P2/Info) | Verdict (PASS / WARN / FAIL / N/A) | Code & Test Evidence | Detailed Analysis & Recommendation |
 |---|---|---|---|---|---|

@@ -1,7 +1,7 @@
-﻿### [Hermes Audit Execution Metrics]
+### [Hermes Audit Execution Metrics]
 | Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed |
 |---|---|---|---|---|---|
-| C:\dev\kintai\src\main\java\com\example\kintai\domain\store\mapper\StoreAuthMapper.java (37 lines) | qwen27b:latest | 11.35s | 763 tokens | 545 tokens | 51.4 tokens/s |
+| <PROJECT_ROOT>\src\main\java\com\example\kintai\domain\store\mapper\StoreAuthMapper.java (37 lines) | qwen27b:latest | 11.35s | 763 tokens | 545 tokens | 51.4 tokens/s |
 
 | Audit Item | Verdict (PASS / WARN / FAIL) | Detailed Finding & Recommendation (English) |
 |---|---|---|

@@ -14,7 +14,7 @@
     "num_ctx":  24576,
     "seed":  42,
     "temperature":  0.1,
-    "target_file":  "C:\\dev\\kintai\\docs\\f04_evidence\\qwen_audit_target_bundle.java",
+    "target_file":  "<PROJECT_ROOT>\\docs\\f04_evidence\\qwen_audit_target_bundle.java",
     "target_sha256":  "429c87ea6f98eebece6d1a68bf6ad2b363a52d879f226c650d3a65650b9fc72b",
     "git_head":  "5521cd22f3135a2f37fa32034fb197bba7f32671",
     "script_sha256":  "d94df24a6df2c97a51d25c5016403eb44f676cbd456f648752b3e2cbc5841b0e",
@@ -24,6 +24,6 @@
     "total_seconds":  37.18,
     "speed_tps":  51,
     "done_reason":  "stop",
-    "output_dir":  "C:\\dev\\kintai\\docs\\audit_runs\\20261111_070518_429c87ea",
+    "output_dir":  "<PROJECT_ROOT>\\docs\\audit_runs\\20261111_070518_429c87ea",
     "error_message":  ""
 }

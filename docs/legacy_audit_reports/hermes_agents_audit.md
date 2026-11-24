@@ -1,7 +1,7 @@
-﻿### [Hermes Audit Execution Metrics]
+### [Hermes Audit Execution Metrics]
 | Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed |
 |---|---|---|---|---|---|
-| c:\dev\kintai\AGENTS.md (116 lines) | qwen2.5:27b | 25.14s | 4254 tokens | 1030 tokens | 51.2 tokens/s |
+| <PROJECT_ROOT>\AGENTS.md (116 lines) | qwen2.5:27b | 25.14s | 4254 tokens | 1030 tokens | 51.2 tokens/s |
 
 | Audit Item | Verdict | Detailed Finding & Recommendation |
 |---|---|---|

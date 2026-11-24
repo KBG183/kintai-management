@@ -1,4 +1,4 @@
-﻿"TestId","Description","ExpectedExit","ActualExit","ExpectedState","ActualState","Verdict"
+"TestId","Description","ExpectedExit","ActualExit","ExpectedState","ActualState","Verdict"
 "SM-01","Normal valid state transition","0","0","AUDIT_PASSED","AUDIT_PASSED","PASS"
 "SM-02","Block AUDIT_PASSED if not TESTED","10","10","IMPLEMENTED","IMPLEMENTED","PASS"
 "SM-03","Block on test exit code != 0","1","1","TEST_FAILED","TEST_FAILED","PASS"

@@ -1,4 +1,4 @@
-[Queue] Lock acquired: C:\dev\kintai\docs\codex_queue\.qwen_remote.lock
+[Queue] Lock acquired: <PROJECT_ROOT>\docs\codex_queue\.qwen_remote.lock
 [Queue] Processing: codex_live_relay_probe_20261113_9d646ebc.json at 2026-11-13T19:28:35.2331171+09:00
 [Queue] Calling Remote Ollama: http://<TAILSCALE_OLLAMA_HOST>:11434/api/generate (Model: qwen27b:latest)...
 [Queue] SUCCESS: Request codex_live_relay_probe_20261113_9d646ebc completed in 7.322s. Verified SHA: 27b785f067494204b16d9c487f9ae9de093fa854515e3245da97475bcca48fc1

@@ -14,7 +14,7 @@
     "num_ctx":  24576,
     "seed":  42,
     "temperature":  0.1,
-    "target_file":  "C:\\dev\\kintai\\scripts\\..\\docs\\audit_runs\\preflight_f0e18f1b1a5b4413ac74b11400d40180\\input_bundle",
+    "target_file":  "<PROJECT_ROOT>\\scripts\\..\\docs\\audit_runs\\preflight_f0e18f1b1a5b4413ac74b11400d40180\\input_bundle",
     "target_sha256":  "5c3c1901c40b8004e0d48580bc42efa64b3a349714b1d8581fd8431fc3ad8760",
     "git_head":  "8a5d7a10b2102916d40f6975ebab48d6662345b7",
     "script_sha256":  "d94df24a6df2c97a51d25c5016403eb44f676cbd456f648752b3e2cbc5841b0e",
@@ -24,6 +24,6 @@
     "total_seconds":  32.89,
     "speed_tps":  33.4,
     "done_reason":  "stop",
-    "output_dir":  "C:\\dev\\kintai\\docs\\audit_runs\\day13_calendar_20261114\\qwen27b_browser_download_reaudit",
+    "output_dir":  "<PROJECT_ROOT>\\docs\\audit_runs\\day13_calendar_20261114\\qwen27b_browser_download_reaudit",
     "error_message":  ""
 }

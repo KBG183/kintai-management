@@ -16,7 +16,7 @@
 
  :: Spring Boot ::                (v4.0.8)
 
-2026-11-11T15:18:27.205+09:00  INFO 4264 --- [    Test worker] erviceTransactionRollbackIntegrationTest : Starting PayrollServiceTransactionRollbackIntegrationTest using Java 17.0.12 with PID 4264 (started by <LOCAL_USER> in C:\dev\kintai)
+2026-11-11T15:18:27.205+09:00  INFO 4264 --- [    Test worker] erviceTransactionRollbackIntegrationTest : Starting PayrollServiceTransactionRollbackIntegrationTest using Java 17.0.12 with PID 4264 (started by <LOCAL_USER> in <PROJECT_ROOT>)
 2026-11-11T15:18:27.207+09:00  INFO 4264 --- [    Test worker] erviceTransactionRollbackIntegrationTest : No active profile set, falling back to 1 default profile: "default"
 2026-11-11T15:18:28.705+09:00  INFO 4264 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
 2026-11-11T15:18:28.963+09:00  INFO 4264 --- [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@63553e9f

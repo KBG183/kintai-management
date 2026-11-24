@@ -36,31 +36,31 @@ Kintai 프로젝트 Day 10의 근태 동시성 검증을 로컬 MySQL 격리 DB�
 
 ### 실행 스크립트
 
-- 격리 DB 준비: `C:\dev\kintai\scripts\prepare_day10_isolated_db.ps1`
-- Day 10 또는 전체 테스트 실행: `C:\dev\kintai\scripts\run_day10_isolated_test.ps1`
-- 3회 Day 10 반복 실행: `C:\dev\kintai\scripts\run_day10_isolated_regression.ps1`
+- 격리 DB 준비: `<PROJECT_ROOT>\scripts\prepare_day10_isolated_db.ps1`
+- Day 10 또는 전체 테스트 실행: `<PROJECT_ROOT>\scripts\run_day10_isolated_test.ps1`
+- 3회 Day 10 반복 실행: `<PROJECT_ROOT>\scripts\run_day10_isolated_regression.ps1`
 
 ### Day 10 성공 증적
 
-- 요약: `C:\dev\kintai\docs\audit_runs\day10_isolated_regression_20261113_154029\summary.json`
+- 요약: `<PROJECT_ROOT>\docs\audit_runs\day10_isolated_regression_20261113_154029\summary.json`
 - 한국어 상세: `...\day10_regression_evidence_KO.md`
 - 일본어 상세: `...\day10_regression_evidence_JP.md`
 - 회차별 JUnit XML·로그: 같은 디렉터리의 `iteration_01`부터 `iteration_03`
 
 ### 전체 회귀 진단
 
-- 실행 디렉터리: `C:\dev\kintai\docs\audit_runs\day10_isolated_20261113_155735_kintai_day10_test_c7bd2380a226`
+- 실행 디렉터리: `<PROJECT_ROOT>\docs\audit_runs\day10_isolated_20261113_155735_kintai_day10_test_c7bd2380a226`
 - 실행 로그: `gradle_console.log`
 - 전체 JUnit XML: 같은 디렉터리의 `TEST-*.xml`
 - 분류 보고서: `full_regression_triage_KO.md`, `full_regression_triage_JP.md`
 
 ### 정책·증적
 
-- 최상위 규칙: `C:\dev\kintai\AGENTS.md`
-- 한국어 증적: `C:\dev\kintai\docs\portfolio_audit_evidence_KO.md`
-- 일본어 증적: `C:\dev\kintai\docs\portfolio_audit_evidence.md`
-- RTM: `C:\dev\kintai\docs\rtm_ledger.md`
-- 운영 정책: `C:\dev\kintai\docs\workflow\operating_policy_v2.md`
+- 최상위 규칙: `<PROJECT_ROOT>\AGENTS.md`
+- 한국어 증적: `<PROJECT_ROOT>\docs\portfolio_audit_evidence_KO.md`
+- 일본어 증적: `<PROJECT_ROOT>\docs\portfolio_audit_evidence.md`
+- RTM: `<PROJECT_ROOT>\docs\rtm_ledger.md`
+- 운영 정책: `<PROJECT_ROOT>\docs\workflow\operating_policy_v2.md`
 
 ## 5. 전체 회귀 실패 요약
 

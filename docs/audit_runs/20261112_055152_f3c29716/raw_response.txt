@@ -1,4 +1,4 @@
-﻿| Finding ID | Audit Item | Severity (P0/P1/P2/Info) | Verdict (PASS / WARN / FAIL / N/A) | Code & Test Evidence | Detailed Analysis & Recommendation |
+| Finding ID | Audit Item | Severity (P0/P1/P2/Info) | Verdict (PASS / WARN / FAIL / N/A) | Code & Test Evidence | Detailed Analysis & Recommendation |
 |---|---|---|---|---|---|
 | F-001 | Japanese Labor Standards Act Art 37: Night Work & Overtime Calculation | P0 | N/A | `ShiftService.java` (No calculation logic found) | The provided code handles shift scheduling, confirmation, and attendance comparison. It does **not** contain the payroll calculation logic required to apply the +25% or +50% extra pay rates for night work (22:00-05:00) or overtime. This audit item is not applicable to this specific bundle as the calculation engine is likely in a separate Payroll/Timekeeping service. |
 | F-002 | Payroll Math & Rounding (HALF_UP) | P0 | N/A | `ShiftService.java` (No monetary calculation) | No monetary values are calculated in this service. Rounding logic for yen amounts is not present. This is N/A for this specific code bundle. |

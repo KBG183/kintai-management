@@ -14,10 +14,10 @@
     }
   },
   "bundle_info": {
-    "bundle_path": "C:/dev/kintai/tests/hermes_v2_golden/GT-02-MISSING-DEPENDENCY-HANDLING/bundle.txt",
+    "bundle_path": "<PROJECT_ROOT>/tests/hermes_v2_golden/GT-02-MISSING-DEPENDENCY-HANDLING/bundle.txt",
     "bundle_sha256": "60b8e1cb630a8bd4449e2bbd18d812a08f4182d87b7f001d049e3d7f836ffd21",
     "target_files": [
-      "C:/dev/kintai/tests/hermes_v2_golden/GT-02-MISSING-DEPENDENCY-HANDLING/bundle.txt"
+      "<PROJECT_ROOT>/tests/hermes_v2_golden/GT-02-MISSING-DEPENDENCY-HANDLING/bundle.txt"
     ],
     "known_dependencies": [],
     "missing_dependencies": [
@@ -51,7 +51,7 @@
       "verdict": "NOT_VERIFIABLE",
       "tracking_status": "OPEN",
       "location": {
-        "file_path": "C:/dev/kintai/tests/hermes_v2_golden/GT-02-MISSING-DEPENDENCY-HANDLING/bundle.txt",
+        "file_path": "<PROJECT_ROOT>/tests/hermes_v2_golden/GT-02-MISSING-DEPENDENCY-HANDLING/bundle.txt",
         "class_name": "Fixture",
         "method_name": "fixture",
         "line_start": 1,

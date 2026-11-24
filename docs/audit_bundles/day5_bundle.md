@@ -1,4 +1,4 @@
-﻿package com.example.kintai.domain.shift.service;
+package com.example.kintai.domain.shift.service;
 
 import com.example.kintai.domain.attendance.dto.AttendanceDto;
 import com.example.kintai.domain.attendance.mapper.AttendanceMapper;

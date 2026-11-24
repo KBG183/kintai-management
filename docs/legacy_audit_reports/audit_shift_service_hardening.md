@@ -1,7 +1,7 @@
-﻿### [Hermes Audit Execution Metrics]
+### [Hermes Audit Execution Metrics]
 | Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed |
 |---|---|---|---|---|---|
-| C:\dev\kintai\src\main\java\com\example\kintai\domain\shift\service\ShiftService.java (476 lines) | qwen27b:latest | 29.43s | 5359 tokens | 1327 tokens | 50.3 tokens/s |
+| <PROJECT_ROOT>\src\main\java\com\example\kintai\domain\shift\service\ShiftService.java (476 lines) | qwen27b:latest | 29.43s | 5359 tokens | 1327 tokens | 50.3 tokens/s |
 
 | Audit Item | Verdict (PASS / WARN / FAIL) | Detailed Finding & Recommendation (English) |
 |---|---|---|

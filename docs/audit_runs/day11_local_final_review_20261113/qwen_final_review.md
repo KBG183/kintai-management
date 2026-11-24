@@ -1,4 +1,4 @@
-﻿### [Total Audit Execution Metrics]
+### [Total Audit Execution Metrics]
 | Target File | Model | Total Time | Total Prompt Tokens | Total Eval Tokens |
 |---|---|---|---|---|
 | .\docs\audit_runs\day11_local_final_review_20261113\input_bundle.md (973 lines) | qwen3.8:27b | 0s | 0 tokens | 0 tokens |

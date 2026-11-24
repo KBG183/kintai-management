@@ -1,7 +1,7 @@
-﻿### [Hermes Audit Execution Metrics]
+### [Hermes Audit Execution Metrics]
 | Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed |
 |---|---|---|---|---|---|
-| C:\dev\kintai\src\main\java\com\example\kintai\domain\shift\controller\ShiftApiController.java (238 lines) | qwen27b:latest | 19.83s | 2953 tokens | 916 tokens | 50.8 tokens/s |
+| <PROJECT_ROOT>\src\main\java\com\example\kintai\domain\shift\controller\ShiftApiController.java (238 lines) | qwen27b:latest | 19.83s | 2953 tokens | 916 tokens | 50.8 tokens/s |
 
 | Audit Item | Verdict (PASS / WARN / FAIL) | Detailed Finding & Recommendation (English) |
 |---|---|---|

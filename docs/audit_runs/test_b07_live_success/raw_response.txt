@@ -1,4 +1,4 @@
-﻿| Finding ID | Audit Item | Severity (P0/P1/P2/Info) | Verdict (PASS / WARN / FAIL / N/A) | Code & Test Evidence | Detailed Analysis & Recommendation |
+| Finding ID | Audit Item | Severity (P0/P1/P2/Info) | Verdict (PASS / WARN / FAIL / N/A) | Code & Test Evidence | Detailed Analysis & Recommendation |
 |---|---|---|---|---|---|
 | AUDIT-001 | Japanese Labor Standards Act Art 37 Compliance | P0 | N/A | `SampleTestClass.java` contains no payroll logic. | The provided code is a basic arithmetic utility class (`add` method) and does not contain any logic related to night work, overtime, or wage calculation. Therefore, compliance with Japanese Labor Standards Act Article 37 cannot be assessed and is not applicable. |
 | AUDIT-002 | Payroll Math & Rounding Logic | P0 | N/A | No `RoundingMode` or decimal calculations found. | The code performs simple integer addition (`int a + int b`). There are no floating-point operations, currency calculations, or rounding modes (e.g., `HALF_UP`) present. This audit item is not applicable to the current code snippet. |

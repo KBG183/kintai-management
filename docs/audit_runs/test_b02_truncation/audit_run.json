@@ -24,6 +24,6 @@
     "total_seconds":  2,
     "speed_tps":  200,
     "done_reason":  "length",
-    "output_dir":  "C:\\dev\\kintai\\docs\\audit_runs\\test_b02_truncation",
+    "output_dir":  "<PROJECT_ROOT>\\docs\\audit_runs\\test_b02_truncation",
     "error_message":  "Response truncated: done_reason=length, total tokens (300) exceeded 90% of num_ctx (22118 / 24576)."
 }

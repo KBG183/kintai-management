@@ -16,7 +16,7 @@
 
 ### 2.1. 인라인 파워셸 스크립트 장애 2건 (`inspect JSON schema enums`, `parse JSON schema properly`)
 - **실행 명령**: `powershell -ExecutionPolicy Bypass -Command "[Console]... $json = Get-Content ..."`
-- **실행 위치**: `c:\dev\kintai`
+- **실행 위치**: `<PROJECT_ROOT>`
 - **표준 오류**:
   ```text
   = : The term '=' is not recognized as the name of a cmdlet, function, script file, or operable program.
@@ -32,11 +32,11 @@
 - **최종 판정**: **`TOOL_HARNESS_SYNTAX_ISSUE` (JSON 파일 결함 아님, 스크립트 파일 분리 호출 시 정상 작동 확인)**
 
 ### 2.2. 검증기 프로토타입 실행 장애 1건 (`test verifier prototype with draft schema`)
-- **실행 명령**: `powershell -ExecutionPolicy Bypass -File "c:\dev\kintai\docs\hermes_v2_spec\verify_audit_result_prototype.ps1" ...`
-- **실행 위치**: `c:\dev\kintai`
+- **실행 명령**: `powershell -ExecutionPolicy Bypass -File "<PROJECT_ROOT>\docs\hermes_v2_spec\verify_audit_result_prototype.ps1" ...`
+- **실행 위치**: `<PROJECT_ROOT>`
 - **표준 오류**:
   ```text
-  The argument 'c:\dev\kintai\docs\hermes_v2_spec\verify_audit_result_prototype.ps1' to the -File parameter does not exist.
+  The argument '<PROJECT_ROOT>\docs\hermes_v2_spec\verify_audit_result_prototype.ps1' to the -File parameter does not exist.
   ```
 - **종료 코드**: `1`
 - **실패 원인 (Root Cause)**:
@@ -80,7 +80,7 @@
     }
     ```
   - **원인 규명**: `audit_with_hermes.ps1`의 상대경로 기본값이 현재 콘솔의 작업 디렉터리(`$PWD`)를 기준으로 `docs/audit_runs`를 생성함.
-  - 사용자가 `C:\Users\<LOCAL_USER>`에서 명령을 실행하면 `C:\Users\<LOCAL_USER>\docs\audit_runs\`에 저장되고, `c:\dev\kintai`에서 실행하면 `c:\dev\kintai\docs\audit_runs\`에 저장됨.
+  - 사용자가 `C:\Users\<LOCAL_USER>`에서 명령을 실행하면 `C:\Users\<LOCAL_USER>\docs\audit_runs\`에 저장되고, `<PROJECT_ROOT>`에서 실행하면 `<PROJECT_ROOT>\docs\audit_runs\`에 저장됨.
 - **최종 판정**: **`CONFIRMED_DEFECT`** (실행 경로 의존적 경로 고아 발생 결함 확인)
 
 ---

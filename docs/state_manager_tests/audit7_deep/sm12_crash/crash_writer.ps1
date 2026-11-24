@@ -1,4 +1,4 @@
-﻿[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 param($LedgerPath)
 $tmpFile = "$LedgerPath.tmp"
 $partialData = '{"current_state": "CORRUPTED_MID_WRITE", "data": "incom'

@@ -1,7 +1,7 @@
-﻿### [Hermes Audit Execution Metrics]
+### [Hermes Audit Execution Metrics]
 | Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed |
 |---|---|---|---|---|---|
-| C:\dev\kintai\docs\audit_runs\project_wide_handoff_20261114\current_docs_audit_bundle_v10.md (727 lines) | qwen27b:latest | 51.41s | 19696 tokens | 720 tokens | 22.8 tokens/s |
+| <PROJECT_ROOT>\docs\audit_runs\project_wide_handoff_20261114\current_docs_audit_bundle_v10.md (727 lines) | qwen27b:latest | 51.41s | 19696 tokens | 720 tokens | 22.8 tokens/s |
 
 Overall Verdict: PASS
 

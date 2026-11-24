@@ -1,6 +1,6 @@
 # Day 11 handoff: annual payroll E2E
 
-Date: 2026-11-13. Project: `C:\dev\kintai`.
+Date: 2026-11-13. Project: `<PROJECT_ROOT>`.
 
 ## Goal and scope
 Complete Day 11 by validating 12 monthly payroll periods with representative shifts, current SRS rules only, and no Docker/cloud deployment. Cloud/container deployment remains deferred to Jan-Feb 2027 per the user's decision. Excluded requirements such as 36-agreement limits, monthly 60-hour premiums, weekly 40-hour limits, holidays, tax/social-insurance calculations remain out of this MVP test.
@@ -22,7 +22,7 @@ Complete Day 11 by validating 12 monthly payroll periods with representative shi
 
 1. Inspect Qwen's response when the worker completes; verify its manifest/hash and resolve any material findings.
 2. On the user PC, run:
-   - `Set-Location C:\dev\kintai`
+   - `Set-Location <PROJECT_ROOT>`
    - `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\prepare_day11_isolated_db.ps1`
    - Copy its `ISOLATED_DATABASE=kintai_day11_test_<12 hex>` value.
    - `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\run_isolated_regression.ps1 -Scope Day11 -DatabaseName <copied-name>`
@@ -38,4 +38,4 @@ Preserve pre-existing uncommitted changes. Do not commit or push. Do not remove 
 - The test now also asserts the contract boundary directly: 2026-06-30 resolves to 1300 yen and 2026-07-01 resolves to 1400 yen. It asserts the contract's 1000-yen transport limit is what the monthly payroll applies.
 - These two assertions were added after Qwen v3 input bundle creation. Qwen v3 also returned no concise findings table/overall verdict, so no Qwen review is accepted for the final source.
 - This session's Codex executor denied local MySQL/loopback and Gradle daemon/cache access. The logs establish the sandbox restrictions, but do not establish whether the executor host is local or cloud. The failed attempts are not fixed by approving a prompt in this chat. Continue in a Codex execution profile that allows the project scripts to reach `127.0.0.1:3306` and the local Gradle cache/daemon, or use the already available Antigravity host runner. If a managed policy controls this Codex profile, its workspace owner must permit those accesses; user config cannot override a managed requirement.
-- For a local Codex client not restricted by a managed policy, `%USERPROFILE%\.codex\config.toml` can set `sandbox_mode = "workspace-write"`, `approval_policy = "on-request"`, and `[sandbox_workspace_write]` with `writable_roots = ["C:\\dev\\kintai"]` plus `network_access = true`. A local/private-network policy may still need administrator allowance.
+- For a local Codex client not restricted by a managed policy, `%USERPROFILE%\.codex\config.toml` can set `sandbox_mode = "workspace-write"`, `approval_policy = "on-request"`, and `[sandbox_workspace_write]` with `writable_roots = ["<PROJECT_ROOT>"]` plus `network_access = true`. A local/private-network policy may still need administrator allowance.

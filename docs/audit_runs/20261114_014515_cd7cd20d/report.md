@@ -1,4 +1,4 @@
-﻿### [Hermes Audit Execution Metrics v1.1.1]
+### [Hermes Audit Execution Metrics v1.1.1]
 | Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed | Done Reason | Run ID |
 |---|---|---|---|---|---|---|---|
 | docs/audit_runs/project_wide_handoff_20261114\current_docs_audit_bundle_final.md | qwen27b:latest (IQ3_M) | 46.43s | 20730 tokens | 1295 tokens | 39.5 tokens/s | stop | 20261114_014515_cd7cd20d |

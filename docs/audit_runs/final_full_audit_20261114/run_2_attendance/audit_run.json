@@ -14,7 +14,7 @@
     "num_ctx":  24576,
     "seed":  42,
     "temperature":  0.1,
-    "target_file":  "C:\\dev\\kintai\\docs\\audit_runs\\final_full_audit_20261114\\bundles\\bundle_2_attendance_approval.md",
+    "target_file":  "<PROJECT_ROOT>\\docs\\audit_runs\\final_full_audit_20261114\\bundles\\bundle_2_attendance_approval.md",
     "target_sha256":  "6ed45136c7cdb7eae32d066e33b5e6ddc076787d363c6fae0c6d606e606b3a55",
     "git_head":  "9f1d02100bd8041738e45916aeae6fccbb209c31",
     "script_sha256":  "d94df24a6df2c97a51d25c5016403eb44f676cbd456f648752b3e2cbc5841b0e",
@@ -24,6 +24,6 @@
     "total_seconds":  66.69,
     "speed_tps":  45.6,
     "done_reason":  "stop",
-    "output_dir":  "C:\\dev\\kintai\\docs\\audit_runs\\final_full_audit_20261114\\run_2_attendance",
+    "output_dir":  "<PROJECT_ROOT>\\docs\\audit_runs\\final_full_audit_20261114\\run_2_attendance",
     "error_message":  ""
 }

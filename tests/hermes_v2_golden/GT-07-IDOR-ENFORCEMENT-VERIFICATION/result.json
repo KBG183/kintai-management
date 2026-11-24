@@ -14,10 +14,10 @@
     }
   },
   "bundle_info": {
-    "bundle_path": "C:/dev/kintai/tests/hermes_v2_golden/GT-07-IDOR-ENFORCEMENT-VERIFICATION/bundle.txt",
+    "bundle_path": "<PROJECT_ROOT>/tests/hermes_v2_golden/GT-07-IDOR-ENFORCEMENT-VERIFICATION/bundle.txt",
     "bundle_sha256": "e4122f4d68c715fe1797e61cce3200304a66edd44f394a54e5cb5f3aa543869c",
     "target_files": [
-      "C:/dev/kintai/tests/hermes_v2_golden/GT-07-IDOR-ENFORCEMENT-VERIFICATION/bundle.txt"
+      "<PROJECT_ROOT>/tests/hermes_v2_golden/GT-07-IDOR-ENFORCEMENT-VERIFICATION/bundle.txt"
     ],
     "known_dependencies": [],
     "missing_dependencies": []
@@ -49,7 +49,7 @@
       "verdict": "FAIL",
       "tracking_status": "OPEN",
       "location": {
-        "file_path": "C:/dev/kintai/tests/hermes_v2_golden/GT-07-IDOR-ENFORCEMENT-VERIFICATION/bundle.txt",
+        "file_path": "<PROJECT_ROOT>/tests/hermes_v2_golden/GT-07-IDOR-ENFORCEMENT-VERIFICATION/bundle.txt",
         "class_name": "Fixture",
         "method_name": "fixture",
         "line_start": 1,
@@ -60,7 +60,7 @@
         "expected_behavior": "The fixture follows its declared contract.",
         "actual_behavior": "The fixture records its declared deterministic condition.",
         "proof_type": "STATIC_CODE_PROOF",
-        "source_file": "C:/dev/kintai/tests/hermes_v2_golden/GT-07-IDOR-ENFORCEMENT-VERIFICATION/bundle.txt",
+        "source_file": "<PROJECT_ROOT>/tests/hermes_v2_golden/GT-07-IDOR-ENFORCEMENT-VERIFICATION/bundle.txt",
         "source_line_start": 1,
         "source_line_end": 1,
         "code_excerpt": "Synthetic source demonstrates the declared fixture condition.",

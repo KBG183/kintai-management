@@ -1,4 +1,4 @@
-﻿### [Hermes Audit Execution Metrics]
+### [Hermes Audit Execution Metrics]
 | Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed |
 |---|---|---|---|---|---|
 | scripts/audit_config.json (35 lines) | qwen27b:latest | 48.36s | 887 tokens | 1801 tokens | 41.4 tokens/s |

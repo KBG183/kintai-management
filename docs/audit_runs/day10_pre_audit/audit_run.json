@@ -24,6 +24,6 @@
     "total_seconds":  0,
     "speed_tps":  0,
     "done_reason":  "unknown",
-    "output_dir":  "C:\\dev\\kintai\\docs\\audit_runs\\day10_pre_audit",
+    "output_dir":  "<PROJECT_ROOT>\\docs\\audit_runs\\day10_pre_audit",
     "error_message":  "API call failed after 1 retries. Last error: \"0\"개의 인수가 있는 \"GetRequestStream\"을(를) 호출하는 동안 예외가 발생했습니다. \"원격 서버에 연결할 수 없습니다.\""
 }

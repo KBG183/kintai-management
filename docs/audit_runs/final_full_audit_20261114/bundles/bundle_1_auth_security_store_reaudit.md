@@ -1,4 +1,4 @@
-﻿# Final Full Audit Bundle (Re-audit after @EnableMethodSecurity): bundle_1_auth_security_store
+# Final Full Audit Bundle (Re-audit after @EnableMethodSecurity): bundle_1_auth_security_store
 Generated: 2026-11-14T14:08:56+09:00
 
 ## FILE: src\main\java\com\example\kintai\config\SecurityConfig.java

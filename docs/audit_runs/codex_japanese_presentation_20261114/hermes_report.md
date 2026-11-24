@@ -1,7 +1,7 @@
-﻿### [Hermes Audit Execution Metrics]
+### [Hermes Audit Execution Metrics]
 | Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed |
 |---|---|---|---|---|---|
-| C:\dev\kintai\docs\presentation-prototype\index.html (26 lines) | qwen27b:latest | 28.76s | 3190 tokens | 729 tokens | 37.3 tokens/s |
+| <PROJECT_ROOT>\docs\presentation-prototype\index.html (26 lines) | qwen27b:latest | 28.76s | 3190 tokens | 729 tokens | 37.3 tokens/s |
 
 | Audit Item | Verdict (PASS / WARN / FAIL) | Detailed Finding & Recommendation (English) |
 |---|---|---|

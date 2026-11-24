@@ -10,7 +10,7 @@ Java HotSpot(TM) 64-Bit Server VM warning: Sharing is only supported for boot lo
 
 > Task :test
 
-F-04: performance_schema.data_locks ½ÇÃø °ËÁõ > µ¶¸³ Ä¿³Ø¼Ç¿¡¼­ lockStorePayrollsForUpdate ½ÇÇà ½Ã performance_schema.data_locksÀÇ ¶ô ¸ðµå ¹× ÀÎµ¦½º ½ÇÃø FAILED
+F-04: performance_schema.data_locks ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ > ï¿½ï¿½ï¿½ï¿½ Ä¿ï¿½Ø¼Ç¿ï¿½ï¿½ï¿½ lockStorePayrollsForUpdate ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ performance_schema.data_locksï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ FAILED
     org.opentest4j.AssertionFailedError at PerformanceSchemaDataLocksIntegrationTest.java:73
 
 2026-11-13T16:08:25.387+09:00  INFO 27236 --- [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
@@ -26,7 +26,7 @@ FAILURE: Build failed with an exception.
 
 * What went wrong:
 Execution failed for task ':test'.
-> There were failing tests. See the report at: file:///C:/dev/kintai/build/reports/tests/test/index.html
+> There were failing tests. See the report at: file:///<PROJECT_ROOT>/build/reports/tests/test/index.html
 
 * Try:
 > Run with --scan to get full insights from a Build Scan (powered by Develocity).

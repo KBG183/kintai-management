@@ -1,6 +1,6 @@
 # SOURCE: AGENTS.md
 # Kintai 프로젝트 운영 지침
-- 프로젝트 기준 경로는 `C:\dev\kintai`다. 사용자 지시와 적용 가능한 상위 지침을 우선하며, 기존 변경과 증적을 보존한다.
+- 프로젝트 기준 경로는 `<PROJECT_ROOT>`다. 사용자 지시와 적용 가능한 상위 지침을 우선하며, 기존 변경과 증적을 보존한다.
 - Day별 SRS, 설계서, RTM 및 작업 기록을 확인하여 점진적으로 진행한다. 과거 일정표의 완료 표시는 실제 검증의 근거가 아니다.
 - 사용자에게 전달하는 모든 진행 메시지와 최종 답변은 한국어 존댓말로 작성한다. 파일명, 명령어, 로그와 오류의 원문은 정확성을 위해 원어를 유지할 수 있으며 필요한 설명은 한국어로 제공한다. 물결표와 취소선은 사용하지 않는다. 사실, 추정, 미검증 사항을 구분한다.
 - 코드 주석, UI와 일본어 포트폴리오 기술 산출물은 기존 일본어 방침을 따른다. 한국어 보고와 한국어 증적서는 함께 유지한다.
@@ -375,14 +375,14 @@ $env:KINTAI_DB_PASSWORD = "<ローカルDBパスワード>"
 | **Stop Tokens** | `<\|im_start\|>`, `<\|im_end\|>` | Qwen ChatMLテンプレートの終端トークン制御 |
 # SOURCE: AGENTS review current endpoint correction
 # AGENTS.md Review and Remediation Plan
-- Reviewed source: `C:\dev\kintai\AGENTS.md`
+- Reviewed source: `<PROJECT_ROOT>\AGENTS.md`
 - This document does not modify or replace the source.
 - Facts below come from the reviewed files or build configuration. Recommendations
   are explicitly labeled as recommendations.
 | ID | Finding | Evidence | Impact |
 |---|---|---|---|
 | F-01 | The project toolchain is Java 17, while AGENTS.md states Java 21. | `build.gradle` sets `JavaLanguageVersion.of(17)`; AGENTS.md Team Role Architecture | An operator can write or review against the wrong runtime baseline. |
-| F-02 | Hermes execution paths conflict. | AGENTS.md names `C:\Users\<LOCAL_USER>\.gemini\scripts\audit_with_hermes.ps1`; active project script is `C:\dev\kintai\scripts\audit_with_hermes.ps1`. | Instructions can call an obsolete or different script. |
+| F-02 | Hermes execution paths conflict. | AGENTS.md names `C:\Users\<LOCAL_USER>\.gemini\scripts\audit_with_hermes.ps1`; active project script is `<PROJECT_ROOT>\scripts\audit_with_hermes.ps1`. | Instructions can call an obsolete or different script. |
 | F-03 (superseded) | An earlier review snapshot reported conflicting Hermes hosts. | The active project script and config were rechecked on 2026-11-14 and both specify `<TAILSCALE_OLLAMA_HOST>:11434`. | Historical finding; do not use the obsolete `100.91` value. See current-state correction below. |
 | F-04 | Model policy is internally inconsistent. | AGENTS.md preserves `qwen2.5:7b` fallback rules; current operating policy says the 27B Antigravity/Hermes route is primary and Codex queue routing is not the standard route. | A lower-capacity model or retired workflow can be used unintentionally. |
 | F-05 | The document contains mandatory daily full-audit, pre-audit, re-audit, and three-step source-wide audit requirements. | AGENTS.md sections 6, 11, 14, and 17. | Small changes can trigger disproportionate work, delay the Day-based plan, and encourage checkbox evidence rather than risk-based evidence. |

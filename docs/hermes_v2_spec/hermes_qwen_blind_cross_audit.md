@@ -28,26 +28,26 @@
 ## 2. 실제 조사한 물리적 파일 목록
 
 1. `C:\Users\<LOCAL_USER>\.gemini\scripts\audit_with_hermes.ps1` (v1.1.1, 433행)
-2. `c:\dev\kintai\scripts\state_manager.ps1` (v3.0, 593행)
-3. `c:\dev\kintai\scripts\audit_config.json` 및 `audit_config.schema.json`
-4. `c:\dev\kintai\docs\constitution_4layer_specification.md` (v2.1)
-5. `c:\dev\kintai\docs\audit_prompt_spec.md` (v1.0)
-6. `c:\dev\kintai\docs\hermes_v2_spec\01_hermes_v1_survey_report.md`
-7. `c:\dev\kintai\docs\hermes_v2_spec\02_judgment_constitution_v2_draft.md`
-8. `c:\dev\kintai\docs\hermes_v2_spec\03_result_schema_v2_draft.json`
-9. `c:\dev\kintai\docs\hermes_v2_spec\03_result_schema_v2_spec.md`
-10. `c:\dev\kintai\docs\hermes_v2_spec\04_v1_v2_compatibility_migration.md`
-11. `c:\dev\kintai\docs\hermes_v2_spec\05_golden_test_specifications.md`
-12. `c:\dev\kintai\docs\hermes_v2_spec\06_deterministic_verifier_design.md`
-13. `c:\dev\kintai\docs\hermes_v2_spec\07_unresolved_and_pending_verification.md`
-14. `c:\dev\kintai\docs\audit_runs\20261112_055925_dbe89f06\report.md` (실제 Day 9 결과)
+2. `<PROJECT_ROOT>\scripts\state_manager.ps1` (v3.0, 593행)
+3. `<PROJECT_ROOT>\scripts\audit_config.json` 및 `audit_config.schema.json`
+4. `<PROJECT_ROOT>\docs\constitution_4layer_specification.md` (v2.1)
+5. `<PROJECT_ROOT>\docs\audit_prompt_spec.md` (v1.0)
+6. `<PROJECT_ROOT>\docs\hermes_v2_spec\01_hermes_v1_survey_report.md`
+7. `<PROJECT_ROOT>\docs\hermes_v2_spec\02_judgment_constitution_v2_draft.md`
+8. `<PROJECT_ROOT>\docs\hermes_v2_spec\03_result_schema_v2_draft.json`
+9. `<PROJECT_ROOT>\docs\hermes_v2_spec\03_result_schema_v2_spec.md`
+10. `<PROJECT_ROOT>\docs\hermes_v2_spec\04_v1_v2_compatibility_migration.md`
+11. `<PROJECT_ROOT>\docs\hermes_v2_spec\05_golden_test_specifications.md`
+12. `<PROJECT_ROOT>\docs\hermes_v2_spec\06_deterministic_verifier_design.md`
+13. `<PROJECT_ROOT>\docs\hermes_v2_spec\07_unresolved_and_pending_verification.md`
+14. `<PROJECT_ROOT>\docs\audit_runs\20261112_055925_dbe89f06\report.md` (실제 Day 9 결과)
 
 ---
 
 ## 3. 독립적으로 발견한 결함 목록 (Confirmed Defects)
 
 ### DEF-01: JSON Schema 내 Enum 표기 불일치 (`NA` vs `N/A`)
-- **실제 파일 및 행**: `c:\dev\kintai\docs\hermes_v2_spec\03_result_schema_v2_draft.json` 131행 vs 194행
+- **실제 파일 및 행**: `<PROJECT_ROOT>\docs\hermes_v2_spec\03_result_schema_v2_draft.json` 131행 vs 194행
 - **증거**:
   - 131행 (`counts_by_verdict.required`): `["PASS", "FAIL", "WARN", "NA", "NOT_VERIFIABLE"]`
   - 194행 (`findings[].verdict.enum`): `["PASS", "FAIL", "WARN", "N/A", "NOT_VERIFIABLE"]`
@@ -59,7 +59,7 @@
 - **판정**: **`CONFIRMED_DEFECT`**
 
 ### DEF-02: 손상된 v2 JSON에 대한 Silent Fallback 보안 결함
-- **실제 파일 및 행**: `c:\dev\kintai\docs\hermes_v2_spec\04_v1_v2_compatibility_migration.md` 38~47행
+- **실제 파일 및 행**: `<PROJECT_ROOT>\docs\hermes_v2_spec\04_v1_v2_compatibility_migration.md` 38~47행
 - **증거**:
   - v2 JSON 파일 검증 실패 시 v1 마크다운 파서로 넘어가는 흐름이 허용되어 있음.
   - 모델이 스키마를 위반하거나 손상된 JSON을 생성했을 때, 이를 레거시 v1 마크다운 정규식 매칭으로 폴백시키면, 모델의 JSON 생성 결함이나 변조된 데이터가 은폐된 채 v1 정규식 검사를 통과하여 `AUDIT_PASSED`로 부정 승인될 수 있음.
@@ -69,12 +69,12 @@
 - **실제 파일 및 행**: `C:\Users\<LOCAL_USER>\.gemini\scripts\audit_with_hermes.ps1` 47행
 - **증거**:
   - `$OutputDir = Join-Path "docs/audit_runs" "${dirPrefix}${timestampStr}_${targetSha8}"`로 상대경로 바인딩됨.
-  - 사용자가 `C:\Users\<LOCAL_USER>`에서 실행할 경우 `C:\Users\<LOCAL_USER>\docs\audit_runs\`에 저장되고, 프로젝트 루트(`c:\dev\kintai`)에서 실행할 경우 `c:\dev\kintai\docs\audit_runs\`에 저장됨.
+  - 사용자가 `C:\Users\<LOCAL_USER>`에서 실행할 경우 `C:\Users\<LOCAL_USER>\docs\audit_runs\`에 저장되고, 프로젝트 루트(`<PROJECT_ROOT>`)에서 실행할 경우 `<PROJECT_ROOT>\docs\audit_runs\`에 저장됨.
   - 실제로 디스크 조사 결과 `C:\Users\<LOCAL_USER>\docs\audit_runs\20261112_054459_PROMPT`가 고아 디렉터리로 잔류하고 있음.
 - **판정**: **`CONFIRMED_DEFECT`**
 
 ### DEF-04: JSON Schema Strictness 결핍 (`additionalProperties: false` 누락)
-- **실제 파일 및 행**: `c:\dev\kintai\docs\hermes_v2_spec\03_result_schema_v2_draft.json` 최상위 및 155행
+- **실제 파일 및 행**: `<PROJECT_ROOT>\docs\hermes_v2_spec\03_result_schema_v2_draft.json` 최상위 및 155행
 - **증거**:
   - 최상위 객체 및 `findings[]` 객체에 `additionalProperties` 정책이 미정의됨 (`null`).
   - LLM이 임의의 환각 필드(예: `"hallucinated_comment": "..."`)를 추가하더라도 스키마가 차단하지 못함.

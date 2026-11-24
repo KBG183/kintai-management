@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "target_day": "2026-11-14 current project-wide documentation handoff review",
-  "bundle_path": "C:\\dev\\kintai\\docs\\audit_runs\\project_wide_handoff_20261114\\current_docs_audit_bundle_compact.md",
+  "bundle_path": "<PROJECT_ROOT>\\docs\\audit_runs\\project_wide_handoff_20261114\\current_docs_audit_bundle_compact.md",
   "bundle_sha256": "9943a99a446451a4114ab2ca8cb960ce018a62afed2a16c3acfa4c5ab2f5beae",
   "requirements": [
     "Latest execution totals and isolated DB identities agree across all current summaries",
@@ -40,14 +40,14 @@
     "previous frozen document audit: 10 findings"
   ],
   "execution_logs": [
-    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_094427_kintai_full_test_d4124a317ed0\\exit_summary.json",
-    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_094427_kintai_full_test_d4124a317ed0\\gradle_console.log",
-    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_day11_20261114_094349_kintai_day11_test_01f4cb1439e6\\exit_summary.json",
-    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_day11_20261114_094349_kintai_day11_test_01f4cb1439e6\\gradle_console.log"
+    "<PROJECT_ROOT>\\docs\\audit_runs\\isolated_all_20261114_094427_kintai_full_test_d4124a317ed0\\exit_summary.json",
+    "<PROJECT_ROOT>\\docs\\audit_runs\\isolated_all_20261114_094427_kintai_full_test_d4124a317ed0\\gradle_console.log",
+    "<PROJECT_ROOT>\\docs\\audit_runs\\isolated_day11_20261114_094349_kintai_day11_test_01f4cb1439e6\\exit_summary.json",
+    "<PROJECT_ROOT>\\docs\\audit_runs\\isolated_day11_20261114_094349_kintai_day11_test_01f4cb1439e6\\gradle_console.log"
   ],
   "junit_xml": [
-    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_094427_kintai_full_test_d4124a317ed0\\TEST-com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest.xml",
-    "C:\\dev\\kintai\\docs\\audit_runs\\isolated_all_20261114_094427_kintai_full_test_d4124a317ed0\\TEST-com.example.kintai.domain.attendance.controller.AttendancePunchApiIntegrationTest.xml"
+    "<PROJECT_ROOT>\\docs\\audit_runs\\isolated_all_20261114_094427_kintai_full_test_d4124a317ed0\\TEST-com.example.kintai.domain.payroll.service.AnnualPayrollScenarioIntegrationTest.xml",
+    "<PROJECT_ROOT>\\docs\\audit_runs\\isolated_all_20261114_094427_kintai_full_test_d4124a317ed0\\TEST-com.example.kintai.domain.attendance.controller.AttendancePunchApiIntegrationTest.xml"
   ],
   "environment": "Windows; local MySQL 26.7 isolated databases; remote Qwen must be qwen27b:latest at http://<TAILSCALE_OLLAMA_HOST>:11434",
   "known_constraints": [

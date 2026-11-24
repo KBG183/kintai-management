@@ -4,23 +4,23 @@
 
 | 영역 | 현재 경로 |
 |---|---|
-| 프로젝트 규칙 | `C:\dev\kintai\AGENTS.md` |
-| SRS | `C:\dev\kintai\kintai_requirements_specification_revised.md` |
-| RTM | `C:\dev\kintai\docs\rtm_ledger.md` |
-| 요구사항 추적 규칙 | `C:\dev\kintai\docs\requirements_tracking_process.md` |
-| 한국어 증적서 | `C:\dev\kintai\docs\portfolio_audit_evidence_KO.md` |
-| 일본어 증적서 | `C:\dev\kintai\docs\portfolio_audit_evidence.md` |
-| 일별 감사 결과 | `C:\dev\kintai\audit_reports\day_by_day\` |
-| 독립 감사 번들 | `C:\dev\kintai\docs\audit_bundles\` |
-| 최종 포트폴리오 | `C:\dev\kintai\docs\final-portfolio\` |
-| 감사 실행 결과 | `C:\dev\kintai\docs\audit_runs\` |
+| 프로젝트 규칙 | `<PROJECT_ROOT>\AGENTS.md` |
+| SRS | `<PROJECT_ROOT>\kintai_requirements_specification_revised.md` |
+| RTM | `<PROJECT_ROOT>\docs\rtm_ledger.md` |
+| 요구사항 추적 규칙 | `<PROJECT_ROOT>\docs\requirements_tracking_process.md` |
+| 한국어 증적서 | `<PROJECT_ROOT>\docs\portfolio_audit_evidence_KO.md` |
+| 일본어 증적서 | `<PROJECT_ROOT>\docs\portfolio_audit_evidence.md` |
+| 일별 감사 결과 | `<PROJECT_ROOT>\audit_reports\day_by_day\` |
+| 독립 감사 번들 | `<PROJECT_ROOT>\docs\audit_bundles\` |
+| 최종 포트폴리오 | `<PROJECT_ROOT>\docs\final-portfolio\` |
+| 감사 실행 결과 | `<PROJECT_ROOT>\docs\audit_runs\` |
 | 역사적 Day 10 사용자 프로필 Hermes 스크립트 | `C:\Users\<LOCAL_USER>\.gemini\scripts\audit_with_hermes.ps1` (과거 실행 해시 증거 전용; 현재 프로젝트 정본이 아님) |
-| 현재 프로젝트 감사 진입점 | `C:\dev\kintai\scripts\codex_hermes_bridge.ps1` → `scripts\audit_with_hermes.ps1` (설정 endpoint/model 사용, HTTP 기본값) |
-| 선택적 사전검증 진입점 | `C:\dev\kintai\scripts\audit_hermes_preflight.ps1` (프로젝트 감사 스크립트 실행 전 입력 검증) |
-| 보관 감사 문서 | `C:\dev\kintai\docs\legacy_audit_reports\` |
-| 학습·참고 문서 | `C:\dev\kintai\docs\study_guides\` |
-| 작업 로그 | `C:\dev\kintai\docs\logs\` |
-| 작업·인계 문서 | `C:\dev\kintai\docs\workflow\` 및 `C:\dev\kintai\docs\working\` |
+| 현재 프로젝트 감사 진입점 | `<PROJECT_ROOT>\scripts\codex_hermes_bridge.ps1` → `scripts\audit_with_hermes.ps1` (설정 endpoint/model 사용, HTTP 기본값) |
+| 선택적 사전검증 진입점 | `<PROJECT_ROOT>\scripts\audit_hermes_preflight.ps1` (프로젝트 감사 스크립트 실행 전 입력 검증) |
+| 보관 감사 문서 | `<PROJECT_ROOT>\docs\legacy_audit_reports\` |
+| 학습·참고 문서 | `<PROJECT_ROOT>\docs\study_guides\` |
+| 작업 로그 | `<PROJECT_ROOT>\docs\logs\` |
+| 작업·인계 문서 | `<PROJECT_ROOT>\docs\workflow\` 및 `<PROJECT_ROOT>\docs\working\` |
 
 ## 경로 변경 규칙
 

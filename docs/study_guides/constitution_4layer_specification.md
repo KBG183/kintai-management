@@ -67,7 +67,7 @@
 
 ---
 
-# [Layer 2] 프로젝트 헌법 (`c:\dev\kintai\AGENTS.md`) — [Kintai 프로젝트 실행 규격]
+# [Layer 2] 프로젝트 헌법 (`<PROJECT_ROOT>\AGENTS.md`) — [Kintai 프로젝트 실행 규격]
 
 ## 제1조 (100% Pure Japanese Codebase 및 산출물 품질 규격)
 1. **언어 절대 원칙**: 모든 Java 코드 주석(`//`, `/* */`), Javadoc, MyBatis XML, DDL/DML 테이블/컬럼 코멘트, Thymeleaf 템플릿(UI 텍스트), README, Git 커밋 메시지는 **단 1글자의 한국어 없이 100% 정통 비즈니스 일본어로만 작성**한다. (사용자와의 채팅 대화만 한국어로 진행)

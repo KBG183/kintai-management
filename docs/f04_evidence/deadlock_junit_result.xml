@@ -16,7 +16,7 @@
 
  :: Spring Boot ::                (v4.0.8)
 
-2026-11-11T15:24:40.524+09:00  INFO 16992 --- [    Test worker] OrderDeadlockReproductionIntegrationTest : Starting PayrollLockOrderDeadlockReproductionIntegrationTest using Java 17.0.12 with PID 16992 (started by <LOCAL_USER> in C:\dev\kintai)
+2026-11-11T15:24:40.524+09:00  INFO 16992 --- [    Test worker] OrderDeadlockReproductionIntegrationTest : Starting PayrollLockOrderDeadlockReproductionIntegrationTest using Java 17.0.12 with PID 16992 (started by <LOCAL_USER> in <PROJECT_ROOT>)
 2026-11-11T15:24:40.526+09:00  INFO 16992 --- [    Test worker] OrderDeadlockReproductionIntegrationTest : No active profile set, falling back to 1 default profile: "default"
 2026-11-11T15:24:42.014+09:00  INFO 16992 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
 2026-11-11T15:24:42.309+09:00  INFO 16992 --- [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@7e81617a

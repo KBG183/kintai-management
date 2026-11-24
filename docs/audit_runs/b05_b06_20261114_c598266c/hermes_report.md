@@ -1,7 +1,7 @@
-﻿### [Total Audit Execution Metrics]
+### [Total Audit Execution Metrics]
 | Target File | Model | Total Time | Total Prompt Tokens | Total Eval Tokens |
 |---|---|---|---|---|
-| C:\dev\kintai\docs\audit_runs\b05_b06_audit_20261114\b05_b06_audit_bundle.md (575 lines) | qwen27b:latest | 109.07s | 8598 tokens | 3920 tokens |
+| <PROJECT_ROOT>\docs\audit_runs\b05_b06_audit_20261114\b05_b06_audit_bundle.md (575 lines) | qwen27b:latest | 109.07s | 8598 tokens | 3920 tokens |
 
 # 🛡️ Hermes Independent Audit Report (Section-by-Section)
 > **Target**: $TargetFile (575 lines) | **Model**: $Model | **Timestamp**: 2026-11-14 11:49:25

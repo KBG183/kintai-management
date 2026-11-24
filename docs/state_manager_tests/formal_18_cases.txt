@@ -1,4 +1,4 @@
-﻿
+
 TestId Description                              ExpectedExit ActualExit ExpectedState    ActualState      Verdict
 ------ -----------                              ------------ ---------- -------------    -----------      -------
 SM-01  Normal valid state transition                       0          0 AUDIT_PASSED     AUDIT_PASSED     PASS   

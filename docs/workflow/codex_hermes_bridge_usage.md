@@ -122,7 +122,7 @@ Direct Hermes invocation from Codex is `PROHIBITED`, even if a future direct net
 Antigravity is not required for this relay. Start the Windows transport worker directly:
 
 ```powershell
-cd C:\dev\kintai
+cd <PROJECT_ROOT>
 .\scripts\start_codex_qwen_worker.ps1
 ```
 

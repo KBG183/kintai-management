@@ -14,10 +14,10 @@
     }
   },
   "bundle_info": {
-    "bundle_path": "C:/dev/kintai/tests/hermes_v2_golden/GT-03-NIGHT-OVERTIME-OVERLAP/bundle.txt",
+    "bundle_path": "<PROJECT_ROOT>/tests/hermes_v2_golden/GT-03-NIGHT-OVERTIME-OVERLAP/bundle.txt",
     "bundle_sha256": "a1a79d4d93bd85d7200477e826d5e419ad47afc93be493f6877bb77637ceabca",
     "target_files": [
-      "C:/dev/kintai/tests/hermes_v2_golden/GT-03-NIGHT-OVERTIME-OVERLAP/bundle.txt"
+      "<PROJECT_ROOT>/tests/hermes_v2_golden/GT-03-NIGHT-OVERTIME-OVERLAP/bundle.txt"
     ],
     "known_dependencies": [],
     "missing_dependencies": []
@@ -49,7 +49,7 @@
       "verdict": "PASS",
       "tracking_status": "OPEN",
       "location": {
-        "file_path": "C:/dev/kintai/tests/hermes_v2_golden/GT-03-NIGHT-OVERTIME-OVERLAP/bundle.txt",
+        "file_path": "<PROJECT_ROOT>/tests/hermes_v2_golden/GT-03-NIGHT-OVERTIME-OVERLAP/bundle.txt",
         "class_name": "Fixture",
         "method_name": "fixture",
         "line_start": 1,

@@ -14,7 +14,7 @@
   "num_ctx": 24576,
   "seed": 42,
   "temperature": 0.1,
-  "target_file": "C:\\dev\\kintai\\scripts\\..\\docs\\audit_runs\\preflight_d92728dfc8eb44c9973faee1478b01ac\\input_bundle",
+  "target_file": "<PROJECT_ROOT>\\scripts\\..\\docs\\audit_runs\\preflight_d92728dfc8eb44c9973faee1478b01ac\\input_bundle",
   "target_sha256": "63682c635726ce583ccd43b86386876311703a7eda8880f34beb5e1eb2c53b7d",
   "git_head": "8a5d7a10b2102916d40f6975ebab48d6662345b7",
   "script_sha256": "d94df24a6df2c97a51d25c5016403eb44f676cbd456f648752b3e2cbc5841b0e",
@@ -24,6 +24,6 @@
   "total_seconds": 49.79,
   "speed_tps": 44.1,
   "done_reason": "stop",
-  "output_dir": "C:\\dev\\kintai\\docs\\audit_runs\\day13_calendar_20261114\\final_portfolio_review\\hermes_reaudit",
+  "output_dir": "<PROJECT_ROOT>\\docs\\audit_runs\\day13_calendar_20261114\\final_portfolio_review\\hermes_reaudit",
   "error_message": ""
 }

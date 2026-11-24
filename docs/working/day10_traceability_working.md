@@ -12,10 +12,10 @@
 
 ## 1. 추적 기준
 
-- 최상위 규정: `C:\dev\kintai\AGENTS.md`
-- SRS: `C:\dev\kintai\kintai_requirements_specification_revised.md`
-- RTM: `C:\dev\kintai\docs\rtm_ledger.md`
-- SRS 감사: `C:\dev\kintai\audit_reports\day_by_day\hermes_srs_audit.md`
+- 최상위 규정: `<PROJECT_ROOT>\AGENTS.md`
+- SRS: `<PROJECT_ROOT>\kintai_requirements_specification_revised.md`
+- RTM: `<PROJECT_ROOT>\docs\rtm_ledger.md`
+- SRS 감사: `<PROJECT_ROOT>\audit_reports\day_by_day\hermes_srs_audit.md`
 
 ## 2. Day 10 추적표
 

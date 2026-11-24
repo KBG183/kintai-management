@@ -16,7 +16,7 @@ Daemon will be stopped at the end of the build
 
  :: Spring Boot ::                (v4.0.8)
 
-2026-11-14T08:37:16.650+09:00  INFO 19976 --- [           main] com.example.kintai.KintaiApplication     : Starting KintaiApplication using Java 17.0.12 with PID 19976 (C:\dev\kintai\build\classes\java\main started by <LOCAL_USER> in C:\dev\kintai)
+2026-11-14T08:37:16.650+09:00  INFO 19976 --- [           main] com.example.kintai.KintaiApplication     : Starting KintaiApplication using Java 17.0.12 with PID 19976 (<PROJECT_ROOT>\build\classes\java\main started by <LOCAL_USER> in <PROJECT_ROOT>)
 2026-11-14T08:37:16.654+09:00  INFO 19976 --- [           main] com.example.kintai.KintaiApplication     : No active profile set, falling back to 1 default profile: "default"
 2026-11-14T08:37:18.042+09:00  INFO 19976 --- [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8081 (http)
 2026-11-14T08:37:18.059+09:00  INFO 19976 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]

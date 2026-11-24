@@ -1,4 +1,4 @@
-﻿*************************** 1. row ***************************
+*************************** 1. row ***************************
        Table: payroll_daily_detail
 Create Table: CREATE TABLE `payroll_daily_detail` (
   `payroll_daily_detail_id` bigint NOT NULL AUTO_INCREMENT COMMENT '��?��ܬ���ID (PK)',

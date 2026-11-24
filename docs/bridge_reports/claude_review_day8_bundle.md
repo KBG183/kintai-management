@@ -1,4 +1,4 @@
-﻿# 🔍 Claude Cross-Review Request Bundle: Day 8 Monthly Payroll Batch & Concurrency Locking
+# 🔍 Claude Cross-Review Request Bundle: Day 8 Monthly Payroll Batch & Concurrency Locking
 
 > **Reviewer**: Claude (Senior Full-Stack & Concurrency Architect)  
 > **Target Project**: Spring Boot 4 + Java 21 + MyBatis + MySQL 8.4 Enterprise Kintai (Attendance & Payroll) System  

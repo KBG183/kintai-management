@@ -1,7 +1,7 @@
-﻿### [Hermes Audit Execution Metrics v1.1.1]
+### [Hermes Audit Execution Metrics v1.1.1]
 | Target File | Model | Duration | Input Code Tokens | Output Tokens | Speed | Done Reason | Run ID |
 |---|---|---|---|---|---|---|---|
-| C:\dev\kintai\src\main\java\com\example\kintai\domain\attendance\service\AttendanceService.java | qwen27b:latest (IQ3_M) | 18.26s | 1620 tokens | 881 tokens | 51.6 tokens/s | stop | 20261117_081456_17987c00 |
+| <PROJECT_ROOT>\src\main\java\com\example\kintai\domain\attendance\service\AttendanceService.java | qwen27b:latest (IQ3_M) | 18.26s | 1620 tokens | 881 tokens | 51.6 tokens/s | stop | 20261117_081456_17987c00 |
 
 | Finding ID | Audit Item | Severity (P0/P1/P2/Info) | Verdict (PASS / WARN / FAIL / N/A) | Code & Test Evidence | Detailed Analysis & Recommendation |
 |---|---|---|---|---|---|
