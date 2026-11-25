@@ -1,166 +1,191 @@
-# KINTAI — 勤怠・シフト・給与管理システム
+# KINTAI — アルバイト勤怠・シフト・給与管理 SaaS バックエンド
 
-日本の店舗・アルバイト現場向けに、シフト提出、出退勤打刻、勤怠修正申請、給与計算、Excel台帳出力を一つの業務フローとして実装したWebアプリケーションです。
+日本の店舗・飲食・小売現場向けに、スタッフ管理、シフト申請・承認ワークフロー、出退勤打刻（分割勤務対応）、労働基準法第37条に基づく割増給与計算、および月次Excel給与台帳出力を統合実装したWebアプリケーションです。
 
-> このリポジトリで確認できる動作・計算・検証結果は、記録されたテストと監査の範囲に限ります。日本の労働法全体への適合、税務・社会保険計算、本番運用条件を保証するものではありません。
+> **【免責事項 / 検証スコープ】**  
+> 本リポジトリで確認できる動作・計算・検証結果は、記録された98件の単体・結合テストおよび初期監査の範囲に限られます。日本の労働基準法全体の完全な準拠、税務・社会保険計算、および商用本番環境における無条件の動作を保証するものではありません。労働基準法第37条の境界計算欠陥や並行性制御のリファクタリング検証は、後続のPhase 2（多層AI監査）およびPhase 3（是正・リファクタリング）にて取り扱います。
 
-## まず見るもの
+---
 
-| 資料 | 内容 |
-|---|---|
-| [デモ動画](https://youtu.be/LepOoQU8LgI) | スタッフの打刻からオーナーの給与確定・Excel出力まで |
-| [20枚プレゼンテーション](docs/presentation-prototype/index.html) | プロジェクトの機能、問題解決、検証過程 |
-| [プロジェクト要約書](docs/final-portfolio/portfolio_summary_JA.md) | 主要な成果と制約を短く確認 |
-| [技術証跡書](docs/legacy_audit_reports/portfolio_audit_evidence_JA_cumulative_20261114.md) | 実装・監査・修正・再検証の記録 |
-| [デモ操作ガイド](docs/final-portfolio/demo_guide_ja.md) | ローカルでの確認手順 |
+## 3段階エンジニアリング連携（3-Phase Engineering Journey）
 
-## プロジェクトの業務フロー
+本リポジトリは、**「実務システム初期実装 ➔ 多層AIによるSRS逆工学・要件Diff分析 ➔ 検出欠陥の是正およびリファクタリング」**と続く3段階エンジニアリング連携の第1段階（Phase 1: As-Built Baseline）として位置づけられています。
 
-### スタッフ
-
-- シフトの確認
-- 出勤・休憩開始・休憩終了・退勤の打刻
-- 勤怠修正申請
-- 自分の勤務実績と給与詳細の確認
-
-### 店舗オーナー（`ROLE_OWNER`）
-
-- シフトの登録・承認
-- 勤怠修正申請の確認
-- 勤怠の審査
-- 月次給与の計算・確定
-- Excel給与台帳のダウンロード
-
-本プロジェクトで中心となる管理権限は、スキーマと認証実装で確認できる `ROLE_OWNER` です。独立した `ROLE_MANAGER` アカウントの検証済み運用を前提にはしていません。
-
-## 主な実装範囲
-
-### シフト・勤怠
-
-- 月間カレンダーによるシフト確認
-- 4状態の打刻管理（CLOCK_IN / BREAK_START / BREAK_END / CLOCK_OUT）
-- 勤怠修正申請と承認フロー
-- セッションの本人情報と店舗所有権に基づく認可
-- 同一スタッフの競合打刻に対するDB行ロック
-
-### 給与計算
-
-- 分単位の勤務時間集計
-- 22:00〜翌05:00の深夜時間帯
-- 1日8時間超の時間外勤務
-- 深夜と時間外が重なる区間
-- 時給変更、日付変更、休憩、月末などの境界条件
-- `BigDecimal` による金額計算
-- Apache POIによる `.xlsx` 出力
-
-労働基準法第37条に関係する対象ケースを実装・テストしていますが、週40時間、法定休日、月60時間超の時間外労働、税務・社会保険計算などは現行SRSの保証範囲外です。
-
-## 技術構成
-
-| 分類 | 技術 |
-|---|---|
-| Backend | Java 17 / Spring Boot 4.0.8 |
-| Web | Thymeleaf / Spring Security |
-| Data access | MyBatis |
-| Database | MySQL / InnoDB |
-| Excel | Apache POI |
-| Build | Gradle |
-| Test | JUnit / Gradle Test |
-
-## アーキテクチャ
-
-```
-ブラウザ
-  ↓
-Thymeleaf / Spring Security
-  ↓
-Controller
-  ↓
-Service・トランザクション
-  ↓
-MyBatis
-  ↓
-MySQL（InnoDB）
-  ↓
-Apache POIによるExcel出力
+```mermaid
+flowchart LR
+    P1["【Phase 1: KINTAI Core（本リポジトリ）】<br/>・Spring Boot 4 / MyBatis<br/>・店舗・シフト・勤怠・給与SaaS実装<br/>・98件のJUnit結合テスト回帰検証<br/>★現在地（As-Built Baseline）"]
+    -->|"ソースコード & DDL提供<br/>（監査対象ベースライン）"| P2["【Phase 2: Hybrid SRS Triad Auditor】<br/>・多層AI逆工学（Codex / Claude / Qwen）<br/>・確定給与不変性・労基法37条境界監査<br/>・17要件のマスターDiff乖離分析"]
+    -->|"検出欠陥 & 是正パッチのフィードバック"| P3["【Phase 3: 欠陥是正＆リファクタリング】<br/>・労基法37条割増計算エンジンの完全準拠<br/>・悲観的ロック階層順序統一によるデッドロック防止<br/>・マルチテナント境界ガードの徹底"]
 ```
 
-主要テーブルは次のとおりです。
+### 3段階プロジェクト連携概要
 
-- `member`
-- `store`
-- `store_staff`
-- `store_staff_contract_history`
-- `shift_schedule`
-- `attendance`
-- `attendance_break`
-- `attendance_mod_request`
-- `payroll`
-- `payroll_daily_detail`
+| プロジェクト | リポジトリ / 状態 | 役割とエンジニアリングの目的 |
+|---|---|---|
+| **Phase 1: KINTAI Core** | **本リポジトリ** ([KBG183/kintai-management](https://github.com/KBG183/kintai-management))<br>`Active / Baseline` | **初期バックエンド実装・As-Builtベースライン**<br>・Spring Boot / MyBatis による勤怠・シフト・給与ドメインの基本実装<br>・98件のJUnit結合テストによる機能担保と初期動作実績の確立 |
+| **Phase 2: Hybrid SRS Triad Auditor** | [KBG183/Hybrid-srs-triad-auditor](https://github.com/KBG183/Hybrid-srs-triad-auditor)<br>`Completed / Evidence` | **多層AI交差検証・SRS逆工学・マスターDiff分析**<br>・Codex, Claude, Qwen 27B, C#静的リンターによる多層監査網<br>・Phase 1コードからSRSを逆生成し、全17要件のギャップおよび境界条件の欠陥を摘発 |
+| **Phase 3: Refactoring & Convergence** | `Next Stage / Planned`<br>`Specification Ready` | **後続リファクタリング工程（監査で検出された重大欠陥の是正およびテスト拡充）**<br>・労基法37条の月60時間超割増（50%加算）、深夜複合（175%）の完全準拠<br>・悲観的ロック階層順序統一によるデッドロック防止およびマルチテナント境界ガードの徹底 |
 
-## このプロジェクトで確認した技術課題
+> [!NOTE]
+> **本リポジトリ（Phase 1）の位置づけについて**  
+> 本リポジトリのソースコードは、Phase 2における厳格な逆工学監査の「監査対象ベースライン（As-Built）」として当時の実装状態を正確に保存しています。Phase 2で検出された設計課題・要件差分は、Phase 3リファクタリング工程で包括的に改修されます。
 
-### デッドロック
+---
 
-給与一括確定と個別再計算でロック取得順序が逆転し、MySQL Error 1213が発生するケースを再現しました。親行を先に一定順序でロックする方式に変更し、再現テストと隔離DB回帰で確認しました。
+## コア業務ドメインとアーキテクチャ
 
-### IDORと競合打刻
+飲食・小売店舗の実務フローに即した4大業務ドメインを設計・実装しています。
 
-クライアントが送信したスタッフIDを権限判断に使わず、ログインセッションの本人情報と店舗所有権を確認する方式に変更しました。同一スタッフの同時打刻はDB行ロックで直列化し、記録した競合テストの範囲で1件成功・1件拒否を確認しました。
+```mermaid
+flowchart TD
+    subgraph Domain["KINTAI コアドメイン業務フロー"]
+        direction TB
+        M["店舗・スタッフ・契約履歴<br/>(Store / Staff / Hourly Wage History)"]
+        S["シフト申請・承認ステートマシン<br/>(Draft ➔ Submitted ➔ Approved / Rejected)"]
+        A["打刻・勤務実績管理<br/>(QR/Web打刻・分割勤務・休憩・修正申請)"]
+        P["労基法第37条 給与計算エンジン<br/>(日次集計・深夜/時間外・月次確定・Excel出力)"]
 
-### 給与計算の境界条件
+        M --> S
+        S --> A
+        M --> P
+        A --> P
+    end
+```
 
-4時間と5時間に分かれた勤務、深夜と時間外が重なる60分、時給変更日、日付変更、休憩控除を独立した期待値と比較しました。
+### 1. 店舗・スタッフ管理（テナント基盤）
+- オーナー（`ROLE_OWNER`）による店舗開設、スタッフ（`ROLE_STAFF`）の所属管理。
+- 昇給や時給改定に対応するための「時給契約履歴テーブル（`store_staff_contract_history`）」を保持し、過去の勤務実績に対する給与計算の再現性を担保。
 
-## 検証結果
+### 2. シフト申請・承認ステートマシン
+- スタッフによる希望シフト提出、店舗オーナーによる確定・差戻しを状態遷移モデルで管理。
+- 状態：`DRAFT`（下書き） ➔ `SUBMITTED`（申請済） ➔ `APPROVED`（承認済） / `REJECTED`（却下）。
+- 承認済みシフトを基準とした予実管理（予定労働時間と実労働時間の対比）の基盤を提供。
 
-新しい隔離DBで実行した最新の全体回帰は、記録上 **98/98 PASS** でした。
+### 3. QR / ボタン打刻および分割勤務（スプリットシフト）対応
+- 現場の打刻機（QRコード）および個人端末からのWeb打刻をサポート。
+- 1日4状態のタイムスタンプ管理（`CLOCK_IN` / `BREAK_START` / `BREAK_END` / `CLOCK_OUT`）。
+- **分割勤務（スプリットシフト）の残業通算**: 1日に昼シフト（例: 11:00\~15:00）と夜シフト（例: 18:00\~23:00）のように間隔を空けて複数回勤務した場合でも、同一日の実労働時間を合算して1日8時間超の法定時間外割増を通算集計。
 
-- 失敗: 0
-- エラー: 0
-- スキップ: 0
-- 対象: 記録されたJUnit・統合テストの範囲
-- 対象外: 未実施の本番環境、MySQL 8.4、未定義の法令・運用要件
+### 4. 労働基準法第37条に基づく給与計算エンジン
+- **法定内労働 / 法定時間外労働（25%割増） / 深夜労働（22:00\~翌05:00、25%割増）** の時間帯分解アルゴリズム。
+- 時間外かつ深夜に及ぶ重複区間の割増計算（150%）。
+- 金額計算における丸め誤差を排除するための `BigDecimal` 演算。
+- Apache POI による店舗別・月次給与台帳（`.xlsx`）の自動生成とダウンロード。
 
-98/98 PASSは、システム全体の無条件な品質保証や、ローカルAI監査の代替を意味しません。
+---
 
-## ローカルで起動する
+## システムアーキテクチャ
 
-### 前提条件
+レイヤードアーキテクチャを採用し、ビジネスロジックの分離とトランザクション境界を構築しています。
 
-- JDK 17
-- ローカルMySQL
-- 検証記録で使用したMySQLはローカルの26.7.0 Innovation
-- MySQL 8.4 Testcontainersは未検証
+```
+ブラウザ / 打刻端末 (Thymeleaf / HTML5 / JavaScript)
+      │
+      ▼
+Spring Security フィルタチェーン (認証・CSRF・ロール認可)
+      │
+      ▼
+Controller レイヤ (リクエスト検証・画面遷移制御)
+      │
+      ▼
+Service レイヤ (@Transactional・ドメイン計算・排他ロック制御)
+      │
+      ▼
+MyBatis Mapper レイヤ (SQL・悲観的ロック構文)
+      │
+      ▼
+MySQL 8.4 / InnoDB (ACIDトランザクション・行レベルロック)
+      │
+      ▼
+Apache POI (月次給与台帳 Excelバイナリ生成)
+```
 
-### 分離デモDBを準備する
+### 主要データベーステーブル構成
 
-運用DBを使わず、デモ用の新しいDBを作成します。本リポジトリに含まれる準備スクリプトで自動構築できます。
+| テーブル名 | 用途・役割 |
+|---|---|
+| `member` | 認証アカウント（ログインID、パスワードハッシュ、システム権限） |
+| `store` | 店舗マスタ（店舗名、オーナーID、営業時間設定） |
+| `store_staff` | 店舗所属マッピングおよび基本設定 |
+| `store_staff_contract_history` | スタッフごとの適用開始日付き時給・手当契約履歴 |
+| `shift_schedule` | シフト希望・確定スケジュールおよびステートマシン状態 |
+| `attendance` | 日次勤怠実績（出退勤時刻、総労働時間、総休憩時間） |
+| `attendance_break` | 勤怠に紐づく複数回の休憩実績記録 |
+| `attendance_mod_request` | 打刻漏れ・修正申請ワークフロー（申請・承認・却下） |
+| `payroll` | 月次給与確定レコード（総支給額、基本給、割増手当） |
+| `payroll_daily_detail` | 日次ごとの詳細計算内訳（通常時間、時間外時間、深夜時間、日給） |
+
+---
+
+## 技術スタック
+
+| レイヤ / 分類 | 採用技術 | バージョン / 詳細 |
+|---|---|---|
+| **言語** | Java | OpenJDK 17 (LTS) |
+| **フレームワーク** | Spring Boot | 4.0.8 (Spring Framework 7系) |
+| **セキュリティ** | Spring Security | ロールベース認可 (`ROLE_OWNER`, `ROLE_STAFF`)、CSRFトークン保護 |
+| **データアクセス** | MyBatis | 4.0.1 (`mybatis-spring-boot-starter`)、動的SQLマッパー |
+| **データベース** | MySQL / InnoDB | 8.4 LTS / Innovation (行レベルロック、外部キー制約) |
+| **テンプレート** | Thymeleaf | サーバーサイドレンダリング、`thymeleaf-extras-springsecurity6` |
+| **帳票出力** | Apache POI | 5.2.5 (OOXML / Excel `.xlsx` レポーティング) |
+| **ビルドツール** | Gradle | Gradle Wrapper |
+| **テスト** | JUnit 5 / Spring Test | 98件の単体・結合テスト、隔離データベース回帰自動化 |
+
+---
+
+## 本リポジトリで確認・検証した技術課題
+
+### 1. 悲観的ロックとデッドロック解析
+- 給与一括確定処理と個別給与再計算が同時に実行された際、行ロックの取得順序差によって発生する `MySQL Error 1213 (Deadlock)` を検出し、親レコード（`store_staff`）をキー順に事前ロックする排他制御を検証。
+
+### 2. IDOR（安全でない直接オブジェクト参照）脆弱性の対策
+- リクエストパラメータで送信された `staffId` を信用せず、Spring Security セッションコンテキストの本人識別子および店舗所有権（`store.owner_id == principal.id`）を二重検証する認可ガードを実装。
+
+### 3. 同時打刻レースコンディションの直列化
+- 同一スタッフによる連続打刻や二重送信に対し、DB行レベルロック（`SELECT ... FOR UPDATE`）を適用。並行テストにおいて「1件成功・1件排他拒否」となる直列化動作を確認。
+
+### 4. 隔離データベースによる全回帰テスト実績
+- 独立したテスト専用データベース環境において、全テストスイートの自動実行を実施。
+- **検証実績**: **98 / 98 Tests PASS**（Failure: 0, Error: 0, Skipped: 0）
+
+---
+
+## ローカル実行手順
+
+### 1. 前提条件
+- JDK 17 以上
+- MySQL 8.0 以上（検証環境：MySQL 8.4 LTS / Innovation）
+- Git
+
+### 2. デモ環境用データベースの自動構築
+本リポジトリには、検証用デモDBを構築するスクリプトが同梱されています。
 
 ```powershell
+# MySQLルートパスワードを設定して初期化スクリプトを実行
 $env:KINTAI_DB_PASSWORD = "<ローカルMySQLパスワード>"
 .\scripts\prepare_local_demo_db.ps1
 ```
 
-※ PowerShell を使用しない場合は、新規データベース作成後に `src/main/resources/db/schema.sql`、`data.sql`、`scripts/local_demo_attendance.sql`、`scripts/local_video_demo_seed.sql` を順次インポートすることでも同等のデモ環境を再現可能です。
+※ 手動構築の場合は、MySQLで新規データベースを作成後、以下のSQLを順に実行してください：
+1. `src/main/resources/db/schema.sql`（テーブル定義）
+2. `src/main/resources/db/data.sql`（初期マスタ）
+3. `scripts/local_demo_attendance.sql`（打刻デモデータ）
+4. `scripts/local_video_demo_seed.sql`（検証シナリオデータ）
 
-スクリプトが出力するDB接続設定を使ってアプリを起動してください。詳しい画面操作と期待結果は、[日本語デモガイド](docs/final-portfolio/demo_guide_ja.md)を参照してください。
+### 3. アプリケーションの起動
+```powershell
+./gradlew bootRun
+```
+起動完了後、ブラウザで `http://localhost:8080` にアクセスしてください。
 
-## 検証資料
+---
 
-- [SRS](kintai_requirements_specification.md)
-- [日本語プロジェクト要約](docs/final-portfolio/portfolio_summary_JA.md)
-- [日本語技術証跡書](docs/legacy_audit_reports/portfolio_audit_evidence_JA_cumulative_20261114.md)
-- [RTM（日本語）](docs/rtm_ledger.md)
-- [監査・テスト原本](docs/audit_runs)
-- [監査原本の読み方](docs/audit_runs/README.md)
-- [プレゼンテーション](docs/presentation-prototype/index.html)
+## 検証ドキュメント・関連資料
 
-## 資料の使い分け
-
-1. **要約本**: プロジェクトの目的、成果、制約を最初に読む資料です。
-2. **技術証跡書**: 実装・監査・修正・再検証の時系列と判定を確認する詳細資料です。
-3. **RTM**: 要件ごとに実装・テスト・監査証拠を追跡する一覧です。
-4. **audit_runs**: 必要なときだけ開く実行原本の保管庫です。成功ログだけでなく、失敗・WARN・再試行履歴も保存しています。
-
-このREADMEはプロジェクトの入口です。個々の数値・判定・未検証範囲は、リンク先のテスト結果と技術証跡書で確認してください。
+| ドキュメント | 概要 |
+|---|---|
+| [Phase 2: Hybrid SRS Triad Auditor](https://github.com/KBG183/Hybrid-srs-triad-auditor) | 多層AIとリンターによる本コードの逆工学・要件Diff分析リポジトリ |
+| [ソフトウェア要件定義書 (SRS)](kintai_requirements_specification.md) | 本システムが実装の基準とした17要件の仕様書 |
+| [要件追跡マトリクス (RTM)](docs/rtm_ledger.md) | 各要件とソースコード・テスト・監査証跡の対応表 |
+| [デモ操作ガイド](docs/final-portfolio/demo_guide_ja.md) | 画面ごとのシナリオ確認手順書 |
+| [デモ動画 (YouTube)](https://youtu.be/LepOoQU8LgI) | 打刻から給与確定・Excel出力までの一連の動作デモ |
