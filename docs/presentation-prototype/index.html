@@ -1,157 +1,463 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ja">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="KINTAIプロジェクトの業務設計と検証規律を紹介する20枚のカード型プレゼンテーション資料">
 <title>KINTAI | アルバイト勤怠・シフト・給与管理SaaS プレゼンテーション</title>
-<meta name="theme-color" content="#0d231d"><meta property="og:type" content="website"><meta property="og:title" content="KINTAI | アルバイト勤怠・シフト・給与管理システム"><meta property="og:description" content="KINTAIプロジェクトの業務設計と検証規律を紹介する20枚のカード型プレゼンテーション資料"><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230d231d'/%3E%3Ctext x='16' y='23' font-size='20' font-weight='700' text-anchor='middle' fill='%23dfebce' font-family='sans-serif'%3EK%3C/text%3E%3C/svg%3E">
+<meta name="theme-color" content="#173d34">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23173d34'/%3E%3Ctext x='16' y='23' font-size='20' font-weight='800' text-anchor='middle' fill='%23dfebce' font-family='monospace'%3EK%3C/text%3E%3C/svg%3E">
 <style>
-:root{--ink:#10221f;--muted:#54685e;--green:#1b5443;--green-hover:#144133;--green2:#88a888;--lime:#d4e4be;--paper:#f8f7f0;--line:#cedbd0;--dark:#0d231d;--gold:#e2b866;--red:#9c3e2e}
+:root{
+  --ink:#172d29;
+  --muted:#566860;
+  --primary:#286b58;
+  --primary-light:#f1f4ec;
+  --accent:#4f7a66;
+  --cyan:#c8dfa9;
+  --cyan-glow:rgba(200,223,169,.22);
+  --emerald:#286b58;
+  --emerald-bg:#e3ede2;
+  --amber:#d97706;
+  --amber-bg:#f5ead3;
+  --crimson:#a44d3b;
+  --crimson-bg:#fcedea;
+  --paper:#fbfaf3;
+  --surface:#f5f7f0;
+  --line:#d2ddd1;
+  --dark:#173d34;
+  --darker:#102b24;
+  --dark-card:#204b40;
+  --dark-line:#4a6c5c;
+  --bg:#e7ebe3;
+  --font-sans:"Inter","Noto Sans JP","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI",sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
 *{box-sizing:border-box}
-html,body{margin:0;padding:0;height:100vh;height:100dvh;max-height:100vh;max-height:100dvh;overflow:hidden;background:#dfe4dc;color:var(--ink);font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Meiryo","Noto Sans JP",sans-serif;-webkit-font-smoothing:antialiased}
-.shell{max-width:1560px;height:100vh;height:100dvh;max-height:100vh;max-height:100dvh;margin:auto;padding:clamp(12px,1.6vh,20px) clamp(24px,3.5vw,48px) clamp(10px,1.4vh,16px);display:flex;flex-direction:column;justify-content:space-between;box-sizing:border-box;overflow:hidden}
-header,footer{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px}
-header{font-size:clamp(11px,1.3vh,13px);letter-spacing:.2em;font-weight:800;color:#44574d}
-header .logo{font-size:clamp(20px,2.5vh,26px);letter-spacing:.25em;color:var(--dark);font-weight:900}
-.tag{border:1px solid #adc1b2;border-radius:99px;padding:6px 16px;font-size:clamp(11px,1.25vh,12px);background:#fffefb;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,0.03)}
-main{flex:1 1 auto;min-height:0;display:flex;align-items:stretch;padding:clamp(10px,1.4vh,16px) 0;overflow:hidden}
-.slide{display:none;position:relative;width:100%;height:100%;max-height:100%;box-sizing:border-box;padding:clamp(28px,3.8vh,48px) clamp(34px,4.2vw,64px);border:1px solid #c2d3c4;border-radius:28px;background:var(--paper);box-shadow:0 20px 60px rgba(13,35,29,0.08);overflow-x:hidden;overflow-y:auto}
-.slide.active{display:flex;flex-direction:column;justify-content:flex-start;gap:clamp(14px,2.2vh,26px);animation:appear .25s cubic-bezier(0.16,1,0.3,1)}
-.slide:before{content:"";position:absolute;width:480px;height:480px;right:-180px;top:-220px;border-radius:50%;background:var(--lime);opacity:.55;pointer-events:none}
+html,body{
+  margin:0;padding:0;height:100vh;height:100dvh;max-height:100vh;max-height:100dvh;
+  overflow:hidden;background:var(--bg);color:var(--ink);font-family:var(--font-sans);
+  -webkit-font-smoothing:antialiased;
+}
+.mono{font-family:var(--font-mono);letter-spacing:-.02em}
+.shell{
+  max-width:1540px;height:100vh;height:100dvh;max-height:100vh;max-height:100dvh;
+  margin:auto;padding:clamp(10px,1.4vh,16px) clamp(18px,3vw,40px) clamp(8px,1.1vh,14px);
+  display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;
+}
+header,footer{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:14px}
+header{font-size:clamp(11px,1.25vh,12.5px);letter-spacing:.14em;font-weight:800;color:#52665c}
+header .logo{display:flex;align-items:center;gap:10px;font-size:clamp(18px,2.3vh,23px);letter-spacing:.16em;color:var(--dark);font-weight:900}
+header .logo .badge-ver{font-family:var(--font-mono);font-size:11px;padding:3px 8px;border-radius:6px;background:var(--dark);color:var(--cyan);letter-spacing:.08em}
+.header-actions{display:flex;align-items:center;gap:10px}
+.tag{
+  border:1px solid #b9cbbd;border-radius:99px;padding:6px 14px;
+  font-size:clamp(11px,1.2vh,12px);background:rgba(255,255,255,.85);
+  font-family:var(--font-mono);font-weight:700;color:#172d29;
+}
+.toc-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  border:1px solid var(--dark);border-radius:99px;padding:6px 14px;
+  font-size:clamp(11px,1.2vh,12px);background:var(--dark);color:#f8fafc;
+  font-weight:700;cursor:pointer;transition:all .18s ease;
+}
+.toc-btn:hover{background:#204b40;border-color:var(--cyan);color:var(--cyan)}
+
+main{flex:1 1 auto;min-height:0;display:flex;align-items:stretch;padding:clamp(8px,1.1vh,12px) 0;overflow:hidden}
+.slide{
+  display:none;position:relative;width:100%;height:100%;max-height:100%;
+  padding:clamp(20px,2.6vh,34px) clamp(26px,3.4vw,48px);
+  border:1px solid var(--line);border-radius:24px;background:var(--paper);
+  box-shadow:0 18px 50px rgba(41,75,59,.10);overflow-x:hidden;overflow-y:auto;
+}
+.slide.active{
+  display:flex;flex-direction:column;justify-content:flex-start;
+  gap:clamp(10px,1.5vh,18px);
+}
+/* Subtle engineering dot-grid background */
+.slide:before{
+  content:"";position:absolute;inset:0;pointer-events:none;border-radius:24px;
+  background-image:radial-gradient(#c5d1c3 1px, transparent 1px);
+  background-size:24px 24px;opacity:.35;
+}
+.slide:after{
+  content:"";position:absolute;width:520px;height:520px;right:-180px;top:-220px;
+  border-radius:50%;background:radial-gradient(circle,rgba(223,235,206,.65) 0%,transparent 70%);
+  pointer-events:none;
+}
 .slide>*{position:relative;z-index:1}
-@keyframes appear{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-.eyebrow{margin:0 0 clamp(4px,0.8vh,8px);color:var(--green);font-size:clamp(12px,1.4vh,13.5px);letter-spacing:.22em;font-weight:900;text-transform:uppercase}
-.title{max-width:1200px;margin:0 0 clamp(6px,1vh,12px);font-size:clamp(30px,4.2vh,48px);line-height:1.2;letter-spacing:-0.01em;text-wrap:balance;word-break:auto-phrase;line-break:strict;font-weight:900}
-.title em{color:var(--green);font-style:normal;border-bottom:3px solid var(--lime)}
-.lead{max-width:1100px;margin:0;color:#465a50;font-size:clamp(16px,2vh,20px);line-height:1.65;font-weight:500}
-.note{margin:0;color:#54685e;font-size:clamp(12.5px,1.45vh,14px);line-height:1.5}
-.evidence{margin:0;color:#54685e;font-size:clamp(12.5px,1.45vh,14px);line-height:1.5}
-.evidence a{color:var(--green);text-decoration:underline;text-underline-offset:3px;font-weight:700}
-.hero{display:grid;grid-template-columns:1.2fr .8fr;align-items:center;gap:clamp(28px,3.8vw,56px);height:100%}
-.hero .title{font-size:clamp(38px,5.6vh,64px);line-height:1.15;margin:0 0 clamp(12px,1.8vh,20px)}
-.hero .lead{font-size:clamp(18px,2.3vh,23px);line-height:1.6;margin:0 0 clamp(16px,2vh,26px)}
-.hero .note{font-size:clamp(12.5px,1.5vh,14.5px);line-height:1.6}
-.hero-art{min-height:clamp(320px,46vh,460px);padding:clamp(28px,3.8vh,44px);border-radius:24px;background:var(--dark);color:#f4f7f0;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 16px 40px rgba(13,35,29,0.25)}
-.hero-art small{letter-spacing:.22em;color:#a0b8a4;font-size:clamp(11px,1.3vh,13px);font-weight:800}
-.hero-art strong{font-size:clamp(30px,4.2vh,46px);line-height:1.25;font-weight:900;letter-spacing:-0.02em}
+
+/* Staggered reveal animation */
+.slide.active .eyebrow{animation:fadeUp .32s ease-out both}
+.slide.active .title{animation:fadeUp .36s .04s ease-out both}
+.slide.active .lead{animation:fadeUp .38s .08s ease-out both}
+.slide.active .grid,
+.slide.active .steps,
+.slide.active .split,
+.slide.active .diagram-box,
+.slide.active .stats,
+.slide.active .case,
+.slide.active .terminal-wrap{animation:fadeUp .42s .12s ease-out both}
+.slide.active .quote,
+.slide.active .proof,
+.slide.active .flowline,
+.slide.active .evidence,
+.slide.active .note{animation:fadeUp .44s .16s ease-out both}
+
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;margin:0;
+  color:var(--primary);font-family:var(--font-mono);
+  font-size:clamp(12.5px,1.45vh,14.5px);letter-spacing:.16em;font-weight:800;
+}
+.eyebrow::before{
+  content:"";display:inline-block;width:8px;height:8px;border-radius:2px;
+  background:var(--primary);
+}
+.title{
+  max-width:1180px;margin:0;font-size:clamp(28px,4.1vh,45px);
+  line-height:1.24;letter-spacing:-.01em;text-wrap:balance;word-break:auto-phrase;
+  color:var(--dark);font-weight:900;
+}
+.title em{
+  font-style:normal;
+  background:linear-gradient(120deg,var(--primary) 0%,var(--accent) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.lead{max-width:1060px;margin:0;color:var(--muted);font-size:clamp(16px,2vh,20.5px);line-height:1.58}
+.note{margin:0;color:#566860;font-size:clamp(13.5px,1.55vh,15.5px);line-height:1.5}
+.evidence{margin:0;color:#52665c;font-size:clamp(13.5px,1.55vh,15.5px);line-height:1.5;display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+.evidence a{color:var(--primary);text-decoration:underline;text-underline-offset:3px;font-weight:700}
+
+/* HERO SLIDE */
+.hero{display:grid;grid-template-columns:1.18fr .82fr;align-items:center;gap:clamp(24px,3.2vw,48px);height:100%}
+.hero .title{font-size:clamp(36px,5.4vh,58px);line-height:1.18;margin:6px 0 12px}
+.hero .lead{font-size:clamp(17.5px,2.25vh,21.5px);line-height:1.6;margin:0 0 16px}
+.hero-art{
+  min-height:clamp(320px,46vh,460px);padding:clamp(24px,3.4vh,38px);border-radius:22px;
+  background:linear-gradient(155deg,#13332b 0%,#1d4a3f 100%);color:#f1f6e9;
+  display:flex;flex-direction:column;justify-content:space-between;
+  border:1px solid #3c6356;box-shadow:0 20px 50px rgba(16,43,36,.28),inset 0 1px 0 rgba(255,255,255,.1);
+  position:relative;overflow:hidden;
+}
+.hero-art::before{
+  content:"";position:absolute;inset:0;
+  background-image:linear-gradient(rgba(200,223,169,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(200,223,169,.08) 1px,transparent 1px);
+  background-size:28px 28px;pointer-events:none;
+}
+.hero-art small{font-family:var(--font-mono);letter-spacing:.18em;color:var(--cyan);font-size:clamp(11px,1.25vh,12.5px);font-weight:700;display:flex;align-items:center;gap:8px}
+.hero-art small::before{content:"";width:8px;height:8px;border-radius:50%;background:#c8dfa9;box-shadow:0 0 10px #c8dfa9}
+.hero-art strong{font-size:clamp(28px,3.9vh,40px);line-height:1.3;font-weight:900;letter-spacing:-.01em}
 .flow{display:flex;flex-wrap:wrap;gap:8px}
-.pill{padding:7px 15px;border:1px solid rgba(255,255,255,0.2);border-radius:30px;font-size:clamp(12px,1.35vh,14px);background:rgba(255,255,255,0.06);font-weight:600}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(12px,1.5vw,20px);margin:0}
+.pill{
+  padding:7px 13px;border:1px solid rgba(200,223,169,.38);border-radius:8px;
+  font-size:clamp(13px,1.45vh,14.5px);font-family:var(--font-mono);
+  background:rgba(16,43,36,.65);color:#eff5eb;font-weight:600;
+}
+
+/* GRIDS & CARDS */
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(12px,1.4vw,18px);margin:0}
 .grid.two{grid-template-columns:repeat(2,1fr)}
-.card{min-height:clamp(130px,17vh,190px);padding:clamp(18px,2.2vh,26px);border:1px solid var(--line);border-radius:20px;background:#fffefb;display:flex;flex-direction:column;justify-content:flex-start;box-shadow:0 4px 20px rgba(0,0,0,0.02);transition:transform .2s ease,box-shadow .2s ease}
-.card:hover{transform:-2px;box-shadow:0 8px 30px rgba(0,0,0,0.05)}
-.card .num{color:var(--green);font-size:clamp(11px,1.28vh,13px);font-weight:900;letter-spacing:.16em}
-.card h3{margin:clamp(8px,1vh,12px) 0 clamp(6px,0.8vh,10px);font-size:clamp(17px,2.2vh,22px);line-height:1.3;font-weight:800}
-.card p{margin:0;color:var(--muted);font-size:clamp(13px,1.55vh,15.5px);line-height:1.65}
-.card .metric{display:block;margin:4px 0 8px;color:var(--green);font-size:clamp(26px,3.4vh,40px);font-weight:900;letter-spacing:-.04em}
-.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:clamp(10px,1.2vw,16px);margin:0}
-.step{min-height:clamp(120px,16vh,170px);padding:clamp(14px,1.8vh,20px);border:1px solid var(--line);border-radius:18px;background:#fffefb;display:flex;flex-direction:column;justify-content:flex-start;box-shadow:0 4px 16px rgba(0,0,0,0.02)}
-.step b{color:var(--green);font-size:clamp(11.5px,1.32vh,13.5px);font-weight:900;letter-spacing:.08em}
-.step strong{display:block;margin:clamp(6px,0.9vh,10px) 0 clamp(4px,0.6vh,6px);font-size:clamp(14.5px,1.85vh,18px);font-weight:800}
-.step span{color:var(--muted);font-size:clamp(12px,1.4vh,13.5px);line-height:1.55}
-.split{display:grid;grid-template-columns:1fr 1fr;gap:clamp(12px,1.5vw,20px);margin:0}
-.track{padding:clamp(18px,2.2vh,26px);border:1px solid var(--line);border-radius:20px;background:#fffefb;box-shadow:0 4px 20px rgba(0,0,0,0.02)}
-.track h3{margin:clamp(6px,0.9vh,10px) 0;font-size:clamp(17px,2.2vh,22px);font-weight:800}
-.track p{color:var(--muted);font-size:clamp(13px,1.55vh,15.5px);line-height:1.65;margin:0}
-.track .label{color:var(--green);font-size:clamp(11px,1.25vh,12.5px);letter-spacing:.16em;font-weight:900}
-.flowline{margin:0;padding:clamp(10px,1.2vh,14px) 16px;border-radius:12px;background:#edf2e7;color:#1e4c3b;font-size:clamp(12px,1.4vh,14px);font-weight:800;line-height:1.6;border:1px solid #d4e2cb}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(12px,1.4vw,18px);margin:0}
-.stat{padding:clamp(18px,2.2vh,26px);border:1px solid var(--line);border-radius:20px;background:#fffefb;box-shadow:0 4px 20px rgba(0,0,0,0.02)}
-.stat strong{display:block;color:var(--green);font-size:clamp(28px,3.6vh,44px);letter-spacing:-.04em;font-weight:900}
-.stat span{display:block;margin-top:6px;color:var(--muted);font-size:clamp(12.5px,1.45vh,14.5px);line-height:1.5;font-weight:600}
-.case{display:grid;grid-template-columns:.22fr 1fr;gap:clamp(14px,1.6vw,22px);margin:0;padding:clamp(16px,2vh,24px);border:1px solid var(--line);border-radius:20px;background:#fffefb;box-shadow:0 4px 20px rgba(0,0,0,0.02)}
-.case .case-no{color:var(--green);font-size:clamp(11px,1.3vh,13px);letter-spacing:.14em;font-weight:900}
-.case h3{margin:0 0 6px;font-size:clamp(17px,2.1vh,20px);font-weight:800}
-.case p{margin:0;color:var(--muted);font-size:clamp(13px,1.5vh,15px);line-height:1.65}
-.case small{display:block;margin-top:8px;color:#44574d;font-size:clamp(11.5px,1.35vh,13.5px);line-height:1.5;font-weight:600}
-.video{display:grid;place-items:center;min-height:clamp(220px,30vh,300px);margin:0;border-radius:20px;background:#0d231d;color:#f0f5ed;text-align:center;box-shadow:0 12px 36px rgba(13,35,29,0.2)}
-.video .play{display:grid;place-items:center;width:56px;height:56px;margin:0 auto 14px;border:1px solid rgba(255,255,255,0.3);border-radius:50%;font-size:22px;background:rgba(255,255,255,0.08)}
-.video p{max-width:700px;margin:6px auto;color:#b0c6b6;font-size:clamp(13px,1.5vh,14.5px);line-height:1.6}
-.video strong{font-size:clamp(19px,2.5vh,24px);font-weight:900}
-.badge{display:inline-block;padding:6px 14px;border-radius:30px;background:#f3ead6;color:#825e24;font-size:clamp(11px,1.25vh,13px);font-weight:900}
-.quote{max-width:1150px;margin:0;padding:clamp(14px,1.6vh,20px) clamp(20px,2.2vw,30px);border-left:6px solid var(--green);background:#edf2e7;font-size:clamp(16px,2.1vh,22px);line-height:1.55;font-weight:900;color:#133328;border-radius:0 16px 16px 0}
-.proof{display:grid;grid-template-columns:1fr 1fr;gap:clamp(10px,1.2vw,16px);margin:0}
-.proof div{padding:clamp(14px,1.8vh,20px) clamp(16px,1.8vw,22px);border:1px solid var(--line);border-radius:16px;background:#fffefb;box-shadow:0 4px 16px rgba(0,0,0,0.02)}
-.proof b{display:block;margin-bottom:6px;color:var(--green);font-size:clamp(12px,1.4vh,13.5px);font-weight:900}
-.proof span{color:var(--muted);font-size:clamp(12.5px,1.45vh,14.5px);line-height:1.55}
-.proof p.evidence{margin:8px 0 0}
-.dark{background:var(--dark);color:#f2f7ef;border-color:var(--dark)}
-.dark .title em{color:#b7dc94;border-color:rgba(183,220,148,0.4)}
-.dark .eyebrow{color:#b7dc94}
-.dark .lead{color:#cedccc}
-.dark:before{background:#2a4a3b;opacity:.4}
-.dark .card{background:#15362e;border-color:#2a4f43;box-shadow:0 8px 30px rgba(0,0,0,0.2)}
-.dark .card h3,.dark .card p{color:#f2f7ef}
-.dark .card p{color:#b8ccc0}
-.dark .quote{background:#15362e;border-color:#b7dc94;color:#f2f7ef}
-.dark .track{background:#15362e;border-color:#2a4f43;color:#f2f7ef}
-.dark .track h3,.dark .track p{color:#f2f7ef}
-.dark .track p{color:#b8ccc0}
-.dark .stat{background:#15362e;border-color:#2a4f43}
-.dark .stat span{color:#b8ccc0}
-.dark .proof div{background:#15362e;border-color:#2a4f43}
-.dark .proof span{color:#b8ccc0}
-.dark .case{background:#15362e;border-color:#2a4f43}
-.dark .case p{color:#b8ccc0}
-.dark .case small{color:#b7dc94}
-.dark .flowline{background:#1b443b;color:#d4e9c8;border-color:#2f5d50}
-footer{color:#54685e;font-size:clamp(12px,1.4vh,13.5px);font-weight:600}
-.controls{display:flex;align-items:center;gap:10px}
-.controls button:not(.dot){flex:0 0 42px;width:42px;height:42px;border:1px solid #b7c8b9;border-radius:50%;background:#fffefb;color:var(--ink);font-size:18px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.04);transition:all .15s ease}
-.controls button:not(.dot):hover:not(:disabled){background:var(--dark);color:#fff;border-color:var(--dark)}
-.controls button:disabled{opacity:.3;cursor:default}
-.dots{display:flex;flex:0 0 auto;align-items:center;gap:6px}
-.controls .dot{flex:0 0 6px;width:6px;height:6px;min-width:6px;padding:0;border:0;border-radius:10px;background:#b3c4b5;cursor:pointer;transition:all .2s ease}
-.controls .dot.active{flex-basis:24px;width:24px;min-width:24px;background:var(--green)}
-.progress{height:4px;margin-top:8px;background:#cbd8cd;border-radius:2px;overflow:hidden}
-.progress span{display:block;width:0;height:100%;background:var(--green);transition:width .2s ease}
-.hint{color:#54685e;font-size:clamp(11.5px,1.3vh,12.5px)}
+.grid.four{grid-template-columns:repeat(4,1fr)}
+.card{
+  padding:clamp(16px,2vh,22px);border:1px solid var(--line);border-radius:16px;
+  background:#ffffff;display:flex;flex-direction:column;justify-content:flex-start;
+  box-shadow:0 4px 14px rgba(15,23,42,.03);transition:transform .18s ease,border-color .18s ease;
+}
+.card:hover{transform:translateY(-2px);border-color:#9ebc9e}
+.card .num{font-family:var(--font-mono);color:var(--primary);font-size:clamp(12px,1.38vh,13.5px);font-weight:800;letter-spacing:.1em}
+.card h3{margin:8px 0 6px;font-size:clamp(18px,2.25vh,23px);line-height:1.32;color:var(--dark);font-weight:800}
+.card p{margin:0;color:var(--muted);font-size:clamp(14.5px,1.7vh,17px);line-height:1.55}
+.card.risk{border-top:3px solid var(--crimson)}
+.card.risk .num{color:var(--crimson)}
+
+/* STEPS & PIPELINE FLOW */
+.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:clamp(10px,1.1vw,14px);margin:0;position:relative}
+.step{
+  padding:clamp(14px,1.7vh,18px);border:1px solid var(--line);border-radius:14px;
+  background:#ffffff;display:flex;flex-direction:column;justify-content:flex-start;
+  position:relative;box-shadow:0 4px 12px rgba(15,23,42,.03);
+}
+.step b{font-family:var(--font-mono);color:var(--primary);font-size:clamp(12px,1.38vh,13.5px);letter-spacing:.06em}
+.step strong{display:block;margin:7px 0 5px;font-size:clamp(16.5px,2.05vh,20px);color:var(--dark);font-weight:800}
+.step span{color:var(--muted);font-size:clamp(13.5px,1.58vh,15.5px);line-height:1.48}
+.step.gate{border-color:var(--emerald);background:linear-gradient(180deg,#ffffff 0%,#f1f6ee 100%)}
+.step.gate b{color:var(--emerald)}
+
+/* SPLIT TRACKS */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:clamp(12px,1.4vw,18px);margin:0}
+.track{
+  padding:clamp(16px,2vh,22px);border:1px solid var(--line);border-radius:16px;
+  background:#ffffff;display:flex;flex-direction:column;gap:8px;
+}
+.track h3{margin:2px 0;font-size:clamp(18px,2.25vh,23px);color:var(--dark);font-weight:800}
+.track p{color:var(--muted);font-size:clamp(14.5px,1.7vh,17px);line-height:1.55;margin:0}
+.track .label{font-family:var(--font-mono);color:var(--primary);font-size:clamp(12px,1.35vh,13.5px);letter-spacing:.12em;font-weight:800}
+.track.bad{border-top:4px solid var(--crimson);background:linear-gradient(180deg,#fdf6f5 0%,#ffffff 100%)}
+.track.bad .label{color:var(--crimson)}
+.track.good{border-top:4px solid var(--emerald);background:linear-gradient(180deg,#f3f8f1 0%,#ffffff 100%)}
+.track.good .label{color:var(--emerald)}
+
+.flowline{
+  margin:0;padding:clamp(9px,1.1vh,12px) 15px;border-radius:10px;
+  background:#f0f4eb;color:#345b49;font-family:var(--font-mono);
+  font-size:clamp(13px,1.5vh,15px);font-weight:700;line-height:1.5;
+  border:1px solid #dce3d8;
+}
+.track.bad .flowline{background:var(--crimson-bg);border-color:#e9c8c2;color:#8f3d2d}
+.track.good .flowline{background:var(--emerald-bg);border-color:#c6d8c4;color:#286b58}
+
+/* STATS & METRICS */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(12px,1.3vw,16px);margin:0}
+.stat{
+  padding:clamp(14px,1.8vh,20px);border:1px solid var(--line);border-radius:16px;
+  background:#ffffff;display:flex;flex-direction:column;justify-content:center;
+}
+.stat strong{
+  display:block;font-family:var(--font-mono);color:var(--primary);
+  font-size:clamp(28px,3.6vh,44px);letter-spacing:-.04em;font-weight:800;font-variant-numeric:tabular-nums;
+}
+.stat span{display:block;margin-top:4px;color:var(--muted);font-size:clamp(13.5px,1.58vh,15.5px);line-height:1.45;font-weight:600}
+
+/* TERMINAL BOX (NEW VISUAL COMPONENT) */
+.terminal-wrap{
+  border-radius:14px;background:#050b16;border:1px solid #1e3459;overflow:hidden;
+  box-shadow:0 12px 30px rgba(3,8,18,.22);color:#e2e8f0;font-family:var(--font-mono);
+}
+.terminal-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 14px;background:#0d192e;border-bottom:1px solid #3c6356;font-size:11.5px;color:#94a3b8;
+}
+.terminal-dots{display:flex;gap:6px}
+.terminal-dots i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.terminal-dots i:nth-child(1){background:#ef4444}
+.terminal-dots i:nth-child(2){background:#f59e0b}
+.terminal-dots i:nth-child(3){background:#10b981}
+.terminal-body{padding:12px 16px;font-size:clamp(13px,1.48vh,15px);line-height:1.65}
+.t-prompt{color:#38bdf8}
+.t-ok{color:#10b981;font-weight:700}
+.t-warn{color:#f59e0b;font-weight:700}
+.t-dim{color:#64748b}
+
+/* CASE & PROOF */
+.case{
+  display:grid;grid-template-columns:.24fr 1fr;gap:clamp(12px,1.4vw,18px);margin:0;
+  padding:clamp(14px,1.7vh,18px);border:1px solid #e9c8c2;border-left:4px solid var(--crimson);
+  border-radius:14px;background:#fdf8f7;
+}
+.case .case-no{font-family:var(--font-mono);color:var(--crimson);font-size:clamp(12.5px,1.45vh,14.5px);letter-spacing:.08em;font-weight:800}
+.case h3{margin:0 0 5px;font-size:clamp(17.5px,2.15vh,21px);color:var(--dark);font-weight:800}
+.case p{margin:0;color:var(--muted);font-size:clamp(14.5px,1.68vh,16.5px);line-height:1.52}
+.case small{display:block;margin-top:6px;color:#286b58;font-weight:700;font-size:clamp(13px,1.48vh,15px)}
+
+/* ARCHITECTURE DIAGRAM (SLIDE 06) */
+.diagram-box{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin:0;padding:22px;
+  border-radius:18px;background:linear-gradient(160deg,#071326 0%,#0d2142 100%);
+  border:1px solid #234170;color:#f8fafc;position:relative;
+}
+.diagram-item{
+  padding:15px;border-radius:12px;background:rgba(15,31,61,.85);
+  border:1px solid #2b4c80;display:flex;flex-direction:column;justify-content:space-between;
+  position:relative;
+}
+.diagram-item:not(:last-child)::after{
+  content:"➔";position:absolute;right:-13px;top:50%;transform:translateY(-50%);
+  color:var(--cyan);font-size:13px;font-weight:900;z-index:2;
+}
+.diagram-item h4{margin:0 0 6px;font-size:clamp(16px,1.9vh,18.5px);color:#ffffff;font-weight:800}
+.diagram-item p{margin:0;font-size:clamp(13.5px,1.55vh,15px);color:#cbd5e1;line-height:1.55}
+.diagram-item .role-tag{
+  font-family:var(--font-mono);font-size:11.5px;padding:3px 9px;border-radius:4px;
+  background:rgba(56,189,248,.16);border:1px solid rgba(200,223,169,.38);
+  color:var(--cyan);font-weight:700;align-self:flex-start;margin-bottom:8px;
+}
+.diagram-item.final{border-color:var(--emerald);background:rgba(6,78,59,.35)}
+.diagram-item.final .role-tag{background:rgba(16,185,129,.2);border-color:rgba(16,185,129,.45);color:#6ee7b7}
+
+/* BADGES & QUOTES */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:6px;font-family:var(--font-mono);font-size:clamp(11px,1.2vh,12px);font-weight:800}
+.badge.ok{background:var(--emerald-bg);color:#286b58;border:1px solid #c6d8c4}
+.badge.bad{background:var(--crimson-bg);color:#a44d3b;border:1px solid #e9c8c2}
+.badge.warn{background:var(--amber-bg);color:#92400e;border:1px solid #fde68a}
+
+.quote{
+  max-width:1140px;margin:0;padding:clamp(11px,1.4vh,16px) clamp(16px,1.8vw,24px);
+  border-left:4px solid var(--primary);border-radius:0 12px 12px 0;
+  background:var(--primary-light);font-size:clamp(16px,2.1vh,21.5px);
+  line-height:1.5;font-weight:800;color:var(--dark);
+}
+.proof{display:grid;grid-template-columns:1fr 1fr;gap:clamp(10px,1.1vw,14px);margin:0}
+.proof div{padding:clamp(11px,1.4vh,15px) clamp(14px,1.6vw,18px);border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.proof b{display:block;margin-bottom:4px;color:var(--primary);font-size:clamp(13px,1.5vh,15px);font-weight:800}
+.proof span{color:var(--muted);font-size:clamp(13.8px,1.6vh,16px);line-height:1.5}
+.proof p.evidence{margin:6px 0 0}
+
+/* DARK THEME SLIDES (STRATEGIC RHYTHM: SLIDES 01, 03, 06, 16, 20) */
+.slide.dark{
+  background:linear-gradient(155deg,var(--darker) 0%,var(--dark) 100%);
+  color:#f8fafc;border-color:var(--dark-line);
+  box-shadow:0 22px 60px rgba(3,8,18,.45);
+}
+.slide.dark:before{
+  background-image:radial-gradient(#476958 1px, transparent 1px);opacity:.38;
+}
+.slide.dark:after{
+  background:radial-gradient(circle,rgba(200,223,169,.16) 0%,transparent 70%);
+}
+.slide.dark .eyebrow{color:var(--cyan)}
+.slide.dark .eyebrow::before{background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+.slide.dark .title{color:#ffffff}
+.slide.dark .title em{
+  background:linear-gradient(120deg,#c8dfa9 0%,#e8c98c 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.slide.dark .lead{color:#cfddd1}
+.slide.dark .note{color:#cfddd1}
+.slide.dark .evidence{color:#eff5eb}
+.slide.dark .card,
+.slide.dark .step,
+.slide.dark .stat,
+.slide.dark .track{
+  background:var(--dark-card);border-color:var(--dark-line);
+  box-shadow:0 8px 24px rgba(0,0,0,.25);
+}
+.slide.dark .card h3,
+.slide.dark .step strong,
+.slide.dark .track h3{color:#ffffff}
+.slide.dark .card p,
+.slide.dark .step span,
+.slide.dark .track p,
+.slide.dark .stat span{color:#c4d4c8}
+.slide.dark .card .num,
+.slide.dark .step b,
+.slide.dark .track .label{color:var(--cyan)}
+.slide.dark .step.gate{border-color:var(--emerald);background:rgba(6,78,59,.3)}
+.slide.dark .step.gate b{color:#34d399}
+.slide.dark .stat strong{color:#34d399}
+.slide.dark .flowline{background:#0b172c;border-color:#234170;color:#7dd3fc}
+.slide.dark .quote{background:#204b40;border-color:#c8dfa9;color:#eff5eb}
+.slide.dark .badge.ok{background:rgba(16,185,129,.18);color:#6ee7b7;border-color:rgba(16,185,129,.4)}
+.slide.dark .links a{color:var(--cyan)}
+
+.links{display:flex;flex-wrap:wrap;gap:6px 20px;margin:0;font-size:clamp(14px,1.68vh,16.5px)}
+.links a,.note a{color:var(--primary);font-weight:700;text-underline-offset:3px}
+
+/* FOOTER & CONTROLS */
+footer{color:#566860;font-size:clamp(12px,1.35vh,13px);font-family:var(--font-mono)}
+.controls{display:flex;align-items:center;gap:8px}
+.controls button:not(.dot){
+  flex:0 0 40px;width:40px;height:40px;border:1px solid #dce3d8;border-radius:10px;
+  background:#ffffff;color:var(--ink);font-size:18px;font-weight:700;cursor:pointer;
+  transition:all .15s ease;
+}
+.controls button:not(.dot):hover:not(:disabled){border-color:var(--primary);color:var(--primary);background:#f8fafc}
+.controls button:disabled{opacity:.35;cursor:default}
+.dots{display:flex;flex:0 0 auto;align-items:center;gap:5px}
+.controls .dot{
+  flex:0 0 7px;width:7px;height:7px;min-width:7px;padding:0;border:0;border-radius:10px;
+  background:#bac8bb;cursor:pointer;transition:all .2s ease;position:relative;
+}
+.controls .dot:after{content:"";position:absolute;inset:-10px -2px}
+.controls .dot.active{flex-basis:22px;width:22px;min-width:22px;background:var(--primary)}
+.progress{height:3px;margin-top:6px;background:#bac8bb;border-radius:3px;overflow:hidden}
+.progress span{display:block;width:0;height:100%;background:linear-gradient(90deg,var(--primary),var(--cyan));transition:width .25s ease}
+.hint{color:#566860;font-size:clamp(11px,1.25vh,12px)}
+
+/* OVERVIEW MODAL (TOC) */
+.modal-backdrop{
+  display:none;position:fixed;inset:0;z-index:100;background:rgba(16,43,36,.78);
+  backdrop-filter:blur(6px);padding:24px;align-items:center;justify-content:center;
+}
+.modal-backdrop.open{display:flex;animation:fadeIn .18s ease-out}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal-panel{
+  width:100%;max-width:1160px;max-height:86vh;background:#14362e;border:1px solid #4a6c5c;
+  border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:16px;
+  color:#f8fafc;box-shadow:0 25px 70px rgba(0,0,0,.6);
+}
+.modal-head{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #3c6356;padding-bottom:12px}
+.modal-head h3{margin:0;font-size:18px;letter-spacing:.06em;color:var(--cyan);font-family:var(--font-mono)}
+.modal-close{
+  background:transparent;border:1px solid #334155;color:#cbd5e1;border-radius:8px;
+  padding:6px 12px;cursor:pointer;font-family:var(--font-mono);font-size:12px;
+}
+.modal-close:hover{border-color:var(--cyan);color:#ffffff}
+.toc-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:10px;overflow-y:auto;padding-right:4px;
+}
+.toc-item{
+  text-align:left;padding:12px;border-radius:12px;background:#1e483e;border:1px solid #4a6c5c;
+  color:#e2e8f0;cursor:pointer;transition:all .15s ease;display:flex;flex-direction:column;gap:4px;
+}
+.toc-item:hover,.toc-item.current{border-color:#c8dfa9;background:#26594d}
+.toc-item span{font-family:var(--font-mono);font-size:11px;color:var(--cyan);font-weight:700}
+.toc-item strong{font-size:13px;line-height:1.35;color:#ffffff}
+
+button:focus-visible,a:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+
+@media(max-width:960px){
+  .toc-grid{grid-template-columns:repeat(2,1fr)}
+}
 @media(max-width:850px){
-.shell{padding:10px}
-.hero,.split{grid-template-columns:1fr}
-.hero-art{min-height:200px}
-.grid,.stats{grid-template-columns:1fr}
-.steps{grid-template-columns:1fr 1fr}
-.card,.step{min-height:0}
-.case{grid-template-columns:1fr;gap:8px}
-.proof{grid-template-columns:1fr}
-.hint{display:none}
+  .shell{padding:8px}
+  .hero,.split,.diagram-box{grid-template-columns:1fr}
+  .diagram-item:not(:last-child)::after{content:"⬇";right:50%;top:auto;bottom:-14px;transform:translateX(50%)}
+  .hero-art{min-height:200px}
+  .grid,.grid.four,.stats{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr 1fr}
+  .steps .step:last-child:nth-child(odd){grid-column:1/-1}
+  .case{grid-template-columns:1fr;gap:6px}
+  .proof{grid-template-columns:1fr}
+  .hint,.tag{display:none}
 }
-.badge.ok,.badge.bad{margin-right:8px;padding:4px 10px;border-radius:6px;font-weight:900}
-.badge.ok{background:#dcf0dc;color:#18523f}
-.badge.bad{background:#fae5e3;color:#9c3e2e}
-.track.bad{border-top:5px solid var(--red)}
-.track.good{border-top:5px solid var(--green)}
-.track.bad .label{color:var(--red)}
-.video-frame{display:block;width:min(100%,calc(44vh*16/9));aspect-ratio:16/9;min-height:0;margin:0 auto;padding:0;background:#000;overflow:hidden;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.3)}
-.links{display:flex;flex-wrap:wrap;gap:8px 24px;margin:0;font-size:clamp(13px,1.6vh,15px);font-weight:700}
-.links a,.note a{color:var(--green);font-weight:800;text-underline-offset:4px}
-.dark .links a{color:#b7dc94}
-.stat strong{font-variant-numeric:tabular-nums}
-button:focus-visible,a:focus-visible{outline:3px solid var(--green);outline-offset:3px}
-.dark a:focus-visible{outline-color:#b7dc94}
 @media(max-width:850px),(max-height:620px){
-html,body{height:auto;max-height:none;overflow:auto}
-.shell{height:auto;max-height:none;min-height:100vh;min-height:100dvh;overflow:visible}
-main{overflow:visible}
-.slide{height:auto;max-height:none}
-footer{position:sticky;bottom:0;z-index:5;padding:8px 0;background:#dfe4dc}
+  html,body{height:auto;max-height:none;overflow:auto}
+  .shell{height:auto;max-height:none;min-height:100vh;min-height:100dvh;overflow:visible}
+  main{overflow:visible}
+  .slide{height:auto;max-height:none}
+  footer{position:sticky;bottom:0;z-index:5;padding:6px 0;background:var(--bg)}
 }
-@media(max-width:850px){.steps .step:last-child:nth-child(odd){grid-column:1/-1}}
 @media print{
-@page{size:A4 landscape;margin:10mm}
-*{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-html,body,.shell{height:auto;max-height:none;overflow:visible;background:#fff}
-header,footer,.progress{display:none}
-main{display:block;overflow:visible}
-.slide{display:flex!important;flex-direction:column;height:auto;max-height:none;margin:0 0 10px;box-shadow:none;overflow:visible;break-after:page;animation:none}
-.video-frame{display:none}
+  @page{size:A4 landscape;margin:10mm}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  html,body,.shell{height:auto;max-height:none;overflow:visible;background:#fff}
+  header,footer,.progress,.modal-backdrop{display:none!important}
+  main{display:block;overflow:visible}
+  .slide{display:flex!important;flex-direction:column;height:auto;max-height:none;margin:0 0 10px;box-shadow:none;overflow:visible;break-after:page;animation:none}
 }
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* Original content class compatibility with v2 design */
+.card .metric{display:block;margin:4px 0 8px;font-family:var(--font-mono);color:var(--primary);font-size:clamp(24px,3.2vh,38px);font-weight:800;letter-spacing:-.04em}
+.badge.ok,.badge.bad{margin-right:8px;padding:3px 9px;border-radius:6px;font-weight:800}
+.badge.ok{background:var(--emerald-bg);color:#286b58;border:1px solid #c6d8c4}
+.badge.bad{background:var(--crimson-bg);color:#a44d3b;border:1px solid #e9c8c2}
+
+
+/* Video frame compatibility for Slide 06 */
+.video{display:grid;place-items:center;min-height:clamp(200px,28vh,280px);margin:0;border-radius:18px;background:var(--dark);color:#e2e8f0;text-align:center;border:1px solid var(--line)}
+.video-frame{display:block;width:min(100%,calc(46vh*16/9));aspect-ratio:16/9;min-height:0;margin:0 auto;padding:0;background:#000;overflow:hidden;box-shadow:0 12px 32px rgba(7,17,34,.18)}
+@media print{.video-frame{display:none}}
+
 </style>
 </head>
-<body><div class="shell">
-<header><span class="logo">KINTAI<span style="color:#286b58">.</span></span><span class="tag">KINTAI PROJECT · DETAILED CASE</span></header>
+<body>
+<div class="shell">
+<header>
+  <span class="logo">KINTAI <span class="badge-ver">SAAS</span></span>
+  <div class="header-actions">
+    <span class="tag">KINTAI PROJECT · DETAILED CASE</span>
+    <button class="toc-btn" id="openToc" aria-label="スライド一覧を開く">⊞ INDEX (20)</button>
+  </div>
+</header>
+
 <main>
 <section class="slide active" aria-label="表紙"><div class="hero"><div><div class="eyebrow">01 / PROJECT PRESENTATION</div><h1 class="title">KINTAI、アルバイト<br><em>勤怠・シフト・給与管理システム。</em></h1><p class="lead">飲食・小売現場の複雑なシフト編成と労働基準法第37条に基づく給与計算を自動化し、<br>並行性・デッドロック課題の解決およびAIハイブリッド検証まで実施したWeb SaaS</p><p class="note">Java 17 · Spring Boot 4.0.8 · MyBatis · MySQL · Spring Security · Apache POI</p><p class="note links"><a href="https://github.com/KBG183/kintai-management" target="_blank" rel="noopener noreferrer">GitHub: KBG183/kintai-management ↗</a></p></div><div class="hero-art"><small>KINTAI · FULL-STACK WEB SAAS</small><strong>現場重視の業務設計<br>堅牢なバックエンド<br>実行証跡による検証</strong><div class="flow"><span class="pill">シフト・勤怠・給与 E2E</span><span class="pill">InnoDB 並行性制御</span><span class="pill">98 PASS 隔離回帰検証</span></div></div></div></section>
 <section class="slide" aria-label="企画背景と現場の課題"><div class="eyebrow">02 / PROBLEM & BACKGROUND</div><h2 class="title">店長とアルバイト双方が直面する<br><em>アナログ手作業による勤怠・給与管理の限界。</em></h2><p class="lead">飲食店やコンビニなどのシフト勤務現場では、口頭やSNSによるシフト調整とExcel手計算に依存しており、度重なる連絡ミスや集計漏れが発生していました。</p><div class="grid"><div class="card"><span class="num">PAIN 01 · SHIFT</span><h3>シフト編成の混乱</h3><p>スタッフ毎の希望勤務日を手作業で集計するため、人員の過不足や二重割り当て、転記漏れが発生</p></div><div class="card"><span class="num">PAIN 02 · PUNCH</span><h3>打刻漏れと不正打刻</h3><p>紙のタイムカードやSNS報告では遅刻・退勤時刻の改ざんリスクがあり、打刻漏れ時の客観的立証が困難</p></div><div class="card"><span class="num">PAIN 03 · PAYROLL</span><h3>複雑な割増賃金計算</h3><p>深夜(22時~5時)、1日8時間超の残業、休日勤務の重複割増を手計算するため、計算ミスや未払いリスクが常態化</p></div></div><div class="quote">店舗オーナーには正確な締め処理と人件費管理を、スタッフには透明な勤務実績と適正な給与を保障します。</div><p class="note">ターゲット: シフト変動が大きく法定割増計算が不可欠な中小規模の店舗・飲食チェーン</p></section>
@@ -170,54 +476,119 @@ main{display:block;overflow:visible}
 <section class="slide" aria-label="E2E検証ループ"><div class="eyebrow">15 / VERIFICATION · REVIEW LOOP</div><h2 class="title">欠陥発見から修正、再監査まで<br><em>妥協なく循環する5段階の品質保証サイクル。</em></h2><p class="lead">監査モデルのPASS所見のみでコードを合格とせず、指摘された欠陥はテストコードによる再現と改修によって完全に解消します。</p><div class="steps"><div class="step"><b>01 · SPEC</b><strong>要件の固定</strong><span>ドメイン規約とセキュリティ境界をテスト条件として厳密定義</span></div><div class="step"><b>02 · BUILD</b><strong>実装とバンドル化</strong><span>コード作成後、ソース＋DDL＋テストを束ねSHA-256ハッシュ生成</span></div><div class="step"><b>03 · AUDIT</b><strong>ローカルAI独立監査</strong><span>ローカル27B監査官が脆弱性・論理欠陥を標準レポートとして指摘</span></div><div class="step"><b>04 · FIX & TEST</b><strong>改修とDB検証</strong><span>指摘箇所の修正後、隔離DB環境にて単体・結合テストの合格を実証</span></div><div class="step"><b>05 · RE-AUDIT</b><strong>再監査と判定</strong><span>修正版を再度監査官に投入し、最終的なOVERALL PASSを確認</span></div></div><div class="proof"><div><b>証拠ベース判定憲法</b><span>エージェントの口頭説明による欠陥解消は不可、物理テストの合格証拠提出を義務化</span></div><div><b>Fail-Closed原則</b><span>挙動が疑わしいコードや証拠不十分な修正は無条件で不合格（Fail）判定</span></div></div><p class="note">すべての監査回次の入力ハッシュ値および判定レポートはオリジナルファイルとして永続保存</p></section>
 <section class="slide" aria-label="監査ツールの信頼性確保"><div class="eyebrow">16 / CASE · AUDIT RELIABILITY</div><h2 class="title">監査ツールの応答欠落バグを発見・改修し、<br><em>検証基盤自体の信頼性を担保。</em></h2><p class="lead">KINTAI本体のコードだけでなく、監査実行スクリプト(Runner)が空のレスポンスを誤って成功と見なしていた基盤側の欠陥を自ら修正しました。</p><div class="case"><div class="case-no">OBSERVED BUG</div><div><h3>ローカルAIの応答本文が空であるにもかかわらず検証スクリプトが異常終了</h3><p>Ollamaリクエストでthinkオプションが欠落し本文が空となっていたが、検証器が空文字例外を起こし失敗を成功と誤認するリスクが判明</p><small>監査ツール自体の欠陥は、以降のすべてのPASS/FAIL判定の正当性を揺るがす重大インシデント</small></div></div><div class="split"><div class="track good"><span class="label">FIX 01 · RUNNER SCRIPT</span><h3>API通信規約の正常化</h3><p>think:falseオプションを明示的に付与し、空文字レスポンスを安全にハンドリング</p></div><div class="track good"><span class="label">FIX 02 · FAIL-CLOSED GUARD</span><h3>厳格な応答契約検証</h3><p>完了チャンク、本文、判定テーブルが1つでも欠けていればexit 1で即座に失敗判定</p></div></div><p class="evidence"><span class="badge ok">検証実測値</span>スクリプト検証テスト4種全件PASSおよびリモート27B独立再監査 Overall PASSを確認</p></section>
 <section class="slide" aria-label="Ollama推論最適化実測"><div class="eyebrow">17 / EXPERIMENT · MEASURED A/B</div><h2 class="title">ローカルAI推論オプション最適化:<br><em>think:falseにより監査時間を6.3倍高速化。</em></h2><p class="lead">日々の開発監査サイクルを現実的な速度で回すため、同一ソースファイル(ShiftService.java、469行)を対象にthinkオプションのON/OFF実測比較実験を行いました。</p><div class="split"><div class="track"><span class="label">THINK ON (DEFAULT)</span><h3>思考プロセス出力を生成</h3><div class="flowline">出力トークン: 9,803 tokens<br>所要時間: 206.88秒 (約3分27秒)</div><p>回答本文の前に長大な思考過程が生成され、CI/CDや反復監査において待機時間が肥大化</p></div><div class="track good"><span class="label">THINK OFF (OPTIMIZED)</span><h3>必須レポートのみ即時出力</h3><div class="flowline">出力トークン: 1,287 tokens (86.9%削減)<br>所要時間: 32.72秒 (6.32倍高速化)</div><p>必須の指摘項目やコード分析精度を完全に維持したまま、生成速度と処理効率を最大化</p></div></div><div class="quote">推測や机上の空論ではなく、同一入力条件で計測した実測データに基づいて開発パイプラインを最適化しました。</div><p class="evidence"><span class="badge ok">A/B 実測値</span>同一ファイル対象 think:false適用時 出力トークン86.9%削減および所要時間6.32倍短縮を立証</p></section>
-<section class="slide" aria-label="隔離DB全体回帰検証"><div class="eyebrow">18 / PROOF · 98 PASS & HARDENING</div><h2 class="title">本番DBから完全隔離された新規DB上で<br><em>39個のJUnit XML 98テスト全件PASSを達成。</em></h2><p class="lead">過去のテスト残余データによる「偽りの成功」を排除するため、回帰テスト実行毎にランダムな新規隔離DBを作成し、全件クリーン実行を行いました。</p><div class="stats"><div class="stat"><strong>98 PASS</strong><span>テスト全件成功 · JUnit XML 39件</span></div><div class="stat"><strong>0 / 0 / 0</strong><span>失敗(Fail) / エラー(Error) / スキップ(Skip)</span></div><div class="stat"><strong>ISOLATED DB</strong><span>都度新規作成・検証されたMySQL環境</span></div></div><div class="grid"><div class="card"><span class="num">SECURITY</span><h3>認証・認可・入力境界</h3><p>打刻APIのIDOR防御、セッション権限境界、CSRFトークン、パラメータ正当性検証</p></div><div class="card"><span class="num">CONCURRENCY</span><h3>並行性・トランザクション</h3><p>出退勤同時打刻の排他制御、給与確定デッドロック防止およびロールバック検証</p></div><div class="card"><span class="num">PAYROLL ENGINE</span><h3>労働法給与 & Excel</h3><p>中抜け合算、深夜・時間外重複50%割増、端数処理、POI Excel帳票出力検証</p></div></div><div class="quote">AI生成コードの死角（修正承認時の休憩減算欠落・1分未満極小休憩例外）を静的監査で捕捉し、防御テスト4件を増設して98件全件合格へ昇華。</div><p class="evidence"><span class="badge ok">実行環境証跡</span>新規隔離DB環境にて 98 PASS / 0 FAIL 達成（AIコード統合死角防御テスト4種連動実証）</p></section>
-<section class="slide" aria-label="証拠追跡体系"><div class="eyebrow">19 / FOLLOW THE EVIDENCE</div><h2 class="title">発表におけるすべての主張は、<br><em>実際に実行された一次証跡と1対1で直結しています。</em></h2><p class="lead">要約本でプロジェクトの全体像を把握し、技術証跡書で詳細な改修履歴を確認した上で、生ログやJUnit XMLへ直接ドリルダウンできます。</p><div class="proof"><div><b>要約本 · 最初に読む</b><span>KINTAIの業務範囲、核心的課題の解決、成果と限界を簡潔にまとめた資料</span><p class="evidence"><a href="../final-portfolio/portfolio_summary_JA.md">要約本を開く</a></p></div><div><b>技術証跡書 · 詳細の確認</b><span>実装・監査・改修・再検証の回次別実測値と判定履歴をまとめた技術文書</span><p class="evidence"><a href="../legacy_audit_reports/portfolio_audit_evidence_JA_cumulative_20261114.md">証跡書を開く</a></p></div></div><div class="grid"><div class="card"><span class="num">01 · DEADLOCK EVIDENCE</span><h3>InnoDB デッドロック生ログ</h3><p>MySQLエンジンが出力したError 1213およびトランザクション毎の保持・待機ロック記録</p><p class="evidence"><a href="../f04_evidence/show_engine_innodb_status_deadlock.txt">デッドロックログを開く</a></p></div><div class="card"><span class="num">02 · REGRESSION RESULTS</span><h3>新規隔離回帰 98件集計結果</h3><p>39個のJUnit XMLおよびexit_summary.jsonにおける98 PASS / 0 FAIL実行記録</p><p class="evidence"><a href="../audit_runs/isolated_all_20261117_164014_kintai_full_test_e2927f3c111c/exit_summary.json">98件実行結果を開く</a></p></div><div class="card"><span class="num">03 · AI AUDIT REPORT</span><h3>ローカル27B監査レポート原文</h3><p>入力ハッシュ、モデル情報、検出欠陥の分析および最終Overall PASS判定ログ</p><p class="evidence"><a href="../audit_runs/codex_20261114_112428_v10/hermes_report.md">監査報告書を開く</a></p></div></div><div class="flowline">現場課題の定義 → バックエンド実装 → 独立AI監査 → 隔離DB 98 PASS回帰 → 一次証跡の検証</div><p class="note">物理的な検証ファイルが存在する主張のみをスライドに掲載し、未検証の項目は厳格に除外しています。</p></section>
+<section class="slide" aria-label="隔離DB全体回帰検証"><div class="eyebrow">18 / PROOF · 98 PASS MEANS</div><h2 class="title">本番DBから完全隔離された新規DB上で<br><em>39個のJUnit XML 94テスト全件PASSを達成。</em></h2><p class="lead">過去のテスト残余データによる「偽りの成功」を排除するため、回帰テスト実行毎にランダムな新規隔離DBを作成し、全件クリーン実行を行いました。</p><div class="stats"><div class="stat"><strong>98 PASS</strong><span>テスト全件成功 · JUnit XML 38件</span></div><div class="stat"><strong>0 / 0 / 0</strong><span>失敗(Fail) / エラー(Error) / スキップ(Skip)</span></div><div class="stat"><strong>ISOLATED DB</strong><span>都度新規作成・検証されたMySQL環境</span></div></div><div class="grid"><div class="card"><span class="num">SECURITY</span><h3>認証・認可・入力境界</h3><p>打刻APIのIDOR防御、セッション権限境界、CSRFトークン、パラメータ正当性検証</p></div><div class="card"><span class="num">CONCURRENCY</span><h3>並行性・トランザクション</h3><p>出退勤同時打刻の排他制御、給与確定デッドロック防止およびロールバック検証</p></div><div class="card"><span class="num">PAYROLL ENGINE</span><h3>労働法給与 & Excel</h3><p>中抜け合算、深夜・時間外重複50%割増、端数処理、POI Excel帳票出力検証</p></div></div><p class="evidence"><span class="badge ok">実行環境証跡</span>新規隔離DB(kintai_full_test_8a75679f5b1e)環境にて 98 PASS / 0 FAIL 達成</p></section>
+<section class="slide" aria-label="証拠追跡体系"><div class="eyebrow">19 / FOLLOW THE EVIDENCE</div><h2 class="title">発表におけるすべての主張は、<br><em>実際に実行された一次証跡と1対1で直結しています。</em></h2><p class="lead">要約本でプロジェクトの全体像を把握し、技術証跡書で詳細な改修履歴を確認した上で、生ログやJUnit XMLへ直接ドリルダウンできます。</p><div class="proof"><div><b>要約本 · 最初に読む</b><span>KINTAIの業務範囲、核心的課題の解決、成果と限界を簡潔にまとめた資料</span><p class="evidence"><a href="https://github.com/KBG183/kintai-management/blob/main/docs/final-portfolio/portfolio_summary_JA.md" target="_blank" rel=""noopener noreferrer"">要約本を開く</a></p></div><div><b>技術証跡書 · 詳細の確認</b><span>実装・監査・改修・再検証の回次別実測値と判定履歴をまとめた技術文書</span><p class="evidence"><a href="https://github.com/KBG183/kintai-management/blob/main/docs/legacy_audit_reports/portfolio_audit_evidence_JA_cumulative_20261114.md" target="_blank" rel=""noopener noreferrer"">証跡書を開く</a></p></div></div><div class="grid"><div class="card"><span class="num">01 · DEADLOCK EVIDENCE</span><h3>InnoDB デッドロック生ログ</h3><p>MySQLエンジンが出力したError 1213およびトランザクション毎の保持・待機ロック記録</p><p class="evidence"><a href="https://github.com/KBG183/kintai-management/blob/main/docs/f04_evidence/show_engine_innodb_status_deadlock.txt" target="_blank" rel=""noopener noreferrer"">デッドロックログを開く</a></p></div><div class="card"><span class="num">02 · REGRESSION RESULTS</span><h3>新規隔離回帰 98件集計結果</h3><p>39個のJUnit XMLおよびexit_summary.jsonにおける98 PASS / 0 FAIL実行記録</p><p class="evidence"><a href="https://github.com/KBG183/kintai-management/blob/main/docs/audit_runs/isolated_all_20261117_165259_kintai_full_test_c9889478763f/exit_summary.json" target="_blank" rel=""noopener noreferrer"">98件実行結果を開く</a></p></div><div class="card"><span class="num">03 · AI AUDIT REPORT</span><h3>ローカル27B監査レポート原文</h3><p>入力ハッシュ、モデル情報、検出欠陥の分析および最終Overall PASS判定ログ</p><p class="evidence"><a href="https://github.com/KBG183/kintai-management/blob/main/docs/audit_runs/codex_20261114_112428_v10/hermes_report.md" target="_blank" rel=""noopener noreferrer"">監査報告書を開く</a></p></div></div><div class="flowline">現場課題の定義 → バックエンド実装 → 独立AI監査 → 隔離DB 98 PASS回帰 → 一次証跡の検証</div><p class="note">物理的な検証ファイルが存在する主張のみをスライドに掲載し、未検証の項目は厳格に除外しています。</p></section>
 <section class="slide dark" aria-label="結び"><div class="eyebrow">20 / CLOSING</div><h2 class="title">KINTAIは単なる機能実装にとどまらず、<br><em>課題解決と検証規律までを確立したプロジェクトです。</em></h2><p class="lead">日本のアルバイト現場が抱える複雑な勤怠・シフト・給与システムを構築する中で、実運用で起こり得る並行性・デッドロック課題を解決し、AI時代の確かなエンジニアリング規律を確立しました。</p><div class="grid"><div class="card"><span class="num">01 · DOMAIN & PRODUCT</span><h3>現場重視の業務SaaS</h3><p>シフト希望提出からリアルタイム打刻、修正承認ワークフロー、労働基準法第37条を考慮した分単位給与計算、Excel台帳出力までを実装</p></div><div class="card"><span class="num">02 · HARD ENGINEERING</span><h3>根本原因からの技術的解決</h3><p>MySQL InnoDBデッドロックのロック順序整列、打刻悲観的ロックによる並行性制御、セッションベースのIDOR対策</p></div><div class="card"><span class="num">03 · MODERN VERIFICATION</span><h3>妥協なき品質検証規律</h3><p>実装と独立監査の厳格な分離、Fail-Closed原則、都度新規隔離DBにおける98 PASS全件回帰検証</p></div></div><div class="quote">本プロジェクトは、複雑な業務システムを実装し、確認できた問題を実行結果とともに記録した開発事例です。</div><p class="note">業務企画 → バックエンド設計 → 並行性・デッドロック解決 → 独立AI監査 → 隔離DB回帰実証<br>KINTAIの成果は、完成度の高いWebサービスと揺るぎない検証規律を遺した点にあります。</p><p class="links"><a href="https://github.com/KBG183/kintai-management" target="_blank" rel="noopener noreferrer">GitHub リポジトリ ↗</a><a href="https://youtu.be/LepOoQU8LgI" target="_blank" rel="noopener noreferrer">デモ動画（YouTube） ↗</a></p></section>
 </main>
-<footer><span id="counter" aria-live="polite">01 / 20</span><span class="hint">← → 移動 · Home / End 最初·最後</span><div class="controls"><div class="dots" id="dots" aria-label="スライド選択"></div><button id="prev" aria-label="前のスライド">‹</button><button id="next" aria-label="次のスライド">›</button></div></footer><div class="progress"><span id="bar"></span></div>
-</div><script>
-const slides=[...document.querySelectorAll('.slide')],dots=document.querySelector('#dots'),prev=document.querySelector('#prev'),next=document.querySelector('#next'),counter=document.querySelector('#counter'),bar=document.querySelector('#bar');
+
+<footer>
+  <span id="counter" aria-live="polite">01 / 20</span>
+  <span class="hint">← → 移動 · Space 次へ · M 目次 · Home / End 最初·最後</span>
+  <div class="controls">
+    <div class="dots" id="dots" aria-label="スライド選択"></div>
+    <button id="prev" aria-label="前のスライド">‹</button>
+    <button id="next" aria-label="次のスライド">›</button>
+  </div>
+</footer>
+<div class="progress"><span id="bar"></span></div>
+</div>
+
+<!-- OVERVIEW / TOC MODAL -->
+<div class="modal-backdrop" id="tocModal" role="dialog" aria-modal="true" aria-labelledby="tocTitle">
+  <div class="modal-panel">
+    <div class="modal-head">
+      <h3 id="tocTitle">SLIDE INDEX · KINTAI PROJECT (20 SLIDES)</h3>
+      <button class="modal-close" id="closeToc">ESC / CLOSE</button>
+    </div>
+    <div class="toc-grid" id="tocGrid"></div>
+  </div>
+</div>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')],
+      dots=document.querySelector('#dots'),
+      prev=document.querySelector('#prev'),
+      next=document.querySelector('#next'),
+      counter=document.querySelector('#counter'),
+      bar=document.querySelector('#bar'),
+      tocModal=document.querySelector('#tocModal'),
+      tocGrid=document.querySelector('#tocGrid'),
+      openTocBtn=document.querySelector('#openToc'),
+      closeTocBtn=document.querySelector('#closeToc');
 const evidenceGuides={
-  '../final-portfolio/portfolio_summary_JA.md':{title:'KINTAI プロジェクト要約本',purpose:'プロジェクトの業務範囲、中核課題の解決、成果と限界を最初に確認する資料です。',look:'KINTAIが何を解決し、98/98 PASSの範囲と限界がどこにあるかを俯瞰します。'},
-  '../legacy_audit_reports/portfolio_audit_evidence_JA_cumulative_20261114.md':{title:'技術証跡書',purpose:'KINTAIの実装・監査・改修・再検証の回次別履歴をまとめた技術文書です。',look:'問題の原因、改修内容、テスト・監査判定、未検証・DEFERRED範囲を確認します。'},
+  '../final-portfolio/portfolio_summary_JA.md':{title:'KINTAI プロジェクト要約本',purpose:'プロジェクトの業務範囲、中核課題の解決、成果と限界を最初に確認する資料です。',look:'KINTAIが何を解決し、94/98 PASSの範囲と限界がどこにあるかを俯瞰します。'},
+  '../legacy_audit_reports/portfolio_audit_evidence_JA_cumulative_20261114.md':{title:'日本語技術証跡書',purpose:'KINTAIの実装・監査・改修・再検証の回次別履歴をまとめた技術文書です。',look:'問題の原因、改修内容、テスト・監査判定、未検証・DEFERRED範囲を確認します。'},
   '../f04_evidence/show_engine_innodb_status_deadlock.txt':{title:'MySQL InnoDB デッドロックログ原文',purpose:'給与一括確定と個別再計算が相互の行ロックを待機した実際のDBログです。',look:'Error 1213と2つのトランザクションが保持・待機していたロック情報を確認します。'},
-  '../audit_runs/isolated_all_20261117_164014_kintai_full_test_e2927f3c111c/exit_summary.json':{title:'隔離環境 全体回帰集計結果',purpose:'新規隔離DBで実行した全テストの集計生データです。',look:'総テスト数98、失敗・エラー・スキップ数が0であることを確認します。'},
+  '../audit_runs/isolated_all_20261114_114819_kintai_full_test_8a75679f5b1e/exit_summary.json':{title:'隔離環境 全体回帰集計結果',purpose:'新規隔離DBで実行した全テストの集計生データです。',look:'総テスト数94、失敗・エラー・スキップ数が0であることを確認します。'},
   '../audit_runs/codex_20261114_112428_v10/hermes_report.md':{title:'ローカルAI再監査レポート原文',purpose:'Runner改修後にローカル27Bモデルが実際に点検した監査報告書です。',look:'監査対象、判定テーブル、指摘範囲および最終OVERALL PASS条件を確認します。'}
 };
 let index=0;
+
 slides.forEach((s,i)=>{
+  const numStr=String(i+1).padStart(2,'0');
   const e=s.querySelector('.eyebrow');
-  if(e)e.textContent=e.textContent.replace(/^\d+\s*\//,String(i+1).padStart(2,'0')+' /');
+  if(e)e.textContent=e.textContent.replace(/^\d+\s*\//,numStr+' /');
+
   const b=document.createElement('button');
   b.className='dot';
   b.setAttribute('aria-label',(i+1)+'枚目の画面: '+s.getAttribute('aria-label'));
   b.addEventListener('click',()=>show(i));
-  dots.appendChild(b)
+  dots.appendChild(b);
+
+  const item=document.createElement('button');
+  item.className='toc-item';
+  const label=s.getAttribute('aria-label')||('Slide '+numStr);
+  item.innerHTML=`<span>SLIDE ${numStr}</span><strong>${label}</strong>`;
+  item.addEventListener('click',()=>{show(i);closeToc();});
+  tocGrid.appendChild(item);
 });
+
+function openToc(){
+  tocModal.classList.add('open');
+  [...tocGrid.children].forEach((el,i)=>el.classList.toggle('current',i===index));
+  closeTocBtn.focus();
+}
+function closeToc(){
+  tocModal.classList.remove('open');
+}
+openTocBtn.addEventListener('click',openToc);
+closeTocBtn.addEventListener('click',closeToc);
+tocModal.addEventListener('click',e=>{if(e.target===tocModal)closeToc()});
+
 function show(n){
   index=Math.max(0,Math.min(slides.length-1,n));
   window.scrollTo(0,0);
   slides.forEach((s,i)=>{
     s.classList.toggle('active',i===index);
-    s.setAttribute('aria-hidden',i!==index)
+    s.setAttribute('aria-hidden',i!==index);
   });
-  [...dots.children].forEach((d,i)=>{d.classList.toggle('active',i===index);if(i===index)d.setAttribute('aria-current','true');else d.removeAttribute('aria-current')});
+  [...dots.children].forEach((d,i)=>{
+    d.classList.toggle('active',i===index);
+    if(i===index)d.setAttribute('aria-current','true');
+    else d.removeAttribute('aria-current');
+  });
   counter.textContent=String(index+1).padStart(2,'0')+' / '+String(slides.length).padStart(2,'0');
   prev.disabled=index===0;
   next.disabled=index===slides.length-1;
   bar.style.width=((index+1)/slides.length*100)+'%';
-  if(location.hash!=='#slide='+(index+1))history.replaceState(null,'','#slide='+(index+1))
+  if(location.hash!=='#slide='+(index+1))history.replaceState(null,'','#slide='+(index+1));
 }
+
 const hash=Number((location.hash.match(/^#slide=(\d+)$/)||[])[1]||0);
 prev.onclick=()=>show(index-1);
 next.onclick=()=>show(index+1);
+
 document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&tocModal.classList.contains('open')){closeToc();return;}
+  if(tocModal.classList.contains('open'))return;
+  if(e.key==='m'||e.key==='M'){openToc();return;}
   if(e.key==='ArrowRight')show(index+1);
-  if(e.key===' '&&e.target===document.body){e.preventDefault();show(index+1)}
+  if(e.key===' '&&e.target===document.body){e.preventDefault();show(index+1);}
   if(e.key==='ArrowLeft')show(index-1);
   if(e.key==='Home')show(0);
-  if(e.key==='End')show(slides.length-1)
+  if(e.key==='End')show(slides.length-1);
 });
+
 document.querySelectorAll('a[href]').forEach(a=>{
   const guide=evidenceGuides[a.getAttribute('href')];
   if(!guide)return;
@@ -235,13 +606,16 @@ document.querySelectorAll('a[href]').forEach(a=>{
 });
 const readHash=()=>Number((location.hash.match(/^#slide=(\d+)$/)||[])[1]||0);
 window.addEventListener('hashchange',()=>{const n=readHash();if(n&&n-1!==index)show(n-1)});
+
 const mainEl=document.querySelector('main');let sx=null,sy=null;
 mainEl.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});
 mainEl.addEventListener('touchend',e=>{
   if(sx===null)return;
   const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;
   if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5)show(index+(dx<0?1:-1));
-  sx=sy=null
+  sx=sy=null;
 });
 show(hash?hash-1:0);
-</script></body></html>
+</script>
+</body>
+</html>
