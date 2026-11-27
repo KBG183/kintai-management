@@ -28,5 +28,11 @@
 - 失敗やWARNのフォルダも削除せず、原因分析と再検証の履歴として残しています。
 - 「PASS」はその実行の入力・環境・対象範囲にだけ適用されます。システム全体や未検証環境の保証ではありません。
 
+## 原本データの言語および証跡改ざん防止方針について
+
+- 各実行フォルダ内に含まれる一次ログ（`raw_response.txt`、`reconstructed_input_bundle.md`、`error.txt` 等）には、開発・実験過程におけるプロンプトやデバッグ出力等の原文（韓国語を含む）がそのまま含まれています。
+- これらはプロジェクト運用指針（`AGENTS.md`）に基づき、一次証跡の改ざん防止・完全性（Integrity）・追跡可能性（Traceability）を担保するため、後からの人為的な翻訳や改変を行わず、当時の実行原本のまま保存しています。
+- ポートフォリオの公式公開文書（`README.md`、`docs/final-portfolio/`、`docs/presentation-prototype/` 等）は、すべて正式な日本語・英語にて管理・公開されています。
+
 最初に読む資料は[プロジェクト要約書](../final-portfolio/portfolio_summary_JA.md)、詳細確認は[日本語技術証跡書](../legacy_audit_reports/portfolio_audit_evidence_JA_cumulative_20261114.md)です。ここは必要なときに原本へ降りるための保管庫です。
 

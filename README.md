@@ -15,7 +15,7 @@
 flowchart LR
     P1["【Phase 1: KINTAI Core（本リポジトリ）】<br/>・Spring Boot 4 / MyBatis<br/>・店舗・シフト・勤怠・給与SaaS実装<br/>・98件のJUnit結合テスト回帰検証<br/>★現在地（As-Built Baseline）"]
     -->|"ソースコード & DDL提供<br/>（監査対象ベースライン）"| P2["【Phase 2: Hybrid SRS Triad Auditor】<br/>・多層AI逆工学（Codex / Claude / Qwen）<br/>・確定給与不変性・労基法37条境界監査<br/>・17要件のマスターDiff乖離分析"]
-    -->|"検出欠陥 & 是正パッチのフィードバック"| P3["【Phase 3: 欠陥是正＆リファクタリング】<br/>・労基法37条割増計算エンジンの完全準拠<br/>・悲観的ロック階層順序統一によるデッドロック防止<br/>・マルチテナント境界ガードの徹底"]
+    -->|"検出欠陥 & 是正パッチのフィードバック"| P3["【Phase 3: 欠陥是正＆リファクタリング】<br/>・労基法37条割増計算エンジンの段階的準拠・改修<br/>・悲観的ロック階層順序統一によるデッドロック防止<br/>・マルチテナント境界ガードの徹底"]
 ```
 
 ### 3段階プロジェクト連携概要
@@ -24,7 +24,7 @@ flowchart LR
 |---|---|---|
 | **Phase 1: KINTAI Core** | **本リポジトリ** ([KBG183/kintai-management](https://github.com/KBG183/kintai-management))<br>`Active / Baseline` | **初期バックエンド実装・As-Builtベースライン**<br>・Spring Boot / MyBatis による勤怠・シフト・給与ドメインの基本実装<br>・98件のJUnit結合テストによる機能担保と初期動作実績の確立 |
 | **Phase 2: Hybrid SRS Triad Auditor** | [KBG183/Hybrid-srs-triad-auditor](https://github.com/KBG183/Hybrid-srs-triad-auditor)<br>`Completed / Evidence` | **多層AI交差検証・SRS逆工学・マスターDiff分析**<br>・Codex, Claude, Qwen 27B, C#静的リンターによる多層監査網<br>・Phase 1コードからSRSを逆生成し、全17要件のギャップおよび境界条件の欠陥を摘発 |
-| **Phase 3: Refactoring & Convergence** | [KBG183/kintai-saas-refactored](https://github.com/KBG183/kintai-saas-refactored)<br>`In Progress / Active Refactoring` | **多層AI監査に基づく是正・リファクタリング工程（進行中）**<br>・Phase 2監査で摘発された労基法第37条の境界計算欠陥（法定休日割増・分割勤務等）の完全是正<br>・悲観的ロック階層順序統一によるデッドロック防止およびマルチテナント境界ガードの徹底<br>・別リポジトリにてリファクタリングと追加検証を継続推進中 |
+| **Phase 3: Refactoring & Convergence** | [KBG183/kintai-saas-refactored](https://github.com/KBG183/kintai-saas-refactored)<br>`In Progress / Active Refactoring` | **多層AI監査に基づく是正・リファクタリング工程（進行中）**<br>・Phase 2監査で摘発された労基法第37条の境界計算欠陥（法定休日割増・分割勤務等）の段階的是正・改修推進<br>・悲観的ロック階層順序統一によるデッドロック防止およびマルチテナント境界ガードの徹底<br>・別リポジトリにてリファクタリングと追加検証を継続推進中 |
 
 > [!NOTE]
 > **本リポジトリ（Phase 1）の位置づけについて**  
