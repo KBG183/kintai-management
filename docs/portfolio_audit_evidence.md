@@ -422,7 +422,7 @@ flowchart TD
 #### 2. 主要検出事項および解決措置
 - **ローカルHermes監査によるN+1クエリ欠陥の検出と即時解決**:
   - getModRequestsにおいて修正申請一覧取得後、各申請の休憩区間を個別にSQL呼出していた欠陥に対し、Hermes 27Bが「Code Quality: N+1 Query Problem」としてWARN警告を検出。
-  - indModBreaksByRequestIds（一括IN句クエリ）およびO(1)インメモリマッピングへ即時リファクタリングを断行し、2次再監査にて完全PASS（解消確認）を獲得。
+  - findModBreaksByRequestIds（一括IN句クエリ）およびO(1)インメモリマッピングへ即時リファクタリングを断行し、2次再監査にて完全PASS（解消確認）を獲得。
 - **勤務時間帯の重複防御（R-03 / Overlapping Detection）の実装**:
   - 申請時および承認時の両段階において、同一従業員の他勤務記録との時間帯重複（countOverlappingAttendances）を厳格に検証・遮断。
 - **給与確定衝突防御及び悲観的・楽観的並行制御（CAS UPDATE & SELECT ... FOR UPDATE）**:
@@ -1086,7 +1086,7 @@ Day 4以降の記録を追加する際は、既存の数値を上書きせず、
 |---|---|
 | **監査日時 / タイムゾーン** | `2026-11-04 13:44:08 JST (Asia/Tokyo)` |
 | **コード生成AI (Generator)** | Google Antigravity（AI開発プラットフォーム）。実際の選択モデルは未確認（Day別UI・実行ログ証跡の取得が必要） |
-| **監査スクリプト / プロンプト** | `%USERPROFILE%\.gemini\scripts\audit_with_hermes.ps1`<br>- システムプロンプトおよび点検基準仕様: [audit_prompt_spec.md](audit_prompt_spec.md) に全文分離収録<br>- 出力形式: 100% Pure English Markdown Table（構文解析一貫性確保） |
+| **監査スクリプト / プロンプト** | `%USERPROFILE%\.gemini\scripts\audit_with_hermes.ps1`<br>- システムプロンプトおよび点検基準仕様: [audit_prompt_spec.md](study_guides/audit_prompt_spec.md) に全文分離収録<br>- 出力形式: 100% Pure English Markdown Table（構文解析一貫性確保） |
 | **ローカルモデルタグ** | `qwen3.8:27b`（Ollamaローカル独自ビルドタグ） |
 | **ベースモデルおよびライセンス** | `Qwen/Qwen3.8-27B`（Denseアーキテクチャ、Apache 2.0 License） |
 | **モデルDigest / 量子化仕様** | `09cc8d22875814a35616535bfc36682380cc7e40632ded57d6fdb888567b508c`（Ollama Digestとして記録された値。`/api/tags`または`ollama show`の原本出力との照合が必要）<br>- GGUFファイル容量: 13,965,176,339 bytes（約13.97GB）<br>- 量子化方式: `IQ3_M`（GGUF）<br>- パラメータ表記: Ollama `ollama show`の27.3BとQwen公式モデルカード/ModelScopeの約27.8Bを出典別に区別。算定基準が同一か確認できないため、単一値に統合しない。 |
